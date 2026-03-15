@@ -1,6 +1,7 @@
 /**
  * GPS Running Tracker Engine
  * Handles live GPS tracking with distance, pace, splits, and route recording.
+ * Uses Wake Lock API to prevent screen from sleeping during tracking.
  */
 
 // ── Haversine distance (meters) ─────────────────────────
@@ -24,6 +25,9 @@ export class GpsTracker {
     this._pauseStart = 0;
     this._totalPaused = 0;
     this._timerRaf = null;
+    this._timerInterval = null;
+    this._wakeLock = null;
+    this._visibilityHandler = null;
 
     // Accumulated data
     this.elapsed = 0;      // seconds (excluding pauses)
@@ -75,6 +79,8 @@ export class GpsTracker {
 
     this._startGps();
     this._startTimer();
+    this._acquireWakeLock();
+    this._bindVisibility();
     return true;
   }
 
@@ -86,6 +92,7 @@ export class GpsTracker {
     this._pauseStart = performance.now();
     this._stopGps();
     this._stopTimer();
+    // Keep wake lock active during pause so user can resume easily
   }
 
   resume() {
@@ -94,6 +101,7 @@ export class GpsTracker {
     this._totalPaused += performance.now() - this._pauseStart;
     this._startGps();
     this._startTimer();
+    this._acquireWakeLock();
   }
 
   // ── Stop tracking ───────────────────────────────────────
@@ -107,6 +115,8 @@ export class GpsTracker {
 
     this._stopGps();
     this._stopTimer();
+    this._releaseWakeLock();
+    this._unbindVisibility();
     this._updateElapsed();
     this.state = 'idle';
 
@@ -133,6 +143,50 @@ export class GpsTracker {
       elevation: this._calcTotalElevation(),
       source: 'gps'
     };
+  }
+
+  // ── Wake Lock (prevents screen from sleeping) ───────────
+
+  async _acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      this._wakeLock = await navigator.wakeLock.request('screen');
+      this._wakeLock.addEventListener('release', () => {
+        this._wakeLock = null;
+      });
+    } catch (e) {
+      // Wake lock request failed (e.g. low battery, browser restriction)
+      console.warn('Wake Lock failed:', e.message);
+    }
+  }
+
+  _releaseWakeLock() {
+    if (this._wakeLock) {
+      this._wakeLock.release();
+      this._wakeLock = null;
+    }
+  }
+
+  // ── Visibility handling (re-acquire wake lock + restart GPS) ──
+
+  _bindVisibility() {
+    this._visibilityHandler = () => {
+      if (document.visibilityState === 'visible' && this.state === 'tracking') {
+        // Re-acquire wake lock (it's released when page goes hidden)
+        this._acquireWakeLock();
+        // Restart GPS watcher in case it was suspended
+        this._stopGps();
+        this._startGps();
+      }
+    };
+    document.addEventListener('visibilitychange', this._visibilityHandler);
+  }
+
+  _unbindVisibility() {
+    if (this._visibilityHandler) {
+      document.removeEventListener('visibilitychange', this._visibilityHandler);
+      this._visibilityHandler = null;
+    }
   }
 
   // ── GPS watcher ─────────────────────────────────────────
@@ -274,20 +328,23 @@ export class GpsTracker {
   }
 
   // ── Timer ───────────────────────────────────────────────
+  // Uses both RAF (smooth UI updates) and setInterval (background resilience).
+  // RAF stops when screen is off; setInterval keeps ticking in most browsers.
 
   _startTimer() {
+    // RAF for smooth visual updates when screen is on
     const tick = () => {
       this._updateElapsed();
-      this._onUpdate?.({
-        elapsed: this.elapsed,
-        distance: this.distance,
-        currentPace: this.currentPace,
-        avgPace: this.avgPace,
-        splits: this.splits
-      });
+      this._emitUpdate();
       this._timerRaf = requestAnimationFrame(tick);
     };
     this._timerRaf = requestAnimationFrame(tick);
+
+    // setInterval as fallback: keeps elapsed calculation correct even if RAF stops
+    this._timerInterval = setInterval(() => {
+      this._updateElapsed();
+      this._emitUpdate();
+    }, 1000);
   }
 
   _stopTimer() {
@@ -295,6 +352,20 @@ export class GpsTracker {
       cancelAnimationFrame(this._timerRaf);
       this._timerRaf = null;
     }
+    if (this._timerInterval) {
+      clearInterval(this._timerInterval);
+      this._timerInterval = null;
+    }
+  }
+
+  _emitUpdate() {
+    this._onUpdate?.({
+      elapsed: this.elapsed,
+      distance: this.distance,
+      currentPace: this.currentPace,
+      avgPace: this.avgPace,
+      splits: this.splits
+    });
   }
 
   _updateElapsed() {
