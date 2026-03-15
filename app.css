@@ -250,3 +250,65 @@ input.prefilled:focus{background:var(--surface);border:none}
 .prog-modal-item.active{background:rgba(0,85,255,.08);border:1px solid rgba(0,85,255,.2)}
 .prog-modal-name{font-size:.85rem;font-weight:700;color:var(--text)}
 .prog-modal-desc{font-size:.68rem;color:var(--text3);margin-top:2px}
+
+/* ── Running Section ─────────────────────────────────── */
+
+/* Sub-navigation */
+.run-subnav{display:flex;background:var(--surface2);border-radius:20px;padding:2px;gap:2px;margin-bottom:16px}
+.run-tab{flex:1;background:none;border:none;color:var(--text3);font-family:var(--font);font-size:.72rem;font-weight:600;padding:8px 4px;border-radius:18px;cursor:pointer;transition:background .2s,color .2s}
+.run-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Panels */
+.run-panel{display:none}.run-panel.active{display:block}
+
+/* Segment cards */
+.run-segment-card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:10px;border-left:4px solid var(--accent)}
+.run-seg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.run-seg-name{font-size:.82rem;font-weight:700}
+.run-seg-zone{font-size:.6rem;font-weight:700;color:#fff;padding:2px 8px;border-radius:10px}
+.run-seg-info{font-size:.72rem;color:var(--text2);margin-bottom:10px;font-weight:500}
+.run-seg-inputs{display:flex;gap:8px}
+.run-seg-inputs>div{flex:1}
+.run-seg-inputs input{padding:8px 6px;font-size:.9rem;text-align:center;border-radius:8px}
+
+/* Pace display */
+.run-pace-display{text-align:center;font-size:1.1rem;font-weight:700;color:var(--accent);margin:-4px 0 16px;display:none}
+
+/* Summary section */
+.run-summary{margin-top:8px}
+
+/* Context bar for running */
+.run-context-bar{margin-bottom:8px}
+
+/* History cards */
+.run-history-card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:8px}
+.run-hist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.run-hist-date{font-size:.72rem;color:var(--text2);font-weight:600}
+.run-hist-type{font-size:.6rem;font-weight:700;color:var(--accent);background:rgba(0,85,255,.08);padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px}
+.run-hist-session{font-size:.78rem;font-weight:700;margin-bottom:2px}
+.run-hist-details{font-size:.82rem;font-weight:600;color:var(--text)}
+.run-hist-extras{font-size:.68rem;color:var(--text2);margin-top:4px;font-weight:500}
+.run-hist-actions{display:flex;gap:6px;margin-top:10px}
+.run-hist-actions button{font-size:.68rem;padding:6px 12px}
+
+/* Weekly bar chart */
+.run-chart{min-height:160px;margin-bottom:8px}
+.run-bar-chart{display:flex;align-items:flex-end;gap:4px;height:150px;padding:0 4px}
+.run-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.run-bar-value{font-size:.55rem;font-weight:700;color:var(--text2);margin-bottom:4px}
+.run-bar{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;transition:height .3s}
+.run-bar-label{font-size:.5rem;color:var(--text3);margin-top:4px;font-weight:600}
+
+/* Pace evolution SVG chart */
+.run-pace-svg{width:100%;height:120px;display:block}
+.run-pace-labels{display:flex;justify-content:space-between;font-size:.6rem;color:var(--text2);font-weight:600;margin-top:-4px}
+.run-pace-dates{display:flex;justify-content:space-between;font-size:.55rem;color:var(--text3);margin-top:2px}
+
+/* Stats grid */
+.run-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.run-stat-card{background:var(--surface);border-radius:var(--radius);padding:14px;text-align:center}
+.run-stat-value{font-size:1.2rem;font-weight:800;color:var(--text)}
+.run-stat-label{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:600}
+
+/* Empty state */
+.empty-state{text-align:center;color:var(--text3);font-size:.78rem;padding:40px 20px;font-weight:500}

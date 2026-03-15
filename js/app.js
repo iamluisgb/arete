@@ -10,6 +10,7 @@ import { initHistory } from './ui/history.js';
 import { initBody } from './ui/body.js';
 import { initDrive, backupToDrive, restoreFromDrive, listRevisions, downloadRevision, silentBackup, syncOnLoad, onSyncStatus, isSyncing, clearStoredToken } from './drive.js';
 import { initToast, toast } from './ui/toast.js';
+import { initRunning } from './ui/running.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'barraLibreAutoSync';
@@ -183,6 +184,7 @@ function bindEvents() {
     }
   });
   initBody(db);
+  initRunning(db);
 
   // Program selector modal
   document.getElementById('programContext').addEventListener('click', () => {

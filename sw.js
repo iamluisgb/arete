@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barra-libre-v29';
+const CACHE_NAME = 'barra-libre-v30';
 const ASSETS = [
   './',
   './app.html',
@@ -19,6 +19,8 @@ const ASSETS = [
   './programs.json',
   './programs/barra-libre.json',
   './programs/kettlebell.json',
+  './programs/running/media-maraton-1h40.json',
+  './js/ui/running.js',
   './js/app.js',
   './js/data.js',
   './js/programs.js',

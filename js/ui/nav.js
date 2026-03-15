@@ -6,6 +6,7 @@ import { renderBodyForm, renderBodyHistory, calcProportions, calcCalories } from
 import { render1RMs } from './settings.js';
 import { initProgress } from './progress.js';
 import { populateSessions } from './training.js';
+import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 
@@ -27,10 +28,14 @@ export function switchTab(btn, db) {
   btn.classList.add('active');
   document.getElementById(btn.dataset.sec).classList.add('active');
   document.getElementById('timerBar').classList.toggle('active', btn.dataset.sec === 'secTrain');
+  // Hide strength context bar when on running tab
+  const contextBar = document.querySelector('.context-bar');
+  if (contextBar) contextBar.style.display = btn.dataset.sec === 'secRunning' ? 'none' : '';
   if (btn.dataset.sec === 'secHistory') { renderCalendar(db); renderHistory(db); }
   if (btn.dataset.sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
   if (btn.dataset.sec === 'secSettings') render1RMs(db);
   if (btn.dataset.sec === 'secProgress') initProgress(db);
+  if (btn.dataset.sec === 'secRunning') refreshRunning(db);
 }
 
 export function openPhaseModal() {
@@ -90,4 +95,5 @@ export function refreshActiveSection(db) {
   if (sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
   if (sec === 'secSettings') render1RMs(db);
   if (sec === 'secProgress') initProgress(db);
+  if (sec === 'secRunning') refreshRunning(db);
 }

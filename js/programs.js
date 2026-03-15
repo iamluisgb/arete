@@ -1,11 +1,13 @@
 import { saveDB } from './data.js';
 
 let ALL_PROGRAMS = {};
+let ALL_RUNNING_PROGRAMS = {};
 let BUILTIN_IDS = new Set();
 let activeProgram = 'barraLibre';
 let BODY_MEASURES = [];
 
 const VALID_MODES = new Set(['sets', 'result', 'interval', 'tabata', 'rounds', 'ladder', 'pyramid', 'amrap', 'emom', 'superset']);
+const VALID_RUN_MODES = new Set(['run-steady', 'run-intervals']);
 
 async function fetchJSON(url) {
   try {
@@ -32,12 +34,30 @@ export async function loadPrograms(db) {
     })
   );
 
-  ALL_PROGRAMS = Object.fromEntries(entries.filter(Boolean));
-  BUILTIN_IDS = new Set(Object.keys(ALL_PROGRAMS));
+  const allEntries = Object.fromEntries(entries.filter(Boolean));
+  ALL_PROGRAMS = {};
+  ALL_RUNNING_PROGRAMS = {};
+
+  // Separate strength vs running programs based on catalog sport flag or _meta.sport
+  for (const [id, data] of Object.entries(allEntries)) {
+    const catalogEntry = (index.catalog || []).find(c => c.id === id);
+    const isRunning = catalogEntry?.sport === 'running' || data._meta?.sport === 'running';
+    if (isRunning) {
+      ALL_RUNNING_PROGRAMS[id] = data;
+    } else {
+      ALL_PROGRAMS[id] = data;
+    }
+  }
+
+  BUILTIN_IDS = new Set([...Object.keys(ALL_PROGRAMS), ...Object.keys(ALL_RUNNING_PROGRAMS)]);
 
   // Load custom programs from db
   for (const cp of getCustomPrograms(db)) {
-    ALL_PROGRAMS[cp._customId] = cp;
+    if (cp._meta?.sport === 'running') {
+      ALL_RUNNING_PROGRAMS[cp._customId] = cp;
+    } else {
+      ALL_PROGRAMS[cp._customId] = cp;
+    }
   }
 }
 
@@ -97,7 +117,7 @@ export function validateProgram(data) {
       if (!Array.isArray(exercises)) return `Sesión "${sName}" de fase "${k}" no es un array`;
       for (const ex of exercises) {
         if (!ex.name) return `Un ejercicio en "${sName}" no tiene nombre`;
-        if (ex.mode && !VALID_MODES.has(ex.mode)) return `Modo "${ex.mode}" no es válido en "${ex.name}"`;
+        if (ex.mode && !VALID_MODES.has(ex.mode) && !VALID_RUN_MODES.has(ex.mode)) return `Modo "${ex.mode}" no es válido en "${ex.name}"`;
       }
     }
   }
@@ -123,8 +143,36 @@ export function deleteCustomProgram(db, id) {
   db.customPrograms = (db.customPrograms || []).filter(p => p._customId !== id);
   saveDB(db);
   delete ALL_PROGRAMS[id];
+  delete ALL_RUNNING_PROGRAMS[id];
 
   if (activeProgram === id) {
     activeProgram = 'barraLibre';
   }
+}
+
+// ── Running programs ────────────────────────────────────
+
+/** @returns {Array<{id:string, name:string, desc:string}>} All running programs */
+export function getRunningProgramList() {
+  return Object.entries(ALL_RUNNING_PROGRAMS).map(([id, p]) => ({
+    id, name: p._meta?.name || id, desc: p._meta?.desc || ''
+  }));
+}
+
+/** @returns {Object|null} Running program data by ID */
+export function getRunningProgram(id) {
+  return ALL_RUNNING_PROGRAMS[id] || null;
+}
+
+/** @returns {Object} Phases (weeks) for a running program, excluding _meta/_customId */
+export function getRunningPhases(programId) {
+  const prog = ALL_RUNNING_PROGRAMS[programId];
+  if (!prog) return {};
+  const { _meta, _customId, ...phases } = prog;
+  return phases;
+}
+
+/** Validate running-specific modes in a program */
+export function isValidRunMode(mode) {
+  return VALID_RUN_MODES.has(mode);
 }

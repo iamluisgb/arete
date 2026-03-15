@@ -202,6 +202,74 @@
     <button class="btn pr-confirm-btn">¡Vamos! 💪</button>
   </div>
 </div>
+<div class="section" id="secRunning">
+  <div class="run-subnav" id="runSubnav">
+    <button class="run-tab active" data-run="runTrain">Entrenar</button>
+    <button class="run-tab" data-run="runHistory">Historial</button>
+    <button class="run-tab" data-run="runProgress">Progreso</button>
+  </div>
+
+  <div class="run-panel active" id="runTrain">
+    <div class="run-context-bar" id="runContextBar">
+      <div class="row mb">
+        <div><label>Semana</label><select id="runWeekSelect"></select></div>
+        <div><label>Sesion</label><select id="runSessionSelect"></select></div>
+      </div>
+    </div>
+    <div id="runSegments"></div>
+    <div class="run-summary">
+      <div class="sec-title sec-title-accent">Resumen</div>
+      <div class="row mb">
+        <div><label>Fecha</label><input type="date" id="runDate"></div>
+        <div><label>Tipo</label><select id="runType">
+          <option value="intervalos">Intervalos</option>
+          <option value="rodaje">Rodaje</option>
+          <option value="tempo">Tempo</option>
+          <option value="fartlek">Fartlek</option>
+          <option value="cuestas">Cuestas</option>
+          <option value="competicion">Competicion</option>
+          <option value="libre">Libre</option>
+        </select></div>
+      </div>
+      <div class="row mb">
+        <div><label>Distancia (km)</label><input type="number" id="runDistance" step="0.1" min="0" placeholder="0.0" inputmode="decimal"></div>
+        <div><label>Duracion (mm:ss)</label><input type="text" id="runDuration" placeholder="32:15" inputmode="numeric"></div>
+      </div>
+      <div class="run-pace-display" id="runPaceDisplay"></div>
+      <div class="row mb">
+        <div><label>FC media (bpm)</label><input type="number" id="runHr" min="0" max="250" placeholder="—" inputmode="numeric"></div>
+        <div><label>Desnivel (m)</label><input type="number" id="runElevation" min="0" placeholder="—" inputmode="numeric"></div>
+        <div><label>Cadencia (ppm)</label><input type="number" id="runCadence" min="0" max="300" placeholder="—" inputmode="numeric"></div>
+      </div>
+      <div class="mb"><label>Notas</label><textarea id="runNotes" placeholder="Sensaciones, terreno, ajustes..."></textarea></div>
+      <div id="runEditBanner" style="display:none">
+        <div id="runEditText"></div>
+        <button class="prefill-clear run-edit-cancel">✕ Cancelar</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn mb" id="runSaveBtn" style="flex:1">Guardar sesion</button>
+        <button class="btn btn-danger mb" id="runDeleteBtn" style="display:none">Borrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="run-panel" id="runHistory">
+    <div class="mb history-filter-wrap"><label>Filtrar por tipo</label><select id="runHistoryFilter"><option value="">Todas</option>
+      <option value="intervalos">Intervalos</option><option value="rodaje">Rodaje</option><option value="tempo">Tempo</option>
+      <option value="fartlek">Fartlek</option><option value="cuestas">Cuestas</option><option value="competicion">Competicion</option><option value="libre">Libre</option>
+    </select></div>
+    <div id="runHistoryList"></div>
+  </div>
+
+  <div class="run-panel" id="runProgress">
+    <div class="sec-title sec-title-accent">Km semanales</div>
+    <div id="runWeeklyChart" class="run-chart"></div>
+    <div class="sec-title sec-title-accent sec-title-mt">Evolucion del ritmo</div>
+    <div id="runPaceChart" class="run-chart"></div>
+    <div class="sec-title sec-title-accent sec-title-mt">Resumen</div>
+    <div id="runStatsPanel"></div>
+  </div>
+</div>
 <div class="section" id="secProgress">
   <div class="progress-select-wrap">
     <label class="progress-label">Ejercicio</label>
@@ -214,6 +282,7 @@
 <nav>
   <button class="active" data-sec="secTrain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M4 17.5H2V15l3-3h14l3 3v2.5h-2M9 14.5V6M9 6l6 2v6.5"/></svg><span>Entreno</span></button>
   <button data-sec="secHistory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>Historial</span></button>
+  <button data-sec="secRunning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="4" r="2"/><path d="M13 7l-1.5 7.5L15 12l3 3.5"/><path d="M8 14l-2 8"/><path d="M11.5 14.5L9 20"/><path d="M7 7l4 0"/></svg><span>Running</span></button>
   <button data-sec="secProgress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 20h18M6 16l4-4 4 4 4-8"/><circle cx="6" cy="16" r="1"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="16" r="1"/><circle cx="18" cy="8" r="1"/></svg><span>Progreso</span></button>
   <button data-sec="secBody"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4zM8 10v4l-3 8M16 10v4l3 8M10 14h4"/></svg><span>Cuerpo</span></button>
   <button data-sec="secSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg><span>Más</span></button>
