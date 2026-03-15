@@ -109,6 +109,7 @@ let detailMap = null;
 // Run type state
 let activeRunType = 'libre';
 let activeSegments = null;   // segments from plan session (guided mode)
+let activePlanSession = '';  // session name from plan (for summary pre-fill)
 let targetDistance = 0;       // for competicion mode
 let intervalState = null;     // { rep, totalReps, isWork, segIdx, phaseStartDist, phaseStartTime, countdownStarted }
 let sessionState = null;      // { currentIdx, segStartTime, segStartDist, segDurations, completed, countdownFired }
@@ -482,6 +483,13 @@ function stopGpsRun(db) {
   // Populate session select for linking to plan
   populateSumSessionSelect(db);
 
+  // Pre-fill session from plan if started from plan tab
+  if (activePlanSession) {
+    const $sel = document.getElementById('runSumSession');
+    const match = Array.from($sel.options).find(o => o.value === activePlanSession);
+    if (match) $sel.value = activePlanSession;
+  }
+
   // Pre-fill run type from picker
   document.getElementById('runSumType').value = activeRunType;
 
@@ -537,6 +545,7 @@ function closeLiveOverlay() {
   if (summaryMap) { summaryMap.remove(); summaryMap = null; }
   // Reset type state
   activeSegments = null;
+  activePlanSession = '';
   intervalState = null;
   sessionState = null;
   targetDistance = 0;
@@ -1531,6 +1540,7 @@ function loadRunSessionTemplate(db) {
   document.getElementById('runSegStartBtn').addEventListener('click', () => {
     activeSegments = segs;
     activeRunType = inferRunType(segs);
+    activePlanSession = $sessionSelect.value || '';
     startGpsRun(db);
   });
 }
