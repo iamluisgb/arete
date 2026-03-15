@@ -1318,11 +1318,18 @@ function closeRunDetail() {
 
 async function shareRunCard() {
   const card = document.getElementById('runShareCard');
+  const mapEl = document.getElementById('runDetailMap');
+  // Hide map during capture — html2canvas can't render Leaflet tiles
+  const mapDisplay = mapEl.style.display;
+  mapEl.style.display = 'none';
   try {
-    const canvas = await html2canvas(card, { backgroundColor: null, scale: 3, useCORS: true, logging: false });
+    const canvas = await html2canvas(card, { backgroundColor: '#f0f2f8', scale: 3, useCORS: true, logging: false });
+    mapEl.style.display = mapDisplay;
     canvas.toBlob(async blob => {
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'run.png', { type: 'image/png' })] })) {
-        await navigator.share({ files: [new File([blob], 'run.png', { type: 'image/png' })], title: 'Mi carrera — Barra Libre' });
+      if (!blob) { toast('Error al generar imagen', 'error'); return; }
+      const file = new File([blob], 'run.png', { type: 'image/png' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Mi carrera — Barra Libre' });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1330,7 +1337,10 @@ async function shareRunCard() {
         a.click(); URL.revokeObjectURL(url);
       }
     }, 'image/png');
-  } catch (e) { toast('Error al generar imagen', 'error'); }
+  } catch (e) {
+    mapEl.style.display = mapDisplay;
+    toast('Error al generar imagen', 'error');
+  }
 }
 
 // ── Goal ─────────────────────────────────────────────────
