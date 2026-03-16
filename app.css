@@ -431,6 +431,13 @@ input.prefilled:focus{background:var(--surface);border:none}
 /* Wake lock toggle (screen on) */
 .run-lock-btn.wake-active{background:var(--accent);color:#fff}
 
+/* Auto-pause toggle */
+.run-autopause-btn.active{background:var(--green);color:#fff}
+
+/* Timer blink on auto-pause */
+.run-live-timer.auto-paused{animation:autopause-blink 1.2s ease-in-out infinite}
+@keyframes autopause-blink{0%,100%{opacity:1}50%{opacity:.3}}
+
 /* ── Run type picker modal ───────────────────────────── */
 .run-type-picker{max-width:400px}
 .run-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}

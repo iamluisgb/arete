@@ -33,6 +33,14 @@ export class GpsTracker {
     this._wakeLockEnabled = false; // opt-in: user toggles this
     this._visibilityHandler = null;
 
+    // Auto-pause
+    this._autoPauseEnabled = true;  // on by default
+    this._autoPaused = false;
+    this._autoPauseStart = 0;       // performance.now() when auto-paused
+    this._totalAutoPaused = 0;      // ms accumulated in auto-pause
+    this._stillSince = 0;           // timestamp when speed first dropped below threshold
+    this._onAutoPause = null;
+
     // Accumulated data
     this.elapsed = 0;      // seconds (excluding pauses)
     this.distance = 0;     // km
@@ -53,9 +61,22 @@ export class GpsTracker {
     this._onError = null;
   }
 
-  onUpdate(cb)  { this._onUpdate = cb; }
-  onSplit(cb)   { this._onSplit = cb; }
-  onError(cb)   { this._onError = cb; }
+  onUpdate(cb)     { this._onUpdate = cb; }
+  onSplit(cb)      { this._onSplit = cb; }
+  onError(cb)      { this._onError = cb; }
+  onAutoPause(cb)  { this._onAutoPause = cb; }
+
+  get autoPauseEnabled() { return this._autoPauseEnabled; }
+  get isAutoPaused() { return this._autoPaused; }
+
+  toggleAutoPause() {
+    this._autoPauseEnabled = !this._autoPauseEnabled;
+    // If disabling while auto-paused, resume immediately
+    if (!this._autoPauseEnabled && this._autoPaused) {
+      this._autoResume();
+    }
+    return this._autoPauseEnabled;
+  }
 
   // ── Start tracking ──────────────────────────────────────
 
@@ -70,6 +91,10 @@ export class GpsTracker {
     this.state = 'tracking';
     this._startTime = performance.now();
     this._totalPaused = 0;
+    this._autoPaused = false;
+    this._autoPauseStart = 0;
+    this._totalAutoPaused = 0;
+    this._stillSince = 0;
     this.elapsed = 0;
     this.distance = 0;
     this.currentPace = 0;
@@ -95,6 +120,12 @@ export class GpsTracker {
 
   pause() {
     if (this.state !== 'tracking') return;
+    // Settle any active auto-pause into the total
+    if (this._autoPaused) {
+      this._totalAutoPaused += performance.now() - this._autoPauseStart;
+      this._autoPaused = false;
+      this._autoPauseStart = 0;
+    }
     this.state = 'paused';
     this._pauseStart = performance.now();
     this._stopGps();
@@ -173,6 +204,8 @@ export class GpsTracker {
       lastSplitTime: this._lastSplitTime,
       recentPoints: this._recentPoints,
       wakeLockEnabled: this._wakeLockEnabled,
+      autoPauseEnabled: this._autoPauseEnabled,
+      totalAutoPaused: this._totalAutoPaused + (this._autoPaused ? performance.now() - this._autoPauseStart : 0),
       // Wall-clock anchor: convert performance.now() to Date.now() for cross-reload
       wallClockAnchor: Date.now(),
       perfNowAnchor: performance.now(),
@@ -201,6 +234,11 @@ export class GpsTracker {
     this._lastSplitTime = snap.lastSplitTime;
     this._recentPoints = snap.recentPoints || [];
     this._wakeLockEnabled = snap.wakeLockEnabled ?? true;
+    this._autoPauseEnabled = snap.autoPauseEnabled ?? true;
+    this._totalAutoPaused = snap.totalAutoPaused || 0;
+    this._autoPaused = false;
+    this._autoPauseStart = 0;
+    this._stillSince = 0;
 
     // If was tracking, resume GPS + timer
     if (this.state === 'tracking') {
@@ -332,13 +370,44 @@ export class GpsTracker {
     if (this.state !== 'tracking') return;
     this._lastGpsTime = Date.now();
 
-    const { latitude: lat, longitude: lng, altitude: alt, accuracy } = pos.coords;
+    const { latitude: lat, longitude: lng, altitude: alt, accuracy, speed } = pos.coords;
     const ts = pos.timestamp;
 
     // Filter out inaccurate readings
     if (accuracy > 30) return;
 
     const point = [lat, lng, alt || 0, ts];
+
+    // ── Auto-pause detection ──────────────────────────────
+    if (this._autoPauseEnabled && this._lastPos) {
+      const d = haversine(this._lastPos[0], this._lastPos[1], lat, lng);
+      // Use GPS speed if available, otherwise estimate from distance
+      const isStill = (speed !== null && speed >= 0)
+        ? speed < 0.5   // < 0.5 m/s ≈ 1.8 km/h
+        : d < 2;        // < 2m movement
+
+      if (isStill) {
+        if (!this._stillSince) this._stillSince = ts;
+        if (!this._autoPaused && ts - this._stillSince > 5000) {
+          this._autoPauseAt();
+        }
+        if (this._autoPaused) {
+          // Still paused — just emit update with autoPaused flag, don't accumulate distance
+          this._updateElapsed();
+          this._onUpdate?.({
+            elapsed: this.elapsed, distance: this.distance,
+            currentPace: this.currentPace, avgPace: this.avgPace,
+            lat, lng, splits: this.splits, autoPaused: true
+          });
+          return;
+        }
+      } else {
+        this._stillSince = 0;
+        if (this._autoPaused) this._autoResume();
+      }
+    }
+
+    // ── Normal tracking ───────────────────────────────────
     this.coords.push(point);
 
     if (this._lastPos) {
@@ -379,8 +448,27 @@ export class GpsTracker {
       currentPace: this.currentPace,
       avgPace: this.avgPace,
       lat, lng,
-      splits: this.splits
+      splits: this.splits,
+      autoPaused: false
     });
+  }
+
+  // ── Auto-pause internals ──────────────────────────────
+
+  _autoPauseAt() {
+    this._autoPaused = true;
+    this._autoPauseStart = performance.now();
+    this._onAutoPause?.(true);
+  }
+
+  _autoResume() {
+    if (!this._autoPaused) return;
+    this._totalAutoPaused += performance.now() - this._autoPauseStart;
+    this._autoPaused = false;
+    this._autoPauseStart = 0;
+    this._stillSince = 0;
+    this._recentPoints = []; // reset pace window after pause
+    this._onAutoPause?.(false);
   }
 
   // ── Pace calculation ────────────────────────────────────
@@ -484,10 +572,12 @@ export class GpsTracker {
   }
 
   _updateElapsed() {
+    const autoPauseNow = this._autoPaused ? performance.now() - this._autoPauseStart : 0;
+    const totalAuto = this._totalAutoPaused + autoPauseNow;
     if (this.state === 'tracking') {
-      this.elapsed = (performance.now() - this._startTime - this._totalPaused) / 1000;
+      this.elapsed = (performance.now() - this._startTime - this._totalPaused - totalAuto) / 1000;
     } else if (this.state === 'paused') {
-      this.elapsed = (this._pauseStart - this._startTime - this._totalPaused) / 1000;
+      this.elapsed = (this._pauseStart - this._startTime - this._totalPaused - totalAuto) / 1000;
     }
   }
 }

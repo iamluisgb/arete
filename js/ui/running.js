@@ -82,7 +82,7 @@ let sessionState = null;      // { currentIdx, segStartTime, segStartDist, segDu
 
 let $overlay, $liveScreen, $summaryScreen;
 let $liveTimer, $liveDist, $livePace, $liveSplits, $liveMap, $liveStatus;
-let $pauseBtn, $stopBtn, $lockBtn;
+let $pauseBtn, $stopBtn, $lockBtn, $autoPauseBtn;
 let $goalCard, $goalBody, $goalArc, $goalCurrent, $goalUnit, $goalTarget, $goalSessions;
 let $prsGrid;
 let $weekSelect, $sessionSelect, $segments;
@@ -103,6 +103,7 @@ function cacheSelectors() {
   $pauseBtn = document.getElementById('runPauseBtn');
   $stopBtn = document.getElementById('runStopBtn');
   $lockBtn = document.getElementById('runLockBtn');
+  $autoPauseBtn = document.getElementById('runAutoPauseBtn');
   $goalCard = document.getElementById('runGoalCard');
   $goalBody = document.getElementById('runGoalBody');
   $goalArc = document.getElementById('runGoalArc');
@@ -175,6 +176,7 @@ export function initRunning(db) {
   $pauseBtn.addEventListener('click', () => togglePause());
   $stopBtn.addEventListener('click', () => stopGpsRun(db));
   $lockBtn.addEventListener('click', () => toggleLock());
+  $autoPauseBtn.addEventListener('click', () => toggleAutoPause());
 
   // Post-run summary
   document.getElementById('runSumSaveBtn').addEventListener('click', () => saveGpsRun(db));
@@ -301,6 +303,17 @@ export function initRunning(db) {
     toast(msg, 'error');
     if (tracker.state === 'idle') closeLiveOverlay();
   });
+  tracker.onAutoPause(paused => {
+    if (paused) {
+      $liveStatus.textContent = 'AUTO-PAUSA';
+      $liveStatus.classList.add('paused');
+      vibrate([100, 50, 100]);
+    } else {
+      $liveStatus.textContent = 'EN CURSO';
+      $liveStatus.classList.remove('paused');
+      vibrate([100]);
+    }
+  });
 
   // Check for a previously interrupted run
   checkAndRestoreRun(db);
@@ -373,6 +386,7 @@ function restoreRun(snap, db) {
   }
 
   $lockBtn.classList.toggle('wake-active', tracker.wakeLockActive);
+  $autoPauseBtn.classList.toggle('active', tracker.autoPauseEnabled);
 
   // Set type badge
   const meta = RUN_TYPE_META[activeRunType];
@@ -534,6 +548,13 @@ async function toggleLock() {
   $lockBtn.title = screenOn ? 'Pantalla encendida' : 'Pantalla puede apagarse';
 }
 
+function toggleAutoPause() {
+  const enabled = tracker.toggleAutoPause();
+  $autoPauseBtn.classList.toggle('active', enabled);
+  $autoPauseBtn.title = enabled ? 'Auto-pausa activada' : 'Auto-pausa desactivada';
+  toast(enabled ? 'Auto-pausa activada' : 'Auto-pausa desactivada');
+}
+
 function stopGpsRun(db) {
   clearActiveRun();
   const result = tracker.stop();
@@ -651,6 +672,7 @@ function closeLiveOverlay() {
 
 function updateLiveUI(data) {
   $liveTimer.textContent = formatRunDuration(Math.floor(data.elapsed));
+  $liveTimer.classList.toggle('auto-paused', !!data.autoPaused);
   $liveDist.textContent = data.distance.toFixed(2);
   $livePace.textContent = data.currentPace > 60 && data.currentPace < 1200
     ? formatPace(data.currentPace) : (data.avgPace > 0 ? formatPace(data.avgPace) : '--:--');
