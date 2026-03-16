@@ -452,7 +452,19 @@ input.prefilled:focus{background:var(--surface);border:none}
 .run-hr-btn.connecting{animation:hr-pulse 1s ease-in-out infinite}
 @keyframes hr-pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .run-live-hr .run-live-metric-value{transition:color .3s;font-variant-numeric:tabular-nums}
+.run-live-hr .run-live-metric-label{transition:color .3s;font-variant-numeric:tabular-nums}
 .run-type-hr-btn.hr-connected{border-color:var(--green);color:var(--green)}
+
+/* HR detail section */
+.run-detail-hr-section{margin-top:12px}
+.run-detail-hr-title{font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:12px}
+.run-detail-hr-graph{background:var(--surface2);border-radius:8px;padding:8px;overflow:hidden}
+.hr-zone-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.hr-zone-bar-label{font-size:.7rem;font-weight:700;width:20px;text-align:center}
+.hr-zone-bar-track{flex:1;height:14px;background:var(--surface2);border-radius:7px;overflow:hidden}
+.hr-zone-bar-fill{height:100%;border-radius:7px;transition:width .3s}
+.hr-zone-bar-time{font-size:.7rem;font-weight:600;color:var(--text);width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.hr-zone-bar-pct{font-size:.65rem;color:var(--text3);width:28px;text-align:right}
 
 /* ── Run type picker modal ───────────────────────────── */
 .run-type-picker{max-width:400px}

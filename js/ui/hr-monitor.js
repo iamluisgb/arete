@@ -22,6 +22,8 @@ export class HRMonitor {
   get hrMax() { return this._hrMax; }
   get sampleCount() { return this._sampleCount; }
   get deviceName() { return this._device?.name || ''; }
+  get timeSeries() { return this._timeSeries; }
+  get zoneTimes() { return { ...this._zoneTimes }; }
 
   set onUpdate(fn) { this._onUpdate = fn; }
   set onStateChange(fn) { this._onStateChange = fn; }
@@ -35,6 +37,12 @@ export class HRMonitor {
     this._hrMax = 0;
     this._sampleCount = 0;
     this._currentZone = null;
+    // Time-series: 1 sample per 5 seconds (max ~720/hour ≈ 2KB)
+    this._timeSeries = [];      // [hr, hr, hr, ...] at 5s intervals
+    this._lastSeriesTime = 0;
+    // Zone time tracking (seconds in each zone)
+    this._zoneTimes = { Z1: 0, Z2: 0, Z3: 0, Z4: 0, Z5: 0 };
+    this._zoneEnteredAt = 0;
   }
 
   async requestConnection() {
@@ -57,6 +65,8 @@ export class HRMonitor {
 
   disconnect() {
     this._reconnecting = false;
+    // Settle zone time before disconnecting
+    this._settleZoneTime();
     if (this._char) {
       try { this._char.stopNotifications(); } catch { /* ignore */ }
       this._char.removeEventListener('characteristicvaluechanged', this._onCharChanged);
@@ -69,11 +79,15 @@ export class HRMonitor {
   }
 
   serialize() {
+    this._settleZoneTime();
     return {
       hrAvg: this._hrAvg,
       hrMax: this._hrMax,
       sampleCount: this._sampleCount,
       deviceName: this.deviceName,
+      timeSeries: this._timeSeries,
+      zoneTimes: { ...this._zoneTimes },
+      lastSeriesTime: this._lastSeriesTime,
     };
   }
 
@@ -82,6 +96,9 @@ export class HRMonitor {
     this._hrAvg = snap.hrAvg || 0;
     this._hrMax = snap.hrMax || 0;
     this._sampleCount = snap.sampleCount || 0;
+    this._timeSeries = snap.timeSeries || [];
+    this._zoneTimes = snap.zoneTimes || { Z1: 0, Z2: 0, Z3: 0, Z4: 0, Z5: 0 };
+    this._lastSeriesTime = snap.lastSeriesTime || 0;
   }
 
   // ── Internal ───────────────────────────────────────────
@@ -104,21 +121,42 @@ export class HRMonitor {
 
     if (hr <= 0 || hr > 250) return; // sanity check
 
+    const now = Date.now();
     this._hr = hr;
     this._sampleCount++;
     this._hrAvg = this._hrAvg + (hr - this._hrAvg) / this._sampleCount;
     if (hr > this._hrMax) this._hrMax = hr;
 
-    // Zone detection
+    // Time-series: record 1 sample every 5 seconds
+    if (now - this._lastSeriesTime >= 5000) {
+      this._timeSeries.push(hr);
+      this._lastSeriesTime = now;
+    }
+
+    // Zone detection + zone time tracking
     const zone = this._estimateZone(hr);
     if (zone !== this._currentZone) {
+      this._settleZoneTime();
       const prev = this._currentZone;
       this._currentZone = zone;
+      this._zoneEnteredAt = now;
       if (prev !== null && this._onZoneChange) this._onZoneChange(zone, prev);
     }
 
     if (this._onUpdate) {
-      this._onUpdate({ hr, hrAvg: this._hrAvg, hrMax: this._hrMax, zone });
+      this._onUpdate({
+        hr, hrAvg: this._hrAvg, hrMax: this._hrMax, zone,
+        zoneTimes: this._zoneTimes, zoneEnteredAt: this._zoneEnteredAt,
+      });
+    }
+  }
+
+  /** Flush elapsed time in current zone into _zoneTimes */
+  _settleZoneTime() {
+    if (this._currentZone && this._zoneEnteredAt > 0) {
+      const elapsed = (Date.now() - this._zoneEnteredAt) / 1000;
+      this._zoneTimes[this._currentZone] = (this._zoneTimes[this._currentZone] || 0) + elapsed;
+      this._zoneEnteredAt = Date.now();
     }
   }
 
@@ -131,6 +169,7 @@ export class HRMonitor {
   }
 
   _onDisconnected() {
+    this._settleZoneTime();
     this._char = null;
     this._setState('disconnected');
     // Auto-reconnect (no user gesture needed for previously paired device)

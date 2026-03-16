@@ -148,6 +148,15 @@ export function initRunning(db) {
       $hrMetric.style.display = '';
       $hrValue.textContent = data.hr;
       $hrValue.style.color = ZONE_COLORS[data.zone] || 'var(--text)';
+      // Show zone + time in zone as label
+      const zoneElapsed = data.zoneEnteredAt > 0 ? Math.floor((Date.now() - data.zoneEnteredAt) / 1000) : 0;
+      const zLabel = document.getElementById('runLiveHrLabel');
+      if (zLabel) {
+        const m = Math.floor(zoneElapsed / 60);
+        const s = zoneElapsed % 60;
+        zLabel.textContent = `${data.zone} · ${m}:${String(s).padStart(2, '0')}`;
+        zLabel.style.color = ZONE_COLORS[data.zone] || '';
+      }
     }
     // Accumulate per-split HR
     _splitHrSum += data.hr;
@@ -647,6 +656,14 @@ function stopGpsRun(db) {
   // Render splits
   renderSplitsUI(document.getElementById('runSumSplits'), result.splits);
 
+  // Render HR zone bars in summary (if HR data exists)
+  const $sumHrZones = document.getElementById('runSumHrZones');
+  if (hrMonitor.sampleCount > 0) {
+    renderZoneBars($sumHrZones, hrMonitor.zoneTimes);
+  } else {
+    $sumHrZones.innerHTML = '';
+  }
+
   // Render summary map
   renderSummaryMap(result.route?.coords);
 
@@ -684,6 +701,8 @@ function saveGpsRun(db) {
     pace: result.pace || 0,
     hr: hrMonitor.hrAvg > 0 ? Math.round(hrMonitor.hrAvg) : null,
     hrMax: hrMonitor.hrMax > 0 ? hrMonitor.hrMax : null,
+    hrTimeSeries: hrMonitor.timeSeries.length > 0 ? hrMonitor.timeSeries : null,
+    hrZoneTimes: hrMonitor.sampleCount > 0 ? hrMonitor.zoneTimes : null,
     elevation: result.elevation || null,
     cadence: null,
     splits: result.splits || [],
@@ -1247,6 +1266,84 @@ function renderSplitsUI(container, splits) {
   }).join('');
 }
 
+// ── HR Graph & Zone Bars ─────────────────────────────────
+
+function renderHRGraph(container, timeSeries, db) {
+  if (!timeSeries || timeSeries.length < 2) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const zones = getHRZones(db);
+  const w = container.clientWidth || 300;
+  const h = 100;
+  const minHR = Math.max(Math.min(...timeSeries) - 10, 40);
+  const maxHR = Math.min(Math.max(...timeSeries) + 10, 220);
+  const range = maxHR - minHR || 1;
+  const pad = 2;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="display:block">`;
+
+  // Zone background bands
+  for (const z of zones) {
+    const zMin = Math.max(z.min, minHR);
+    const zMax = z.max !== undefined ? Math.min(z.max, maxHR) : maxHR;
+    if (zMin >= maxHR || zMax <= minHR) continue;
+    const y1 = h - pad - ((zMax - minHR) / range) * (h - 2 * pad);
+    const y2 = h - pad - ((zMin - minHR) / range) * (h - 2 * pad);
+    svg += `<rect x="0" y="${y1}" width="${w}" height="${Math.max(y2 - y1, 0)}" fill="${ZONE_COLORS[z.zone]}" opacity="0.1"/>`;
+  }
+
+  // HR line
+  const step = (w - 2 * pad) / (timeSeries.length - 1);
+  const points = timeSeries.map((hr, i) => {
+    const x = pad + i * step;
+    const y = h - pad - ((hr - minHR) / range) * (h - 2 * pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+
+  // Gradient fill under the line
+  svg += `<polyline points="${points.join(' ')},${(pad + (timeSeries.length - 1) * step).toFixed(1)},${h} ${pad},${h}" fill="var(--red)" opacity="0.15" stroke="none"/>`;
+  svg += `<polyline points="${points.join(' ')}" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linejoin="round"/>`;
+
+  // Y-axis labels
+  svg += `<text x="4" y="12" font-size="9" fill="var(--text3)">${maxHR}</text>`;
+  svg += `<text x="4" y="${h - 4}" font-size="9" fill="var(--text3)">${minHR}</text>`;
+
+  svg += '</svg>';
+  container.innerHTML = `<div class="run-detail-hr-title">Frecuencia cardiaca</div>${svg}`;
+}
+
+function renderZoneBars(container, zoneTimes) {
+  if (!zoneTimes) { container.innerHTML = ''; return; }
+
+  const total = Object.values(zoneTimes).reduce((s, t) => s + t, 0);
+  if (total <= 0) { container.innerHTML = ''; return; }
+
+  const zones = ['Z5', 'Z4', 'Z3', 'Z2', 'Z1']; // highest first
+  const fmtTime = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.round(sec % 60);
+    return m > 0 ? `${m}:${String(s).padStart(2, '0')}` : `${s}s`;
+  };
+
+  const bars = zones.map(z => {
+    const sec = zoneTimes[z] || 0;
+    const pct = (sec / total * 100).toFixed(1);
+    if (sec < 1) return '';
+    return `<div class="hr-zone-bar-row">
+      <span class="hr-zone-bar-label" style="color:${ZONE_COLORS[z]}">${z}</span>
+      <div class="hr-zone-bar-track">
+        <div class="hr-zone-bar-fill" style="width:${Math.max(pct, 2)}%;background:${ZONE_COLORS[z]}"></div>
+      </div>
+      <span class="hr-zone-bar-time">${fmtTime(sec)}</span>
+      <span class="hr-zone-bar-pct">${Math.round(pct)}%</span>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  container.innerHTML = `<div class="run-detail-hr-title">Tiempo en zona</div>${bars}`;
+}
+
 // ── Manual entry modal ───────────────────────────────────
 
 function openManualModal(db) {
@@ -1458,6 +1555,16 @@ function openRunDetail(id, db) {
     renderSplitsUI(splitsDiv, log.splits);
   } else {
     splitsContainer.innerHTML = '';
+  }
+
+  // HR section (graph + zone bars)
+  const hrSection = document.getElementById('runDetailHrSection');
+  if (log.hrTimeSeries?.length || log.hrZoneTimes) {
+    hrSection.style.display = '';
+    renderHRGraph(document.getElementById('runDetailHrGraph'), log.hrTimeSeries, db);
+    renderZoneBars(document.getElementById('runDetailZoneBars'), log.hrZoneTimes);
+  } else {
+    hrSection.style.display = 'none';
   }
 
   // Notes
