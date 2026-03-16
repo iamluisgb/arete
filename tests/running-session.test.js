@@ -1,5 +1,39 @@
 import { describe, it, expect } from 'vitest';
 import { parseSegDuration, segModeToRunType } from '../js/ui/running.js';
+import { parseSegDistance } from '../js/ui/running-helpers.js';
+
+// ── parseSegDistance ──────────────────────────────────────
+
+describe('parseSegDistance', () => {
+  it('parses meters', () => {
+    expect(parseSegDistance('200m')).toBeCloseTo(0.2);
+    expect(parseSegDistance('400m')).toBeCloseTo(0.4);
+    expect(parseSegDistance('1000m')).toBeCloseTo(1.0);
+  });
+
+  it('parses kilometers', () => {
+    expect(parseSegDistance('1km')).toBe(1);
+    expect(parseSegDistance('5km')).toBe(5);
+    expect(parseSegDistance('2.5km')).toBe(2.5);
+  });
+
+  it('parses distance with trailing text (e.g. "200m trote")', () => {
+    expect(parseSegDistance('200m trote')).toBeCloseTo(0.2);
+    expect(parseSegDistance('100m suave')).toBeCloseTo(0.1);
+    expect(parseSegDistance('1km fácil')).toBe(1);
+  });
+
+  it('returns 0 for empty/null/undefined', () => {
+    expect(parseSegDistance('')).toBe(0);
+    expect(parseSegDistance(null)).toBe(0);
+    expect(parseSegDistance(undefined)).toBe(0);
+  });
+
+  it('returns 0 for text without distance', () => {
+    expect(parseSegDistance('trote')).toBe(0);
+    expect(parseSegDistance('—')).toBe(0);
+  });
+});
 
 // ── parseSegDuration ─────────────────────────────────────
 

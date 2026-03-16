@@ -60,11 +60,11 @@ export function estimateZone(pace) {
 
 export function parseSegDistance(str) {
   if (!str) return 0;
-  const m = String(str).match(/^([\d.]+)\s*(km|m)?$/i);
+  const m = String(str).match(/([\d.]+)\s*(km|m)/i);
   if (!m) return 0;
   const val = parseFloat(m[1]);
   if (isNaN(val)) return 0;
-  return m[2] === 'km' ? val : val / 1000;
+  return m[2].toLowerCase() === 'km' ? val : val / 1000;
 }
 
 export function parseSegDuration(str) {
