@@ -164,7 +164,19 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 #detailDate{font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent)}
 #detailSession{font-weight:800;letter-spacing:-.02em;color:var(--text);margin-top:2px}
 #detailPhase{font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:rgba(0,85,255,.1);color:var(--accent);padding:4px 10px;border-radius:10px}
-#detailExercises{display:flex;flex-direction:column}
+#detailExercises{display:flex;flex-direction:column;gap:10px}
+.detail-ex-name{font-size:.88rem;font-weight:700;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.detail-ex-accent{width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block}
+.detail-pr-tag{font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:4px}
+.detail-sets{display:flex;flex-direction:column;gap:4px;align-items:center}
+.detail-set-row{display:flex;align-items:center;justify-content:center;gap:10px;font-size:.9rem}
+.detail-set-num{color:var(--text3);font-weight:600;width:22px;text-align:right}
+.detail-set-kg{color:var(--text);font-weight:600;min-width:52px;text-align:right}
+.detail-set-reps{color:var(--text2)}
+.detail-set-single{font-size:.85rem;color:var(--text);text-align:center;font-weight:600}
+.detail-stat{flex:1;text-align:center}
+.detail-stat-value{font-size:1.4rem;font-weight:800;color:var(--text);letter-spacing:-.02em}
+.detail-stat-label{font-size:.65rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 #detailNotes{display:none;padding-top:10px;border-top:.5px solid var(--border);color:var(--text2);font-style:italic;text-align:center}
 #detailStats{display:flex;gap:0;padding-top:12px;border-top:.5px solid var(--border)}
 .share-footer{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px;padding-top:8px;border-top:.5px solid rgba(0,0,0,.04)}
