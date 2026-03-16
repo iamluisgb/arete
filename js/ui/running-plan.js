@@ -1,7 +1,7 @@
 import { esc } from '../utils.js';
 import { getRunningProgramList, getRunningPhases } from '../programs.js';
 import { saveDB } from '../data.js';
-import { ZONE_COLORS, ZONE_LABELS } from './running-helpers.js';
+import { ZONE_COLORS, ZONE_LABELS, parseSegDistance, parseSegDuration } from './running-helpers.js';
 
 // ── Plan tab (programs) ──────────────────────────────────
 
@@ -47,6 +47,29 @@ export function populateRunSessions(db, $weekSelect, $sessionSelect, $segments) 
   loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segments);
 }
 
+function buildSegmentBar(segs) {
+  const blocks = [];
+  for (const seg of segs) {
+    const zone = seg.zone || 'Z2';
+    const color = ZONE_COLORS[zone] || ZONE_COLORS.Z2;
+
+    if (seg.mode === 'run-intervals' && seg.reps > 0) {
+      const workDur = parseSegDistance(seg.distance) || parseSegDuration(seg.duration) || 1;
+      const recDur = parseSegDistance(seg.recovery) || parseSegDuration(seg.recovery) || workDur * 0.5;
+      for (let r = 0; r < seg.reps; r++) {
+        blocks.push({ dur: workDur, color });
+        if (r < seg.reps - 1) blocks.push({ dur: recDur, color: ZONE_COLORS.Z1 });
+      }
+    } else {
+      blocks.push({ dur: parseSegDuration(seg.duration) || 1, color });
+    }
+  }
+  const total = blocks.reduce((s, b) => s + b.dur, 0);
+  return `<div class="run-seg-bar">${blocks.map(b =>
+    `<div class="run-seg-bar-block" style="width:${(b.dur / total * 100).toFixed(1)}%;background:${b.color}"></div>`
+  ).join('')}</div>`;
+}
+
 export function loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segments) {
   const progId = db.runningProgram;
   const phases = getRunningPhases(progId);
@@ -57,7 +80,7 @@ export function loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segment
   const segs = week.sessions?.[sessionName];
   if (!segs || segs.length === 0) { $segments.innerHTML = ''; return; }
 
-  $segments.innerHTML = segs.map(seg => {
+  $segments.innerHTML = buildSegmentBar(segs) + segs.map(seg => {
     const zone = seg.zone || 'Z2';
     const color = ZONE_COLORS[zone] || ZONE_COLORS.Z2;
 
