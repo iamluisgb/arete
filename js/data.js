@@ -88,12 +88,17 @@ export function pruneDeletedIds(db) {
   db.deletedIds = [...new Set([...recent, ...db.deletedIds.filter(id => liveIds.has(id))])];
 }
 
+/** Monotonic revision counter — incremented on every saveDB */
+let _saveRevision = 0;
+export function getSaveRevision() { return _saveRevision; }
+
 /** Persist db to localStorage (validates structure first) */
 export function saveDB(db) {
   if (!validateDB(db)) { console.error('saveDB: invalid db, aborting save', db); return; }
   pruneDeletedIds(db);
   try {
     localStorage.setItem(SK, JSON.stringify(db));
+    _saveRevision++;
   } catch (e) {
     console.error('saveDB: storage write failed', e);
     if (_onQuotaError) _onQuotaError(db);

@@ -88,8 +88,7 @@ self.addEventListener('fetch', event => {
 
         // Return cached immediately, update in background
         if (cached) {
-          // Fire-and-forget revalidation
-          networkFetch;
+          networkFetch.catch(() => {});
           return cached;
         }
         // No cache: wait for network

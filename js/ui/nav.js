@@ -22,9 +22,10 @@ export function updatePhaseDisplay(db) {
 
 /** Switch active section and render its content */
 export function switchTab(btn, db) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
+  btn.setAttribute('aria-current', 'page');
   document.getElementById(btn.dataset.sec).classList.add('active');
 
   const activeStrPanel = document.querySelector('.str-panel.active')?.id;

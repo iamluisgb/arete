@@ -1,16 +1,18 @@
 import { formatDate } from '../utils.js';
+import { getSaveRevision } from '../data.js';
 import { formatPace } from './running-helpers.js';
 
 // ── Progress charts ─────────────────────────────────────
 
-let _lastLogCount = -1;
+let _lastRev = -1;
 
 export function renderRunProgress(db, $weeklyChart, $paceChart, $statsPanel) {
   const logs = (db.runningLogs || []).slice().sort((a, b) => a.date.localeCompare(b.date));
 
-  // Skip re-render if log count hasn't changed
-  if (logs.length === _lastLogCount && logs.length > 0) return;
-  _lastLogCount = logs.length;
+  // Skip re-render if data hasn't changed
+  const rev = getSaveRevision();
+  if (rev === _lastRev && logs.length > 0) return;
+  _lastRev = rev;
 
   if (logs.length === 0) {
     $weeklyChart.innerHTML = '<div class="empty-state">Sin datos</div>';

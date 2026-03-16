@@ -1,4 +1,4 @@
-import { saveDB } from '../data.js';
+import { saveDB, getSaveRevision } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { getPrograms, getActiveProgram, getAllPhases } from '../programs.js';
 import { esc } from '../utils.js';
@@ -265,10 +265,11 @@ function getPrevSession(db, n) {
 
 // PR cache: avoids scanning all workouts on every save
 let _prCache = null;
-let _prCacheCount = -1;
+let _prCacheRev = -1;
 
 function buildPRCache(db) {
-  if (_prCache && _prCacheCount === db.workouts.length) return _prCache;
+  const rev = getSaveRevision();
+  if (_prCache && _prCacheRev === rev) return _prCache;
   const cache = new Map();
   for (const w of db.workouts) {
     for (const e of w.exercises) {
@@ -283,7 +284,7 @@ function buildPRCache(db) {
     }
   }
   _prCache = cache;
-  _prCacheCount = db.workouts.length;
+  _prCacheRev = rev;
   return cache;
 }
 

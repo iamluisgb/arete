@@ -1,6 +1,6 @@
 import { DEFAULT_TIMER_DURATION } from '../constants.js';
+import { getAudioCtx } from './audio.js';
 
-let audioCtx = null;
 let timerInterval = null;
 let timerRunning = false;
 let timerDuration = DEFAULT_TIMER_DURATION;
@@ -42,11 +42,6 @@ function clearTimerNotification() {
 function showAlarmNotification() {
   if (Notification.permission !== 'granted') return;
   swPost({ type: 'timer-alarm' });
-}
-
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
 }
 
 export function playAlarm() {
@@ -130,7 +125,7 @@ function stopTimer() {
 }
 
 export function toggleTimer() {
-  if (audioCtx) audioCtx.resume();
+  getAudioCtx().resume();
   if (timerRunning) stopTimer(); else startTimer();
 }
 
