@@ -177,7 +177,8 @@ function updateExTimerDisplay() {
     display.textContent = exFmtTime(remaining);
     if (barFill) barFill.style.width = `${(remaining / phase.duration) * 100}%`;
   } else {
-    // stopwatch / manual-rounds
+    // stopwatch / manual-rounds — skip display while rest countdown owns it
+    if (activeExTimer.resting) return;
     const elapsed = Math.floor((Date.now() - activeExTimer.startedAt) / 1000);
     display.textContent = exFmtTime(elapsed);
   }
@@ -333,7 +334,8 @@ function handleExTimerRound() {
       stopExTimer(true);
       return;
     }
-    // Show rest countdown inline
+    // Show rest countdown inline — set flag so tickExTimer skips display
+    activeExTimer.resting = true;
     startRestCountdown(zone, restDuration);
   }
 }
@@ -370,6 +372,7 @@ function startRestCountdown(zone, duration) {
         if (phaseEl) phaseEl.textContent = 'Circuito';
       }
       // Resume stopwatch display
+      if (activeExTimer) activeExTimer.resting = false;
     }
   }, 250);
 }
