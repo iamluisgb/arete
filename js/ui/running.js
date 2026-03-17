@@ -1818,11 +1818,4 @@ export function refreshRunning(db) {
   renderPRs(db);
   renderNextSession(db);
 
-  // P1.3: Contextual start button label
-  const $startBtn = document.getElementById('runStartBtn');
-  if ($startBtn) {
-    const next = getNextPlanSession(db);
-    const svg = $startBtn.querySelector('svg')?.outerHTML || '';
-    $startBtn.innerHTML = next ? `${svg} Iniciar: ${esc(next.name)}` : `${svg} Iniciar carrera`;
-  }
 }
