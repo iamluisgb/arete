@@ -599,6 +599,18 @@ input.prefilled:focus{background:var(--surface);border:none}
 .run-split-input-row input{flex:1;padding:8px 10px;font-size:.85rem}
 .run-split-input-row .run-split-remove{background:none;border:none;color:var(--red);font-size:.75rem;cursor:pointer;padding:4px 8px}
 
+/* ── Onboarding ─────────────────────────────────────────── */
+.onboarding-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.onboarding-overlay.visible{display:flex}
+.onboarding-card{background:var(--surface);border-radius:20px;padding:40px 28px 28px;max-width:340px;width:90%;text-align:center}
+.onboarding-step{display:none}.onboarding-step.active{display:block}
+.onboarding-icon{font-size:3rem;margin-bottom:16px}
+.onboarding-card h2{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+.onboarding-card p{font-size:.82rem;color:var(--text2);line-height:1.5;margin-bottom:20px}
+.onboarding-dots{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+.onboarding-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.onboarding-dot.active{background:var(--accent)}
+
 @media(prefers-color-scheme:dark){
 :root{--bg:#1a1a2e;--surface:#252540;--surface2:#2d2d4a;--surface-glass:rgba(37,37,64,.85);--border:rgba(255,255,255,.1);--text:#e8e8f0;--text2:rgba(232,232,240,.55);--text3:rgba(232,232,240,.4);--accent:#4d8aff;--accent2:#6da0ff;--green:#30d158;--red:#ff453a;--teal:#40c8e0}
 body{-webkit-font-smoothing:auto}

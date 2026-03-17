@@ -558,6 +558,31 @@
   <button class="btn btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<div class="onboarding-overlay" id="onboarding">
+  <div class="onboarding-card">
+    <div class="onboarding-step active" data-step="0">
+      <div class="onboarding-icon">🏋️</div>
+      <h2>Barra Libre</h2>
+      <p>Registra tus entrenamientos de fuerza y carreras. Todo en tu movil, sin cuenta, sin anuncios.</p>
+    </div>
+    <div class="onboarding-step" data-step="1">
+      <div class="onboarding-icon">📝</div>
+      <h2>Registra tus series</h2>
+      <p>Elige tu sesion, introduce pesos y reps. La app recuerda tus valores anteriores.</p>
+    </div>
+    <div class="onboarding-step" data-step="2">
+      <div class="onboarding-icon">⏱️</div>
+      <h2>Timer de descanso</h2>
+      <p>Usa el temporizador entre series. Se queda visible mientras entrenas.</p>
+    </div>
+    <div class="onboarding-dots">
+      <span class="onboarding-dot active"></span>
+      <span class="onboarding-dot"></span>
+      <span class="onboarding-dot"></span>
+    </div>
+    <button class="btn onboarding-btn" id="onboardingBtn">Siguiente</button>
+  </div>
+</div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>

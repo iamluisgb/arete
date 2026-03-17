@@ -169,6 +169,25 @@ async function init() {
   $maxHR.addEventListener('change', updateHRZonesPreview);
   updateHRZonesPreview();
 
+  // Onboarding for first-time users
+  if (!localStorage.getItem('barraLibreOnboarded')) {
+    const $ob = document.getElementById('onboarding');
+    const $btn = document.getElementById('onboardingBtn');
+    let step = 0;
+    $ob.classList.add('visible');
+    $btn.addEventListener('click', () => {
+      step++;
+      if (step >= 3) {
+        $ob.classList.remove('visible');
+        localStorage.setItem('barraLibreOnboarded', '1');
+        return;
+      }
+      $ob.querySelectorAll('.onboarding-step').forEach((s, i) => s.classList.toggle('active', i === step));
+      $ob.querySelectorAll('.onboarding-dot').forEach((d, i) => d.classList.toggle('active', i === step));
+      if (step === 2) $btn.textContent = 'Empezar';
+    });
+  }
+
   document.getElementById('timerBar').classList.add('active');
   initTimer();
   populateSessions(db);
