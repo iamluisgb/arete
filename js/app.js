@@ -17,6 +17,37 @@ import { initRunning } from './ui/running.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'barraLibreAutoSync';
+const THEME_KEY = 'barraLibreTheme';
+
+// --- Theme ---
+function applyTheme(theme) {
+  const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches);
+  document.documentElement.classList.toggle('dark', isDark);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = isDark ? '#1a1a2e' : '#f5f5f7';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'auto';
+  applyTheme(saved);
+  // Listen for system changes when in auto mode
+  window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
+    if ((localStorage.getItem(THEME_KEY) || 'auto') === 'auto') applyTheme('auto');
+  });
+  // Selector buttons
+  document.querySelectorAll('#themeOptions .theme-opt').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === saved);
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.theme;
+      localStorage.setItem(THEME_KEY, t);
+      applyTheme(t);
+      document.querySelectorAll('#themeOptions .theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === t));
+    });
+  });
+}
+
+// Apply theme immediately to prevent flash
+applyTheme(localStorage.getItem(THEME_KEY) || 'auto');
 
 function debounce(fn, ms) {
   let t, lastArgs;
@@ -94,6 +125,7 @@ function seedInitialData() {
 async function init() {
   seedInitialData();
   initToast();
+  initTheme();
 
   // Migrate custom programs from old localStorage key to db
   const oldCustom = localStorage.getItem('customPrograms');
