@@ -31,7 +31,7 @@ export function renderHistory(db, dateFilter) {
 
   const list = document.getElementById('historyList');
   if (items.length === 0) {
-    list.innerHTML = '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:40px 0">Sin registros aún</p>';
+    list.innerHTML = '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:40px 0">Sin registros aun.<br><span style="font-size:.72rem;color:var(--text3)">Completa tu primera sesion en la pestana Entreno.</span></p>';
     return;
   }
 
@@ -163,12 +163,25 @@ export function initHistory(db, { onEdit }) {
 
 export function deleteWorkout(db) {
   confirmDanger(document.getElementById('deleteBtn'), () => {
+    const deleted = db.workouts.find(w => w.id === detailWorkoutId);
     markDeleted(db, detailWorkoutId);
     db.workouts = db.workouts.filter(w => w.id !== detailWorkoutId);
     saveDB(db);
-    toast('Sesión eliminada', 'info');
     closeDetailModal();
     renderHistory(db);
     renderCalendar(db);
+    toast('Sesion eliminada', 'info', {
+      action: 'Deshacer',
+      onAction: () => {
+        if (deleted) {
+          db.workouts.push(deleted);
+          db.deletedIds = (db.deletedIds || []).filter(id => id !== deleted.id);
+          saveDB(db);
+          renderHistory(db);
+          renderCalendar(db);
+          toast('Sesion restaurada');
+        }
+      }
+    });
   });
 }

@@ -31,7 +31,7 @@ export function renderProgressChart(db) {
   if (_chartCache.name === name && _chartCache.count === wCount) return;
   _chartCache = { name, count: wCount };
   if (!name) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Sin datos aún</p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;
@@ -55,7 +55,7 @@ export function renderProgressChart(db) {
     });
 
   if (points.length === 0) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio</p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio.<br><span style="font-size:.75rem">Necesitas al menos 2 sesiones registradas.</span></p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;

@@ -11,6 +11,61 @@ export { exFmtTime, parseDurationStr, buildTimerConfig };
 let editingId = null;
 let $exerciseList, $trainSession, $trainDate, $trainNotes, $prefillBanner, $prefillText, $saveBtn, $prCelebration, $prList;
 
+// ── Session draft auto-save ──────────────────────────────
+const DRAFT_KEY = 'barraLibre_sessionDraft';
+let _draftTimer = null;
+
+function saveDraft() {
+  if (editingId) return; // don't draft when editing existing
+  const inputs = $exerciseList?.querySelectorAll('input');
+  if (!inputs?.length) return;
+  const values = [];
+  let hasData = false;
+  inputs.forEach(inp => {
+    values.push(inp.value);
+    if (inp.value && !inp.classList.contains('prefilled')) hasData = true;
+  });
+  if (!hasData) { localStorage.removeItem(DRAFT_KEY); return; }
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      session: $trainSession.value,
+      date: $trainDate.value,
+      notes: $trainNotes.value,
+      values,
+      ts: Date.now()
+    }));
+  } catch { /* quota */ }
+}
+
+function scheduleDraft() {
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(saveDraft, 500);
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  clearTimeout(_draftTimer);
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    // Discard drafts older than 12 hours
+    if (Date.now() - draft.ts > 12 * 60 * 60 * 1000) { clearDraft(); return false; }
+    if (draft.session !== $trainSession.value) return false;
+    const inputs = $exerciseList.querySelectorAll('input');
+    if (inputs.length !== draft.values.length) return false;
+    draft.values.forEach((v, i) => {
+      if (v) { inputs[i].value = v; inputs[i].classList.remove('prefilled'); }
+    });
+    if (draft.notes) $trainNotes.value = draft.notes;
+    if (draft.date) $trainDate.value = draft.date;
+    return true;
+  } catch { return false; }
+}
+
 
 
 function cacheSelectors() {
@@ -50,6 +105,8 @@ export function populateSessions(db) {
     $trainSession.value = ss[nextIdx];
   }
   loadSessionTemplate(db, true);
+  // Restore draft if there's one saved for the current session
+  if (restoreDraft()) toast('Borrador restaurado', 'info');
 }
 
 /** Render exercise cards for the selected session template */
@@ -104,7 +161,7 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill) {
     const vR = shouldPrefill && pR ? pR : '';
     const cK = vK ? ' prefilled' : '';
     const cR = vR ? ' prefilled' : '';
-    sh += `<div class="set-label">S${s + 1}</div><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${pK || '—'}" value="${vK}" step="0.5"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${pR || ex.reps}" value="${vR}" inputmode="numeric">`;
+    sh += `<div class="set-label">S${s + 1}</div><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${pK || '—'}" value="${vK}" step="0.5" aria-label="Peso serie ${s + 1} de ${esc(ex.name)}"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${pR || ex.reps}" value="${vR}" inputmode="numeric" aria-label="Reps serie ${s + 1} de ${esc(ex.name)}">`;
   }
   sh += '</div>';
   const pi = prevEx ? `<div class="prev-data">Anterior: ${prevEx.sets.map(s => `<span>${s.kg || '—'}×${s.reps || '—'}</span>`).join(' · ')}</div>` : '';
@@ -418,6 +475,7 @@ export function saveWorkout(db) {
   }
 
   $trainNotes.value = '';
+  clearDraft();
   loadSessionTemplate(db, true);
   toast(wasEditing ? 'Cambios guardados' : 'Sesión guardada');
 }
@@ -428,8 +486,10 @@ export function initTraining(db, { onCancelEdit }) {
 
   $exerciseList.addEventListener('input', (e) => {
     e.target.classList.remove('prefilled');
+    scheduleDraft();
   }, true);
-  $trainSession.addEventListener('change', () => loadSessionTemplate(db, true));
+  $trainNotes.addEventListener('input', scheduleDraft);
+  $trainSession.addEventListener('change', () => { clearDraft(); loadSessionTemplate(db, true); });
   $saveBtn.addEventListener('click', () => saveWorkout(db));
   $prefillBanner.addEventListener('click', (e) => {
     if (e.target.closest('.prefill-clear')) {

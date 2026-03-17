@@ -25,6 +25,7 @@ export function switchTab(btn, db) {
   document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
+  try { navigator.vibrate?.(10); } catch {}
   btn.setAttribute('aria-current', 'page');
   document.getElementById(btn.dataset.sec).classList.add('active');
 
