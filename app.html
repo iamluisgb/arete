@@ -29,9 +29,10 @@
     </div>
   </div>
   <div class="str-subnav">
-    <button class="str-tab active" data-str="strTrain">Entreno</button>
+    <button class="str-tab active" data-str="strTrain">Actividad</button>
     <button class="str-tab" data-str="strHistory">Historial</button>
     <button class="str-tab" data-str="strProgress">Progreso</button>
+    <button class="str-tab" data-str="strPlan">Plan</button>
   </div>
   <div class="str-panel active" id="strTrain">
     <div class="timer-bar mode-countdown active" id="timerBar">
@@ -76,6 +77,12 @@
     <div id="progressChart"></div>
     <div id="progressStats"></div>
     <div id="progressHistory"></div>
+  </div>
+  <div class="str-panel" id="strPlan">
+    <div class="str-plan-header">
+      <select id="strPlanPhase" class="str-plan-select"></select>
+    </div>
+    <div id="strPlanContent"></div>
   </div>
 </div>
 <div class="section" id="secBody" aria-label="Cuerpo">

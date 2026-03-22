@@ -37,6 +37,14 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .so-last{font-size:var(--fs-sm);color:var(--text2);margin-top:var(--sp-3);text-align:center}
 .so-draft{font-size:var(--fs-sm);color:var(--accent);margin-top:var(--sp-1);text-align:center}
 .so-start{width:100%;margin-top:var(--sp-3)}
+.str-plan-header{margin-bottom:var(--sp-3)}
+.str-plan-select{width:100%}
+.str-plan-desc{font-size:var(--fs-sm);color:var(--text2);margin-bottom:var(--sp-3);line-height:1.4}
+.str-plan-session{background:var(--surface);border-radius:var(--radius-lg);padding:16px;margin-bottom:var(--sp-3)}
+.str-plan-session-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-2)}
+.str-plan-session-name{font-size:var(--fs-lg);font-weight:700}
+.str-plan-session-count{font-size:var(--fs-sm);color:var(--text2)}
+.str-plan-ex-list{display:flex;flex-direction:column;gap:var(--sp-1)}
 .ex-card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:var(--sp-2)}
 .ex-card .ex-name{font-size:var(--fs-md);font-weight:700;margin-bottom:3px}
 .ex-card .ex-target{font-size:var(--fs-sm);color:var(--text2);margin-bottom:var(--sp-2);font-weight:500}

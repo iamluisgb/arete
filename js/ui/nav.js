@@ -6,8 +6,9 @@ import { renderHistory } from './history.js';
 import { renderBodyForm, renderBodyHistory, calcProportions, calcCalories } from './body.js';
 import { render1RMs } from './settings.js';
 import { initProgress } from './progress.js';
-import { populateSessions } from './training.js';
+import { populateSessions, exTargetText } from './training.js';
 import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
+import { esc } from '../utils.js';
 
 /** Update the phase name in the context bar */
 export function updatePhaseDisplay(db) {
@@ -49,6 +50,48 @@ export function switchStrTab(tabName, db) {
   // Render content
   if (tabName === 'strHistory') { renderCalendar(db); renderHistory(db); }
   if (tabName === 'strProgress') initProgress(db);
+  if (tabName === 'strPlan') renderStrPlan(db);
+}
+
+/** Render strength Plan tab — browse all phases and sessions */
+function renderStrPlan(db) {
+  const $phase = document.getElementById('strPlanPhase');
+  const $content = document.getElementById('strPlanContent');
+  if (!$phase || !$content) return;
+
+  const progs = getPrograms();
+  const phaseKeys = Object.keys(progs).sort((a, b) => parseInt(a) - parseInt(b));
+  if (!phaseKeys.length) { $content.innerHTML = '<div class="empty-state">No hay fases disponibles</div>'; return; }
+
+  $phase.innerHTML = phaseKeys.map(k => {
+    const p = progs[k];
+    return `<option value="${k}">${esc(p.name || 'Fase ' + k)}</option>`;
+  }).join('');
+  $phase.value = String(db.phase);
+  $phase.onchange = () => renderPlanPhaseContent(progs, $phase.value, $content);
+
+  renderPlanPhaseContent(progs, $phase.value, $content);
+}
+
+function renderPlanPhaseContent(progs, phaseKey, $content) {
+  const phase = progs[phaseKey];
+  if (!phase?.sessions) { $content.innerHTML = ''; return; }
+
+  const sessionNames = Object.keys(phase.sessions);
+  $content.innerHTML = `
+    ${phase.desc ? `<div class="str-plan-desc">${esc(phase.desc)}</div>` : ''}
+    ${sessionNames.map(name => {
+      const exercises = phase.sessions[name];
+      return `<div class="str-plan-session">
+        <div class="str-plan-session-header">
+          <span class="str-plan-session-name">${esc(name)}</span>
+          <span class="str-plan-session-count">${exercises.length} ej.</span>
+        </div>
+        <div class="str-plan-ex-list">${exercises.map(ex =>
+          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
+        ).join('')}</div>
+      </div>`;
+    }).join('')}`;
 }
 
 export function openPhaseModal() {

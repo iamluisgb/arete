@@ -147,7 +147,7 @@ function _setupExDots(count) {
   Array.from($exerciseList.children).forEach(card => _exObserver.observe(card));
 }
 
-function exTargetText(ex) {
+export function exTargetText(ex) {
   const mode = ex.mode || (ex.type === 'hiit' || ex.type === 'density' ? 'result' : 'sets');
   if (mode === 'sets') return `${ex.sets}×${ex.reps}`;
   if (mode === 'superset') return `${ex.sets || ex.rounds || ''}× superset`;
