@@ -30,6 +30,7 @@ export function switchTab(btn, db) {
   try { navigator.vibrate?.(10); } catch {}
   btn.setAttribute('aria-current', 'page');
   document.getElementById(btn.dataset.sec).classList.add('active');
+  localStorage.setItem('barraLibreLastTab', btn.dataset.sec);
 
   const activeStrPanel = document.querySelector('.str-panel.active')?.id;
 
@@ -49,6 +50,7 @@ export function switchStrTab(tabName, db) {
   document.querySelectorAll('.str-panel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.str-tab[data-str="${tabName}"]`)?.classList.add('active');
   document.getElementById(tabName)?.classList.add('active');
+  localStorage.setItem('barraLibreLastStrTab', tabName);
   // Render content
   if (tabName === 'strHistory') { renderCalendar(db); renderHistory(db); }
   if (tabName === 'strProgress') initProgress(db);
@@ -148,6 +150,17 @@ export function initNav(db) {
     if (option) selectPhase(parseInt(option.dataset.phase), db);
   });
   document.querySelector('#phaseModal .btn-outline').addEventListener('click', () => closePhaseModal());
+
+  // Restore last active view
+  const lastTab = localStorage.getItem('barraLibreLastTab');
+  if (lastTab && lastTab !== 'secDashboard') {
+    const savedBtn = document.querySelector(`nav button[data-sec="${lastTab}"]`);
+    if (savedBtn) switchTab(savedBtn, db);
+  }
+  const lastStrTab = localStorage.getItem('barraLibreLastStrTab');
+  if (lastStrTab && lastStrTab !== 'strTrain') {
+    switchStrTab(lastStrTab, db);
+  }
 }
 
 /** Re-render the currently active section */
