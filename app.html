@@ -378,12 +378,22 @@
     <!-- Próxima sesión del plan -->
     <div id="runNextSession"></div>
 
-    <!-- Botones principales -->
+    <!-- Botón principal de inicio (contextual) -->
     <button class="run-start-btn" id="runStartBtn">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
       Iniciar carrera
     </button>
-    <button class="run-manual-btn" id="runManualBtn">Registro manual</button>
+    <div class="run-secondary-actions">
+      <button class="run-secondary-btn" id="runFreeRunBtn">
+        <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
+        Carrera libre
+      </button>
+      <span class="run-secondary-sep"></span>
+      <button class="run-secondary-btn" id="runManualBtn">
+        <span class="material-symbols-outlined" style="font-size:18px">edit_note</span>
+        Registro manual
+      </button>
+    </div>
   </div>
 
   <!-- TAB 2: Historial -->

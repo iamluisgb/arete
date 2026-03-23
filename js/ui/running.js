@@ -226,8 +226,19 @@ export function initRunning(db) {
     });
   });
 
-  // Start GPS run (via type picker)
-  document.getElementById('runStartBtn').addEventListener('click', () => openRunTypePicker(db));
+  // Start GPS run: contextual (plan session or type picker)
+  document.getElementById('runStartBtn').addEventListener('click', () => {
+    const $btn = document.getElementById('runStartBtn');
+    if ($btn._planSession) {
+      const next = $btn._planSession;
+      activeSegments = next.segments;
+      activeRunType = inferRunType(next.segments);
+      activePlanSession = next.name;
+      startGpsRun(db);
+    } else {
+      openRunTypePicker(db);
+    }
+  });
   document.getElementById('runTypeStartBtn').addEventListener('click', () => { closeRunTypePicker(); startGpsRun(db); });
   document.getElementById('runTypeCancelBtn').addEventListener('click', closeRunTypePicker);
   document.getElementById('runTypeGrid').addEventListener('click', e => {
@@ -240,6 +251,9 @@ export function initRunning(db) {
     document.getElementById('runTypeExtra').style.display = activeRunType === 'competicion' ? '' : 'none';
     document.getElementById('runTypeTempoExtra').style.display = activeRunType === 'tempo' ? '' : 'none';
   });
+
+  // Free run button (always opens type picker)
+  document.getElementById('runFreeRunBtn').addEventListener('click', () => openRunTypePicker(db));
 
   // Manual entry modal
   document.getElementById('runManualBtn').addEventListener('click', () => openManualModal(db));
@@ -1797,7 +1811,21 @@ function renderNextSession(db) {
   if (!$el) return;
 
   const next = getNextPlanSession(db);
-  if (!next) { $el.innerHTML = ''; $el.style.display = 'none'; return; }
+  if (!next) {
+    $el.innerHTML = ''; $el.style.display = 'none';
+    // Reset main button to free-run mode
+    const $startBtn = document.getElementById('runStartBtn');
+    if ($startBtn) {
+      $startBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Iniciar carrera`;
+      $startBtn._planSession = null;
+    }
+    // Hide "Carrera libre" (redundant when main button is already free-run)
+    const $freeBtn = document.getElementById('runFreeRunBtn');
+    const $sep = document.querySelector('.run-secondary-sep');
+    if ($freeBtn) $freeBtn.style.display = 'none';
+    if ($sep) $sep.style.display = 'none';
+    return;
+  }
 
   const segSummary = next.segments.map(s => {
     let txt = s.name;
@@ -1816,15 +1844,18 @@ function renderNextSession(db) {
       <div class="run-next-name">${esc(next.name)}</div>
       <div class="run-next-desc">${esc(segSummary)}</div>
       ${buildSegmentBar(next.segments, db)}
-      <button class="btn run-next-start">Iniciar</button>
     </div>`;
 
-  $el.querySelector('.run-next-start').addEventListener('click', () => {
-    activeSegments = next.segments;
-    activeRunType = inferRunType(next.segments);
-    activePlanSession = next.name;
-    startGpsRun(db);
-  });
+  // Update main start button to reflect the plan session
+  const $startBtn = document.getElementById('runStartBtn');
+  $startBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Iniciar: ${esc(next.name)}`;
+  $startBtn._planSession = next;
+
+  // Show "Carrera libre" secondary action
+  const $freeBtn = document.getElementById('runFreeRunBtn');
+  const $sep = document.querySelector('.run-secondary-sep');
+  if ($freeBtn) $freeBtn.style.display = '';
+  if ($sep) $sep.style.display = '';
 }
 
 export function refreshRunning(db) {
