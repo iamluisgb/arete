@@ -695,6 +695,7 @@ input.prefilled:focus{background:var(--surface);border:none}
 .dash-greeting{margin-bottom:var(--sp-6)}
 .dash-greeting-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin-bottom:var(--sp-1)}
 .dash-greeting-title{font-size:var(--fs-3xl);font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.dash-greeting-quote{font-size:var(--fs-sm);color:var(--text3);font-style:italic;margin-top:var(--sp-2);line-height:1.5}
 .dash-bento{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-5)}
 .dash-card{background:var(--surface);border-radius:var(--radius-lg);padding:var(--sp-5);display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)}
 .dash-card-wide{grid-column:span 2}

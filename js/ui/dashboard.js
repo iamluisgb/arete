@@ -2,6 +2,53 @@ import { esc } from '../utils.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
+const QUOTES = [
+  { text: 'La disciplina es el puente entre las metas y los logros.', author: 'Jim Rohn' },
+  { text: 'No se trata de ser el mejor. Se trata de ser mejor que ayer.', author: null },
+  { text: 'La constancia no es glamurosa, pero es lo que funciona.', author: null },
+  { text: 'Enamórate del proceso y los resultados llegarán.', author: 'Eric Thomas' },
+  { text: 'Cada repetición cuenta, aunque no la sientas.', author: null },
+  { text: 'La fuerza no viene de lo que puedes hacer. Viene de superar lo que creías que no podías.', author: 'Rikki Rogers' },
+  { text: 'El cuerpo logra lo que la mente cree.', author: null },
+  { text: 'No cuentes los días, haz que los días cuenten.', author: 'Muhammad Ali' },
+  { text: 'El dolor que sientes hoy será la fuerza que sentirás mañana.', author: null },
+  { text: 'La diferencia entre querer y lograr es la disciplina.', author: null },
+  { text: 'Entrena porque tu cuerpo lo merece, no como castigo por lo que comiste.', author: null },
+  { text: 'El éxito no se regala. Se entrena.', author: null },
+  { text: 'Hoy es un buen día para ser mejor que ayer.', author: null },
+  { text: 'Los límites solo existen si los aceptas.', author: null },
+  { text: 'No busques inspiración. Sé la inspiración.', author: null },
+  { text: 'El talento te pone en el juego. El esfuerzo te hace ganar.', author: null },
+  { text: 'Sufre la disciplina o sufre el arrepentimiento.', author: 'Jim Rohn' },
+  { text: 'Tu yo del futuro te lo va a agradecer.', author: null },
+  { text: 'Cada día es una nueva oportunidad para mejorar.', author: null },
+  { text: 'La motivación te pone en marcha. El hábito te mantiene.', author: null },
+  { text: 'El progreso, no la perfección, es lo que importa.', author: null },
+  { text: 'Lo que hoy parece imposible, mañana será tu calentamiento.', author: null },
+  { text: 'La mente se rinde antes que el cuerpo. No la dejes.', author: null },
+  { text: 'Pequeños pasos cada día llevan a grandes resultados.', author: null },
+  { text: 'Si fuera fácil, todo el mundo lo haría.', author: null },
+  { text: 'Estar incómodo es el precio del crecimiento.', author: null },
+  { text: 'No esperes a estar motivado. Actúa y la motivación vendrá.', author: null },
+  { text: 'La mejor versión de ti se construye día a día.', author: null },
+  { text: 'El hierro no miente. Siempre te da lo que mereces.', author: 'Henry Rollins' },
+  { text: 'Más fuerte que ayer, más listo que mañana.', author: null },
+];
+
+function getDailyQuote() {
+  const today = new Date().toISOString().slice(0, 10);
+  const saved = localStorage.getItem('blQuoteDate');
+  let idx;
+  if (saved === today) {
+    idx = parseInt(localStorage.getItem('blQuoteIdx')) || 0;
+  } else {
+    idx = Math.floor(Math.random() * QUOTES.length);
+    localStorage.setItem('blQuoteDate', today);
+    localStorage.setItem('blQuoteIdx', idx);
+  }
+  return QUOTES[idx];
+}
+
 function getWeekStart() {
   const d = new Date();
   const day = d.getDay() || 7;
@@ -91,6 +138,13 @@ export function renderDashboard(db) {
   if (greetEl) {
     const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
     greetEl.textContent = greeting;
+  }
+
+  // Daily quote
+  const quoteEl = document.getElementById('dashQuote');
+  if (quoteEl) {
+    const q = getDailyQuote();
+    quoteEl.textContent = q.author ? `"${q.text}" — ${q.author}` : `"${q.text}"`;
   }
 
   // Recent activity (last 5 workouts)
