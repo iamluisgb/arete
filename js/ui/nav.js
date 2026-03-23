@@ -8,6 +8,7 @@ import { render1RMs } from './settings.js';
 import { initProgress } from './progress.js';
 import { populateSessions, exTargetText } from './training.js';
 import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
+import { renderDashboard } from './dashboard.js';
 import { esc } from '../utils.js';
 
 /** Update the phase name in the context bar */
@@ -32,6 +33,7 @@ export function switchTab(btn, db) {
 
   const activeStrPanel = document.querySelector('.str-panel.active')?.id;
 
+  if (btn.dataset.sec === 'secDashboard') renderDashboard(db);
   if (btn.dataset.sec === 'secStrength') {
     if (activeStrPanel === 'strHistory') { renderCalendar(db); renderHistory(db); }
     if (activeStrPanel === 'strProgress') initProgress(db);
@@ -151,6 +153,7 @@ export function initNav(db) {
 /** Re-render the currently active section */
 export function refreshActiveSection(db) {
   const sec = document.querySelector('.section.active')?.id;
+  if (sec === 'secDashboard') renderDashboard(db);
   if (sec === 'secStrength') {
     const panel = document.querySelector('.str-panel.active')?.id;
     if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }

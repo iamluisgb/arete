@@ -14,6 +14,7 @@ import { initDrive, silentBackup, syncOnLoad, onSyncStatus, isSyncing, clearStor
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
+import { renderDashboard } from './ui/dashboard.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'barraLibreAutoSync';
@@ -24,7 +25,7 @@ function applyTheme(theme) {
   const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches);
   document.documentElement.classList.toggle('dark', isDark);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = isDark ? '#1a1a2e' : '#f5f5f7';
+  if (meta) meta.content = isDark ? '#131313' : '#f4f2f0';
 }
 
 function initTheme() {
@@ -222,7 +223,14 @@ async function init() {
 
   document.getElementById('timerBar').classList.add('active');
   initTimer();
+  renderDashboard(db);
   populateSessions(db);
+
+  // Dashboard CTA → switch to Fuerza
+  document.getElementById('dashStartBtn')?.addEventListener('click', () => {
+    const btn = document.querySelector('nav button[data-sec="secStrength"]');
+    if (btn) { switchTab(btn, db); }
+  });
   document.getElementById('appVersion').textContent = `Barra Libre v${APP_VERSION}`;
   bindEvents();
 

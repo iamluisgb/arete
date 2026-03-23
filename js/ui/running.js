@@ -1193,11 +1193,11 @@ function initLiveMap() {
     maxZoom: 19
   }).addTo(liveMap);
 
-  livePolyline = L.polyline([], { color: '#0055ff', weight: 4, opacity: 0.8 }).addTo(liveMap);
+  livePolyline = L.polyline([], { color: '#ff5545', weight: 4, opacity: 0.8 }).addTo(liveMap);
 
   liveMarker = L.circleMarker([0, 0], {
     radius: 8,
-    fillColor: '#0055ff',
+    fillColor: '#ff5545',
     fillOpacity: 1,
     color: '#fff',
     weight: 3
@@ -1234,7 +1234,7 @@ function renderSummaryMap(coords) {
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(summaryMap);
 
   const latlngs = coords.map(c => [c[0], c[1]]);
-  const polyline = L.polyline(latlngs, { color: '#0055ff', weight: 4 }).addTo(summaryMap);
+  const polyline = L.polyline(latlngs, { color: '#ff5545', weight: 4 }).addTo(summaryMap);
 
   // Start/end markers
   L.circleMarker(latlngs[0], { radius: 6, fillColor: '#34c759', fillOpacity: 1, color: '#fff', weight: 2 }).addTo(summaryMap);
@@ -1261,7 +1261,7 @@ function renderDetailMap(container, coords) {
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(detailMap);
 
   const latlngs = coords.map(c => [c[0], c[1]]);
-  const polyline = L.polyline(latlngs, { color: '#0055ff', weight: 4 }).addTo(detailMap);
+  const polyline = L.polyline(latlngs, { color: '#ff5545', weight: 4 }).addTo(detailMap);
 
   L.circleMarker(latlngs[0], { radius: 5, fillColor: '#34c759', fillOpacity: 1, color: '#fff', weight: 2 }).addTo(detailMap);
   L.circleMarker(latlngs[latlngs.length - 1], { radius: 5, fillColor: '#ff3b30', fillOpacity: 1, color: '#fff', weight: 2 }).addTo(detailMap);

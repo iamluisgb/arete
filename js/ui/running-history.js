@@ -95,7 +95,7 @@ function drawMiniRoute(canvas, coords) {
   const pad = 12;
 
   ctx.clearRect(0, 0, w, h);
-  ctx.strokeStyle = '#0055ff';
+  ctx.strokeStyle = '#ff5545';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
