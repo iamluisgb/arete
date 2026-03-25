@@ -19,7 +19,7 @@
   "homepage": "https://github.com/iamluisgb/barra-libre#readme",
   "description": "",
   "devDependencies": {
-    "jsdom": "^27.0.1",
+    "jsdom": "^26.1.0",
     "vitest": "^3.2.4"
   }
 }
