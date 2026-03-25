@@ -544,6 +544,7 @@
       <div class="mb"><label>Notas</label><textarea id="runSumNotes" placeholder="Sensaciones, terreno, ajustes..."></textarea></div>
       <div style="display:flex;gap:8px">
         <button class="btn" id="runSumSaveBtn" style="flex:1">Guardar</button>
+        <button class="btn btn-outline" id="runSumShareBtn" style="flex:1"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> Compartir</button>
         <button class="btn btn-outline" id="runSumDiscardBtn">Descartar</button>
       </div>
     </div>
@@ -636,6 +637,32 @@
     <button class="btn btn-danger" id="runDetailDeleteBtn">Borrar</button>
   </div>
 </div></div>
+<!-- Share Editor overlay -->
+<div class="share-editor-overlay" id="shareEditor" role="dialog" aria-modal="true" aria-label="Editor de imagen para compartir">
+  <div class="se-header">
+    <button class="se-close-btn" id="seCloseBtn" aria-label="Cerrar editor">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <div class="se-preview-wrap">
+    <canvas id="seCanvas" role="img" aria-label="Preview de imagen"></canvas>
+    <div class="se-loading" id="seLoading"><div class="se-spinner"></div></div>
+  </div>
+  <div class="se-controls">
+    <div class="se-format-toggle" role="radiogroup" aria-label="Formato de imagen">
+      <button class="se-format-btn active" data-format="9:16" role="radio" aria-checked="true">9:16</button>
+      <button class="se-format-btn" data-format="1:1" role="radio" aria-checked="false">1:1</button>
+    </div>
+    <div class="se-presets" role="radiogroup" aria-label="Estilo visual">
+      <button class="se-preset-chip active" data-preset="minimal" role="radio" aria-checked="true">Minimal</button>
+      <button class="se-preset-chip" data-preset="statsPro" role="radio" aria-checked="false">Stats Pro</button>
+      <button class="se-preset-chip" data-preset="routeHero" role="radio" aria-checked="false">Ruta</button>
+    </div>
+    <button class="btn se-share-btn" id="seShareBtn">
+      <span class="material-symbols-outlined">share</span> Compartir
+    </button>
+  </div>
+</div>
 </main>
 <nav aria-label="Navegacion principal">
   <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></button>
@@ -684,7 +711,6 @@
   </div>
 </div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 <script type="module" src="js/app.js"></script>
 </body>

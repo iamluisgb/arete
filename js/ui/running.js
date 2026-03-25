@@ -7,7 +7,8 @@ import { GpsTracker } from './running-tracker.js';
 import { beep, vibrate, startCountdown, beepSplit, beepWorkStart, beepRestStart, beepAllDone, beepSegmentChange, startKeepAlive, stopKeepAlive, resumeKeepAlive } from './running-audio.js';
 import { ZONE_COLORS, ZONE_LABELS, getPaceZones, getHRZones, RUN_TYPE_META, formatPace, formatRunDuration, parseRunDuration, estimateZone, parseSegDistance, parseSegDuration, segModeToRunType } from './running-helpers.js';
 import { HRMonitor } from './hr-monitor.js';
-import { renderRunHistory as _renderRunHistory, shareRunCard } from './running-history.js';
+import { renderRunHistory as _renderRunHistory } from './running-history.js';
+import { openShareEditor } from './share-editor.js';
 import { renderRunProgress as _renderRunProgress } from './running-progress.js';
 import { populateRunWeeks as _populateRunWeeks, populateRunSessions as _populateRunSessions, loadRunSessionTemplate as _loadRunSessionTemplate, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar } from './running-plan.js';
 
@@ -297,6 +298,10 @@ export function initRunning(db) {
 
   // Post-run summary
   document.getElementById('runSumSaveBtn').addEventListener('click', () => saveGpsRun(db));
+  document.getElementById('runSumShareBtn').addEventListener('click', () => {
+    const result = JSON.parse($summaryScreen.dataset.result || '{}');
+    if (result.distance || result.duration) openShareEditor(result);
+  });
   document.getElementById('runSumDiscardBtn').addEventListener('click', () => discardGpsRun());
 
   // Goal settings
@@ -350,7 +355,11 @@ export function initRunning(db) {
     closeRunDetail();
     startRunEdit(id, db);
   });
-  document.getElementById('runDetailShareBtn').addEventListener('click', () => shareRunCard());
+  document.getElementById('runDetailShareBtn').addEventListener('click', () => {
+    const id = parseInt(document.getElementById('runDetailModal').dataset.logId);
+    const log = (db.runningLogs || []).find(l => l.id === id);
+    if (log) openShareEditor(log);
+  });
   document.getElementById('runDetailDeleteBtn').addEventListener('click', () => {
     const btn = document.getElementById('runDetailDeleteBtn');
     const id = parseInt(document.getElementById('runDetailModal').dataset.logId);

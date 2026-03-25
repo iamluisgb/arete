@@ -111,28 +111,4 @@ function drawMiniRoute(canvas, coords) {
   ctx.stroke();
 }
 
-export async function shareRunCard() {
-  const card = document.getElementById('runShareCard');
-  const mapEl = document.getElementById('runDetailMap');
-  const mapDisplay = mapEl.style.display;
-  mapEl.style.display = 'none';
-  try {
-    const canvas = await html2canvas(card, { backgroundColor: '#f0f2f8', scale: 3, useCORS: true, logging: false });
-    mapEl.style.display = mapDisplay;
-    canvas.toBlob(async blob => {
-      if (!blob) { toast('Error al generar imagen', 'error'); return; }
-      const file = new File([blob], 'run.png', { type: 'image/png' });
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Mi carrera — Barra Libre' });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'barra-libre-run-' + new Date().toISOString().slice(0, 10) + '.png';
-        a.click(); URL.revokeObjectURL(url);
-      }
-    }, 'image/png');
-  } catch (e) {
-    mapEl.style.display = mapDisplay;
-    toast('Error al generar imagen', 'error');
-  }
-}
+// shareRunCard removed — now handled by share-editor.js via running.js

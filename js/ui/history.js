@@ -4,6 +4,7 @@ import { formatDate, esc, confirmDanger } from '../utils.js';
 import { getActiveProgram } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { toast } from './toast.js';
+import { openShareEditor } from './share-editor.js';
 const PAGE_SIZE = 50;
 let detailWorkoutId = null;
 let historyPage = 0;
@@ -112,21 +113,9 @@ export function showDetail(id, db) {
   dbtn.dataset.confirm = 'false'; dbtn.textContent = 'Borrar'; dbtn.style.width = '70px';
 }
 
-export async function shareCard() {
-  const card = document.getElementById('shareCard');
-  try {
-    const canvas = await html2canvas(card, { backgroundColor: null, scale: 3, useCORS: true, logging: false });
-    canvas.toBlob(async blob => {
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'workout.png', { type: 'image/png' })] })) {
-        await navigator.share({ files: [new File([blob], 'workout.png', { type: 'image/png' })], title: 'Mi entreno — Barra Libre' });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'barra-libre-' + new Date().toISOString().slice(0, 10) + '.png';
-        a.click(); URL.revokeObjectURL(url);
-      }
-    }, 'image/png');
-  } catch (e) { alert('Error al generar imagen. Intenta hacer captura de pantalla.'); }
+export function shareCard(db) {
+  const workout = getDetailWorkout(db);
+  if (workout) openShareEditor(workout, { mode: 'strength' });
 }
 
 export function closeDetailModal() {
@@ -157,7 +146,7 @@ export function initHistory(db, { onEdit }) {
     closeDetailModal();
     onEdit(workout);
   });
-  document.querySelector('.detail-share-btn').addEventListener('click', (e) => { e.stopPropagation(); shareCard(); });
+  document.querySelector('.detail-share-btn').addEventListener('click', (e) => { e.stopPropagation(); shareCard(db); });
   document.getElementById('deleteBtn').addEventListener('click', (e) => { e.stopPropagation(); deleteWorkout(db); });
 }
 
