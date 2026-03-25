@@ -236,12 +236,12 @@ function drawRouteEndpoints(ctx, points) {
   const start = points[0], end = points[points.length - 1];
   // Start point (green)
   ctx.beginPath();
-  ctx.arc(start[0], start[1], 7, 0, Math.PI * 2);
+  ctx.arc(start[0], start[1], 9, 0, Math.PI * 2);
   ctx.fillStyle = '#30d158';
   ctx.fill();
   // End point (red)
   ctx.beginPath();
-  ctx.arc(end[0], end[1], 7, 0, Math.PI * 2);
+  ctx.arc(end[0], end[1], 9, 0, Math.PI * 2);
   ctx.fillStyle = '#ff453a';
   ctx.fill();
 }
@@ -263,13 +263,13 @@ function drawBranding(ctx, W, y, theme) {
   ctx.strokeStyle = t.brandLine;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(W / 2 - 20, y - 16);
-  ctx.lineTo(W / 2 + 20, y - 16);
+  ctx.moveTo(W / 2 - 28, y - 18);
+  ctx.lineTo(W / 2 + 28, y - 18);
   ctx.stroke();
   // BARRA
-  drawText(ctx, 'BARRA ', W / 2 - 30, y, { size: 13, weight: 700, color: t.brandText, spacing: 0.2, upper: true, align: 'right' });
+  drawText(ctx, 'BARRA ', W / 2 - 40, y, { size: 18, weight: 700, color: t.brandText, spacing: 0.2, upper: true, align: 'right' });
   // LIBRE
-  drawText(ctx, 'LIBRE', W / 2 - 28, y, { size: 13, weight: 700, color: t.brandAccent, spacing: 0.2, upper: true, align: 'left' });
+  drawText(ctx, 'LIBRE', W / 2 - 38, y, { size: 18, weight: 700, color: t.brandAccent, spacing: 0.2, upper: true, align: 'left' });
 }
 
 function drawRoundedRect(ctx, x, y, w, h, r) {
@@ -289,30 +289,30 @@ function renderMinimal(ctx, W, H, data, theme) {
     const simplified = simplifyRoute(data.coords);
     const region = { x: W * 0.1, y: H * 0.15, w: W * 0.8, h: H * 0.7 };
     const pts = projectCoords(simplified, region, 40);
-    drawRoute(ctx, pts, t.routeBg, 1.5, 6, 0.12);
+    drawRoute(ctx, pts, t.routeBg, 1.5, 6, 0.18);
   }
 
   const centerY = H * 0.42;
 
   // Distance hero
-  drawText(ctx, data.distanceStr, W / 2, centerY, { size: H > 1200 ? 160 : 120, weight: 800, color: t.text });
-  drawText(ctx, 'KM', W / 2, centerY + (H > 1200 ? 85 : 65), { size: 28, weight: 600, color: t.sub(.5), spacing: 0.15, upper: true });
+  drawText(ctx, data.distanceStr, W / 2, centerY, { size: H > 1200 ? 200 : 160, weight: 800, color: t.text });
+  drawText(ctx, 'KM', W / 2, centerY + (H > 1200 ? 105 : 85), { size: 36, weight: 600, color: t.sub(.5), spacing: 0.15, upper: true });
 
   // Time | Pace
-  const subY = centerY + (H > 1200 ? 160 : 130);
-  drawText(ctx, data.durationStr, W / 2 - 130, subY, { size: 38, weight: 700, color: t.text });
+  const subY = centerY + (H > 1200 ? 190 : 155);
+  drawText(ctx, data.durationStr, W / 2 - 160, subY, { size: 52, weight: 700, color: t.text });
   // separator
   ctx.fillStyle = t.separator;
-  ctx.fillRect(W / 2 - 1, subY - 18, 2, 36);
-  drawText(ctx, data.paceStr + '/km', W / 2 + 130, subY, { size: 38, weight: 700, color: t.text });
+  ctx.fillRect(W / 2 - 1, subY - 24, 2, 48);
+  drawText(ctx, data.paceStr + '/km', W / 2 + 160, subY, { size: 52, weight: 700, color: t.text });
 
   // Labels
-  drawText(ctx, 'tiempo', W / 2 - 130, subY + 32, { size: 16, weight: 500, color: t.sub(.45), upper: true, spacing: 0.1 });
-  drawText(ctx, 'ritmo', W / 2 + 130, subY + 32, { size: 16, weight: 500, color: t.sub(.45), upper: true, spacing: 0.1 });
+  drawText(ctx, 'tiempo', W / 2 - 160, subY + 42, { size: 22, weight: 500, color: t.sub(.45), upper: true, spacing: 0.1 });
+  drawText(ctx, 'ritmo', W / 2 + 160, subY + 42, { size: 22, weight: 500, color: t.sub(.45), upper: true, spacing: 0.1 });
 
   // Date + type
   const meta = [data.dateStr, data.typeStr].filter(Boolean).join('  ·  ');
-  drawText(ctx, meta, W / 2, H * 0.22, { size: 16, weight: 500, color: t.sub(.35) });
+  drawText(ctx, meta, W / 2, H * 0.22, { size: 24, weight: 500, color: t.sub(.35) });
 
   drawBranding(ctx, W, H * 0.92, t);
 }
@@ -326,7 +326,7 @@ function renderStatsPro(ctx, W, H, data, theme) {
     const simplified = simplifyRoute(data.coords);
     const region = { x: W * 0.05, y: H * 0.3, w: W * 0.9, h: H * 0.5 };
     const pts = projectCoords(simplified, region, 50);
-    drawRoute(ctx, pts, t.route, 1.5, 6, 0.06);
+    drawRoute(ctx, pts, t.route, 1.5, 6, 0.10);
   }
 
   const pad = 60;
@@ -334,20 +334,20 @@ function renderStatsPro(ctx, W, H, data, theme) {
   let y = pad;
 
   // Date in accent
-  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 18, weight: 700, color: t.accent, align: 'left' });
-  y += 28;
-  drawText(ctx, data.typeStr, pad, y + 10, { size: 14, weight: 600, color: t.sub(.5), align: 'left', upper: true, spacing: 0.1 });
-  y += 50;
+  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 24, weight: 700, color: t.accent, align: 'left' });
+  y += 34;
+  drawText(ctx, data.typeStr, pad, y + 10, { size: 18, weight: 600, color: t.sub(.5), align: 'left', upper: true, spacing: 0.1 });
+  y += 54;
 
   // Distance hero card
-  drawRoundedRect(ctx, pad, y, W - 2 * pad, 150, 16);
+  drawRoundedRect(ctx, pad, y, W - 2 * pad, 180, 16);
   ctx.fillStyle = t.card;
   ctx.fill();
   ctx.strokeStyle = t.cardBorder;
   ctx.lineWidth = 1;
   ctx.stroke();
-  drawText(ctx, data.distanceStr + ' km', W / 2, y + 75, { size: 64, weight: 800, color: t.text });
-  y += 170;
+  drawText(ctx, data.distanceStr + ' km', W / 2, y + 90, { size: 80, weight: 800, color: t.text });
+  y += 200;
 
   // Stat grid (2 columns)
   const stats = [
@@ -361,7 +361,7 @@ function renderStatsPro(ctx, W, H, data, theme) {
 
   const cols = 2;
   const cardW = (W - 2 * pad - 16) / cols;
-  const cardH = 110;
+  const cardH = 130;
   for (let i = 0; i < stats.length && i < 6; i++) {
     const col = i % cols, row = Math.floor(i / cols);
     const cx = pad + col * (cardW + 16);
@@ -369,34 +369,34 @@ function renderStatsPro(ctx, W, H, data, theme) {
     drawRoundedRect(ctx, cx, cy, cardW, cardH, 12);
     ctx.fillStyle = t.card;
     ctx.fill();
-    drawText(ctx, stats[i].val, cx + cardW / 2, cy + 45, { size: 44, weight: 700, color: t.text });
-    drawText(ctx, stats[i].label, cx + cardW / 2, cy + 88, { size: 14, weight: 600, color: t.sub(.4), spacing: 0.12 });
+    drawText(ctx, stats[i].val, cx + cardW / 2, cy + 52, { size: 56, weight: 700, color: t.text });
+    drawText(ctx, stats[i].label, cx + cardW / 2, cy + 105, { size: 20, weight: 600, color: t.sub(.4), spacing: 0.12 });
   }
   y += Math.ceil(stats.length / cols) * (cardH + 12) + 20;
 
   // Splits (only in 9:16 and if available)
   if (is916 && data.splits?.length > 0) {
-    drawText(ctx, 'SPLITS', pad, y + 8, { size: 12, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
-    y += 32;
+    drawText(ctx, 'SPLITS', pad, y + 8, { size: 18, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
+    y += 38;
     const maxSplits = Math.min(data.splits.length, 10);
     const fastestPace = Math.min(...data.splits.slice(0, maxSplits).map(s => s.pace || Infinity));
     const slowestPace = Math.max(...data.splits.slice(0, maxSplits).map(s => s.pace || 0));
-    const barMaxW = W - 2 * pad - 180;
+    const barMaxW = W - 2 * pad - 210;
 
     for (let i = 0; i < maxSplits; i++) {
       const sp = data.splits[i];
-      const sy = y + i * 36;
-      drawText(ctx, `KM ${sp.km || i + 1}`, pad + 10, sy + 12, { size: 14, weight: 600, color: t.sub(.5), align: 'left' });
-      drawText(ctx, formatPace(sp.pace), pad + 100, sy + 12, { size: 18, weight: 700, color: t.text, align: 'left' });
+      const sy = y + i * 44;
+      drawText(ctx, `KM ${sp.km || i + 1}`, pad + 10, sy + 14, { size: 18, weight: 600, color: t.sub(.5), align: 'left' });
+      drawText(ctx, formatPace(sp.pace), pad + 120, sy + 14, { size: 24, weight: 700, color: t.text, align: 'left' });
       // Bar
       const pct = slowestPace > fastestPace ? 1 - (sp.pace - fastestPace) / (slowestPace - fastestPace) : 1;
       const barW = Math.max(20, pct * barMaxW);
       const barColor = pct > 0.66 ? '#30d158' : pct > 0.33 ? '#ff9f0a' : '#ff453a';
-      drawRoundedRect(ctx, pad + 180, sy + 4, barW, 16, 4);
+      drawRoundedRect(ctx, pad + 210, sy + 4, barW, 22, 5);
       ctx.fillStyle = barColor;
       ctx.fill();
     }
-    y += maxSplits * 36 + 10;
+    y += maxSplits * 44 + 10;
   }
 
   drawBranding(ctx, W, H * (is916 ? 0.93 : 0.90), t);
@@ -416,7 +416,7 @@ function renderRouteHero(ctx, W, H, data, theme) {
   const is916 = H > 1200;
 
   // Date
-  drawText(ctx, data.dateStr?.toUpperCase?.() || '', 50, 50, { size: 16, weight: 700, color: t.sub(.4), align: 'left' });
+  drawText(ctx, data.dateStr?.toUpperCase?.() || '', 50, 50, { size: 22, weight: 700, color: t.sub(.4), align: 'left' });
 
   // Route
   if (data.coords.length > 1) {
@@ -424,13 +424,13 @@ function renderRouteHero(ctx, W, H, data, theme) {
     const routeH = is916 ? H * 0.55 : H * 0.60;
     const region = { x: 0, y: H * 0.08, w: W, h: routeH };
     const pts = projectCoords(simplified, region, 60);
-    drawRoute(ctx, pts, t.route, 3, 10, 1);
+    drawRoute(ctx, pts, t.route, 4, 12, 1);
     drawRouteEndpoints(ctx, pts);
     _projected = pts; // cache
   }
 
   // Stats bar at bottom (glass effect)
-  const barH = 110;
+  const barH = 130;
   const barPad = 40;
   const barY = is916 ? H * 0.76 : H * 0.72;
   drawRoundedRect(ctx, barPad, barY, W - 2 * barPad, barH, 16);
@@ -445,12 +445,12 @@ function renderRouteHero(ctx, W, H, data, theme) {
   const fw = (W - 2 * barPad) / fields.length;
   fields.forEach((f, i) => {
     const fx = barPad + fw * i + fw / 2;
-    drawText(ctx, f.val, fx, barY + 40, { size: 36, weight: 700, color: t.text });
-    drawText(ctx, f.label, fx, barY + 72, { size: 13, weight: 600, color: t.sub(.4), upper: true, spacing: 0.12 });
+    drawText(ctx, f.val, fx, barY + 48, { size: 48, weight: 700, color: t.text });
+    drawText(ctx, f.label, fx, barY + 90, { size: 20, weight: 600, color: t.sub(.4), upper: true, spacing: 0.12 });
     // separator
     if (i < fields.length - 1) {
       ctx.fillStyle = t.sub(.1);
-      ctx.fillRect(barPad + fw * (i + 1), barY + 22, 1, barH - 44);
+      ctx.fillRect(barPad + fw * (i + 1), barY + 26, 1, barH - 52);
     }
   });
 
@@ -467,18 +467,18 @@ function renderMinimalStrength(ctx, W, H, data, theme) {
   const is916 = H > 1200;
 
   // Date
-  drawText(ctx, data.dateStr, W / 2, H * 0.18, { size: 16, weight: 500, color: t.sub(.35) });
+  drawText(ctx, data.dateStr, W / 2, H * 0.16, { size: 22, weight: 500, color: t.sub(.35) });
 
-  // Session name hero (smaller to leave room for exercises)
+  // Session name hero
   const name = data.sessionStr || 'Entrenamiento';
-  const nameSize = name.length > 20 ? (is916 ? 48 : 40) : (is916 ? 60 : 48);
-  const nameY = H * 0.26;
+  const nameSize = name.length > 20 ? (is916 ? 64 : 52) : (is916 ? 80 : 64);
+  const nameY = H * 0.22;
   drawText(ctx, name, W / 2, nameY, { size: nameSize, weight: 800, color: t.text });
 
   // Exercises with best set (protagonist)
-  const exStartY = nameY + (is916 ? 90 : 70);
-  const maxEx = is916 ? 7 : 5;
-  const lineH = is916 ? 52 : 46;
+  const exStartY = nameY + (is916 ? 110 : 85);
+  const maxEx = is916 ? 8 : 5;
+  const lineH = is916 ? 70 : 60;
 
   for (let i = 0; i < Math.min(data.exercises.length, maxEx); i++) {
     const ex = data.exercises[i];
@@ -487,29 +487,29 @@ function renderMinimalStrength(ctx, W, H, data, theme) {
 
     // Exercise name
     drawText(ctx, ex.name, W / 2, ey, {
-      size: 24, weight: 600, color: isPR ? t.accent : t.sub(.8)
+      size: 32, weight: 600, color: isPR ? t.accent : t.sub(.8)
     });
 
     // Best set (heaviest kg)
     const bestSet = ex.sets?.reduce((a, b) =>
       (parseFloat(b.kg) || 0) > (parseFloat(a.kg) || 0) ? b : a, ex.sets[0]);
     if (bestSet && (parseFloat(bestSet.kg) || 0) > 0) {
-      drawText(ctx, `${bestSet.kg}kg × ${bestSet.reps}`, W / 2, ey + 24, {
-        size: 16, weight: 500, color: t.sub(.4)
+      drawText(ctx, `${bestSet.kg}kg × ${bestSet.reps}`, W / 2, ey + 30, {
+        size: 22, weight: 500, color: t.sub(.4)
       });
     }
   }
   if (data.exercises.length > maxEx) {
     drawText(ctx, `+${data.exercises.length - maxEx} más`, W / 2, exStartY + maxEx * lineH, {
-      size: 14, weight: 500, color: t.sub(.3)
+      size: 20, weight: 500, color: t.sub(.3)
     });
   }
 
   // PRs badge
   if (data.prs?.length > 0) {
-    const prY = exStartY + Math.min(data.exercises.length, maxEx) * lineH + 30;
+    const prY = exStartY + Math.min(data.exercises.length, maxEx) * lineH + 40;
     drawText(ctx, `${data.prs.length} PR${data.prs.length > 1 ? 's' : ''} batido${data.prs.length > 1 ? 's' : ''}`, W / 2, prY, {
-      size: 22, weight: 700, color: t.accent
+      size: 30, weight: 700, color: t.accent
     });
   }
 
@@ -525,31 +525,31 @@ function renderStatsStrength(ctx, W, H, data, theme) {
   let y = pad;
 
   // Date + session
-  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 18, weight: 700, color: t.accent, align: 'left' });
-  y += 28;
-  drawText(ctx, data.sessionStr, pad, y + 10, { size: 24, weight: 800, color: t.text, align: 'left' });
-  y += 36;
+  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 24, weight: 700, color: t.accent, align: 'left' });
+  y += 34;
+  drawText(ctx, data.sessionStr, pad, y + 10, { size: 34, weight: 800, color: t.text, align: 'left' });
+  y += 44;
 
   // Inline summary (replaces big cards)
   const summaryText = `${data.totalSets} series  ·  ${data.volumeStr}`;
-  drawText(ctx, summaryText, pad, y + 10, { size: 15, weight: 500, color: t.sub(.4), align: 'left' });
-  y += 50;
+  drawText(ctx, summaryText, pad, y + 10, { size: 20, weight: 500, color: t.sub(.4), align: 'left' });
+  y += 56;
 
   // Exercises with sets
-  drawText(ctx, 'EJERCICIOS', pad, y + 8, { size: 13, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
-  y += 36;
+  drawText(ctx, 'EJERCICIOS', pad, y + 8, { size: 18, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
+  y += 42;
 
   const maxEx = is916 ? 8 : 6;
   for (let i = 0; i < Math.min(data.exercises.length, maxEx); i++) {
     const ex = data.exercises[i];
     const isPR = data.prs?.some(p => p.exercise === ex.name);
     drawText(ctx, ex.name + (isPR ? ' PR' : ''), pad + 10, y + 12, {
-      size: 22, weight: 700, color: isPR ? t.accent : t.text, align: 'left'
+      size: 28, weight: 700, color: isPR ? t.accent : t.text, align: 'left'
     });
-    y += 34;
+    y += 40;
     const setsStr = ex.sets.map(s => `${s.kg || 0}kg × ${s.reps || 0}`).join('  ·  ');
-    drawText(ctx, setsStr, pad + 10, y + 8, { size: 17, weight: 500, color: t.sub(.55), align: 'left' });
-    y += 42;
+    drawText(ctx, setsStr, pad + 10, y + 8, { size: 22, weight: 500, color: t.sub(.55), align: 'left' });
+    y += 50;
     // Separator between exercises
     if (i < Math.min(data.exercises.length, maxEx) - 1) {
       ctx.fillStyle = t.separatorLight;
