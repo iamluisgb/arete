@@ -502,9 +502,6 @@ input.prefilled:focus{background:var(--surface);border:none}
 .run-pause-btn.paused svg{display:none}
 .run-pause-btn.paused::after{content:'';width:0;height:0;border-style:solid;border-width:14px 0 14px 24px;border-color:transparent transparent transparent #fff;margin-left:4px}
 
-/* Wake lock toggle (screen on) */
-.run-lock-btn.wake-active{background:var(--accent);color:#fff}
-
 /* Auto-pause toggle */
 .run-autopause-btn.active{background:var(--green);color:#fff}
 

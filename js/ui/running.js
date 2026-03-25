@@ -87,7 +87,7 @@ let _splitHrSum = 0, _splitHrCount = 0;  // per-split HR accumulation
 
 let $overlay, $liveScreen, $summaryScreen;
 let $liveTimer, $liveDist, $livePace, $liveSplits, $liveMap, $liveStatus;
-let $pauseBtn, $stopBtn, $lockBtn, $autoPauseBtn, $hrBtn, $hrMetric, $hrValue;
+let $pauseBtn, $stopBtn, $autoPauseBtn, $hrBtn, $hrMetric, $hrValue;
 let $uiLock, $uiLockProgress;
 let $goalCard, $goalBody, $goalArc, $goalCurrent, $goalUnit, $goalTarget, $goalSessions;
 let $prsGrid;
@@ -108,7 +108,6 @@ function cacheSelectors() {
   $liveStatus = document.getElementById('runLiveStatus');
   $pauseBtn = document.getElementById('runPauseBtn');
   $stopBtn = document.getElementById('runStopBtn');
-  $lockBtn = document.getElementById('runLockBtn');
   $autoPauseBtn = document.getElementById('runAutoPauseBtn');
   $uiLock = document.getElementById('runUiLock');
   $uiLockProgress = document.getElementById('runUiLockProgress');
@@ -265,7 +264,6 @@ export function initRunning(db) {
   // Live tracking controls
   $pauseBtn.addEventListener('click', () => togglePause());
   $stopBtn.addEventListener('click', () => stopGpsRun(db));
-  $lockBtn.addEventListener('click', () => toggleLock());
   $autoPauseBtn.addEventListener('click', () => toggleAutoPause());
 
   // UI Lock (black screen keep-alive)
@@ -508,7 +506,6 @@ function restoreRun(snap, db) {
     $liveStatus.classList.remove('paused');
   }
 
-  $lockBtn.classList.toggle('wake-active', tracker.wakeLockActive);
   $autoPauseBtn.classList.toggle('active', tracker.autoPauseEnabled);
 
   // Set type badge
@@ -617,11 +614,6 @@ function startGpsRun(db) {
   $liveStatus.textContent = 'EN CURSO';
   $liveStatus.classList.remove('paused');
   $pauseBtn.classList.remove('paused');
-  $lockBtn.classList.add('wake-active');
-  const lockOpen = $lockBtn.querySelector('.lock-open');
-  const lockClosed = $lockBtn.querySelector('.lock-closed');
-  if (lockOpen && lockClosed) { lockOpen.style.display = 'none'; lockClosed.style.display = ''; }
-
   // Set type badge
   const meta = RUN_TYPE_META[activeRunType];
   if (meta && activeRunType !== 'libre') {
@@ -673,18 +665,6 @@ function togglePause() {
     $pauseBtn.classList.remove('paused');
     $liveStatus.textContent = 'EN CURSO';
     $liveStatus.classList.remove('paused');
-  }
-}
-
-async function toggleLock() {
-  const screenOn = await tracker.toggleWakeLock();
-  $lockBtn.classList.toggle('wake-active', screenOn);
-  $lockBtn.title = screenOn ? 'Pantalla encendida' : 'Pantalla puede apagarse';
-  const lockOpen = $lockBtn.querySelector('.lock-open');
-  const lockClosed = $lockBtn.querySelector('.lock-closed');
-  if (lockOpen && lockClosed) {
-    lockOpen.style.display = screenOn ? 'none' : '';
-    lockClosed.style.display = screenOn ? '' : 'none';
   }
 }
 
