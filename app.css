@@ -166,7 +166,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .modal-overlay{justify-content:center;align-items:center}
 .detail-modal .modal,.run-detail-modal .modal{max-width:500px!important;max-height:90vh!important;border-radius:var(--radius-lg)!important;margin:auto}
 .detail-btn-bar{max-width:500px;left:50%;transform:translateX(-50%);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
-.share-editor-overlay{max-width:500px;left:50%;transform:translateX(-50%);border-radius:var(--radius-lg);inset:0}
+.share-editor-overlay{max-width:500px;left:50%;right:auto;transform:translateX(-50%);border-radius:var(--radius-lg)}
 }
 
 /* Static inline styles extracted from HTML */
