@@ -141,7 +141,9 @@ export function renderDashboard(db) {
   setRing('dashSessionsRing', sessionCount / sessionGoal);
 
   // Running metrics
+  console.log('[Dashboard] runningLogs count:', (db.runningLogs || []).length, 'sample:', db.runningLogs?.[0]);
   const weekRuns = (db.runningLogs || []).filter(r => new Date(r.date + 'T12:00:00') >= weekStart);
+  console.log('[Dashboard] weekRuns count:', weekRuns.length, 'weekStart:', weekStart.toISOString());
   const runWeekKm = weekRuns.reduce((sum, r) => sum + (parseFloat(r.distance) || 0), 0);
   const runGoalKm = db.runningGoal?.target || 20;
   const runKmEl = document.getElementById('dashRunKmValue');
