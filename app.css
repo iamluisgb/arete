@@ -164,7 +164,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 ::-webkit-scrollbar{width:0}
 @media(min-width:500px){body{max-width:500px;margin:0 auto}nav{max-width:500px;left:50%;transform:translateX(-50%)}
 .modal-overlay{justify-content:center;align-items:center}
-.detail-modal .modal,.run-detail-modal .modal{max-width:500px;max-height:90vh;border-radius:var(--radius-lg);margin:auto}
+.detail-modal .modal,.run-detail-modal .modal{max-width:500px!important;max-height:90vh!important;border-radius:var(--radius-lg)!important;margin:auto}
+.detail-btn-bar{max-width:500px;left:50%;transform:translateX(-50%);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
 .share-editor-overlay{max-width:500px;left:50%;transform:translateX(-50%);border-radius:var(--radius-lg);inset:0}
 }
 
@@ -770,7 +771,9 @@ input.prefilled:focus{background:var(--surface);border:none}
 .se-preset-chip.active{border-color:var(--accent);color:#fff;background:rgba(212,55,44,.15)}
 .se-preset-chip:active{transform:scale(.96)}
 .se-preset-chip.hidden{display:none}
-.se-share-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 24px}
+.se-action-row{display:flex;gap:8px}
+.se-share-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 24px}
+.se-copy-btn,.se-download-btn{display:flex;align-items:center;justify-content:center;width:52px;padding:0;border-radius:var(--radius);flex-shrink:0}
 .se-share-btn .material-symbols-outlined{font-size:20px}
 .se-share-btn:disabled{opacity:.5;pointer-events:none}
 

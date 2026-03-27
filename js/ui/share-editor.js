@@ -789,6 +789,39 @@ async function exportImage() {
   }
 }
 
+async function copyToClipboard() {
+  const canvas = document.getElementById('seCanvas');
+  if (!canvas) return;
+  try {
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) { toast('Error al copiar', 'error'); return; }
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    toast('Imagen copiada al portapapeles');
+  } catch {
+    toast('No se pudo copiar al portapapeles', 'error');
+  }
+}
+
+async function downloadImage() {
+  const canvas = document.getElementById('seCanvas');
+  if (!canvas) return;
+  try {
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) { toast('Error al descargar', 'error'); return; }
+    const date = _data?.date || new Date().toISOString().slice(0, 10);
+    const prefix = _mode === 'running' ? 'run' : 'workout';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `arete-${prefix}-${date}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Imagen descargada');
+  } catch {
+    toast('Error al descargar', 'error');
+  }
+}
+
 // ── Preferences ─────────────────────────────────────────────
 
 function loadPrefs() {
@@ -809,6 +842,8 @@ function _bindUI() {
 
   document.getElementById('seCloseBtn').addEventListener('click', closeShareEditor);
   document.getElementById('seShareBtn').addEventListener('click', exportImage);
+  document.getElementById('seCopyBtn').addEventListener('click', copyToClipboard);
+  document.getElementById('seDownloadBtn').addEventListener('click', downloadImage);
 
   // Format toggle
   document.querySelectorAll('.se-format-btn').forEach(btn => {
