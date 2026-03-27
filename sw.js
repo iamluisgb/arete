@@ -8,7 +8,7 @@ const ASSETS = [
   './manifest.json',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './blog/filosofia.html',
+  './blog/filosofia-arete.html',
   './blog/fase1-fuerza.html',
   './blog/fase2-hipertrofia.html',
   './blog/fase3-definicion.html',
