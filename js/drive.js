@@ -104,7 +104,7 @@ async function uploadFile(token, content, existingFileId) {
     ? { name: BACKUP_FILENAME }
     : { name: BACKUP_FILENAME, parents: ['appDataFolder'] };
 
-  const boundary = '---barra_libre_boundary';
+  const boundary = '---arete_boundary';
   const body =
     `--${boundary}\r\n` +
     `Content-Type: application/json; charset=UTF-8\r\n\r\n` +

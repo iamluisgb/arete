@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamluisgb/barra-libre.git"
+    "url": "git+https://github.com/iamluisgb/arete.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/iamluisgb/barra-libre/issues"
+    "url": "https://github.com/iamluisgb/arete/issues"
   },
-  "homepage": "https://github.com/iamluisgb/barra-libre#readme",
+  "homepage": "https://github.com/iamluisgb/arete#readme",
   "description": "",
   "devDependencies": {
     "jsdom": "^26.1.0",
