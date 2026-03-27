@@ -230,10 +230,10 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 
 /* Detail button bar */
 #detailBtnBar{display:none}
-.detail-close-btn{flex:0 0 auto;font-size:var(--fs-md);padding:12px 14px}
-.detail-share-btn{flex:1;font-size:var(--fs-md);background:var(--accent);color:#fff;font-weight:700;min-width:0}
-#editBtn{flex:1;min-width:0}
-#deleteBtn{flex:0 0 auto;font-size:var(--fs-base);background:var(--red);color:#fff;border:none;border-radius:12px;font-weight:700;padding:12px 14px}
+.detail-btn-bar .btn{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:12px 8px;font-size:var(--fs-base)}
+.detail-close-btn{font-size:var(--fs-md)}
+.detail-share-btn{background:var(--accent);color:#fff;font-weight:700}
+#deleteBtn{background:var(--red);color:#fff;border:none;border-radius:12px;font-weight:700}
 
 /* PR celebration */
 #prCelebration{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center}
