@@ -636,7 +636,13 @@ function renderMinimalStrength(ctx, W, H, data, theme) {
       drawFauxItalic(ctx, `×${bestSet.reps}`, rx, ey + 35, { size: 28, weight: 500, color: t.sub(.6), align: 'right' });
     } else if (ex.sets?.[0]?.reps) {
       const rx = W - pad - 30;
-      drawFauxItalic(ctx, `${ex.sets[0].reps}`, rx, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
+      const numSets = ex.sets.length;
+      if (numSets > 1) {
+        drawFauxItalic(ctx, `${ex.sets[0].reps}`, rx - 80, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
+        drawFauxItalic(ctx, `×${numSets}`, rx, ey + 35, { size: 28, weight: 500, color: t.sub(.6), align: 'right' });
+      } else {
+        drawFauxItalic(ctx, `${ex.sets[0].reps}`, rx, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
+      }
     }
 
     // PR indicator
@@ -701,7 +707,9 @@ function renderStatsStrength(ctx, W, H, data, theme) {
     const hasKg = ex.sets?.some(s => parseFloat(s.kg) > 0);
     const setsStr = hasKg
       ? ex.sets.map(s => `${s.kg || 0}kg × ${s.reps || 0}`).join('  ·  ')
-      : ex.sets?.[0]?.reps || '—';
+      : ex.sets?.length
+        ? ex.sets.map(s => s.reps || '—').join('  ·  ')
+        : '—';
     const exCardH = 100;
     drawGlassPanel(ctx, pad, y, W - 2 * pad, exCardH, 16, t);
 
