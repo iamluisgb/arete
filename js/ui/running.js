@@ -1641,7 +1641,7 @@ function deleteRunLog(db, id) {
 
 // ── Run Detail Modal ─────────────────────────────────────
 
-async function openRunDetail(id, db) {
+export async function openRunDetail(id, db) {
   const log = (db.runningLogs || []).find(l => l.id === id);
   if (!log) return;
 

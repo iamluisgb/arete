@@ -1,4 +1,4 @@
-import { renderRunHistory } from './running.js';
+import { renderRunHistory, openRunDetail } from './running.js';
 
 let _viewDate = new Date();
 
@@ -63,7 +63,9 @@ export function initRunCalendar(db) {
 
 function runCalDayClick(ds, db) {
   const runs = (db.runningLogs || []).filter(l => l.date === ds);
-  if (runs.length >= 1) {
+  if (runs.length === 1) {
+    openRunDetail(runs[0].id, db);
+  } else if (runs.length > 1) {
     document.getElementById('runHistoryFilter').value = '';
     renderRunHistory(db, ds);
   }
