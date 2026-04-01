@@ -90,7 +90,7 @@ function cacheSelectors() {
   $trainNotes = document.getElementById('trainNotes');
   $prefillBanner = document.getElementById('prefillBanner');
   $prefillText = document.getElementById('prefillText');
-  $saveBtn = document.querySelector('#strTrain .btn');
+  $saveBtn = document.getElementById('saveWorkoutBtn');
   $prCelebration = document.getElementById('prCelebration');
   $prList = document.getElementById('prList');
   $sessionOverview = document.getElementById('sessionOverview');
@@ -180,8 +180,8 @@ function setFormVisible(show) {
   const timerBar = document.getElementById('timerBar');
   const miniTimer = document.getElementById('miniTimer');
   const dots = document.getElementById('exerciseDots');
-  const notes = $trainNotes?.closest('.mb');
-  [timerBar, miniTimer, $prefillBanner, dots, $exerciseList, notes, $saveBtn].forEach(el => {
+  const saveBar = document.getElementById('saveBar');
+  [timerBar, miniTimer, $prefillBanner, dots, $exerciseList, saveBar].forEach(el => {
     if (el) el.style.display = show ? '' : 'none';
   });
   if ($sessionOverview) $sessionOverview.style.display = show ? 'none' : '';
@@ -755,6 +755,12 @@ export function saveWorkout(db) {
   }
 
   $trainNotes.value = '';
+  const $notesBody = document.getElementById('notesBody');
+  const $notesToggle = document.getElementById('notesToggle');
+  if ($notesBody && !$notesBody.hidden) {
+    $notesBody.hidden = true;
+    if ($notesToggle) { $notesToggle.textContent = '+ Añadir'; $notesToggle.setAttribute('aria-expanded', 'false'); }
+  }
   clearDraft();
   _formExpanded = false;
   loadSessionTemplate(db, true);
@@ -827,6 +833,17 @@ export function initTraining(db, { onCancelEdit }) {
   $trainNotes.addEventListener('input', scheduleDraft);
   $trainSession.addEventListener('change', () => { clearDraft(); _formExpanded = false; loadSessionTemplate(db, true); });
   $saveBtn.addEventListener('click', () => saveWorkout(db));
+  const $notesToggleBtn = document.getElementById('notesToggle');
+  const $notesBodyEl = document.getElementById('notesBody');
+  if ($notesToggleBtn && $notesBodyEl) {
+    $notesToggleBtn.addEventListener('click', () => {
+      const open = !$notesBodyEl.hidden;
+      $notesBodyEl.hidden = open;
+      $notesToggleBtn.textContent = open ? '+ Añadir' : '✕ Cerrar';
+      $notesToggleBtn.setAttribute('aria-expanded', String(!open));
+      if (!open) $trainNotes.focus();
+    });
+  }
   $prefillBanner.addEventListener('click', (e) => {
     if (e.target.closest('.prefill-clear')) {
       onCancelEdit();

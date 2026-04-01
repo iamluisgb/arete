@@ -1,6 +1,6 @@
 :root{--bg:#f4f2f0;--surface:#fff;--surface2:#ebe8e5;--surface-high:#f0eeeb;--surface-glass:rgba(255,255,255,.75);--border:rgba(92,68,64,.08);--ghost-border:rgba(0,0,0,.06);--text:#1c1b1b;--text2:rgba(93,63,59,.55);--text3:rgba(93,63,59,.40);--accent:#d4372c;--accent2:#ff5545;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.12);--green:#16a34a;--red:#dc2626;--blue:#d4372c;--teal:#0891b2;--color-running:#0891b2;--radius:16px;--radius-lg:24px;--font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;--fs-2xs:.55rem;--fs-xs:.6rem;--fs-sm:.65rem;--fs-base:.72rem;--fs-md:.82rem;--fs-lg:.9rem;--fs-xl:1.1rem;--fs-2xl:1.3rem;--fs-3xl:2rem;--fs-4xl:3rem;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px}
 *{margin:0;padding:0;box-sizing:border-box}html{font-size:16px}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:84px;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:160px;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:24px 24px 0 0;display:flex;z-index:100;padding:8px 8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
 :root.dark nav{background:rgba(19,19,19,.6);box-shadow:0 -10px 40px rgba(0,0,0,.4)}
 nav button{flex:1;background:none;border:none;color:var(--text3);padding:6px 4px 4px;font-family:var(--font);font-size:var(--fs-xs);font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:all .2s;border-radius:var(--radius)}
@@ -22,7 +22,12 @@ textarea:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(212,55,44,.3)
 .btn:active{transform:scale(.97);opacity:.85}
 .btn-outline{background:var(--surface2);border:none;color:var(--text);font-weight:500}.btn-outline:active{background:var(--surface-high,var(--surface2));opacity:.85}
 .btn-sm{padding:10px 16px;font-size:var(--fs-md);width:auto}.btn-danger{background:var(--red);color:#fff}
-#saveWorkoutBtn{position:sticky;bottom:84px;z-index:40;box-shadow:0 12px 32px var(--accent-glow)}
+.save-bar{position:fixed;bottom:max(84px,env(safe-area-inset-bottom,0px) + 84px);left:0;right:0;z-index:50;background:var(--surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 20px 12px;border-top:1px solid var(--border)}
+.save-bar-notes-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.save-bar-notes-label{font-size:var(--fs-xs);color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.save-bar-notes-toggle{background:none;border:none;color:var(--accent);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:4px 0 4px 16px;cursor:pointer;min-height:44px}
+.save-bar-notes-body{margin-bottom:8px}
+.save-bar-notes-body textarea{min-height:72px;resize:none;width:100%}
 button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ex-dots{display:none;justify-content:center;gap:6px;padding:4px 0 8px;position:sticky;top:82px;z-index:45;background:var(--bg)}
 .ex-dots.visible{display:flex}

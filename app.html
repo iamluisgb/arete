@@ -126,8 +126,16 @@
     <div id="sessionOverview"></div>
     <div class="ex-dots" id="exerciseDots"></div>
     <div id="exerciseList"></div>
-    <div class="mb"><label>Notas</label><textarea id="trainNotes" placeholder="Sensaciones, fatiga, ajustes..."></textarea></div>
-    <button class="btn mb" id="saveWorkoutBtn">Guardar sesión</button>
+    <div class="save-bar" id="saveBar">
+      <div class="save-bar-notes-row">
+        <span class="save-bar-notes-label">Nota opcional</span>
+        <button class="save-bar-notes-toggle" id="notesToggle" type="button" aria-expanded="false" aria-controls="trainNotes">+ Añadir</button>
+      </div>
+      <div class="save-bar-notes-body" id="notesBody" hidden>
+        <textarea id="trainNotes" placeholder="Sensaciones, fatiga, ajustes..."></textarea>
+      </div>
+      <button class="btn" id="saveWorkoutBtn">Guardar sesión</button>
+    </div>
   </div>
   <div class="str-panel" id="strHistory">
     <div class="cal-nav"><button aria-label="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente">▶</button></div>
