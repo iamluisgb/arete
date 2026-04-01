@@ -330,17 +330,16 @@ export function stopExTimer(completed) {
     exBeepDone();
   } else {
     // Guardar resultado parcial si hay datos útiles
-    if (input && !input.value) {
+    if (input) {
       const t = activeExTimer.config.type;
-      if ((t === 'stopwatch' || t === 'hiit-rounds') && totalElapsed > 5) {
-        if (t === 'hiit-rounds') {
-          const roundsDone = Math.max(0, (activeExTimer.hiitCurrentRound || 1) - 1);
-          input.value = roundsDone > 0
-            ? `${roundsDone}R · ${exFmtTime(totalElapsed)}`
-            : exFmtTime(totalElapsed);
-        } else {
-          input.value = exFmtTime(totalElapsed);
-        }
+      if (t === 'hiit-rounds' && totalElapsed > 5) {
+        const roundsDone = Math.max(0, (activeExTimer.hiitCurrentRound || 1) - 1);
+        input.value = roundsDone > 0
+          ? `${roundsDone}R · ${exFmtTime(totalElapsed)}`
+          : exFmtTime(totalElapsed);
+        input.classList.add('partial');
+      } else if (t === 'stopwatch' && !input.value && totalElapsed > 5) {
+        input.value = exFmtTime(totalElapsed);
         input.classList.add('partial');
       } else if ((t === 'countdown-manual' || t === 'manual-rounds') && activeExTimer.roundCount > 0) {
         input.value = activeExTimer.roundCount;
