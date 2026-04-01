@@ -316,14 +316,14 @@ export function stopExTimer(completed) {
     ? Math.floor((activeExTimer.pausedAt - activeExTimer.startedAt) / 1000)
     : Math.floor((Date.now() - activeExTimer.startedAt) / 1000);
   if (completed) {
-    if (input && !input.value) {
+    if (input) {
       if (activeExTimer.config.type === 'stopwatch') {
-        input.value = exFmtTime(totalElapsed);
+        if (!input.value) input.value = exFmtTime(totalElapsed);
       } else if (activeExTimer.config.type === 'hiit-rounds') {
         const roundsDone = activeExTimer.hiitCurrentRound || activeExTimer.config.rounds;
         input.value = `${roundsDone}R · ${exFmtTime(totalElapsed)}`;
       } else if (activeExTimer.config.type === 'countdown-manual' || activeExTimer.config.type === 'manual-rounds') {
-        if (activeExTimer.roundCount > 0) input.value = activeExTimer.roundCount;
+        if (!input.value && activeExTimer.roundCount > 0) input.value = activeExTimer.roundCount;
       }
       input.classList.add('prefilled');
     }
