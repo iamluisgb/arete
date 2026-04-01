@@ -130,7 +130,7 @@ function renderExTimerUI(zone) {
       const cls = idx === 0 ? ' active' : '';
       return `<div class="hiit-ex-item${cls}" data-ex-item="${idx}"><span class="hiit-ex-name">${esc(e.name)}</span><span class="hiit-ex-reps">${repsLabel}</span></div>`;
     }).join('');
-    zone.innerHTML = `<div class="ex-timer neutral">
+    zone.innerHTML = `<div class="ex-timer hiit-work">
       <div class="ex-timer-phase">RONDA 1 / ${rounds}</div>
       <div class="ex-timer-display">0:00</div>
       <div class="hiit-ex-list">${exItems}</div>
@@ -303,7 +303,8 @@ export function stopExTimer(completed) {
       if (activeExTimer.config.type === 'stopwatch') {
         input.value = exFmtTime(totalElapsed);
       } else if (activeExTimer.config.type === 'hiit-rounds') {
-        input.value = exFmtTime(totalElapsed);
+        const roundsDone = activeExTimer.hiitCurrentRound || activeExTimer.config.rounds;
+        input.value = `${roundsDone}R · ${exFmtTime(totalElapsed)}`;
       } else if (activeExTimer.config.type === 'countdown-manual' || activeExTimer.config.type === 'manual-rounds') {
         if (activeExTimer.roundCount > 0) input.value = activeExTimer.roundCount;
       }
@@ -315,7 +316,14 @@ export function stopExTimer(completed) {
     if (input && !input.value) {
       const t = activeExTimer.config.type;
       if ((t === 'stopwatch' || t === 'hiit-rounds') && totalElapsed > 5) {
-        input.value = exFmtTime(totalElapsed);
+        if (t === 'hiit-rounds') {
+          const roundsDone = Math.max(0, (activeExTimer.hiitCurrentRound || 1) - 1);
+          input.value = roundsDone > 0
+            ? `${roundsDone}R · ${exFmtTime(totalElapsed)}`
+            : exFmtTime(totalElapsed);
+        } else {
+          input.value = exFmtTime(totalElapsed);
+        }
         input.classList.add('partial');
       } else if ((t === 'countdown-manual' || t === 'manual-rounds') && activeExTimer.roundCount > 0) {
         input.value = activeExTimer.roundCount;
@@ -372,8 +380,85 @@ export function handleExTimerRound() {
   }
 }
 
+function _rebuildHiitWorkUI(zone) {
+  if (!activeExTimer) return;
+  const { config, hiitCurrentRound, hiitCurrentExIdx } = activeExTimer;
+  const { exercises, rounds } = config;
+  const exItems = exercises.map((e, idx) => {
+    const repsLabel = e.duration ? e.duration : (e.perSide ? `${e.reps}×c/lado` : `${e.reps}`);
+    const cls = idx < hiitCurrentExIdx ? ' done' : (idx === hiitCurrentExIdx ? ' active' : '');
+    return `<div class="hiit-ex-item${cls}" data-ex-item="${idx}"><span class="hiit-ex-name">${esc(e.name)}</span><span class="hiit-ex-reps">${repsLabel}</span></div>`;
+  }).join('');
+  zone.innerHTML = `<div class="ex-timer hiit-work">
+    <div class="ex-timer-phase">RONDA ${hiitCurrentRound} / ${rounds}</div>
+    <div class="ex-timer-display">0:00</div>
+    <div class="hiit-ex-list">${exItems}</div>
+    <div class="ex-timer-actions">
+      <button class="hiit-ex-btn">Hecho (${hiitCurrentExIdx + 1}/${exercises.length})</button>
+      <button class="ex-timer-stop">Parar</button>
+    </div>
+  </div>`;
+  activeExTimer.resting = false;
+}
+
+function _skipRest() {
+  if (!activeExTimer || !activeExTimer.resting) return;
+  if (activeExTimer.restInterval) {
+    clearInterval(activeExTimer.restInterval);
+    activeExTimer.restInterval = null;
+  }
+  lastBeepSec = -1;
+  const zone = document.querySelector(`.ex-timer-zone[data-ex="${activeExTimer.exIdx}"]`);
+  if (!zone) return;
+  vibrate([50, 30, 100]);
+  exBeepWork();
+  _rebuildHiitWorkUI(zone);
+}
+
 function startRestCountdown(zone, duration, onComplete) {
   if (!activeExTimer) return;
+  const { config } = activeExTimer;
+
+  if (config.type === 'hiit-rounds') {
+    const nextRound = activeExTimer.hiitCurrentRound;
+    const timerEl = zone.querySelector('.ex-timer');
+    if (timerEl) {
+      timerEl.className = 'ex-timer hiit-rest';
+      timerEl.innerHTML = `
+        <div class="ex-timer-phase">DESCANSA</div>
+        <div class="ex-timer-display">${exFmtTime(duration)}</div>
+        <div class="hiit-rest-next">
+          Siguiente: <strong>Ronda ${nextRound}</strong><br>
+          <span>${config.exercises.map(e => e.name).join(' · ')}</span>
+        </div>
+        <div class="ex-timer-actions">
+          <button class="hiit-skip-btn" aria-label="Saltar descanso y comenzar la siguiente ronda">Saltar descanso</button>
+        </div>`;
+    }
+    const restStart = Date.now();
+    const restInterval = setInterval(() => {
+      if (!activeExTimer) { clearInterval(restInterval); return; }
+      const elapsed = Math.floor((Date.now() - restStart) / 1000);
+      const remaining = Math.max(0, duration - elapsed);
+      const display = zone.querySelector('.ex-timer-display');
+      if (display) display.textContent = exFmtTime(remaining);
+      if (remaining <= 3 && remaining > 0 && remaining !== lastBeepSec) {
+        lastBeepSec = remaining;
+        beep(660 + (3 - remaining) * 220, 100);
+      }
+      if (remaining <= 0) {
+        clearInterval(restInterval);
+        activeExTimer.restInterval = null;
+        lastBeepSec = -1;
+        exBeepWork();
+        _rebuildHiitWorkUI(zone);
+      }
+    }, 250);
+    activeExTimer.restInterval = restInterval;
+    return;
+  }
+
+  // manual-rounds: existing behavior
   const timer = zone.querySelector('.ex-timer');
   if (timer) {
     timer.className = 'ex-timer rest';
@@ -513,9 +598,7 @@ function handleHiitExDone() {
 
     if (restDuration > 0) {
       activeExTimer.resting = true;
-      startRestCountdown(zone, restDuration, () => {
-        _updateHiitUI(zone);
-      });
+      startRestCountdown(zone, restDuration);
     } else {
       _updateHiitUI(zone);
     }
@@ -547,6 +630,8 @@ export function initExTimerEvents($exerciseList, getExercise) {
     if (roundBtn) { handleExTimerRound(); return; }
     const hiitExBtn = e.target.closest('.hiit-ex-btn');
     if (hiitExBtn) { handleHiitExDone(); return; }
+    const skipBtn = e.target.closest('.hiit-skip-btn');
+    if (skipBtn) { _skipRest(); return; }
   });
 
   document.addEventListener('touchstart', function u() {
