@@ -22,7 +22,7 @@
         { "name": "Dominadas", "reps": 10 },
         { "name": "Flexiones", "reps": 20 },
         { "name": "Sentadillas", "reps": 30 },
-        { "name": "Escaladores", "reps": 40 },
+        { "name": "Escaladores", "reps": 20, "perSide": true },
         { "name": "Saltos", "reps": 50 }
       ]}],
       "HIIT-2": [{ "name": "HIIT-2", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 5, "rest": "0s", "exercises": [
@@ -32,12 +32,12 @@
         { "name": "Descanso", "duration": "1min", "isRest": true }
       ]}],
       "HIIT-3 (KB)": [{ "name": "HIIT-3 (KB)", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 3, "rest": "90s", "exercises": [
-        { "name": "Thrusters (KB)", "reps": 10 },
-        { "name": "Swings (KB)", "reps": 15 },
+        { "name": "Thrusters (KB)", "reps": 5, "perSide": true },
+        { "name": "Swings (KB)", "reps": 15, "perSide": true },
         { "name": "Flexiones", "reps": 20 },
         { "name": "Sentadillas", "reps": 30 },
         { "name": "Burpees", "reps": 15 },
-        { "name": "Snatches (KB)", "reps": 10 }
+        { "name": "Snatches (KB)", "reps": 5, "perSide": true }
       ]}],
       "HIIT-4 (KB)": [{ "name": "HIIT-4 (KB)", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 3, "rest": "120s", "exercises": [
         { "name": "Snatch (KB)", "reps": 5, "perSide": true },
