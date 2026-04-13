@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nutrición: Come como un animal — Areté</title>
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<nav class="site-nav"><a href="../index.html" class="logo">Areté</a><div class="nav-links"><a href="../index.html" class="active">Guía</a><a href="../app.html">Mi Entreno</a></div></nav>
+<nav class="site-nav"><a href="../index.html" class="logo">Areté</a><div class="nav-links"><a href="../index.html" class="active">Guía</a><a href="../app.html">Mi Entreno</a></div><div class="theme-toggle" id="themeToggle"><button data-theme="light" aria-label="Modo claro">&#9788;</button><button data-theme="dark" aria-label="Modo oscuro">&#9790;</button></div></nav>
 <div class="article-header">
   <a href="../index.html" class="back">← Volver a la guía</a>
   <div class="phase-tag">Nutrición</div>
@@ -91,5 +93,28 @@
 </div>
 </div>
 <footer class="site-footer"></footer>
+<script>
+(function(){
+  var KEY='areteTheme';
+  function apply(t){
+    var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+    document.documentElement.classList.toggle('dark',d);
+  }
+  var s=localStorage.getItem(KEY)||'auto';
+  apply(s);
+  document.querySelectorAll('#themeToggle button').forEach(function(b){
+    b.classList.toggle('active',b.dataset.theme===s);
+    b.addEventListener('click',function(){
+      var t=b.dataset.theme;
+      localStorage.setItem(KEY,t);
+      apply(t);
+      document.querySelectorAll('#themeToggle button').forEach(function(x){x.classList.toggle('active',x.dataset.theme===t)});
+    });
+  });
+  matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){
+    if((localStorage.getItem(KEY)||'auto')==='auto')apply('auto');
+  });
+})();
+</script>
 </body>
 </html>
