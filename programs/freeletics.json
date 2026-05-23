@@ -10,7 +10,7 @@
     "sessions": {
       "Aphrodite": [
         {
-          "name": "Ronda 1", "mode": "rounds", "count": 1, "rest": "60s",
+          "name": "Ronda 1", "mode": "result",
           "exercises": [
             { "name": "Burpees", "reps": 50 },
             { "name": "Sentadillas", "reps": 50 },
@@ -18,7 +18,7 @@
           ]
         },
         {
-          "name": "Ronda 2", "mode": "rounds", "count": 1, "rest": "60s",
+          "name": "Ronda 2", "mode": "result",
           "exercises": [
             { "name": "Burpees", "reps": 40 },
             { "name": "Sentadillas", "reps": 40 },
@@ -26,7 +26,7 @@
           ]
         },
         {
-          "name": "Ronda 3", "mode": "rounds", "count": 1, "rest": "60s",
+          "name": "Ronda 3", "mode": "result",
           "exercises": [
             { "name": "Burpees", "reps": 30 },
             { "name": "Sentadillas", "reps": 30 },
@@ -34,7 +34,7 @@
           ]
         },
         {
-          "name": "Ronda 4", "mode": "rounds", "count": 1, "rest": "60s",
+          "name": "Ronda 4", "mode": "result",
           "exercises": [
             { "name": "Burpees", "reps": 20 },
             { "name": "Sentadillas", "reps": 20 },
@@ -42,7 +42,7 @@
           ]
         },
         {
-          "name": "Ronda 5", "mode": "rounds", "count": 1, "rest": "60s",
+          "name": "Ronda 5", "mode": "result",
           "exercises": [
             { "name": "Burpees", "reps": 10 },
             { "name": "Sentadillas", "reps": 10 },
