@@ -1,0 +1,207 @@
+{
+  "_meta": {
+    "name": "Freeletics",
+    "desc": "Bodyweight HIIT · Greek Gods · Sin equipamiento"
+  },
+  "1": {
+    "name": "Gods — Clásicos",
+    "desc": "Semanas 1-4 · Los workouts mitológicos",
+    "sessions": {
+      "Aphrodite": [
+        { "name": "Sentadillas", "sets": 3, "reps": "15", "type": "main" },
+        { "name": "Flexiones", "sets": 3, "reps": "10", "type": "main" },
+        { "name": "Zancadas alternas", "sets": 3, "reps": "10/pierna", "type": "main" },
+        { "name": "Sit-ups", "sets": 3, "reps": "15", "type": "main" },
+        { "name": "Plancha", "sets": 3, "reps": "30s", "type": "assist" }
+      ],
+      "Hermes": [
+        { "name": "Flexiones", "sets": 4, "reps": "12", "type": "main" },
+        { "name": "HIIT Sprint", "sets": 4, "reps": "Tiempo", "type": "hiit", "rounds": 4, "rest": "60s", "exercises": [
+          { "name": "Sprint", "duration": "30s" },
+          { "name": "Caminar", "duration": "30s" }
+        ]}
+      ],
+      "Prometheus": [
+        { "name": "Escaladores", "sets": 5, "reps": "20", "type": "main" },
+        { "name": "Flexiones", "sets": 5, "reps": "12", "type": "main" },
+        { "name": "Sit-ups", "sets": 5, "reps": "15", "type": "main" },
+        { "name": "Sentadillas", "sets": 5, "reps": "20", "type": "main" },
+        { "name": "Jumping Jacks", "sets": 5, "reps": "30", "type": "main" }
+      ],
+      "Nemesis": [
+        { "name": "Sit-ups", "sets": 5, "reps": "10", "type": "main" },
+        { "name": "Escaladores", "sets": 5, "reps": "15", "type": "main" },
+        { "desc": "Cada ronda: sit-ups bajan reps, escaladores suben reps", "type": "progressive" }
+      ],
+      "Morpheus": [
+        { "name": "Flexiones", "sets": 3, "reps": "10", "type": "main" },
+        { "name": "Zancadas", "sets": 3, "reps": "10/pierna", "type": "main" },
+        { "name": "Jumping Jacks", "sets": 3, "reps": "20", "type": "main" }
+      ],
+      "Nyx": [
+        { "name": "Sit-ups", "sets": 3, "reps": "15", "type": "main" },
+        { "name": "Elevación de piernas", "sets": 3, "reps": "12", "type": "main" },
+        { "name": "Standups", "sets": 3, "reps": "10", "type": "main" }
+      ]
+    }
+  },
+  "2": {
+    "name": "Titans — Intensidad",
+    "desc": "Semanas 5-8 · Volumen alto",
+    "sessions": {
+      "Persephone": [
+        { "name": "Zancadas", "sets": 3, "reps": "12/pierna", "type": "main" },
+        { "name": "Burpees", "sets": 3, "reps": "10", "type": "main" },
+        { "name": "Pallof Press (plancha lateral)", "sets": 3, "reps": "10/lado", "type": "main" },
+        { "desc": "3 rondas completas, descanso 90s entre rondas", "type": "rounds", "rounds": 3, "rest": "90s" }
+      ],
+      "Athena": [
+        { "name": "Escaladores", "sets": 5, "reps": "20", "type": "main" },
+        { "name": "Sit-ups", "sets": 5, "reps": "15", "type": "main" },
+        { "name": "Sentadillas", "sets": 5, "reps": "20", "type": "main" },
+        { "desc": "5 rondas rápidas, descanso 45s entre rondas", "type": "rounds", "rounds": 5, "rest": "45s" }
+      ],
+      "Krios": [
+        { "name": "Dominadas", "sets": 3, "reps": "F", "type": "main" },
+        { "name": "Sentadillas", "sets": 3, "reps": "20", "type": "main" },
+        { "name": "Sit-ups", "sets": 3, "reps": "20", "type": "main" }
+      ],
+      "Triton": [
+        { "name": "Flexiones de manos", "sets": 4, "reps": "8", "type": "main" },
+        { "name": "Dominadas", "sets": 4, "reps": "8", "type": "main" },
+        { "name": "Flexiones", "sets": 4, "reps": "15", "type": "main" },
+        { "desc": "Solo upper body. Descanso 60s entre ejercicios", "type": "circuit" }
+      ]
+    }
+  },
+  "3": {
+    "name": "Olympus — Máximo",
+    "desc": "Semanas 9-12 · Los más duros",
+    "sessions": {
+      "Thanatos": [
+        { "name": "Flexiones", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 6, "rest": "30s", "exercises": [
+          { "name": "Flexiones", "reps": 10 },
+          { "name": "Sit-ups", "reps": 10 },
+          { "name": "Escaladores", "reps": 10 },
+          { "name": "Standups", "reps": 10 },
+          { "name": "Burpees", "reps": 10 }
+        ]},
+        { "desc": "6 rondas de 5 ejercicios. Descanso SOLO entre ejercicios, no entre rondas. El mental game.", "type": "rounds", "rounds": 6, "rest": "30s" }
+      ],
+      "Atlas": [
+        { "name": "Flexiones diamante", "sets": 4, "reps": "10", "type": "main" },
+        { "name": "Sentadilla pistol", "sets": 4, "reps": "5/lado", "type": "main" },
+        { "name": "Dominadas pronas", "sets": 4, "reps": "8", "type": "main" },
+        { "name": "Pike push-ups", "sets": 4, "reps": "8", "type": "main" },
+        { "name": "Burpees", "sets": 4, "reps": "12", "type": "main" },
+        { "name": "Sit-ups", "sets": 4, "reps": "20", "type": "main" }
+      ],
+      "Hades": [
+        { "name": "Sentadillas con salto", "sets": 4, "reps": "15", "type": "main" },
+        { "name": "Flexiones con palmada", "sets": 4, "reps": "10", "type": "main" },
+        { "name": "Burpees", "sets": 4, "reps": "12", "type": "main" },
+        { "name": "Escaladores", "sets": 4, "reps": "20", "type": "main" },
+        { "name": "Zancadas con salto", "sets": 4, "reps": "10/pierna", "type": "main" },
+        { "name": "Plancha", "sets": 4, "reps": "45s", "type": "main" }
+      ]
+    }
+  },
+  "4": {
+    "name": "Technique — Técnica",
+    "desc": "Semanas dedicadas a dominar movimientos",
+    "sessions": {
+      "Tec-Burpee": [
+        { "name": "Burpee (técnica)", "sets": 5, "reps": "5", "type": "technique" },
+        { "name": "Burpee sin salto", "sets": 5, "reps": "8", "type": "technique" },
+        { "name": "Burpee con flexión", "sets": 5, "reps": "5", "type": "technique" },
+        { "name": "Burpee completo", "sets": 3, "reps": "F", "type": "main" }
+      ],
+      "Tec-Pushup": [
+        { "name": "Flexiones rodillas", "sets": 3, "reps": "15", "type": "technique" },
+        { "name": "Flexiones inclinadas", "sets": 3, "reps": "12", "type": "technique" },
+        { "name": "Flexiones estándar", "sets": 4, "reps": "10", "type": "main" },
+        { "name": "Flexiones diamante", "sets": 3, "reps": "8", "type": "assist" },
+        { "name": "Flexiones con palmada", "sets": 3, "reps": "5", "type": "extra" }
+      ],
+      "Tec-Squat": [
+        { "name": "Sentadilla básica", "sets": 3, "reps": "20", "type": "technique" },
+        { "name": "Sentadilla con salto", "sets": 3, "reps": "10", "type": "technique" },
+        { "name": "Sentadilla búlgara", "sets": 3, "reps": "8/pierna", "type": "main" },
+        { "name": "Pistol squat asistida", "sets": 3, "reps": "5/lado", "type": "assist" },
+        { "name": "Pistol squat", "sets": 2, "reps": "3/lado", "type": "extra" }
+      ],
+      "Tec-Pullup": [
+        { "name": "Dominada negativa", "sets": 5, "reps": "3", "type": "technique", "desc": "Sube con salto, baja en 5s" },
+        { "name": "Dominada pronas", "sets": 4, "reps": "5", "type": "main" },
+        { "name": "Dominada supinas", "sets": 4, "reps": "5", "type": "main" },
+        { "name": "Remo invertido", "sets": 3, "reps": "10", "type": "assist" },
+        { "name": "Hang hold", "sets": 3, "reps": "20s", "type": "extra" }
+      ]
+    }
+  },
+  "5": {
+    "name": "HIIT — Calistenia",
+    "desc": "Complejos HIIT de alta intensidad",
+    "sessions": {
+      "HIIT-1 (Clásico)": [{
+        "name": "HIIT-1", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 4, "rest": "90s",
+        "exercises": [
+          { "name": "Burpees", "reps": 10 },
+          { "name": "Sentadillas", "reps": 15 },
+          { "name": "Flexiones", "reps": 10 },
+          { "name": "Escaladores", "reps": 20 },
+          { "name": "Sit-ups", "reps": 15 }
+        ]
+      }],
+      "HIIT-2 (Aguja)": [{
+        "name": "HIIT-2", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 5, "rest": "60s",
+        "exercises": [
+          { "name": "Burpees", "reps": 8 },
+          { "name": "Sentadillas con salto", "reps": 12 },
+          { "name": "Flexiones diamante", "reps": 10 },
+          { "name": "Standups", "reps": 8 },
+          { "name": "Mountain Climbers", "reps": 15 },
+          { "name": "Plancha", "duration": "30s" }
+        ]
+      }],
+      "HIIT-3 (Tempo)": [{
+        "name": "HIIT-3", "sets": 1, "reps": "Tiempo", "type": "hiit", "rounds": 3, "rest": "120s",
+        "exercises": [
+          { "name": "Burpees", "duration": "40s" },
+          { "name": "Descanso", "duration": "20s", "isRest": true },
+          { "name": "Sentadillas", "duration": "40s" },
+          { "name": "Descanso", "duration": "20s", "isRest": true },
+          { "name": "Flexiones", "duration": "40s" },
+          { "name": "Descanso", "duration": "20s", "isRest": true },
+          { "name": "Sit-ups", "duration": "40s" },
+          { "name": "Descanso", "duration": "20s", "isRest": true }
+        ]
+      }],
+      "HIIT-4 (EMOM 10min)": [{
+        "name": "HIIT-4", "sets": 1, "reps": "Tiempo", "type": "hiit", "emom": 10,
+        "exercises": [
+          { "minute": 1, "name": "Burpees", "reps": 8 },
+          { "minute": 2, "name": "Sentadillas", "reps": 15 },
+          { "minute": 3, "name": "Flexiones", "reps": 12 },
+          { "minute": 4, "name": "Escaladores", "reps": 20 },
+          { "minute": 5, "name": "Descanso", "isRest": true },
+          { "minute": 6, "name": "Zancadas", "reps": 16 },
+          { "minute": 7, "name": "Sit-ups", "reps": 15 },
+          { "minute": 8, "name": "Plancha", "duration": "30s" },
+          { "minute": 9, "name": "Jumping Jacks", "reps": 30 },
+          { "minute": 10, "name": "Descanso", "isRest": true }
+        ]
+      }],
+      "HIIT-5 (AMRAP)": [{
+        "name": "HIIT-5", "sets": 1, "reps": "Tiempo", "type": "hiit", "mode": "amrap", "duration": "12min",
+        "exercises": [
+          { "name": "Burpees", "reps": 5 },
+          { "name": "Sentadillas", "reps": 10 },
+          { "name": "Flexiones", "reps": 10 },
+          { "name": "Sit-ups", "reps": 10 },
+          { "name": "Escaladores", "reps": 20 }
+        ]
+      }]
+    }
+  }
+}

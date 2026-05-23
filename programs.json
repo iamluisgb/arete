@@ -15,6 +15,7 @@
   "catalog": [
     { "id": "arete", "file": "programs/arete.json" },
     { "id": "kettlebell", "file": "programs/kettlebell.json" },
+    { "id": "freeletics", "file": "programs/freeletics.json" },
     { "id": "mediaMaraton1h40", "file": "programs/running/media-maraton-1h40.json", "sport": "running" }
   ]
 }
