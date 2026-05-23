@@ -8,110 +8,102 @@
     "name": "Gods — Clásicos",
     "desc": "Workouts con rondas · Reps decrecientes",
     "sessions": {
-      "Aphrodite": [
-        {
-          "name": "Ronda 1", "mode": "result",
-          "exercises": [
+      "Aphrodite": [{
+        "name": "Aphrodite", "mode": "workout",
+        "rounds": [
+          { "name": "Ronda 1", "exercises": [
             { "name": "Burpees", "reps": 50 },
             { "name": "Sentadillas", "reps": 50 },
             { "name": "Sit-ups", "reps": 50 }
-          ]
-        },
-        {
-          "name": "Ronda 2", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 2", "exercises": [
             { "name": "Burpees", "reps": 40 },
             { "name": "Sentadillas", "reps": 40 },
             { "name": "Sit-ups", "reps": 40 }
-          ]
-        },
-        {
-          "name": "Ronda 3", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 3", "exercises": [
             { "name": "Burpees", "reps": 30 },
             { "name": "Sentadillas", "reps": 30 },
             { "name": "Sit-ups", "reps": 30 }
-          ]
-        },
-        {
-          "name": "Ronda 4", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 4", "exercises": [
             { "name": "Burpees", "reps": 20 },
             { "name": "Sentadillas", "reps": 20 },
             { "name": "Sit-ups", "reps": 20 }
-          ]
-        },
-        {
-          "name": "Ronda 5", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 5", "exercises": [
             { "name": "Burpees", "reps": 10 },
             { "name": "Sentadillas", "reps": 10 },
             { "name": "Sit-ups", "reps": 10 }
-          ]
-        }
-      ],
-      "Prometheus": [
-        {
-          "name": "Ronda 1", "mode": "result",
-          "exercises": [
+          ]}
+        ]
+      }],
+      "Prometheus": [{
+        "name": "Prometheus", "mode": "workout",
+        "rounds": [
+          { "name": "Ronda 1", "exercises": [
             { "name": "Escaladores", "reps": 30 },
             { "name": "Flexiones", "reps": 10 },
             { "name": "Sit-ups", "reps": 30 },
             { "name": "Sentadillas", "reps": 30 },
             { "name": "Jumping Jacks", "reps": 50 }
-          ]
-        },
-        {
-          "name": "Ronda 2", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 2", "exercises": [
             { "name": "Escaladores", "reps": 20 },
             { "name": "Flexiones", "reps": 7 },
             { "name": "Sit-ups", "reps": 20 },
             { "name": "Sentadillas", "reps": 20 },
             { "name": "Jumping Jacks", "reps": 50 }
-          ]
-        },
-        {
-          "name": "Ronda 3", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 3", "exercises": [
             { "name": "Escaladores", "reps": 10 },
             { "name": "Flexiones", "reps": 5 },
             { "name": "Sit-ups", "reps": 10 },
             { "name": "Sentadillas", "reps": 10 },
             { "name": "Jumping Jacks", "reps": 50 }
-          ]
-        },
-        {
-          "name": "Ronda 4", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 4", "exercises": [
             { "name": "Escaladores", "reps": 20 },
             { "name": "Flexiones", "reps": 7 },
             { "name": "Sit-ups", "reps": 20 },
             { "name": "Sentadillas", "reps": 20 },
             { "name": "Jumping Jacks", "reps": 50 }
-          ]
-        },
-        {
-          "name": "Ronda 5", "mode": "result",
-          "exercises": [
+          ]},
+          { "name": "Ronda 5", "exercises": [
             { "name": "Escaladores", "reps": 30 },
             { "name": "Flexiones", "reps": 10 },
             { "name": "Sit-ups", "reps": 30 },
             { "name": "Sentadillas", "reps": 30 },
             { "name": "Jumping Jacks", "reps": 50 }
-          ]
-        }
-      ],
-      "Nemesis": [
-        {
-          "name": "Nemesis", "mode": "rounds", "count": 5, "rest": "30s",
-          "exercises": [
+          ]}
+        ]
+      }],
+      "Nemesis": [{
+        "name": "Nemesis", "mode": "workout",
+        "desc": "Progresivo: cada ronda sit-ups -2, escaladores +2",
+        "rounds": [
+          { "name": "Ronda 1", "exercises": [
             { "name": "Sit-ups", "reps": 20 },
             { "name": "Escaladores", "reps": 10 }
-          ]
-        },
-        { "desc": "Progresivo: cada ronda sit-ups -2, escaladores +2. R1: 20/10 → R5: 12/18" }
-      ],
+          ]},
+          { "name": "Ronda 2", "exercises": [
+            { "name": "Sit-ups", "reps": 18 },
+            { "name": "Escaladores", "reps": 12 }
+          ]},
+          { "name": "Ronda 3", "exercises": [
+            { "name": "Sit-ups", "reps": 16 },
+            { "name": "Escaladores", "reps": 14 }
+          ]},
+          { "name": "Ronda 4", "exercises": [
+            { "name": "Sit-ups", "reps": 14 },
+            { "name": "Escaladores", "reps": 16 }
+          ]},
+          { "name": "Ronda 5", "exercises": [
+            { "name": "Sit-ups", "reps": 12 },
+            { "name": "Escaladores", "reps": 18 }
+          ]}
+        ]
+      }],
       "Morpheus": [
         {
           "name": "Morpheus", "mode": "rounds", "count": 3, "rest": "60s",
@@ -196,19 +188,16 @@
     "name": "Olympus — Máximo",
     "desc": "Los workouts más duros",
     "sessions": {
-      "Thanatos": [
-        {
-          "name": "Thanatos", "mode": "rounds", "count": 6, "rest": "30s",
-          "exercises": [
-            { "name": "Flexiones", "reps": 12 },
-            { "name": "Sit-ups", "reps": 12 },
-            { "name": "Escaladores", "reps": 12 },
-            { "name": "Standups", "reps": 12 },
-            { "name": "Burpees", "reps": 12 }
-          ]
-        },
-        { "desc": "6 rondas de 5 ejercicios. Descanso SOLO entre ejercicios, no entre rondas." }
-      ],
+      "Thanatos": [{
+        "name": "Thanatos", "mode": "rounds", "count": 6, "rest": "30s",
+        "exercises": [
+          { "name": "Flexiones", "reps": 12 },
+          { "name": "Sit-ups", "reps": 12 },
+          { "name": "Escaladores", "reps": 12 },
+          { "name": "Standups", "reps": 12 },
+          { "name": "Burpees", "reps": 12 }
+        ]
+      }],
       "Atlas": [
         {
           "name": "Atlas", "mode": "rounds", "count": 3, "rest": "90s",

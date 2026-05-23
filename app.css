@@ -284,8 +284,17 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .ex-mode-badge.emom{background:rgba(175,82,222,.1);color:#af52de}
 .ex-mode-badge.superset{background:rgba(255,149,0,.1);color:#ff9500}
 .ex-mode-badge.hiit{background:rgba(212,55,44,.1);color:var(--accent)}
+.ex-mode-badge.workout{background:rgba(94,92,230,.1);color:#5e5ce6}
 .ex-mode-info{font-size:var(--fs-base);color:var(--text2);margin-bottom:var(--sp-2);line-height:1.4}
 .ex-mode-desc{font-size:var(--fs-base);color:var(--text3);margin-bottom:var(--sp-2);line-height:1.4;font-style:italic}
+.workout-totals{margin-bottom:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--radius)}
+.workout-totals-title{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.workout-totals .round-list{margin:0}
+.workout-round{margin-bottom:4px}
+.workout-round summary.workout-round-title{font-size:var(--fs-base);font-weight:600;color:var(--text2);cursor:pointer;padding:4px 0;list-style:none}
+.workout-round summary.workout-round-title::before{content:'▸ ';color:var(--text3)}
+.workout-round[open] summary.workout-round-title::before{content:'▾ '}
+.workout-round .round-list{margin:0 0 4px 12px}
 .round-list{margin:6px 0 10px;padding-left:0;list-style:none}
 .round-item{font-size:var(--fs-base);color:var(--text);padding:4px 0;display:flex;justify-content:space-between}
 .round-item:last-child{border-bottom:none}

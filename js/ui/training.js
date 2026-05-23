@@ -290,6 +290,7 @@ export function loadSessionTemplate(db, autoPrefill) {
       case 'interval': return renderIntervalCard(ex, i, prevEx, shouldPrefill);
       case 'tabata': return renderTabataCard(ex, i, prevEx, shouldPrefill);
       case 'rounds': return renderRoundsCard(ex, i, prevEx, shouldPrefill);
+      case 'workout': return renderWorkoutCard(ex, i, prevEx, shouldPrefill, db);
       case 'ladder': return renderLadderCard(ex, i, prevEx, shouldPrefill);
       case 'pyramid': return renderPyramidCard(ex, i, prevEx, shouldPrefill);
       case 'amrap': return renderAmrapCard(ex, i, prevEx, shouldPrefill);
@@ -358,21 +359,6 @@ function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {
       ${hiitPi}</div>`;
   }
 
-  // Show sub-exercises if present (e.g. Freeletics rounds with varying reps)
-  if (ex.exercises && ex.exercises.length > 0) {
-    const exList = ex.exercises.map(e => {
-      const repsLabel = e.duration ? e.duration : (e.perSide ? `${e.reps} c/lado` : `${e.reps}`);
-      return `<div class="round-item"><span class="ri-name">${esc(e.name)}</span><span class="ri-reps">${repsLabel}</span></div>`;
-    }).join('');
-    const timer = exType === 'hiit' || exType === 'density' ? timerBtnHtml(i, 'result') : '';
-    return `<div class="ex-card">
-      <div class="ex-name">${esc(ex.name)}</div>
-      <div class="round-list">${exList}</div>
-      ${timer}
-      <div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}"></div>
-      ${pi}</div>`;
-  }
-
   const isTimed = exType === 'hiit' || exType === 'density';
   const timer = isTimed ? timerBtnHtml(i, 'result') : '';
   return `<div class="ex-card"><div class="ex-name">${esc(ex.name)}</div>${timer}<div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}"></div>${pi}</div>`;
@@ -423,6 +409,39 @@ function renderRoundsCard(ex, i, prevEx, shouldPrefill) {
     <div class="round-list">${exList}</div>
     ${timerBtnHtml(i, 'rounds')}
     <div><label>Rondas completadas</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 4" inputmode="numeric" value="${pv}"></div>
+    ${pi}</div>`;
+}
+
+function renderWorkoutCard(ex, i, prevEx, shouldPrefill, db) {
+  const pv = shouldPrefill && prevEx ? prevEx.sets[0]?.reps || '' : '';
+  const cp = pv ? ' prefilled' : '';
+  const prevRaw = prevEx?.sets[0]?.reps || '';
+  const bestBadge = prevRaw && db ? _prevBadgeHtml(prevRaw, getExerciseBestTime(db, ex.name), true) : '';
+  const pi = prevEx ? `<div class="prev-data">Anterior: <span>${prevRaw || '—'}</span>${bestBadge}</div>` : '';
+  const totalReps = {};
+  const roundsHtml = (ex.rounds || []).map(r => {
+    const exItems = (r.exercises || []).map(e => {
+      const label = e.duration ? e.duration : (e.perSide ? `${e.reps} c/lado` : `${e.reps}`);
+      const key = e.name;
+      totalReps[key] = (totalReps[key] || 0) + (parseInt(e.reps) || 0);
+      return `<div class="round-item"><span class="ri-name">${esc(e.name)}</span><span class="ri-reps">${label}</span></div>`;
+    }).join('');
+    return `<details class="workout-round"><summary class="workout-round-title">${esc(r.name)}</summary><div class="round-list">${exItems}</div></details>`;
+  }).join('');
+  const totalHtml = Object.entries(totalReps).map(([name, total]) =>
+    `<div class="round-item"><span class="ri-name">${esc(name)}</span><span class="ri-reps">${total}</span></div>`
+  ).join('');
+  const nRounds = (ex.rounds || []).length;
+  const descHtml = ex.desc ? `<div class="ex-mode-desc">${esc(ex.desc)}</div>` : '';
+  return `<div class="ex-card">
+    <div class="ex-mode-badge workout">Workout</div>
+    <div class="ex-name">${esc(ex.name)}</div>
+    <div class="ex-mode-info">${nRounds} rondas · For time</div>
+    ${descHtml}
+    <div class="workout-totals"><div class="workout-totals-title">Total</div><div class="round-list">${totalHtml}</div></div>
+    ${roundsHtml}
+    ${timerBtnHtml(i, 'result')}
+    <div style="margin-top:8px"><label>Tiempo total</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 18:32" value="${pv}"></div>
     ${pi}</div>`;
 }
 
