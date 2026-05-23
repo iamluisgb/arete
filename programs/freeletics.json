@@ -52,13 +52,53 @@
       ],
       "Prometheus": [
         {
-          "name": "Prometheus", "mode": "rounds", "count": 5, "rest": "45s",
+          "name": "Ronda 1", "mode": "result",
+          "exercises": [
+            { "name": "Escaladores", "reps": 30 },
+            { "name": "Flexiones", "reps": 10 },
+            { "name": "Sit-ups", "reps": 30 },
+            { "name": "Sentadillas", "reps": 30 },
+            { "name": "Jumping Jacks", "reps": 50 }
+          ]
+        },
+        {
+          "name": "Ronda 2", "mode": "result",
           "exercises": [
             { "name": "Escaladores", "reps": 20 },
-            { "name": "Flexiones", "reps": 12 },
-            { "name": "Sit-ups", "reps": 15 },
+            { "name": "Flexiones", "reps": 7 },
+            { "name": "Sit-ups", "reps": 20 },
             { "name": "Sentadillas", "reps": 20 },
-            { "name": "Jumping Jacks", "reps": 30 }
+            { "name": "Jumping Jacks", "reps": 50 }
+          ]
+        },
+        {
+          "name": "Ronda 3", "mode": "result",
+          "exercises": [
+            { "name": "Escaladores", "reps": 10 },
+            { "name": "Flexiones", "reps": 5 },
+            { "name": "Sit-ups", "reps": 10 },
+            { "name": "Sentadillas", "reps": 10 },
+            { "name": "Jumping Jacks", "reps": 50 }
+          ]
+        },
+        {
+          "name": "Ronda 4", "mode": "result",
+          "exercises": [
+            { "name": "Escaladores", "reps": 20 },
+            { "name": "Flexiones", "reps": 7 },
+            { "name": "Sit-ups", "reps": 20 },
+            { "name": "Sentadillas", "reps": 20 },
+            { "name": "Jumping Jacks", "reps": 50 }
+          ]
+        },
+        {
+          "name": "Ronda 5", "mode": "result",
+          "exercises": [
+            { "name": "Escaladores", "reps": 30 },
+            { "name": "Flexiones", "reps": 10 },
+            { "name": "Sit-ups", "reps": 30 },
+            { "name": "Sentadillas", "reps": 30 },
+            { "name": "Jumping Jacks", "reps": 50 }
           ]
         }
       ],
