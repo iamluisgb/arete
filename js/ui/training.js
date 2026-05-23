@@ -358,6 +358,21 @@ function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {
       ${hiitPi}</div>`;
   }
 
+  // Show sub-exercises if present (e.g. Freeletics rounds with varying reps)
+  if (ex.exercises && ex.exercises.length > 0) {
+    const exList = ex.exercises.map(e => {
+      const repsLabel = e.duration ? e.duration : (e.perSide ? `${e.reps} c/lado` : `${e.reps}`);
+      return `<div class="round-item"><span class="ri-name">${esc(e.name)}</span><span class="ri-reps">${repsLabel}</span></div>`;
+    }).join('');
+    const timer = exType === 'hiit' || exType === 'density' ? timerBtnHtml(i, 'result') : '';
+    return `<div class="ex-card">
+      <div class="ex-name">${esc(ex.name)}</div>
+      <div class="round-list">${exList}</div>
+      ${timer}
+      <div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}"></div>
+      ${pi}</div>`;
+  }
+
   const isTimed = exType === 'hiit' || exType === 'density';
   const timer = isTimed ? timerBtnHtml(i, 'result') : '';
   return `<div class="ex-card"><div class="ex-name">${esc(ex.name)}</div>${timer}<div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}"></div>${pi}</div>`;
