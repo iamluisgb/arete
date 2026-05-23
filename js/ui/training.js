@@ -440,7 +440,7 @@ function renderWorkoutCard(ex, i, prevEx, shouldPrefill, db) {
     ${descHtml}
     <div class="workout-totals"><div class="workout-totals-title">Total</div><div class="round-list">${totalHtml}</div></div>
     ${roundsHtml}
-    ${timerBtnHtml(i, 'result')}
+    ${timerBtnHtml(i, 'workout')}
     <div style="margin-top:8px"><label>Tiempo total</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 18:32" value="${pv}"></div>
     ${pi}</div>`;
 }

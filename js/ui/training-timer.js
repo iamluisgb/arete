@@ -87,6 +87,17 @@ export function buildTimerConfig(mode, ex) {
     }
     return { phases: [], totalRounds: count, restDuration: restSec, type: 'manual-rounds' };
   }
+  // workout mode — guided rounds with variable exercises per round
+  if (mode === 'workout' && ex.rounds && ex.rounds.length > 0) {
+    const allRounds = ex.rounds;
+    return {
+      type: 'hiit-rounds',
+      exercises: allRounds[0].exercises,
+      roundExercises: allRounds.map(r => r.exercises || []),
+      rounds: allRounds.length,
+      restDuration: 0,
+    };
+  }
   // result (structured HIIT) — guided rounds with checklist
   if (ex.exercises && ex.exercises.length > 0) {
     return {
@@ -697,6 +708,9 @@ function handleHiitExDone() {
     }
     activeExTimer.hiitCurrentRound++;
     activeExTimer.hiitCurrentExIdx = 0;
+    if (config.roundExercises) {
+      config.exercises = config.roundExercises[activeExTimer.hiitCurrentRound - 1];
+    }
     beep(1000, 150); vibrate([100, 50, 100]);
 
     if (restDuration > 0) {
