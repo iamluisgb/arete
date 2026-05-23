@@ -70,7 +70,7 @@
             { "name": "Escaladores", "reps": 10 }
           ]
         },
-        { "desc": "Cada ronda: sit-ups -2 reps, escaladores +2 reps. Ronda 1: 20 sit-ups / 10 climbers → Ronda 5: 12 sit-ups / 18 climbers" }
+        { "desc": "Progresivo: cada ronda sit-ups -2, escaladores +2. R1: 20/10 → R5: 12/18" }
       ],
       "Morpheus": [
         {
@@ -144,10 +144,8 @@
           "name": "Hermes", "mode": "rounds", "count": 4, "rest": "60s",
           "exercises": [
             { "name": "Flexiones", "reps": 12 },
-            { "name": "HIIT Sprint", "mode": "interval", "duration": "30s", "on": "30s", "off": "30s", "exercises": [
-              { "name": "Sprint", "duration": "30s" },
-              { "name": "Caminar", "duration": "30s" }
-            ]}
+            { "name": "Sprint", "duration": "30s" },
+            { "name": "Caminar", "duration": "30s" }
           ]
         }
       ]
@@ -169,7 +167,7 @@
             { "name": "Burpees", "reps": 12 }
           ]
         },
-        { "desc": "6 rondas de 5 ejercicios. Descanso SOLO entre ejercicios, no entre rondas. El mental game." }
+        { "desc": "6 rondas de 5 ejercicios. Descanso SOLO entre ejercicios, no entre rondas." }
       ],
       "Atlas": [
         {
