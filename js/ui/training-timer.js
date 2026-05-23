@@ -95,7 +95,7 @@ export function buildTimerConfig(mode, ex) {
       exercises: allRounds[0].exercises,
       roundExercises: allRounds.map(r => r.exercises || []),
       rounds: allRounds.length,
-      restDuration: 0,
+      restDuration: parseDurationStr(ex.rest) || 0,
     };
   }
   // result (structured HIIT) — guided rounds with checklist
