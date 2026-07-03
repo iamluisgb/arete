@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprints · Areté</title>
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="../style.css">
+<style>
+.blueprints-grid {
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  padding: 0 var(--sp-5) 60px;
+  max-width: 640px; margin: 0 auto;
+  animation: fadeIn .3s ease-out;
+}
+.bp-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+  border: 1px solid var(--ghost-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  transition: transform .15s, box-shadow .2s;
+  text-decoration: none;
+  display: block;
+}
+:root.dark .bp-card { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.bp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+:root.dark .bp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.bp-card .bp-status {
+  font-size: .6rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .5px; margin-bottom: 6px;
+}
+.bp-card .bp-status.done { color: var(--green); }
+.bp-card .bp-status.pending { color: var(--text3); }
+.bp-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: var(--sp-1); color: var(--text); }
+.bp-card p { font-size: .82rem; color: var(--text2); line-height: 1.45; }
+.bp-card .bp-meta { font-size: .65rem; color: var(--text3); margin-top: var(--sp-3); font-weight: 500; }
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <a href="../index.html" class="logo"><img src="../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</a>
+  <div class="nav-links"><a href="../index.html">Guía</a><a href="../app.html">Mi Entreno</a><a href="index.html" class="active">Blueprints</a></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+</nav>
+
+<div class="article-header">
+  <a href="../index.html" class="back">← Volver a la guía</a>
+  <div class="phase-tag">Sistema</div>
+  <h1>Blueprints</h1>
+  <div class="subtitle">Guías interactivas para cada pilar de Areté. Protocolos con fases progresivas, evidencia detrás, y ejecución concreta.</div>
+</div>
+
+<div class="blueprints-grid">
+  <a href="movilidad/index.html" class="bp-card article-card-featured">
+    <div class="bp-status done">✓ Completado</div>
+    <h3>🧘 Plan de Movilidad</h3>
+    <p>12 semanas · 21 ejercicios · Integrado con running y fuerza. Fases progresivas con videos verificados.</p>
+    <div class="bp-meta">🏃 3–4 runs/sem · 💪 2–3 fuerza/sem · 📅 5–7 min diarios</div>
+  </a>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🌙 Sleep Blueprint</h3>
+    <p>Sueño óptimo + protocolos para on-call SRE. Higiene del sueño, wind-down, manejo de interrupciones nocturnas.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🍽️ Nutrition Blueprint</h3>
+    <p>Meal prep semanal alineado con periodización de entrenamiento. Macros por tipo de día, timing pre/post entreno.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🧊 Cold/Heat Exposure</h3>
+    <p>Hormesis: protocolos de ducha fría, sauna, timing correcto. Progresión gradual con evidencia.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🫁 Breathwork Blueprint</h3>
+    <p>Box breathing (estrés on-call), Wim Hof (activación), respiración diafragmática (recovery). Protocolos por contexto.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🖥️ Desk Mobility</h3>
+    <p>Movilidad para sesiones largas de código. Micro-pausas horarias para caderas, hombros y columna.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🩹 Injury Prevention for Runners</h3>
+    <p>Los 5–6 problemas más comunes en ultra: rodilla del corredor, fascia plantar, IT band. Tests + ejercicios preventivos.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>📱 Digital Detox Blueprint</h3>
+    <p>Protocolos para desconectar: no-phone mornings, app blockers, environmental design para deep work.</p>
+  </div>
+
+  <div class="bp-card" style="opacity:.5;pointer-events:none">
+    <div class="bp-status pending">Próximamente</div>
+    <h3>🧪 Recovery Protocols</h3>
+    <p>Foam rolling, sleep stacking, nutrition timing. Recuperación optimizada para sesiones de entreno pesado.</p>
+  </div>
+</div>
+
+<footer class="site-footer">Blueprints · Areté</footer>
+
+<script>
+(function(){
+  var KEY='areteTheme';
+  function apply(t){
+    var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+    document.documentElement.classList.toggle('dark',d);
+  }
+  apply(localStorage.getItem(KEY)||'auto');
+  document.getElementById('themeToggle').addEventListener('click',function(){
+    var t=document.documentElement.classList.contains('dark')?'light':'dark';
+    localStorage.setItem(KEY,t);
+    apply(t);
+  });
+  matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){
+    if((localStorage.getItem(KEY)||'auto')==='auto')apply('auto');
+  });
+})();
+</script>
+</body>
+</html>
