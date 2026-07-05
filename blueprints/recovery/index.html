@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recovery Protocols · Areté</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../assets/icons/icon-16.png">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="../../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
+.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
+.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
+.phase-bar-fill{height:100%;border-radius:2px}
+.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
+.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
+.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.ex-card .meta strong{color:var(--text2)}
+.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--text2);line-height:1.6}
+.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
+.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
+.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.tl-item{display:flex;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--ghost-border)}
+.tl-item:last-child{border-bottom:none}
+.tl-time{min-width:70px;font-size:var(--bp-fs-sm);font-weight:700;color:var(--accent);text-align:right}
+.tl-content{flex:1}
+.tl-content h4{font-size:var(--bp-fs-md);font-weight:700;color:var(--text);margin-bottom:2px}
+.tl-content p{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.5}
+.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
+.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
+.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
+.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
+.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm);border-left:3px solid var(--accent)}
+.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ref-box p{color:var(--text2);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
+.ref-box em{color:var(--text3)}
+</style>
+<meta name="description" content="Protocolos de recuperación basados en evidencia. Active recovery, CWI, foam rolling, nutrición post-entreno, deload, HRV. Para atletas híbridos.">
+<link rel="canonical" href="https://luisgonzalezbernal.com/arete/blueprints/recovery/">
+<meta property="og:title" content="Recovery Protocols — Areté">
+<meta property="og:description" content="Protocolos de recuperación basados en evidencia. Active recovery, CWI, foam rolling, nutrición post-entreno, deload, HRV. Para atletas híbridos.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luisgonzalezbernal.com/arete/blueprints/recovery/">
+<meta property="og:site_name" content="Areté">
+<meta property="og:image" content="https://luisgonzalezbernal.com/arete/assets/og-default.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@iamluisgb">
+<meta name="twitter:creator" content="@iamluisgb">
+<meta name="twitter:title" content="Recovery Protocols — Areté">
+<meta name="twitter:description" content="Protocolos de recuperación basados en evidencia. Active recovery, CWI, foam rolling, nutrición post-entreno, deload, HRV. Para atletas híbridos.">
+<meta name="twitter:image" content="https://luisgonzalezbernal.com/arete/assets/og-default.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","name":"Recovery Protocols — Areté","url":"https://luisgonzalezbernal.com/arete/blueprints/recovery/","description":"Protocolos de recuperación basados en evidencia. Active recovery, CWI, foam rolling, nutrición post-entreno, deload, HRV. Para atletas híbridos.","inLanguage":"es","publisher":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"}}</script>
+
+</head>
+<body>
+<nav class="site-nav">
+  <a href="../../index.html" class="logo"><img src="../../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</a>
+  <div class="nav-links"><a href="../../index.html">Guía</a><a href="../../app.html">Mi Entreno</a></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+</nav>
+
+<div class="article-header">
+  <a href="../index.html" class="back">← Volver a blueprints</a>
+  <div class="phase-tag">Blueprint</div>
+  <h1>Recovery Protocols</h1>
+  <div class="subtitle">Recuperación basada en evidencia. No tips genéricos — protocolos con mecanismo, dosis y timing. Diseñado para atletas híbridos que encadenan fuerza y resistencia.</div>
+  <div class="badge-row">
+    <span class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">checklist</span> 3 fases · 12 protocolos · 20 referencias</span>
+  </div>
+</div>
+
+<div class="article-body">
+
+<!-- ═══════ PREREQUISITO ═══════ -->
+<div class="ref-box">
+  <div class="ref-title">Prerequisito: test de readiness</div>
+  <p>Antes de elegir protocolos, mide tu <strong>estado de recuperación</strong>. Dos métricas objetivas:</p>
+  <p><strong>1. HRV matutina</strong> — Mide la variabilidad de la frecuencia cardíaca al despertar (app: HRV4Training, Elite HRV). Un valor 7+ ms por debajo de tu baseline = recuperación incompleta.</p>
+  <p><strong>2. Subjetivo</strong> — 1-10: ¿cómo te sientes? Si &lt;5, prioriza recuperación activa. Si &gt;7, puedes entrenar normal.</p>
+  <p>Tu resultado define qué protocolos aplicar y con qué intensidad:</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> Fatigado — Fase 1 obligatoria</div>
+  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> Normal — Fase 1 + Fase 2</div>
+  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> Recuperado — Fase 2 selectivo</div>
+  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> Fresco — Fase 3 opcional</div>
+</div>
+
+<!-- ═══════ TOC ═══════ -->
+<div class="toc">
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#fase1">Fase 1 · Fundamentos · Post-entreno inmediato</a>
+      <ol class="sub">
+        <li><a href="#cooldown">Cooldown activo</a></li>
+        <li><a href="#nutricion">Nutrición post-entreno</a></li>
+        <li><a href="#foam">Foam rolling</a></li>
+        <li><a href="#stretch">Estiramiento post-entreno</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase2">Fase 2 · Optimización · Entre sesiones</a>
+      <ol class="sub">
+        <li><a href="#active">Recuperación activa</a></li>
+        <li><a href="#cwi">Inmersión en agua fría (CWI)</a></li>
+        <li><a href="#compression">Prendas de compresión</a></li>
+        <li><a href="#massage">Masaje y percusión</a></li>
+        <li><a href="#sleep">Stacking de sueño</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase3">Fase 3 · Avanzado · Periodización</a>
+      <ol class="sub">
+        <li><a href="#deload">Deload semanal</a></li>
+        <li><a href="#hrv">Monitorización con HRV</a></li>
+        <li><a href="#taper">Taper pre-competición</a></li>
+      </ol>
+    </li>
+    <li><a href="#rutina">Rutina diaria de recuperación</a></li>
+    <li><a href="#checklist">Checklist de progreso</a></li>
+    <li><a href="#refs">Referencias</a></li>
+  </ol>
+</div>
+
+<!-- ═══════ FASE 1 ═══════ -->
+<div id="fase1" class="section-label">Fase 1 · Fundamentos · Post-entreno inmediato</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: iniciar la recuperación en los primeros 0-60 min post-entreno. La ventana metabólica es real, pero no es tan estrecha como se vendía en los 2000s.</p>
+<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+
+<div id="cooldown" class="section-label" style="margin-top:0">Cooldown activo · 10 min · post-entreno</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El cooldown activo acelera la remoción de lactato y reduce la percepción de fatiga comparado con el descanso pasivo (Dupuy et al. 2018, efecto grande g=-1.01).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 01</div>
+  <h3>Cooldown activo</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 10 min</span>
+    <span><strong>Cuando:</strong> Inmediatamente post-entreno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>5 min</strong> de actividad aeróbica ligera (caminar, bici estática, nadar suave) a ~50% HRmax</li>
+    <li><strong>3 min</strong> de movilidad dinámica suave (circulos de cadera, zancadas ligeras)</li>
+    <li><strong>2 min</strong> de respiración diafragmática: 4s inhala, 6-8s exhala, activa sistema parasimpático</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Mejora clearance de lactato vs descanso pasivo</span>
+    <span class="tip tip-key">· La respiración lenta activa el parasimpático</span>
+    <span class="tip tip-no">· No estires estático aquí (reduce potencia si entrenas otra vez)</span>
+  </div>
+</div>
+
+<div id="nutricion" class="section-label">Nutrición post-entreno · 0-60 min</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La ventana anabólica existe pero es de 1-2 horas, no 30 minutos. Lo crítico es la dosis total diaria de proteína (1.6-2.2g/kg). El timing importa cuando entrenas dos veces al día o en ayunas (Naderi et al. 2025).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 02</div>
+  <h3>Nutrición post-entreno</h3>
+  <div class="meta">
+    <span><strong>Timing:</strong> 0-60 min post-entreno</span>
+    <span><strong>Objetivo:</strong> Síntesis de proteína + resíntesis de glucógeno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Proteína:</strong> 20-40g de proteína de alta calidad (whey, caseína, o comida mixta). 0.3-0.4g/kg por comida.</li>
+    <li><strong>Carbohidratos:</strong> 1-1.2g/kg dentro de la primera hora si sesión &gt;60 min o dos sesiones/día. Ratio C:H 3:1 o 4:1.</li>
+    <li><strong>Hidratación:</strong> 1.5x el peso perdido durante el entreno. Si sudor &gt;90 min: añade electrolitos (500-700mg sodio/L).</li>
+    <li><strong>Si entrenas en ayunas:</strong> la nutrición post-entreno es más crítica — prioriza los 30 min.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 20-40g proteína es el rango óptimo para MPS</span>
+    <span class="tip tip-key">· Si una sola sesión/día: el timing importa menos</span>
+    <span class="tip tip-no">· No necesitas BCAA si ya tomas proteína completa</span>
+  </div>
+</div>
+
+<div class="ex-card">
+  <div class="num">Protocolo 03</div>
+  <h3>Suplementos de recuperación</h3>
+  <div class="meta">
+    <span><strong>Cuando:</strong> Con la comida post-entreno</span>
+    <span><strong>Evidencia:</strong> Variable según compuesto</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Creatina monohidrato (5g/día):</strong> mejora recuperación entre sesiones y reduce daño muscular. Tomar con carbs mejora absorción.</li>
+    <li><strong>Zumo de cereza ácida (300ml):</strong> reduce DOMS e inflamación. Efecto modesto pero consistente en RCTs.</li>
+    <li><strong>Omega-3 (2-3g EPA+DHA):</strong> reduce inflamación crónica. No tomar inmediatamente post-entreno (puede blunting la adaptación inflamatoria aguda).</li>
+    <li><strong>Glutamina:</strong> evidencia insuficiente para recuperación en atletas sanos. Solo útil en sobreentrenamiento severo.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Creatina: el suplemento más estudiado y seguro</span>
+    <span class="tip tip-key">· Cereza ácida: efecto real pero modesto</span>
+    <span class="tip tip-no">· Omega-3 post-entreno puede reducir adaptación</span>
+  </div>
+</div>
+
+<div id="foam" class="section-label">Foam rolling · 10-15 min · post-entreno</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El foam rolling reduce DOMS de forma moderada (g=-0.48) y mejora ROM sin reducir rendimiento (Zhou et al. 2024, Konrad et al. 2022). El mecanismo es neuromodulación del tono muscular, no "romper adherencias".</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 04</div>
+  <h3>Foam rolling protocolo</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 10-15 min</span>
+    <span><strong>Presión:</strong> Moderada (6/10 dolor)</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Grupos musculares:</strong> isquiotibiales, cuádriceps, gemelos, TFL/IT band, dorsal ancho</li>
+    <li><strong>Técnica:</strong> rueda lenta (2-3 cm/s), pausa 30s en puntos gatillo, no rebotes</li>
+    <li><strong>Dosis por músculo:</strong> 2-3 pasadas de 30-60s. Total 90-120s por grupo muscular.</li>
+    <li><strong>Respiración:</strong> exhala al encontrar tensión, no aguantes la respiración</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 90-120s por músculo es suficiente</span>
+    <span class="tip tip-key">· Presión moderada &gt; presión máxima</span>
+    <span class="tip tip-no">· No ruedes directamente sobre articulaciones o lumbar</span>
+  </div>
+</div>
+
+<div id="stretch" class="section-label">Estiramiento post-entreno · 5-10 min</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El estiramiento estático post-entreno NO reduce DOMS (Sharman et al. 2006, Cochrane review). Pero mantiene el rango de movimiento y reduce rigidez subjetiva. Úsalo para movilidad, no para "recuperar".</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 05</div>
+  <h3>Estiramiento post-entreno</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 30-60s por músculo</span>
+    <span><strong>Cuando:</strong> Post-entreno, no pre</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Músculos clave:</strong> isquiotibiales, cadera (flexores), gemelos, pecho</li>
+    <li><strong>Técnica:</strong> estiramiento estático suave, 30-60s, sin dolor (sensación de tensión 6/10)</li>
+    <li><strong>PNF (opcional):</strong> contraer 5s → relajar 10s → estirar más. 3 ciclos por músculo.</li>
+    <li><strong>No sustituye</strong> al foam rolling ni a la nutrición. Es complementario.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Mantén ROM, no esperes reducir DOMS</span>
+    <span class="tip tip-key">· PNF &gt; estático para ganar ROM</span>
+    <span class="tip tip-no">· No estires antes de entrenar (reduce fuerza)</span>
+  </div>
+</div>
+
+<!-- ═══════ FASE 2 ═══════ -->
+<div id="fase2" class="section-label">Fase 2 · Optimización · Entre sesiones</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: acelerar recuperación entre sesiones (6-48h post-entreno). Aquí es donde los protocolos de contraste, compresión y masaje añaden valor real.</p>
+<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+
+<div id="active" class="section-label" style="margin-top:0">Recuperación activa · Día de descanso</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La recuperación activa (caminar, bici suave, nadar a baja intensidad) reduce DOMS y fatiga percibida mejor que el descanso pasivo (Dupuy et al. 2018, g=-0.87). 10-20 min de caminar post-entreno rivaliza con foam rolling y CWI para DOMS.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 06</div>
+  <h3>Recuperación activa</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 20-40 min</span>
+    <span><strong>Intensidad:</strong> Zona 1 (&lt;65% HRmax)</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Opciones:</strong> caminar, bici estática suave, nadar, yoga restaurativo</li>
+    <li><strong>Intensidad:</strong> conversacional, sin sudar. Si subes la intensidad, dejas de recuperar y empiezas a entrenar.</li>
+    <li><strong>Cuándo:</strong> día de descanso o sesión muy ligera entre días pesados</li>
+    <li><strong>Si tienes DOMS severo:</strong> 10-20 min de caminar es tan efectivo como protocolos más complejos</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Zona 1, no más. Si subes, rompes la recuperación</span>
+    <span class="tip tip-key">· Caminar 20 min &gt; descanso total en el sofá</span>
+    <span class="tip tip-no">· No confundas "active recovery" con entreno fácil</span>
+  </div>
+</div>
+
+<div id="cwi" class="section-label">Inmersión en agua fría (CWI) · 10-15 min</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">CWI reduce DOMS de forma moderada (g=-0.66) y mejora percepción de recuperación. Dosis óptima: 11-15°C, 10-15 min (Wang et al. 2025, network meta-analysis). <strong>Importante:</strong> CWI puede blunting la adaptación de hipertrofia si se usa inmediatamente después del entreno de fuerza. Resérvalo para días de resistencia o post-competición.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 07</div>
+  <h3>Inmersión en agua fría (CWI)</h3>
+  <div class="meta">
+    <span><strong>Temperatura:</strong> 11-15°C</span>
+    <span><strong>Duración:</strong> 10-15 min</span>
+    <span><strong>Cuando:</strong> 1-4h post-entreno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Protocolo estándar:</strong> 11-15°C, 10-15 min, inmersión hasta la cintura (o full body si tienes acceso)</li>
+    <li><strong>Alternativa sin bañera:</strong> ducha fría 2-3 min post-entreno (efecto menor pero accesible)</li>
+    <li><strong>Para fuerza/hipertrofia:</strong> NO usar CWI en las 2h post-entreno. Reduce la señal inflamatoria necesaria para adaptación. Úsalo en días de descanso o post-cardio.</li>
+    <li><strong>Para resistencia:</strong> seguro y efectivo. Especialmente útil tras long runs o sesiones de alta carga.</li>
+    <li><strong>Frecuencia:</strong> 2-3x/semana máximo. El estrés térmico es un estresor más — dosificarlo.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 11-15°C es el rango óptimo (no necesitas hielo)</span>
+    <span class="tip tip-key">· Post-fuerza: espera 2h o evita</span>
+    <span class="tip tip-no">· No uses CWI todos los días (habituación)</span>
+  </div>
+</div>
+
+<div id="compression" class="section-label">Prendas de compresión · 12-24h post-entreno</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Las prendas de compresión reducen DOMS de forma pequeña-moderada (g=-0.4 a -0.6, Dupuy et al. 2018). El mecanismo: mejora del retorno venoso y linfático, reducción del espacio para edema. Efecto real pero modesto.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 08</div>
+  <h3>Prendas de compresión</h3>
+  <div class="meta">
+    <span><strong>Presión:</strong> 18-22 mmHg en reposo</span>
+    <span><strong>Duración:</strong> 12-24h post-entreno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Qué usar:</strong> medias de compresión graduada (18-22 mmHg) para piernas. Mangas para brazos si entrenas upper body pesado.</li>
+    <li><strong>Cuándo:</strong> ponerse 30-60 min post-entreno, mantener 12-24h (incluso dormir con ellas si es cómodo).</li>
+    <li><strong>Para viajes:</strong> especialmente útil tras competiciones o sesiones largas seguidas de viaje (reduce hinchazón).</li>
+    <li><strong>Botas de compresión intermitente (Normatec):</strong> evidencia limitada pero subjetivamente efectivas. Si tienes acceso, 20-30 min post-entreno.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 18-22 mmHg es el rango con evidencia</span>
+    <span class="tip tip-key">· Útil para días de viaje post-competición</span>
+    <span class="tip tip-no">· No sustituye a nutrición ni sueño</span>
+  </div>
+</div>
+
+<div id="massage" class="section-label">Masaje y percusión · 24-72h post-entreno</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El masaje reduce DOMS de forma significativa (g=-0.79, Dupuy et al. 2018) y es superior a CWI en estudios head-to-head. El masaje de percusión (Theragun, Hypervolt) tiene evidencia emergente: reduce rigidez y mejora ROM sin reducir fuerza.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 09</div>
+  <h3>Masaje y percusión</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 10-20 min</span>
+    <span><strong>Cuando:</strong> 24-72h post-entreno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Masaje profesional:</strong> 30-60 min, 1-2x/semana si el presupuesto lo permite. Enfoque en grupos musculares trabajados.</li>
+    <li><strong>Percusión ( Theragun/Hypervolt):</strong> 2-3 min por músculo, frecuencia 30-40 Hz, no sobre articulaciones ni puntos de nervios.</li>
+    <li><strong>Auto-masaje con pelota:</strong> lacrosse ball en glúteos, espalda, pies. 2-3 min por punto, presión moderada.</li>
+    <li><strong>Timing:</strong> no inmediatamente post-entreno. Mejor 24-72h después cuando el DOMS está en su pico.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· El masaje es el protocolo con mayor efecto en DOMS</span>
+    <span class="tip tip-key">· Percusión: 2-3 min por músculo, no más</span>
+    <span class="tip tip-no">· No uses percusión en el cuello o zona lumbar</span>
+  </div>
+</div>
+
+<div id="sleep" class="section-label">Stacking de sueño · Noche post-entreno</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El sueño es el protocolo de recuperación más potente que existe. La extensión de sueño (8-10h) mejora rendimiento, tiempo de reacción y reduce lesiones. Ver el <a href="../sleep/">Sleep Blueprint</a> para el protocolo completo. Aquí: lo específico para recuperación post-entreno.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 10</div>
+  <h3>Stacking de sueño</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 8-10h</span>
+    <span><strong>Cuando:</strong> Noche post-entreno</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Objetivo:</strong> 8-10h de sueño las noches post-entreno pesado. La hormona de crecimiento se libera en ondas de sueño profundo (fases 3-4).</li>
+    <li><strong>Nap estratégico:</strong> 20 min entre 13:00-15:00 si te levantaste temprano. No más de 30 min (inercia de sueño).</li>
+    <li><strong>Temperatura:</strong> 18-20°C en la habitación. El cuerpo necesita bajar 0.5°C para entrar en sueño profundo.</li>
+    <li><strong>Si entrenas tarde:</strong> termina 2-3h antes de dormir. El ejercicio eleva la temperatura corporal y retrasa el onset del sueño.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 8-10h las noches post-entreno pesado</span>
+    <span class="tip tip-key">· Nap de 20 min, no más</span>
+    <span class="tip tip-no">· No entrenes &lt;2h antes de dormir</span>
+  </div>
+</div>
+
+<!-- ═══════ FASE 3 ═══════ -->
+<div id="fase3" class="section-label">Fase 3 · Avanzado · Periodización</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: integrar la recuperación en la periodización. Deload, monitorización con HRV y taper pre-competición. Aquí es donde la recuperación deja de ser reactiva y se convierte en estratégica.</p>
+<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+
+<div id="deload" class="section-label" style="margin-top:0">Deload semanal · Cada 4-8 semanas</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El deload reduce volumen 40-60% manteniendo intensidad. Previene sobreentrenamiento y permite supercompensación. La evidencia directa es limitada (pocos RCTs en deload), pero la evidencia indirecta sobre prevención de overreaching es robusta.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 11</div>
+  <h3>Deload semanal</h3>
+  <div class="meta">
+    <span><strong>Frecuencia:</strong> Cada 4-8 semanas</span>
+    <span><strong>Duración:</strong> 1 semana</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Volumen:</strong> reduce 40-60% (menos sets, no menos peso). Mantiene la señal neuromuscular.</li>
+    <li><strong>Intensidad:</strong> mantén el % de 1RM o RPE. No bajes el peso, baja las reps/sets.</li>
+    <li><strong>Frecuencia de entreno:</strong> puede mantenerse o reducirse 1 día. Lo importante es el volumen total.</li>
+    <li><strong>Cuándo hacer deload:</strong> tras 4-8 semanas de progresión, o cuando HRV baje 7+ ms 3 días seguidos, o cuando el RPE suba 2 puntos en el mismo peso.</li>
+    <li><strong>Running:</strong> reduce kilometraje 40-50%, mantén 1 sesión de calidad (intervals cortos).</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Baja volumen, no intensidad</span>
+    <span class="tip tip-key">· HRV bajo 3 días = señal de deload</span>
+    <span class="tip tip-no">· No uses deload como excusa para no entrenar</span>
+  </div>
+</div>
+
+<div id="hrv" class="section-label">Monitorización con HRV · Diario</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La HRV (variabilidad de la frecuencia cardíaca) mide el balance autonómico. Una HRV alta = sistema parasimpático dominante (recuperado). Una HRV baja = simpático dominante (fatigado). Útil para ajustar carga de entrenamiento en tiempo real.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 12</div>
+  <h3>Monitorización con HRV</h3>
+  <div class="meta">
+    <span><strong>Frecuencia:</strong> Diaria, matutina</span>
+    <span><strong>Duración:</strong> 2-60 min (según método)</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Medición:</strong> al despertar, antes de levantarte, 2-60 min según la app (HRV4Training usa cámara del móvil, Polar H10 es el gold standard).</li>
+    <li><strong>Baseline:</strong> registra 7-14 días para establecer tu media. La tendencia importa más que el valor absoluto.</li>
+    <li><strong>Interpretación:</strong>
+      <ul style="margin-top:4px">
+        <li>+7 ms sobre baseline → bien recuperado, puedes entrenar duro</li>
+        <li>Dentro de ±7 ms → normal, sigue el plan</li>
+        <li>-7 ms bajo baseline → fatigado, reduce intensidad o descansa</li>
+      </ul>
+    </li>
+    <li><strong>Ajuste de carga:</strong> si HRV baja 3+ días seguidos, considera deload o día de recuperación activa.</li>
+    <li><strong>Factores que confunden:</strong> alcohol la noche anterior, mala noche de sueño, estrés, enfermedad incipiente, cafeína. Anota contexto.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· La tendencia &gt; el valor absoluto</span>
+    <span class="tip tip-key">· 3 días bajos = señal de alarma</span>
+    <span class="tip tip-no">· No compares tu HRV con la de otros</span>
+  </div>
+</div>
+
+<div id="taper" class="section-label">Taper pre-competición · 1-3 semanas</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El taper reduce el volumen de entrenamiento progresivamente para llegar fresco a la competición. La evidencia es robusta: el taper mejora rendimiento 2-3% en resistencia (Mujika & Padilla 2003). La clave: bajar volumen, mantener intensidad, mantener frecuencia.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 13</div>
+  <h3>Taper pre-competición</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 1-3 semanas</span>
+    <span><strong>Objetivo:</strong> Llegar fresco, no desentrenado</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Volumen:</strong> reduce 40-60% en 1-2 semanas (taper progresivo) o 50% de golpe en 1 semana (taper step).</li>
+    <li><strong>Intensidad:</strong> mantén al 100%. No bajes el peso ni el pace. Solo reduce sets/volumen.</li>
+    <li><strong>Frecuencia:</strong> mantén los días de entreno. Reducir días rompe el ritmo y aumenta ansiedad.</li>
+    <li><strong>Última sesión dura:</strong> 3-5 días antes. Intensidad alta, volumen mínimo (2-3 sets de activación).</li>
+    <li><strong>Nutrición:</strong> aumenta carbs 2-3 días antes (carb loading) para competiciones &gt;90 min.</li>
+    <li><strong>Sleep:</strong> prioriza 8-10h. No pruebes nada nuevo la semana previa.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Baja volumen, mantén intensidad y frecuencia</span>
+    <span class="tip tip-key">· No pruebes nada nuevo la semana previa</span>
+    <span class="tip tip-no">· No descanses demasiado (desentrenamiento)</span>
+  </div>
+</div>
+
+<!-- ═══════ RUTINA DIARIA ═══════ -->
+<div id="rutina" class="section-label">Rutina diaria de recuperación</div>
+<div class="timeline">
+  <h2>Día tipo post-entreno (tarde)</h2>
+  <div class="tl-item">
+    <div class="tl-time">+0 min</div>
+    <div class="tl-content">
+      <h4>Cooldown activo</h4>
+      <p>10 min: caminar + respiración parasimpática. No te sientes inmediatamente.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+15 min</div>
+    <div class="tl-content">
+      <h4>Nutrición post-entreno</h4>
+      <p>20-40g proteína + 1-1.2g/kg carbs. Hidratación 1.5x peso perdido. Creatina 5g.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+30 min</div>
+    <div class="tl-content">
+      <h4>Foam rolling</h4>
+      <p>10-15 min: 90-120s por grupo muscular. Presión moderada, respiración lenta.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+45 min</div>
+    <div class="tl-content">
+      <h4>Estiramiento (opcional)</h4>
+      <p>5-10 min: estático o PNF. Para mantener ROM, no para reducir DOMS.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+2-4h</div>
+    <div class="tl-content">
+      <h4>CWI (si aplica)</h4>
+      <p>Solo si fue sesión de resistencia. Si fue fuerza, espera o evita.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Noche</div>
+    <div class="tl-content">
+      <h4>Stacking de sueño</h4>
+      <p>8-10h. Temperatura 18-20°C. Sin pantallas 60 min antes. Ver Sleep Blueprint.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Día siguiente</div>
+    <div class="tl-content">
+      <h4>HRV matutina + recuperación activa</h4>
+      <p>Mide HRV al despertar. Si baja, día de recuperación activa (20-40 min Zona 1). Compresión si hay DOMS.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+24-72h</div>
+    <div class="tl-content">
+      <h4>Masaje / percusión</h4>
+      <p>Cuando el DOMS está en su pico. 10-20 min. No inmediatamente post-entreno.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CHECKLIST ═══════ -->
+<div id="checklist" class="checklist">
+  <h2>Checklist de Progreso</h2>
+  <div class="check-grid">
+    <div class="check-col">
+      <h4>Semana 1–2</h4>
+      <ul>
+        <li>Cooldown activo después de cada sesión</li>
+        <li>Nutrición post-entreno consistente (20-40g proteína)</li>
+        <li>Foam rolling 3x/semana mínimo</li>
+        <li>Baseline de HRV establecido (7-14 días)</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 3–4</h4>
+      <ul>
+        <li>CWI testeado post-sesión de resistencia</li>
+        <li>Prendas de compresión probadas</li>
+        <li>Estiramiento post-entreno como hábito</li>
+        <li>Sleep stacking: 8h+ las noches post-entreno</li>
+      </ul>
+    </div>
+    <div class="check-col">
+      <h4>Semana 5–6</h4>
+      <ul>
+        <li>HRV usado para ajustar intensidad al menos 1x</li>
+        <li>Masaje o percusión integrado en rutina</li>
+        <li>Recuperación activa en días de descanso</li>
+        <li>Creatina 5g/día consistente</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 7–8</h4>
+      <ul>
+        <li>Primer deload completado (1 semana, -50% volumen)</li>
+        <li>HRV estable o subiendo vs baseline</li>
+        <li>DOMS menos frecuente o menos severa</li>
+        <li>RPE estable en mismo peso (no subiendo)</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Competición</h4>
+      <ul>
+        <li>Taper ejecutado (1-2 semanas)</li>
+        <li>Carb loading si evento &gt;90 min</li>
+        <li>Sleep 8-10h la semana previa</li>
+        <li>Nada nuevo la semana de competición</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ REFERENCIAS ═══════ -->
+<div id="refs" class="section-label">Referencias</div>
+<div class="ref-box">
+  <div class="ref-title">Evidencia científica</div>
+  <p><strong>Dupuy O, Douzi W, Bosquet L, et al.</strong> "An Evidence-Based Approach for Choosing Post-exercise Recovery Techniques to Reduce Markers of Muscle Damage, Soreness, Fatigue, and Inflammation: A Systematic Review With Meta-Analysis." <em>Front Physiol.</em> 2018;9:403. — Meta-análisis fundamental. Active recovery (g=-0.87), massage (g=-0.79), CWI (g=-0.66), compression (g=-0.55), contrast therapy (g=-0.51) todos reducen DOMS. Estiramiento no.</p>
+  <p><strong>Wang H, Wang L, Pan Y.</strong> "Impact of different doses of cold water immersion (duration and temperature variations) on recovery from acute exercise-induced muscle damage: a network meta-analysis." <em>Front Physiol.</em> 2025;16:1525726. — Dosis óptima CWI: 11-15°C, 10-15 min. Network meta-analysis con 57+ estudios.</p>
+  <p><strong>Zhou J, Jia D, Mao J, Xu Y.</strong> "Preventive effect of foam rolling on muscle soreness after exercise: A systematic review and meta-analysis." <em>J Bodyw Mov Ther.</em> 2024;40:1890-1898. — Foam rolling reduce DOMS de forma moderada (g=-0.48). Efecto preventivo y terapéutico.</p>
+  <p><strong>Konrad A, Nakamura M, Behm DG.</strong> "The Effects of Foam Rolling Training on Performance Parameters: A Systematic Review and Meta-Analysis." <em>Int J Environ Res Public Health.</em> 2022;19(18):11638. — Foam rolling no mejora rendimiento pero mejora ROM sin reducir fuerza.</p>
+  <p><strong>Konrad A, Alizadeh S, Anvar SH, et al.</strong> "Static Stretch Training versus Foam Rolling Training Effects on Range of Motion: A Systematic Review and Meta-Analysis." <em>Sports Med.</em> 2024;54(9):2311-2326. — Foam rolling y estiramiento estático son igualmente efectivos para ganar ROM.</p>
+  <p><strong>Warneke K, Plöschberger G, Lohmann LH, et al.</strong> "Foam rolling and stretching do not provide superior acute flexibility and stiffness improvements compared to any other warm-up intervention." <em>J Sport Health Sci.</em> 2024. — Foam rolling no es superior a otros warm-ups para flexibilidad aguda.</p>
+  <p><strong>Glänzel MH, et al.</strong> "Foam Rolling Acute Effects on Myofascial Tissue Stiffness and Muscle Strength: A Systematic Review and Meta-Analysis." <em>J Strength Cond Res.</em> 2023;37(4):951-968. — Foam rolling reduce rigidez tisular sin reducir fuerza.</p>
+  <p><strong>Naderi A, Rothschild JA, Santos HO, et al.</strong> "Nutritional Strategies to Improve Post-exercise Recovery and Subsequent Exercise Performance: A Narrative Review." <em>Sports Med.</em> 2025;55(7):1559-1577. — Review comprehensivo de nutrición post-entreno. Timing, dosis, y estrategias para sesiones múltiples.</p>
+  <p><strong>Cheng G, Zhang Z, Shi Z, Qiu Y.</strong> "An investigation into how the timing of nutritional supplements affects the recovery from post-exercise fatigue: a systematic review and meta-analysis." <em>Front Nutr.</em> 2025;12:1567438. — El timing de suplementos afecta recuperación. Ventana post-entreno validada.</p>
+  <p><strong>Bird SP, Nienhuis M, Biagioli B, et al.</strong> "Supplementation Strategies for Strength and Power Athletes: Carbohydrate, Protein, and Amino Acid Ingestion." <em>Nutrients.</em> 2024;16(12):1886. — Guía de suplementación para fuerza/potencia. 20-40g proteína post-entreno.</p>
+  <p><strong>Zhao S, Zhang X, Liang T, et al.</strong> "The effectiveness of protein supplements on athletic performance and post-exercise recovery - a Bayesian multilevel meta-analysis of randomized controlled trials." <em>J Int Soc Sports Nutr.</em> 2026;23(1):2605338. — Suplementos de proteína mejoran recuperación post-ejercicio. Meta-análisis Bayesiano.</p>
+  <p><strong>Ma J, Guo C, Luo L, et al.</strong> "Comparison of the Effects of Cold-Water Immersion Applied Alone and Combined Therapy on the Recovery of Muscle Fatigue After Exercise: A Systematic Review and Meta-Analysis." <em>Life (Basel).</em> 2025;15(8):1205. — CWI solo vs combinado. CWI solo es efectivo para DOMS.</p>
+  <p><strong>Chen R, Ma X, Ma X, Cui C.</strong> "The effects of hydrotherapy and cryotherapy on recovery from acute post-exercise induced muscle damage—a network meta-analysis." <em>BMC Musculoskelet Disord.</em> 2024;25(1):749. — 57 estudios. Hidroterapia y crioterapia efectivas para recuperación.</p>
+  <p><strong>Veen J, Bergh C, Cao Y, et al.</strong> "The Impact of Cold-Water Immersion on Post-Match Recovery in Trained Soccer Players: A Systematic Review and Meta-Analysis." <em>Scand J Med Sci Sports.</em> 2026;36(1):e70202. — CWI post-partido en fútbol: efectivo para recuperación.</p>
+  <p><strong>Sharman MJ, Cramer JT, Rhea MR, et al.</strong> "Stretching during and after exercise does not reduce delayed-onset muscle soreness." <em>Br J Sports Med.</em> 2006;40(5):430-435. — Estiramiento post-entreno no reduce DOMS. Cochrane review.</p>
+  <p><strong>Behm DG, Blazevich AJ, Kay AD, McHugh M.</strong> "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals." <em>Appl Physiol Nutr Metab.</em> 2016;41(1):1-11. — Estiramiento estático pre-entreno reduce fuerza 5-12%.</p>
+  <p><strong>Mujika I, Padilla S.</strong> "Scientific bases for pre-competition tapering strategies." <em>Med Sci Sports Exerc.</em> 2003;35(7):1182-1187. — Taper mejora rendimiento 2-3%. Bajar volumen, mantener intensidad.</p>
+  <p><strong>Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M.</strong> "Training adaptation and heart rate variability in elite endurance athletes." <em>Sports Med.</em> 2013;43(9):773-781. — HRV como herramienta de monitorización de entrenamiento en atletas de élite.</p>
+  <p><strong>Bellenger CR, Fuller JT, Thomson RL, et al.</strong> "Monitoring athletic training status through autonomic heart rate variability: a systematic review and meta-analysis." <em>Sports Med.</em> 2016;46(10):1461-1486. — HRV refleja el estado de entrenamiento. Útil para ajustar carga.</p>
+  <p><strong>Howatson G, Van Someren KA.</strong> "Evidence-based recommendations for recovery after exercise." <em>Sports Med.</em> 2008;38(9):737-763. — Review de protocolos de recuperación. CWI, compresión, masaje con evidencia.</p>
+</div>
+
+</div><!-- .article-body -->
+
+<footer class="site-footer">Blueprints · Areté</footer>
+
+<script>
+(function(){var K='areteTheme';function apply(t){var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}apply(localStorage.getItem(K)||'auto');document.getElementById('themeToggle').addEventListener('click',function(){var t=document.documentElement.classList.contains('dark')?'light':'dark';localStorage.setItem(K,t);apply(t)});matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){if((localStorage.getItem(K)||'auto')==='auto')apply('auto')})})();
+</script>
+</body>
+</html>
