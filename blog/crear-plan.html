@@ -25,10 +25,10 @@
 </div>
 <div class="article-body">
 
-<h2>Cómo funciona</h2>
+<h2 id="cmo-funciona">Cómo funciona</h2>
 <p>La app lee planes de entrenamiento en formato <strong>JSON</strong>. Un plan define fases, sesiones y ejercicios. Una vez creado, lo importas desde la pestaña <strong>Más > Mis Planes > Importar plan</strong>.</p>
 
-<h2>Estructura básica</h2>
+<h2 id="estructura-bsica">Estructura básica</h2>
 <p>Un plan tiene esta forma:</p>
 
 <pre><code>{
@@ -51,7 +51,7 @@
   }
 }</code></pre>
 
-<h2>Campos obligatorios</h2>
+<h2 id="campos-obligatorios">Campos obligatorios</h2>
 
 <div class="info-box">
 <strong>_meta</strong> (objeto): Metadata del programa.
@@ -70,7 +70,7 @@
 </ul>
 </div>
 
-<h2>Tipos de ejercicio</h2>
+<h2 id="tipos-de-ejercicio">Tipos de ejercicio</h2>
 <p>Cada ejercicio tiene un campo <code>mode</code> que determina cómo se muestra en la app. Si no se especifica, el modo por defecto es <code>"sets"</code>.</p>
 
 <table>
@@ -89,7 +89,7 @@
 </tbody>
 </table>
 
-<h2>Ejemplo completo</h2>
+<h2 id="ejemplo-completo">Ejemplo completo</h2>
 <p>Un plan con 2 fases y varios modos de ejercicio:</p>
 
 <pre><code>{
@@ -146,7 +146,7 @@
   }
 }</code></pre>
 
-<h2>Crear un plan con IA</h2>
+<h2 id="crear-un-plan-con-ia">Crear un plan con IA</h2>
 <p>Puedes usar ChatGPT, Claude o cualquier LLM para generar tu plan. Copia el prompt de abajo, describe tu objetivo, y pega el JSON resultante en un archivo <code>.json</code> para importarlo.</p>
 
 <div class="info-box" style="position:relative">
