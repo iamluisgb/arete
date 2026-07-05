@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Areté — Test Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--bg:#f4f2f0;--surface:#fff;--surface2:#ebe8e5;--surface-high:#f0eeeb;--surface-glass:rgba(255,255,255,.75);--border:rgba(92,68,64,.08);--ghost-border:rgba(0,0,0,.06);--text:#1c1b1b;--text2:rgba(93,63,59,.55);--text3:rgba(93,63,59,.40);--accent:#d4372c;--accent2:#ff5545;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.12);--green:#16a34a;--red:#dc2626;--teal:#0891b2;--color-running:#0891b2;--radius:16px;--radius-lg:24px;--font:'Inter',-apple-system,sans-serif;--fs-xs:.6rem;--fs-sm:.65rem;--fs-base:.72rem;--fs-md:.82rem;--fs-lg:.9rem;--fs-xl:1.1rem;--fs-2xl:1.3rem;--fs-3xl:2rem;--fs-4xl:3rem;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px}
+:root.dark{--bg:#131313;--surface:#201f1f;--surface2:#2a2a2a;--surface-high:#353534;--surface-glass:rgba(32,31,31,.85);--border:transparent;--ghost-border:rgba(93,63,59,.15);--text:#e5e2e1;--text2:rgba(231,189,183,.60);--text3:rgba(231,189,183,.45);--accent:#ff5545;--accent2:#ffb4aa;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.3);--green:#30d158;--red:#ff453a;--teal:#68d3fc;--color-running:#68d3fc}
+*{margin:0;padding:0;box-sizing:border-box}html{font-size:16px}body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+nav{position:sticky;top:0;z-index:100;background:var(--surface-glass);backdrop-filter:blur(20px);border-bottom:.5px solid var(--border);padding:var(--sp-3) var(--sp-5);display:flex;align-items:center;justify-content:space-between}
+:root.dark nav{background:rgba(19,19,19,.6);border-bottom-color:var(--ghost-border)}
+nav .logo{font-size:var(--fs-xl);font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+nav .logo img{width:24px;height:24px;border-radius:6px}
+nav .links{display:flex;gap:var(--sp-5);font-size:var(--fs-md);font-weight:500}
+nav .links a{color:var(--text2);text-decoration:none;cursor:pointer}.links a:hover,.links a.active{color:var(--accent)}
+.theme-toggle{flex-shrink:0;background:none;border:none;padding:6px;color:var(--text2);cursor:pointer;display:flex;align-items:center;border-radius:8px}.theme-toggle:hover{color:var(--accent);background:var(--surface2)}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{display:none}:root.dark .theme-toggle .icon-sun{display:block}:root:not(.dark) .theme-toggle .icon-moon{display:block}
+.main{max-width:480px;margin:0 auto;padding:0 var(--sp-5) var(--sp-10);min-height:calc(100vh - 52px)}
+
+/* Screens */
+.screen{display:none;animation:fadeIn .25s ease-out}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section label */
+.section-label{font-size:var(--fs-sm);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:var(--sp-3)}
+
+/* Cards */
+.card{background:var(--surface);border-radius:var(--radius-lg);padding:var(--sp-5);border:1px solid var(--ghost-border);margin-bottom:var(--sp-3)}
+.card-wide{grid-column:span 2}
+.card-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);margin-bottom:var(--sp-2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:16px 24px;border-radius:var(--radius);cursor:pointer;width:100%;transition:transform .1s,opacity .15s;box-shadow:0 8px 24px var(--accent-glow)}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-outline{background:var(--surface2);color:var(--text);box-shadow:none}
+.btn-sm{padding:12px 16px;font-size:var(--fs-md)}
+.btn-green{background:var(--green);box-shadow:0 8px 24px rgba(22,163,74,.15)}
+.btn-group{display:flex;gap:var(--sp-3);margin-top:var(--sp-4)}
+.btn-group .btn{flex:1}
+
+/* Back button */
+.back{font-size:var(--fs-md);color:var(--text2);font-weight:500;display:inline-flex;align-items:center;gap:var(--sp-1);margin-bottom:var(--sp-5);cursor:pointer;border:none;background:none;font-family:var(--font)}.back:hover{color:var(--accent)}
+
+/* Greeting */
+.greeting{margin-bottom:var(--sp-6);padding-top:var(--sp-5)}
+.greeting-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin-bottom:var(--sp-1)}
+.greeting-title{font-size:var(--fs-3xl);font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.greeting-sub{font-size:var(--fs-sm);color:var(--text3);margin-top:var(--sp-2);line-height:1.5}
+
+/* Test set cards */
+.set-card{background:var(--surface);border-radius:var(--radius-lg);padding:var(--sp-5);border:1px solid var(--ghost-border);margin-bottom:var(--sp-3);cursor:pointer;transition:border-color .2s,transform .15s}
+.set-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.set-card .set-name{font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--sp-1)}
+.set-card .set-desc{font-size:var(--fs-sm);color:var(--text2);margin-bottom:var(--sp-3)}
+.set-card .set-tests{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
+.set-tag{font-size:var(--fs-xs);font-weight:600;padding:3px 8px;border-radius:var(--sp-2);background:var(--surface2);color:var(--text2)}
+.set-tag.accent{background:var(--accent-glow);color:var(--accent)}
+
+/* Test list in set */
+.test-list{margin-bottom:var(--sp-4)}
+.test-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);background:var(--surface);border-radius:var(--radius);margin-bottom:var(--sp-2);border:1px solid var(--ghost-border)}
+.test-item.current{border-color:var(--accent);background:rgba(212,55,44,.03)}
+:root.dark .test-item.current{background:rgba(255,85,69,.05)}
+.test-item.done{opacity:.5}
+.test-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:var(--fs-sm);font-weight:700;color:var(--text2);flex-shrink:0}
+.test-item.current .test-num{background:var(--accent);color:#fff}
+.test-item.done .test-num{background:var(--green);color:#fff}
+.test-item .info{flex:1;min-width:0}
+.test-item .name{font-size:var(--fs-md);font-weight:600}
+.test-item .meta{font-size:var(--fs-xs);color:var(--text3)}
+
+/* Execution screen */
+.exec-header{text-align:center;margin-bottom:var(--sp-6);padding-top:var(--sp-5)}
+.exec-header .test-name{font-size:var(--fs-xl);font-weight:800;margin-bottom:var(--sp-1)}
+.exec-header .test-step{font-size:var(--fs-sm);color:var(--text2)}
+.exec-display{text-align:center;padding:var(--sp-10) 0}
+.exec-number{font-size:6rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.exec-unit{font-size:var(--fs-lg);color:var(--text2);margin-top:var(--sp-2)}
+.exec-instructions{background:var(--surface);border-radius:var(--radius-lg);padding:var(--sp-5);margin:var(--sp-6) 0;border:1px solid var(--ghost-border)}
+.exec-instructions .inst-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:var(--sp-2)}
+.exec-instructions p{font-size:var(--fs-md);color:var(--text2);line-height:1.5}
+.exec-btn{width:80px;height:80px;border-radius:50%;border:none;font-size:var(--fs-2xl);font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.exec-btn:active{transform:scale(.93)}
+.exec-btn.counter{background:var(--accent);color:#fff;box-shadow:0 12px 32px var(--accent-glow);margin:0 auto}
+.exec-btn.timer{background:var(--red);color:#fff;box-shadow:0 12px 32px rgba(220,38,38,.2);margin:0 auto}
+.exec-btn.stop{background:var(--surface2);color:var(--text);box-shadow:none}
+.exec-actions{display:flex;justify-content:center;gap:var(--sp-4);margin-top:var(--sp-6)}
+.exec-actions .btn{width:auto;padding:12px 32px}
+
+/* Input field for manual tests */
+.exec-input{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);margin:var(--sp-6) 0}
+.exec-input input{width:120px;text-align:center;font-size:var(--fs-3xl);font-weight:800;font-family:var(--font);background:var(--surface);border:2px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-3);color:var(--text);outline:none}
+.exec-input input:focus{border-color:var(--accent)}
+.exec-input .unit{font-size:var(--fs-xl);color:var(--text2);font-weight:600}
+
+/* Rest screen */
+.rest-display{text-align:center;padding:var(--sp-10) 0}
+.rest-title{font-size:var(--fs-lg);font-weight:600;color:var(--text2);margin-bottom:var(--sp-5)}
+.rest-time{font-size:5rem;font-weight:800;color:var(--accent);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.rest-sub{font-size:var(--fs-sm);color:var(--text3);margin-top:var(--sp-2)}
+
+/* Summary */
+.summary-header{text-align:center;padding:var(--sp-8) 0 var(--sp-5)}
+.summary-check{width:64px;height:64px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto var(--sp-4)}
+.summary-check .material-symbols-outlined{font-size:32px;color:#fff}
+.summary-title{font-size:var(--fs-2xl);font-weight:800}
+.summary-score{display:flex;align-items:center;justify-content:center;gap:var(--sp-6);margin:var(--sp-6) 0}
+.summary-score .ring{position:relative;width:100px;height:100px}
+.summary-score svg{width:100%;height:100%;transform:rotate(-90deg)}
+.summary-score .track{fill:none;stroke:var(--surface2);stroke-width:6}
+.summary-score .fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:213.6}
+.summary-score .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.summary-score .center .num{font-size:var(--fs-3xl);font-weight:800;line-height:1}
+.summary-score .center .unit{font-size:var(--fs-2xs);color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+.summary-score .delta{font-size:var(--fs-lg);font-weight:700}
+.summary-score .delta.up{color:var(--green)}
+.summary-score .delta.same{color:var(--text3)}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-3) 0;border-bottom:.5px solid var(--ghost-border)}
+.result-row:last-child{border-bottom:none}
+.result-row .rname{font-size:var(--fs-md);font-weight:600}
+.result-row .rval{font-size:var(--fs-md);font-weight:800;color:var(--accent)}
+
+/* Catalog */
+.catalog-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);background:var(--surface);border-radius:var(--radius);margin-bottom:var(--sp-2);border:1px solid var(--ghost-border)}
+.catalog-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--surface2);flex-shrink:0}
+.catalog-icon .material-symbols-outlined{font-size:18px;color:var(--text2)}
+.catalog-info{flex:1;min-width:0}
+.catalog-info .name{font-size:var(--fs-md);font-weight:600}
+.catalog-info .meta{font-size:var(--fs-xs);color:var(--text3)}
+.catalog-badge{font-size:var(--fs-xs);font-weight:600;padding:3px 8px;border-radius:var(--sp-2);background:var(--surface2);color:var(--text2)}
+
+/* Create test form */
+.form-group{margin-bottom:var(--sp-4)}
+.form-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:var(--sp-2);display:block}
+.form-input{width:100%;font-family:var(--font);font-size:var(--fs-md);padding:var(--sp-3) var(--sp-4);background:var(--surface);border:1.5px solid var(--ghost-border);border-radius:var(--radius);color:var(--text);outline:none}
+.form-input:focus{border-color:var(--accent)}
+textarea.form-input{min-height:80px;resize:vertical}
+.radio-group{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+.radio-pill{padding:var(--sp-2) var(--sp-4);border-radius:var(--radius);background:var(--surface2);font-size:var(--fs-sm);font-weight:600;color:var(--text2);cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.radio-pill.active{background:var(--accent-glow);color:var(--accent);border-color:var(--accent)}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-3) 0}
+.toggle-row .label{font-size:var(--fs-md);font-weight:600}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--surface2);border:none;cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+
+/* Bento grid */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-5)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo"><img src="assets/icons/icon-192.png" alt="" aria-hidden="true">Areté</a>
+  <div class="links"><a onclick="showScreen('dashboard')">Dashboard</a><a class="active" onclick="showScreen('dashboard')">Tests</a></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+</nav>
+
+<div class="main">
+
+<!-- ════════ SCREEN: Dashboard ════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="greeting">
+    <p class="greeting-label">Tests</p>
+    <h2 class="greeting-title">Test Day</h2>
+    <p class="greeting-sub">Mide tu nivel en 7 dominios. Tests guiados con timer, counter y GPS integrados.</p>
+  </div>
+
+  <div class="bento">
+    <div class="card card-wide">
+      <div class="card-label">Próximo test</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--sp-2)">
+        <div><div style="font-size:var(--fs-md);font-weight:700">Test B — Fuerza & Movilidad</div><div style="font-size:var(--fs-sm);color:var(--text2);margin-top:2px">6 tests · ~30 min</div></div>
+        <div style="text-align:right"><div style="font-size:var(--fs-2xl);font-weight:800;color:var(--accent)">12</div><div style="font-size:var(--fs-2xs);color:var(--text3);text-transform:uppercase;letter-spacing:.1em">días</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Último test</div>
+      <div style="font-size:var(--fs-2xl);font-weight:800;color:var(--green);margin-top:var(--sp-2)">54</div>
+      <div style="font-size:var(--fs-xs);color:var(--text3)">Hace 38 días</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Mejora</div>
+      <div style="font-size:var(--fs-2xl);font-weight:800;color:var(--green);margin-top:var(--sp-2)">+6</div>
+      <div style="font-size:var(--fs-xs);color:var(--text3)">vs test anterior</div>
+    </div>
+  </div>
+
+  <div class="btn-group" style="margin-bottom:var(--sp-6)">
+    <button class="btn" onclick="showScreen('select-set')">Empezar Test Day</button>
+  </div>
+
+  <div class="section-label">Sets de tests</div>
+  <div id="setsList"></div>
+
+  <div style="margin-top:var(--sp-5)">
+    <button class="btn btn-outline" onclick="showScreen('catalog')">Gestionar tests y sets</button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: Select test set ════════ -->
+<div class="screen" id="screen-select-set">
+  <button class="back" onclick="showScreen('dashboard')">← Volver</button>
+  <div class="greeting" style="padding-top:0">
+    <p class="greeting-label">Seleccionar</p>
+    <h2 class="greeting-title">¿Qué test haces?</h2>
+  </div>
+  <div id="selectSetsList"></div>
+</div>
+
+<!-- ════════ SCREEN: Test order ════════ -->
+<div class="screen" id="screen-order">
+  <button class="back" onclick="showScreen('select-set')">← Volver</button>
+  <div class="greeting" style="padding-top:0">
+    <p class="greeting-label" id="orderSetName">Test B</p>
+    <h2 class="greeting-title">Orden de tests</h2>
+    <p class="greeting-sub">Sigue el orden. Descansa entre tests si lo necesitas.</p>
+  </div>
+  <div class="test-list" id="testOrderList"></div>
+  <button class="btn btn-green" onclick="startTest()" id="startTestBtn">Comenzar primer test</button>
+</div>
+
+<!-- ════════ SCREEN: Execution ════════ -->
+<div class="screen" id="screen-exec">
+  <div class="exec-header">
+    <div class="test-step" id="execStep">Test 1 de 6</div>
+    <div class="test-name" id="execName">Pull-ups</div>
+  </div>
+
+  <!-- Counter mode -->
+  <div id="execCounter" style="display:none">
+    <div class="exec-display">
+      <div class="exec-number" id="counterVal">0</div>
+      <div class="exec-unit" id="counterUnit">reps</div>
+    </div>
+    <div style="text-align:center">
+      <button class="exec-btn counter" onclick="counterAdd()">+1</button>
+    </div>
+  </div>
+
+  <!-- Timer mode -->
+  <div id="execTimer" style="display:none">
+    <div class="exec-display">
+      <div class="exec-number" id="timerVal">0:00</div>
+      <div class="exec-unit" id="timerUnit">segundos</div>
+    </div>
+    <div style="text-align:center">
+      <button class="exec-btn timer" id="timerBtn" onclick="timerToggle()">Iniciar</button>
+    </div>
+  </div>
+
+  <!-- Input mode -->
+  <div id="execInput" style="display:none">
+    <div class="exec-display" style="padding:var(--sp-4) 0">
+      <div class="exec-input">
+        <input type="number" id="inputVal" value="0" step="1">
+        <span class="unit" id="inputUnit">°</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="exec-instructions">
+    <div class="inst-label">Instrucciones</div>
+    <p id="execInstructions">—</p>
+  </div>
+
+  <div class="exec-actions">
+    <button class="btn btn-outline" onclick="skipTest()">Saltar</button>
+    <button class="btn btn-green" onclick="saveTestResult()">Guardar y continuar</button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: Rest ════════ -->
+<div class="screen" id="screen-rest">
+  <div class="rest-display">
+    <div class="rest-title">Descansa</div>
+    <div class="rest-time" id="restTime">2:00</div>
+    <div class="rest-sub">antes del siguiente test</div>
+  </div>
+  <div style="text-align:center;margin-top:var(--sp-6)">
+    <button class="btn btn-outline" onclick="skipRest()">Saltar descanso</button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: Summary ════════ -->
+<div class="screen" id="screen-summary">
+  <div class="summary-header">
+    <div class="summary-check"><span class="material-symbols-outlined">check</span></div>
+    <div class="summary-title">Test completado</div>
+  </div>
+  <div class="summary-score">
+    <div class="ring">
+      <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="34"/><circle class="fill" id="summaryRing" cx="50" cy="50" r="34"/></svg>
+      <div class="center"><div class="num" id="summaryScore">54</div><div class="unit">/ 100</div></div>
+    </div>
+    <div>
+      <div class="delta up" id="summaryDelta">▲ +6 vs anterior</div>
+      <div style="font-size:var(--fs-sm);color:var(--text3);margin-top:4px">Nivel III — Intermedio</div>
+    </div>
+  </div>
+  <div class="section-label">Resultados</div>
+  <div class="card" id="summaryResults"></div>
+  <div class="btn-group" style="margin-top:var(--sp-5)">
+    <button class="btn btn-outline" onclick="showScreen('dashboard')">Volver al dashboard</button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: Catalog ════════ -->
+<div class="screen" id="screen-catalog">
+  <button class="back" onclick="showScreen('dashboard')">← Volver</button>
+  <div class="greeting" style="padding-top:0">
+    <p class="greeting-label">Catálogo</p>
+    <h2 class="greeting-title">Tests & Sets</h2>
+  </div>
+
+  <div class="section-label">Tests disponibles</div>
+  <div id="catalogList"></div>
+
+  <button class="btn btn-outline" style="margin:var(--sp-4) 0" onclick="showScreen('create-test')">+ Crear test personalizado</button>
+
+  <div class="section-label" style="margin-top:var(--sp-6)">Sets de tests</div>
+  <div id="catalogSetsList"></div>
+
+  <button class="btn btn-outline" style="margin:var(--sp-4) 0" onclick="showScreen('create-set')">+ Crear set personalizado</button>
+</div>
+
+<!-- ════════ SCREEN: Create test ════════ -->
+<div class="screen" id="screen-create-test">
+  <button class="back" onclick="showScreen('catalog')">← Volver</button>
+  <div class="greeting" style="padding-top:0">
+    <p class="greeting-label">Nuevo test</p>
+    <h2 class="greeting-title">Crear test</h2>
+  </div>
+  <div class="card">
+    <div class="form-group">
+      <label class="form-label">Nombre</label>
+      <input class="form-input" id="newTestName" placeholder="Ej: Front squat 1RM">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de input</label>
+      <div class="radio-group" id="newTestInput">
+        <div class="radio-pill active" data-val="counter">Counter</div>
+        <div class="radio-pill" data-val="timer">Timer</div>
+        <div class="radio-pill" data-val="input">Input</div>
+        <div class="radio-pill" data-val="gps">GPS</div>
+        <div class="radio-pill" data-val="time_input">Tiempo</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Unidad</label>
+      <input class="form-input" id="newTestUnit" placeholder="Ej: reps, seg, °, kg">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoría</label>
+      <div class="radio-group" id="newTestCategory">
+        <div class="radio-pill active" data-val="strength">Fuerza</div>
+        <div class="radio-pill" data-val="core">Core</div>
+        <div class="radio-pill" data-val="cardio">Cardio</div>
+        <div class="radio-pill" data-val="mobility">Movilidad</div>
+        <div class="radio-pill" data-val="power">Potencia</div>
+        <div class="radio-pill" data-val="other">Otro</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instrucciones</label>
+      <textarea class="form-input" id="newTestInst" placeholder="Cómo realizar el test..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descanso después (segundos)</label>
+      <input class="form-input" id="newTestRest" type="number" value="60">
+    </div>
+    <button class="btn" onclick="createTest()">Guardar test</button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: Create set ════════ -->
+<div class="screen" id="screen-create-set">
+  <button class="back" onclick="showScreen('catalog')">← Volver</button>
+  <div class="greeting" style="padding-top:0">
+    <p class="greeting-label">Nuevo set</p>
+    <h2 class="greeting-title">Crear set</h2>
+  </div>
+  <div class="card">
+    <div class="form-group">
+      <label class="form-label">Nombre del set</label>
+      <input class="form-input" id="newSetName" placeholder="Ej: Mi test mensual">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Frecuencia (cada X semanas)</label>
+      <input class="form-input" id="newSetFreq" type="number" value="6">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nivel de fatiga</label>
+      <div class="radio-group" id="newSetFatigue">
+        <div class="radio-pill active" data-val="low">Bajo</div>
+        <div class="radio-pill" data-val="moderate">Moderado</div>
+        <div class="radio-pill" data-val="high">Alto</div>
+      </div>
+      <div style="font-size:var(--fs-xs);color:var(--text3);margin-top:var(--sp-2)">Bajo = sin fatiga (McGill, AKE). Moderado = fatiga local (pull-ups, plancha). Alto = fatiga sistémica (400m, 5K, KB).</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tests incluidos</label>
+      <div id="setTestPicker"></div>
+    </div>
+    <button class="btn" onclick="createSet()">Guardar set</button>
+  </div>
+</div>
+
+</div><!-- .main -->
+
+<script>
+// ── Theme ──
+(function(){var K='areteTheme';function apply(t){var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}apply(localStorage.getItem(K)||'auto');document.getElementById('themeToggle').addEventListener('click',function(){var t=document.documentElement.classList.contains('dark')?'light':'dark';localStorage.setItem(K,t);apply(t)})})();
+
+// ── Data ──
+let testCatalog = [
+  { id:'pullups', name:'Pull-ups máximas', icon:'front_hand', input:'counter', unit:'reps', instructions:'Colgada muerta, barbilla sobre barra, sin kip ni balanceo. Máximas repeticiones estrictas.', rest:120, category:'strength' },
+  { id:'pushups', name:'Push-ups máximas', icon:'sports_martial_arts', input:'counter', unit:'reps', instructions:'Manos a la anchura de hombros, cuerpo en línea recta. Bajar hasta que el pecho toque el suelo.', rest:120, category:'strength' },
+  { id:'mcgill_flexor', name:'McGill Flexor', icon:'self_improvement', input:'timer', unit:'seg', instructions:'Supino, rodillas a 90°, brazos cruzados sobre pecho, mentón recogido. Levantar hombros y mantener. Cronometrar hasta que la forma se rompa.', rest:60, category:'core' },
+  { id:'mcgill_extensor', name:'McGill Extensor', icon:'self_improvement', input:'timer', unit:'seg', instructions:'Prono, cuerpo soportado en cresta ilíaca, manos a los lados. Mantener el cuerpo en línea recta. Cronometrar hasta fallo.', rest:60, category:'core' },
+  { id:'mcgill_side_l', name:'McGill Side L', icon:'self_improvement', input:'timer', unit:'seg', instructions:'Plancha lateral izquierda sobre el codo. Cuerpo en línea recta. Cronometrar hasta que la forma se rompa.', rest:30, category:'core' },
+  { id:'mcgill_side_r', name:'McGill Side R', icon:'self_improvement', input:'timer', unit:'seg', instructions:'Plancha lateral derecha sobre el codo. Cuerpo en línea recta. Cronometrar hasta que la forma se rompa.', rest:120, category:'core' },
+  { id:'plank', name:'Plancha frontal', icon:'straighten', input:'timer', unit:'seg', instructions:'Plancha sobre antebrazos, cuerpo en línea recta. Caderas ni elevadas ni hundidas. Mantener hasta fallo de forma.', rest:60, category:'core' },
+  { id:'ake', name:'Active Knee Extension', icon:'accessibility_new', input:'input', unit:'°', instructions:'Supino, una pierna extendida. Otra con cadera a 90°. Extender activamente la rodilla. Medir ángulo con goniómetro. Positivo = más allá de perpendicular.', rest:0, category:'mobility' },
+  { id:'sprint_400m', name:'Sprint 400m', icon:'bolt', input:'gps', unit:'tiempo', instructions:'Máxima velocidad sostenida durante 400m. Calentar bien antes. Seleccionar modo GPS o introducir tiempo manual.', rest:300, category:'power' },
+  { id:'race_5k', name:'5K race effort', icon:'directions_run', input:'gps', unit:'tiempo', instructions:'5 kilómetros a ritmo de test — máximo esfuerzo sostenido. Usar tracker GPS o introducir tiempo manual.', rest:0, category:'cardio' },
+  { id:'kb_ss', name:'KB Simple & Sinister', icon:'local_fire_department', input:'timer', unit:'seg', instructions:'Fase 1: 100 swings @32kg en menos de 5 min. Fase 2: 10 Turkish Get-ups @32kg en menos de 10 min. El timer corre continuo.', rest:0, category:'endurance' },
+];
+
+let testSets = [
+  { id:'set-a', name:'Core & Movilidad', tests:['mcgill_flexor','mcgill_extensor','mcgill_side_l','mcgill_side_r','ake'], frequencyWeeks:6, fatigue:'low', isCustom:false },
+  { id:'set-b', name:'Fuerza', tests:['pullups','pushups','plank'], frequencyWeeks:8, fatigue:'moderate', isCustom:false },
+  { id:'set-c', name:'Potencia — 400m', tests:['sprint_400m'], frequencyWeeks:10, fatigue:'high', isCustom:false },
+  { id:'set-d', name:'Cardio — 5K', tests:['race_5k'], frequencyWeeks:10, fatigue:'high', isCustom:false },
+  { id:'set-e', name:'Resistencia — KB S&S', tests:['kb_ss'], frequencyWeeks:10, fatigue:'high', isCustom:false },
+];
+
+const HIGH_FATIGUE = ['sprint_400m','race_5k','kb_ss','rucking'];
+const FATIGUE_COLORS = { low:'var(--green)', moderate:'var(--teal)', high:'var(--red)' };
+const FATIGUE_LABELS = { low:'Bajo', moderate:'Moderado', high:'Alto' };
+
+let currentSet = null;
+let currentTestIdx = 0;
+let testResults = {};
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+
+// ── Navigation ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'dashboard') renderSets();
+  if (id === 'select-set') renderSelectSets();
+  if (id === 'catalog') renderCatalog();
+  if (id === 'create-set') renderSetPicker();
+}
+
+// ── Render sets on dashboard ──
+function renderSets() {
+  const el = document.getElementById('setsList');
+  el.innerHTML = testSets.map(s => {
+    const testNames = s.tests.map(t => testCatalog.find(c=>c.id===t)?.name || t);
+    const fc = s.fatigue || 'low';
+    return `<div class="set-card" onclick="selectSet('${s.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-1)">
+        <div class="set-name">${s.name}</div>
+        <span class="set-tag" style="background:${FATIGUE_COLORS[fc]}15;color:${FATIGUE_COLORS[fc]}">Fatiga ${FATIGUE_LABELS[fc]}</span>
+      </div>
+      <div class="set-desc">Cada ${s.frequencyWeeks} semanas · ${s.tests.length} test${s.tests.length>1?'s':''}</div>
+      <div class="set-tests">${testNames.map(n=>`<span class="set-tag">${n}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Select set screen ──
+function renderSelectSets() {
+  const el = document.getElementById('selectSetsList');
+  el.innerHTML = testSets.map(s => {
+    const testNames = s.tests.map(t => testCatalog.find(c=>c.id===t)?.name || t);
+    const fc = s.fatigue || 'low';
+    const mins = s.tests.length <= 1 ? '~5-30' : `~${Math.ceil(s.tests.length * 5)}`;
+    return `<div class="set-card" onclick="selectSet('${s.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-1)">
+        <div class="set-name">${s.name}</div>
+        <span class="set-tag" style="background:${FATIGUE_COLORS[fc]}15;color:${FATIGUE_COLORS[fc]}">Fatiga ${FATIGUE_LABELS[fc]}</span>
+      </div>
+      <div class="set-desc">${s.tests.length} test${s.tests.length>1?'s':''} · ${mins} min estimados</div>
+      <div class="set-tests">${testNames.map(n=>`<span class="set-tag accent">${n}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Start a set ──
+function selectSet(setId) {
+  currentSet = testSets.find(s => s.id === setId);
+  currentTestIdx = 0;
+  testResults = {};
+  document.getElementById('orderSetName').textContent = currentSet.name;
+  renderTestOrder();
+  showScreen('order');
+}
+
+function renderTestOrder() {
+  const el = document.getElementById('testOrderList');
+  el.innerHTML = currentSet.tests.map((tid, i) => {
+    const t = testCatalog.find(c=>c.id===tid);
+    const cls = i < currentTestIdx ? 'done' : i === currentTestIdx ? 'current' : '';
+    const icon = i < currentTestIdx ? 'check' : (i+1);
+    return `<div class="test-item ${cls}">
+      <div class="test-num">${icon}</div>
+      <div class="info"><div class="name">${t.name}</div><div class="meta">${t.input === 'counter' ? 'Counter' : t.input === 'timer' ? 'Timer' : t.input === 'gps' ? 'GPS' : 'Input'} · ${t.unit}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Start test execution ──
+function startTest() {
+  currentTestIdx = 0;
+  showTest();
+}
+
+function showTest() {
+  const tid = currentSet.tests[currentTestIdx];
+  const t = testCatalog.find(c=>c.id===tid);
+  document.getElementById('execStep').textContent = `Test ${currentTestIdx+1} de ${currentSet.tests.length}`;
+  document.getElementById('execName').textContent = t.name;
+  document.getElementById('execInstructions').textContent = t.instructions;
+
+  // Hide all modes
+  document.getElementById('execCounter').style.display = 'none';
+  document.getElementById('execTimer').style.display = 'none';
+  document.getElementById('execInput').style.display = 'none';
+
+  // Show correct mode
+  if (t.input === 'counter') {
+    document.getElementById('execCounter').style.display = 'block';
+    document.getElementById('counterVal').textContent = '0';
+    document.getElementById('counterUnit').textContent = t.unit;
+    counterVal = 0;
+  } else if (t.input === 'timer') {
+    document.getElementById('execTimer').style.display = 'block';
+    document.getElementById('timerVal').textContent = '0:00';
+    document.getElementById('timerUnit').textContent = t.unit;
+    document.getElementById('timerBtn').textContent = 'Iniciar';
+    document.getElementById('timerBtn').className = 'exec-btn timer';
+    timerSeconds = 0;
+    timerRunning = false;
+    if (timerInterval) clearInterval(timerInterval);
+  } else if (t.input === 'gps') {
+    document.getElementById('execTimer').style.display = 'block';
+    document.getElementById('timerVal').textContent = '0:00';
+    document.getElementById('timerUnit').textContent = 'tiempo (GPS o manual)';
+    document.getElementById('timerBtn').textContent = 'Iniciar';
+    document.getElementById('timerBtn').className = 'exec-btn timer';
+    timerSeconds = 0;
+    timerRunning = false;
+    if (timerInterval) clearInterval(timerInterval);
+  } else {
+    document.getElementById('execInput').style.display = 'block';
+    document.getElementById('inputVal').value = '0';
+    document.getElementById('inputUnit').textContent = t.unit;
+  }
+
+  showScreen('exec');
+}
+
+// ── Counter ──
+let counterVal = 0;
+function counterAdd() {
+  counterVal++;
+  document.getElementById('counterVal').textContent = counterVal;
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// ── Timer ──
+function timerToggle() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerBtn').textContent = 'Reanudar';
+    document.getElementById('timerBtn').className = 'exec-btn timer';
+  } else {
+    timerRunning = true;
+    document.getElementById('timerBtn').textContent = 'Detener';
+    document.getElementById('timerBtn').className = 'exec-btn timer stop';
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerVal').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    }, 1000);
+  }
+}
+
+// ── Save result and move on ──
+function saveTestResult() {
+  const tid = currentSet.tests[currentTestIdx];
+  const t = testCatalog.find(c=>c.id===tid);
+  let value;
+
+  if (t.input === 'counter') {
+    value = counterVal;
+  } else if (t.input === 'timer' || t.input === 'gps') {
+    if (timerInterval) clearInterval(timerInterval);
+    timerRunning = false;
+    value = timerSeconds;
+  } else {
+    value = parseFloat(document.getElementById('inputVal').value) || 0;
+  }
+
+  testResults[tid] = value;
+
+  // Check if there's a rest period
+  if (t.rest > 0 && currentTestIdx < currentSet.tests.length - 1) {
+    startRest(t.rest);
+  } else {
+    nextTest();
+  }
+}
+
+function skipTest() {
+  const tid = currentSet.tests[currentTestIdx];
+  testResults[tid] = null;
+  if (timerInterval) clearInterval(timerInterval);
+  timerRunning = false;
+  nextTest();
+}
+
+// ── Rest ──
+let restInterval = null;
+let restSeconds = 0;
+
+function startRest(seconds) {
+  restSeconds = seconds;
+  updateRestDisplay();
+  showScreen('rest');
+  restInterval = setInterval(() => {
+    restSeconds--;
+    updateRestDisplay();
+    if (restSeconds <= 0) {
+      clearInterval(restInterval);
+      nextTest();
+    }
+  }, 1000);
+}
+
+function updateRestDisplay() {
+  const m = Math.floor(restSeconds / 60);
+  const s = restSeconds % 60;
+  document.getElementById('restTime').textContent = `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function skipRest() {
+  if (restInterval) clearInterval(restInterval);
+  nextTest();
+}
+
+// ── Next test or summary ──
+function nextTest() {
+  currentTestIdx++;
+  if (currentTestIdx < currentSet.tests.length) {
+    renderTestOrder();
+    showTest();
+  } else {
+    showSummary();
+  }
+}
+
+// ── Summary ──
+function showSummary() {
+  // Calculate score
+  const scored = Object.entries(testResults).filter(([k,v]) => v !== null);
+  const score = Math.min(100, Math.round(40 + scored.length * 8 + Math.random() * 10));
+
+  document.getElementById('summaryScore').textContent = score;
+  document.getElementById('summaryDelta').textContent = `▲ +${Math.round(score - 48)} vs anterior`;
+
+  // Ring
+  const circ = 2 * Math.PI * 34;
+  const offset = circ - (score/100)*circ;
+  const ring = document.getElementById('summaryRing');
+  ring.style.strokeDasharray = circ;
+  ring.style.strokeDashoffset = circ;
+  setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+
+  // Results
+  const el = document.getElementById('summaryResults');
+  el.innerHTML = scored.map(([tid, val]) => {
+    const t = testCatalog.find(c=>c.id===tid);
+    let display = val;
+    if (t.input === 'timer' || t.input === 'gps') {
+      const m = Math.floor(val / 60);
+      const s = val % 60;
+      display = `${m}:${String(s).padStart(2,'0')}`;
+    } else {
+      display = `${val} ${t.unit}`;
+    }
+    return `<div class="result-row"><div class="rname">${t.name}</div><div class="rval">${display}</div></div>`;
+  }).join('');
+
+  showScreen('summary');
+}
+
+// ── Catalog ──
+function renderCatalog() {
+  const el = document.getElementById('catalogList');
+  el.innerHTML = testCatalog.map(t => {
+    const inputLabel = {counter:'Counter',timer:'Timer',input:'Input',gps:'GPS',time_input:'Tiempo'}[t.input] || t.input;
+    const catLabel = {strength:'Fuerza',core:'Core',cardio:'Cardio',mobility:'Movilidad',power:'Potencia',endurance:'Resistencia',other:'Otro'}[t.category] || t.category;
+    return `<div class="catalog-item">
+      <div class="catalog-icon"><span class="material-symbols-outlined">${t.icon}</span></div>
+      <div class="catalog-info"><div class="name">${t.name}</div><div class="meta">${inputLabel} · ${t.unit} · ${catLabel}</div></div>
+    </div>`;
+  }).join('');
+
+  const el2 = document.getElementById('catalogSetsList');
+  el2.innerHTML = testSets.map(s => {
+    const testNames = s.tests.map(t => testCatalog.find(c=>c.id===t)?.name || t);
+    const fc = s.fatigue || 'low';
+    return `<div class="set-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-1)">
+        <div class="set-name">${s.name} ${s.isCustom ? '<span class="set-tag accent">Custom</span>' : ''}</div>
+        <span class="set-tag" style="background:${FATIGUE_COLORS[fc]}15;color:${FATIGUE_COLORS[fc]}">Fatiga ${FATIGUE_LABELS[fc]}</span>
+      </div>
+      <div class="set-desc">Cada ${s.frequencyWeeks} semanas · ${s.tests.length} test${s.tests.length>1?'s':''}</div>
+      <div class="set-tests">${testNames.map(n=>`<span class="set-tag">${n}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Radio pill groups ──
+document.querySelectorAll('.radio-group').forEach(group => {
+  group.querySelectorAll('.radio-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      group.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+});
+
+// ── Create custom test ──
+function createTest() {
+  const name = document.getElementById('newTestName').value.trim();
+  if (!name) { alert('Introduce un nombre'); return; }
+  const input = document.querySelector('#newTestInput .active').dataset.val;
+  const unit = document.getElementById('newTestUnit').value.trim() || '—';
+  const category = document.querySelector('#newTestCategory .active').dataset.val;
+  const instructions = document.getElementById('newTestInst').value.trim() || 'Sin instrucciones.';
+  const rest = parseInt(document.getElementById('newTestRest').value) || 0;
+
+  const id = 'custom_' + Date.now();
+  testCatalog.push({ id, name, icon:'science', input, unit, instructions, rest, category });
+  alert('Test "' + name + '" creado.');
+  showScreen('catalog');
+}
+
+// ── Create custom set ──
+function renderSetPicker() {
+  const el = document.getElementById('setTestPicker');
+  el.innerHTML = testCatalog.map(t => {
+    const isHigh = HIGH_FATIGUE.includes(t.id);
+    return `<div class="toggle-row">
+      <div class="label" style="font-size:var(--fs-sm)">${t.name} ${isHigh ? '<span style="color:var(--red);font-size:var(--fs-xs);font-weight:600">● Alta fatiga</span>' : ''}</div>
+      <button class="toggle" data-test="${t.id}" onclick="this.classList.toggle('on')"></button>
+    </div>`;
+  }).join('');
+}
+
+function createSet() {
+  const name = document.getElementById('newSetName').value.trim();
+  if (!name) { alert('Introduce un nombre'); return; }
+  const freq = parseInt(document.getElementById('newSetFreq').value) || 6;
+  const fatigue = document.querySelector('#newSetFatigue .active')?.dataset.val || 'low';
+  const tests = [];
+  document.querySelectorAll('#setTestPicker .toggle.on').forEach(t => tests.push(t.dataset.test));
+  if (tests.length === 0) { alert('Selecciona al menos un test'); return; }
+  // Validate: no two high-fatigue tests in same set
+  const highFatigueCount = tests.filter(t => HIGH_FATIGUE.includes(t)).length;
+  if (fatigue === 'high' && highFatigueCount > 1) {
+    alert('Un set de fatiga alta solo puede tener 1 test de alta fatiga. Los tests de 400m, 5K y KB S&S no pueden ir juntos.');
+    return;
+  }
+  if (highFatigueCount > 1) {
+    alert('Este set tiene ' + highFatigueCount + ' tests de alta fatiga. Los tests de 400m, 5K y KB S&S deben ir en sets separados.');
+    return;
+  }
+
+  const id = 'set_custom_' + Date.now();
+  testSets.push({ id, name, tests, frequencyWeeks: freq, fatigue, isCustom: true });
+  alert('Set "' + name + '" creado con ' + tests.length + ' tests.');
+  showScreen('catalog');
+}
+
+// ── Init ──
+renderSets();
+</script>
+</body>
+</html>
