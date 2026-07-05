@@ -10,315 +10,188 @@
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
 <style>
-/* ===== Blueprint-specific overrides (larger readable sizes) ===== */
-:root {
-  --bp-fs-sm: .75rem;
-  --bp-fs-base: .85rem;
-  --bp-fs-md: .95rem;
-  --bp-fs-lg: 1.05rem;
-  --bp-fs-xl: 1.2rem;
-  --bp-fs-2xl: 1.5rem;
-}
-
-/* ===== TOC ===== */
-.toc {
-  background: var(--surface);
-  border: 1px solid var(--ghost-border);
-  border-radius: var(--radius);
-  padding: var(--sp-5);
-  margin: 0 auto var(--sp-8);
-  max-width: 640px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-}
-:root.dark .toc { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.toc h2 {
-  font-size: var(--bp-fs-xl);
-  font-weight: 700;
-  margin-bottom: var(--sp-3);
-  color: var(--text);
-}
-.toc ol { padding-left: var(--sp-5); margin: 0; }
-.toc li { margin-bottom: 6px; font-size: var(--bp-fs-md); }
-.toc a { color: var(--accent); text-decoration: none; }
-.toc a:hover { text-decoration: underline; }
-.toc .sub { padding-left: var(--sp-4); margin-top: 4px; }
-.toc .sub li { font-size: var(--bp-fs-sm); margin-bottom: 4px; color: var(--text2); }
-
-/* ===== PHASE BAR ===== */
-.phase-bar {
-  width: 100%; height: 3px; border-radius: 2px;
-  background: var(--surface2); overflow: hidden;
-  margin: var(--sp-3) 0 var(--sp-5);
-}
-.phase-bar-fill { height: 100%; border-radius: 2px; }
-.phase-bar-fill.p1 { width: 33%; background: var(--accent); }
-.phase-bar-fill.p2 { width: 66%; background: #f59e0b; }
-.phase-bar-fill.p3 { width: 100%; background: var(--green); }
-
-/* ===== EXERCISE CARD ===== */
-.ex-card {
-  background: var(--surface);
-  border: 1px solid var(--ghost-border);
-  border-radius: var(--radius);
-  padding: var(--sp-5);
-  margin-bottom: var(--sp-3);
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-  transition: transform .15s, box-shadow .2s;
-}
-:root.dark .ex-card { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.ex-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
-}
-:root.dark .ex-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.3); }
-
-.ex-card .num {
-  font-size: var(--bp-fs-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-.ex-card h3 {
-  font-size: var(--bp-fs-lg);
-  font-weight: 700;
-  letter-spacing: -.01em;
-  margin-bottom: var(--sp-2);
-  color: var(--text);
-}
-.ex-card .meta {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-bottom: var(--sp-3);
-}
-.ex-card .meta span {
-  font-size: var(--bp-fs-xs);
-  color: var(--text3);
-  background: var(--surface2);
-  padding: 2px 8px;
-  border-radius: var(--sp-2);
-  font-weight: 500;
-}
-.ex-card .meta strong { color: var(--text2); }
-.ex-card .steps {
-  margin: 0 0 var(--sp-3) var(--sp-5);
-  font-size: var(--bp-fs-md);
-  color: var(--text2);
-  line-height: 1.6;
-}
-.ex-card .steps li { margin-bottom: 4px; }
-.ex-card .steps li strong { color: var(--text); }
-.ex-card .tips {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-top: var(--sp-2);
-}
-.tip {
-  font-size: var(--bp-fs-xs);
-  padding: 2px 8px;
-  border-radius: var(--sp-2);
-  font-weight: 500;
-}
-.tip-ok { background: rgba(22,163,74,.1); color: var(--green); }
-.tip-no { background: rgba(220,38,38,.1); color: var(--red); }
-.tip-key { background: var(--accent-glow); color: var(--accent); }
-
-/* ===== VIDEO LINK ===== */
-.video-link {
-  display: inline-flex; align-items: center; gap: 4px;
-  margin-top: var(--sp-3);
-  font-size: var(--bp-fs-sm);
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 500;
-}
-.video-link:hover { text-decoration: underline; }
-.video-link .channel { color: var(--text3); margin-left: 2px; font-weight: 400; }
-
-/* ===== SCHEDULE ===== */
-.schedule {
-  background: var(--surface);
-  border: 1px solid var(--ghost-border);
-  border-radius: var(--radius);
-  padding: var(--sp-5);
-  margin: var(--sp-5) 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-}
-:root.dark .schedule { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.schedule h2 {
-  font-size: var(--bp-fs-xl);
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-.schedule .schedule-desc {
-  font-size: var(--bp-fs-sm);
-  color: var(--text2);
-  margin-bottom: var(--sp-4);
-}
-.schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-.s-day {
-  background: var(--surface2);
-  border-radius: var(--sp-3);
-  padding: var(--sp-3) var(--sp-2);
-  text-align: center;
-}
-.s-day.run { border-left: 2px solid var(--accent); }
-.s-day.strength { border-left: 2px solid #a78bfa; }
-.s-day.rest { border-left: 2px solid var(--text3); }
-.s-day .icon { font-size: 1.1rem; margin-bottom: 2px; }
-.s-day .name { font-weight: 600; font-size: var(--bp-fs-sm); color: var(--text); }
-.s-day .type { font-size: var(--bp-fs-xs); color: var(--text3); }
-
-/* ===== RESOURCES ===== */
-.resources-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--sp-3);
-  margin-top: var(--sp-4);
-}
-.res-card {
-  background: var(--surface);
-  border: 1px solid var(--ghost-border);
-  border-radius: var(--radius);
-  padding: var(--sp-4);
-  text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-  transition: transform .15s, box-shadow .2s;
-}
-:root.dark .res-card { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.res-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
-}
-:root.dark .res-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.3); }
-.res-card h4 { font-size: var(--bp-fs-md); color: var(--text); margin-bottom: 2px; }
-.res-card p { font-size: var(--bp-fs-xs); color: var(--text2); line-height: 1.4; }
-
-/* ===== CHECKLIST ===== */
-.checklist {
-  background: var(--surface);
-  border: 1px solid var(--ghost-border);
-  border-radius: var(--radius);
-  padding: var(--sp-5);
-  margin: var(--sp-5) 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-}
-:root.dark .checklist { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.checklist h2 {
-  font-size: var(--bp-fs-xl);
-  font-weight: 700;
-  margin-bottom: var(--sp-4);
-  color: var(--text);
-}
-.check-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-5);
-}
-.check-col h4 {
-  font-size: var(--bp-fs-sm);
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: var(--sp-2);
-}
-.check-col ul { list-style: none; padding: 0; margin: 0; }
-.check-col li {
-  font-size: var(--bp-fs-sm);
-  color: var(--text2);
-  padding: 3px 0 3px 16px;
-  position: relative;
-  line-height: 1.5;
-}
-.check-col li::before {
-  content: "☐";
-  position: absolute; left: 0;
-  color: var(--text3);
-}
-
-/* ===== BADGE ROW ===== */
-.badge-row {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-top: var(--sp-3);
-}
-.badge {
-  font-size: var(--bp-fs-xs);
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: var(--sp-2);
-  background: var(--accent-glow);
-  color: var(--accent);
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .schedule-grid { grid-template-columns: repeat(3, 1fr); }
-  .check-grid { grid-template-columns: 1fr; }
-}
+:root{--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
+.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
+.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
+.phase-bar-fill{height:100%;border-radius:2px}
+.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
+.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
+.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.ex-card .meta strong{color:var(--text2)}
+.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--text2);line-height:1.6}
+.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
+.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
+.video-link{display:inline-flex;align-items:center;gap:4px;margin-top:var(--sp-3);font-size:var(--bp-fs-sm);color:var(--accent);text-decoration:none;font-weight:500}
+.video-link:hover{text-decoration:underline}.video-link .channel{color:var(--text3);margin-left:2px;font-weight:400}
+.schedule{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .schedule{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.schedule h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:4px;color:var(--text)}
+.schedule .schedule-desc{font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-4)}
+.schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.s-day{background:var(--surface2);border-radius:var(--sp-3);padding:var(--sp-3) var(--sp-2);text-align:center}
+.s-day.run{border-left:2px solid var(--accent)}.s-day.strength{border-left:2px solid #a78bfa}.s-day.rest{border-left:2px solid var(--text3)}.s-day.test{border-left:2px solid var(--teal)}
+.s-day .icon{font-size:1.1rem;margin-bottom:2px}.s-day .name{font-weight:600;font-size:var(--bp-fs-sm);color:var(--text)}.s-day .type{font-size:var(--bp-fs-xs);color:var(--text3)}
+.resources-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--sp-3);margin-top:var(--sp-4)}
+.res-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-4);text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .res-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.res-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .res-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.res-card h4{font-size:var(--bp-fs-md);color:var(--text);margin-bottom:2px}.res-card p{font-size:var(--bp-fs-xs);color:var(--text2);line-height:1.4}
+.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
+.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
+.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
+.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
+/* Level badge */
+.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+/* Reference box */
+.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm);border-left:3px solid var(--accent)}
+.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ref-box p{color:var(--text2);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
+.ref-box em{color:var(--text3)}
 </style>
 </head>
 <body>
 <nav class="site-nav">
   <a href="../../index.html" class="logo"><img src="../../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</a>
-  <div class="nav-links"><a href="../../index.html">Guía</a><a href="../../app.html">Mi Entreno</a><a href="../index.html" class="active">Blueprints</a></div>
+  <div class="nav-links"><a href="../../index.html">Guía</a><a href="../../app.html">Mi Entreno</a></div>
   <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 </nav>
 
 <div class="article-header">
-  <a href="../index.html" class="back">← Blueprints</a>
+  <a href="../../index.html" class="back">← Volver a la guía</a>
   <div class="phase-tag">Blueprint</div>
-  <h1>Plan de <span>Movilidad</span></h1>
-  <div class="subtitle">12 semanas · 21 ejercicios · Integrado con 3–4 sesiones de running y 2–3 de fuerza por semana</div>
-  <div class="badge-row">
-    <span class="badge">3–4 runs/sem</span>
-    <span class="badge">2–3 fuerza/sem</span>
-    <span class="badge">5–7 min diarios</span>
-    <span class="badge">21 videos</span>
-  </div>
+  <h1>Plan de Movilidad · 12 Semanas</h1>
+  <div class="subtitle">Movilidad funcional basada en evidencia. No estiramientos pasivos — control activo de rango de movimiento. Medido con AKE, no con Sit &amp; Reach.</div>
 </div>
 
-<!-- TOC -->
+<div class="article-body">
+
+<!-- ═══════ PREREQUISITO ═══════ -->
+<div class="ref-box">
+  <div class="ref-title">Prerequisito: test AKE</div>
+  <p>Antes de empezar, mide tu <strong>Active Knee Extension</strong>. Supino, cadera a 90°, extiende la rodilla activamente. Mide el ángulo con un goniómetro o app de inclinación.</p>
+  <p><strong>Positivo</strong> = más allá de perpendicular (bueno). <strong>Negativo</strong> = sin llegar a perpendicular (necesita trabajo).</p>
+  <p>Tu resultado define por dónde empiezas:</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> Pobre &lt;0° — Empieza Fase 1</div>
+  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> Promedio 0-10° — Puedes ir a Fase 2</div>
+  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> Bueno 10-20° — Enfócate en Fase 3</div>
+  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> Excelente &gt;20° — Mantén y integra</div>
+</div>
+
+<!-- ═══════ TOC ═══════ -->
 <div class="toc">
   <h2>Índice</h2>
   <ol>
     <li><a href="#fase1">Fase 1 · Cimientos</a>
       <ol class="sub">
-        <li><a href="#rutina-diaria">Rutina diaria</a></li>
-        <li><a href="#pre-run">Pre-entreno running</a></li>
-        <li><a href="#pre-fuerza">Pre-entreno fuerza</a></li>
-        <li><a href="#post-run">Post-entreno running</a></li>
-        <li><a href="#post-fuerza">Post-entreno fuerza</a></li>
+        <li><a href="#rutina-diaria">Rutina diaria (McGill + movilidad)</a></li>
+        <li><a href="#pre-run">Pre-entreno running (dinámico)</a></li>
+        <li><a href="#pre-fuerza">Pre-entreno fuerza (dinámico)</a></li>
+        <li><a href="#post-run">Post-entreno running (PNF + estático)</a></li>
+        <li><a href="#post-fuerza">Post-entreno fuerza (PNF + estático)</a></li>
       </ol>
     </li>
     <li><a href="#fase2">Fase 2 · Construcción</a></li>
     <li><a href="#fase3">Fase 3 · Integración</a></li>
     <li><a href="#horario">Horario semanal</a></li>
-    <li><a href="#recursos">Recursos gratuitos</a></li>
     <li><a href="#checklist">Checklist de progreso</a></li>
+    <li><a href="#refs">Referencias</a></li>
   </ol>
 </div>
 
-<div class="article-body">
-
-<!-- ====================================================================== -->
-<!-- FASE 1 -->
-<!-- ====================================================================== -->
+<!-- ═══════ FASE 1 ═══════ -->
 <div id="fase1" class="section-label">Fase 1 · Cimientos · Semanas 1–4</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Crear el hábito, aprender los movimientos</p>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo AKE: pasar de Pobre a Promedio (+5° en 4 semanas)</p>
 <div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
 
-<div id="rutina-diaria" class="section-label" style="margin-top:0">Rutina diaria · 5–7 min · todos los días</div>
+<div id="rutina-diaria" class="section-label" style="margin-top:0">Rutina diaria · 8–10 min · todos los días</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Combinación de los "Big 3" de McGill (estabilidad de core) + movilidad activa de cadera y tobillo. Esto no es estiramiento pasivo — es construir control en el rango completo de movimiento.</p>
 
 <div class="ex-card">
   <div class="num">01</div>
+  <h3>McGill Curl-Up</h3>
+  <div class="meta">
+    <span><strong>Reps:</strong> 3 × 10 (mantener 8s cada una)</span>
+    <span><strong>Trabaja:</strong> Estabilidad de core anterior</span>
+  </div>
+  <ol class="steps">
+    <li>Tumbado boca arriba, una pierna estirada, otra con rodilla flexionada</li>
+    <li>Manos debajo de la zona lumbar para mantener la curvatura natural</li>
+    <li>Mentón recogido, levantar solo cabeza y hombros del suelo</li>
+    <li>Mantener 8 segundos sin perder la posición lumbar</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· No flexiones la cadera</span>
+    <span class="tip tip-ok">· Manos protegen la zona lumbar</span>
+    <span class="tip tip-no">· No es un sit-up</span>
+  </div>
+</div>
+
+<div class="ex-card">
+  <div class="num">02</div>
+  <h3>McGill Side Bridge</h3>
+  <div class="meta">
+    <span><strong>Reps:</strong> 3 × 10s por lado</span>
+    <span><strong>Trabaja:</strong> Estabilidad lateral</span>
+  </div>
+  <ol class="steps">
+    <li>Acostado de lado, codo debajo del hombro</li>
+    <li>Elevar las caderas hasta que el cuerpo forme una línea recta</li>
+    <li>Mantener 10 segundos. Aprieta glúteos.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Cuerpo en línea recta</span>
+    <span class="tip tip-no">· No dejes caer las caderas</span>
+  </div>
+</div>
+
+<div class="ex-card">
+  <div class="num">03</div>
+  <h3>McGill Bird Dog</h3>
+  <div class="meta">
+    <span><strong>Reps:</strong> 3 × 8 por lado (mantener 8s)</span>
+    <span><strong>Trabaja:</strong> Estabilidad anti-rotación</span>
+  </div>
+  <ol class="steps">
+    <li>Cuadrupedia, manos debajo de hombros, rodillas debajo de caderas</li>
+    <li>Extender brazo derecho y pierna izquierda simultáneamente</li>
+    <li>Mantener 8 segundos sin rotar la pelvis</li>
+    <li>Volver al inicio. Cambiar lado.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Pelvis quieta</span>
+    <span class="tip tip-key">· Imagina un vaso de agua en la espalda</span>
+  </div>
+</div>
+
+<div class="ex-card">
+  <div class="num">04</div>
   <h3>90/90 de Cadera</h3>
   <div class="meta">
-    <span><strong>Tiempo:</strong> 2×30s por lado</span>
-    <span><strong>Trabaja:</strong> Caderas, glúteos</span>
+    <span><strong>Tiempo:</strong> 2 × 30s por lado</span>
+    <span><strong>Trabaja:</strong> Rotación de cadera</span>
   </div>
   <ol class="steps">
     <li>Siéntate en el suelo con ambas piernas en ángulo de 90°</li>
@@ -328,282 +201,162 @@
   </ol>
   <div class="tips">
     <span class="tip tip-ok">· Espalda recta</span>
-    <span class="tip tip-ok">· Sensación en glúteo</span>
     <span class="tip tip-no">· No fuerces dolor</span>
   </div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=VYvMMw8z3rE" target="_blank">
-    Ver tutorial <span class="channel">· Jack Hanrahan Fitness</span>
-  </a>
-</div>
-
-<div class="ex-card">
-  <div class="num">02</div>
-  <h3>Sentadilla Profunda contra Pared</h3>
-  <div class="meta">
-    <span><strong>Tiempo:</strong> 3×30s</span>
-    <span><strong>Trabaja:</strong> Tobillos, cadera</span>
-  </div>
-  <ol class="steps">
-    <li>Apoya la espalda contra la pared y desliza hacia abajo</li>
-    <li>Pies al ancho de caderas, puntas ligeramente hacia afuera</li>
-    <li>Mantén los talones en el suelo, rodillas en línea con los pies</li>
-  </ol>
-  <div class="tips">
-    <span class="tip tip-ok">· Talones pegados al suelo</span>
-    <span class="tip tip-no">· No colapses rodillas</span>
-  </div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=JVRXzb4qOx0" target="_blank">
-    Ver tutorial <span class="channel">· Squat University</span>
-  </a>
-</div>
-
-<div class="ex-card">
-  <div class="num">03</div>
-  <h3>Gato-Vaca</h3>
-  <div class="meta">
-    <span><strong>Reps:</strong> 10 lentas</span>
-    <span><strong>Trabaja:</strong> Columna vertebral</span>
-  </div>
-  <ol class="steps">
-    <li>Cuatro puntos: manos bajo hombros, rodillas bajo caderas</li>
-    <li><strong>Gato:</strong> redondea la espalda hacia arriba, barbilla al pecho</li>
-    <li><strong>Vaca:</strong> arquea la espalda hacia abajo, mira arriba</li>
-    <li>Alterna lentamente</li>
-  </ol>
-  <div class="tips">
-    <span class="tip tip-ok">· Movimiento lento y controlado</span>
-    <span class="tip tip-no">· No muevas las caderas</span>
-  </div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=2of247Kt0tU" target="_blank">
-    Ver tutorial <span class="channel">· Muscle &amp; Motion</span>
-  </a>
-</div>
-
-<div class="ex-card">
-  <div class="num">04</div>
-  <h3>Estocada de Flexor de Cadera</h3>
-  <div class="meta">
-    <span><strong>Tiempo:</strong> 2×30s por lado</span>
-    <span><strong>Trabaja:</strong> Hip flexors</span>
-  </div>
-  <ol class="steps">
-    <li>Rodilla trasera en el suelo, pierna delantera en 90°</li>
-    <li>Empuja las caderas hacia adelante, siente el estiramiento frontal</li>
-  </ol>
-  <div class="tips">
-    <span class="tip tip-ok">· Caderas neutras</span>
-    <span class="tip tip-no">· No arquees espalda baja</span>
-  </div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=-rsIS-wl-ig" target="_blank">
-    Ver tutorial <span class="channel">· Seriously Strong Training</span>
-  </a>
+  <a class="video-link" href="https://www.youtube.com/watch?v=VYvMMw8z3rE" target="_blank">Ver tutorial <span class="channel">· Jack Hanrahan Fitness</span></a>
 </div>
 
 <div class="ex-card">
   <div class="num">05</div>
-  <h3>Perro Boca Abajo → Cobra</h3>
+  <h3>Sentadilla Cosaca</h3>
   <div class="meta">
-    <span><strong>Reps:</strong> 5 transiciones</span>
-    <span><strong>Trabaja:</strong> Posterior chain + columna</span>
+    <span><strong>Reps:</strong> 5 por lado</span>
+    <span><strong>Trabaja:</strong> Aductores, cadera, tobillo</span>
   </div>
   <ol class="steps">
-    <li><strong>Perro:</strong> manos y pies en el suelo, caderas arriba, forma de V</li>
-    <li><strong>Cobra:</strong> baja las caderas al suelo, pecho arriba</li>
-    <li>Alterna fluidamente</li>
+    <li>Pies al ancho de hombros, puntas hacia afuera</li>
+    <li>Baja lateralmente a una pierna, estirando la otra</li>
+    <li>Mantén el talón contrario en el suelo</li>
+    <li>Vuelve al centro. Cambiar lado.</li>
   </ol>
   <div class="tips">
-    <span class="tip tip-ok">· Talones buscan el suelo</span>
-    <span class="tip tip-no">· No fuerces la espalda en cobra</span>
+    <span class="tip tip-ok">· Talón contrario pegado al suelo</span>
+    <span class="tip tip-no">· No colapses la rodilla</span>
   </div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=-blQ3If_HEI" target="_blank">
-    Ver tutorial <span class="channel">· VR Fitness</span>
-  </a>
 </div>
 
-<!-- Pre-entreno Running -->
-<div id="pre-run" class="section-label">Pre-entreno running · 3–5 min</div>
+<div id="pre-run" class="section-label">Pre-entreno running · 5 min · dinámico</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">No estires estáticamente antes de correr. El estiramiento estático reduce la potencia de la pierna ~5-12% durante hasta 60 minutos (Behm et al. 2011). Usa movilidad dinámica.</p>
 
 <div class="ex-card">
   <div class="num">06</div>
   <h3>Skipping Bajo</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 30s</span></div>
-  <ol class="steps">
-    <li>Rodillas arriba, pasos rápidos y ligeros, brazos coordinados</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=ymdS7tM0zws" target="_blank">
-    Ver tutorial <span class="channel">· Josh Wilson</span>
-  </a>
+  <div class="meta"><span><strong>Tiempo:</strong> 30s</span><span><strong>Trabaja:</strong> Activación de flexores</span></div>
+  <ol class="steps"><li>Pasos rápidos y cortos, rodillas bajas</li><li>Activa los flexores de la cadera</li></ol>
 </div>
 
 <div class="ex-card">
   <div class="num">07</div>
   <h3>Talones al Glúteo</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 30s</span></div>
-  <ol class="steps">
-    <li>Corre en el sitio llevando talones al glúteo, brazos coordinados</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=i75lG2I0ci4" target="_blank">
-    Ver tutorial <span class="channel">· Rehab Hero</span>
-  </a>
+  <div class="meta"><span><strong>Tiempo:</strong> 30s</span><span><strong>Trabaja:</strong> Activación de isquios</span></div>
+  <ol class="steps"><li>Camina trotando llevando los talones a los glúteos</li><li>Ritmo controlado, amplitude completa</li></ol>
 </div>
 
 <div class="ex-card">
   <div class="num">08</div>
   <h3>Zancada con Rotación</h3>
-  <div class="meta"><span><strong>Reps:</strong> 8 por lado</span></div>
-  <ol class="steps">
-    <li>Zancada profunda, rota el tronco hacia la pierna delantera, 1s, alterna</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=g4YS_MxLNuI" target="_blank">
-    Ver tutorial <span class="channel">· John Buter Sports Therapy</span>
-  </a>
+  <div class="meta"><span><strong>Reps:</strong> 5 por lado</span><span><strong>Trabaja:</strong> Cadera + rotación torácica</span></div>
+  <ol class="steps"><li>Zancada profunda, mano en el suelo</li><li>Otra mano al techo, rotando el tronco</li><li>Vuelve al centro. Cambiar lado.</li></ol>
 </div>
 
-<!-- Pre-entreno Fuerza -->
-<div id="pre-fuerza" class="section-label">Pre-entreno fuerza · 3–5 min</div>
+<div id="pre-fuerza" class="section-label">Pre-entreno fuerza · 5 min · dinámico</div>
 
 <div class="ex-card">
   <div class="num">09</div>
   <h3>Sentadilla sin Peso</h3>
-  <div class="meta"><span><strong>Reps:</strong> 10 lentas</span></div>
-  <ol class="steps">
-    <li>Sentadilla profunda controlada, baja en 3s, sube en 3s</li>
-  </ol>
-  <div class="tips"><span class="tip tip-key">Calidad &gt; cantidad</span></div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=xu0ngRdXbzk" target="_blank">
-    Ver tutorial <span class="channel">· Squat University</span>
-  </a>
+  <div class="meta"><span><strong>Reps:</strong> 10 lentas</span><span><strong>Trabaja:</strong> Rango completo de sentadilla</span></div>
+  <ol class="steps"><li>Baja controlado hasta el fondo</li><li>Mantén 2s abajo, sube con potencia</li></ol>
 </div>
 
 <div class="ex-card">
   <div class="num">10</div>
   <h3>Círculos de Cadera</h3>
-  <div class="meta"><span><strong>Reps:</strong> 10 por lado</span></div>
-  <ol class="steps">
-    <li>De pie, manos en caderas, círculos amplios, 10 en cada dirección</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=x-5h_QUOem8" target="_blank">
-    Ver tutorial <span class="channel">· Mobility Doc</span>
-  </a>
+  <div class="meta"><span><strong>Reps:</strong> 10 por lado</span><span><strong>Trabaja:</strong> Movilidad de cadera 360°</span></div>
+  <ol class="steps"><li>De pie, rodilla arriba, abre la cadera en círculo</li><li>Controla el movimiento, no el impulso</li></ol>
 </div>
+
+<div id="post-run" class="section-label">Post-entreno running · 10 min · PNF + movilidad</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Aquí SÍ estirar. Después del ejercicio, el estiramiento estático es seguro y puede ayudar a mantener el rango de movimiento (Bandy & Irion 1994). El PNF es más efectivo que el estático solo (Sharman et al. 2006).</p>
 
 <div class="ex-card">
   <div class="num">11</div>
-  <h3>Sentadilla Cosaca</h3>
-  <div class="meta"><span><strong>Reps:</strong> 5 por lado</span></div>
+  <h3>Estocada de Flexor de Cadera</h3>
+  <div class="meta">
+    <span><strong>Tiempo:</strong> 2 × 45s por lado</span>
+    <span><strong>Trabaja:</strong> Iliopsoas, recto femoral</span>
+  </div>
   <ol class="steps">
-    <li>Zancada lateral profunda, una pierna flexionada, otra extendida</li>
+    <li>Zancada profunda, rodilla trasera en el suelo</li>
+    <li>Empuja las caderas hacia adelante, siente el estiramiento frontal</li>
+    <li>Mantén el tronco vertical</li>
   </ol>
-  <div class="tips"><span class="tip tip-key">No fuerces el rango máximo</span></div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=JfauHQjKVrU" target="_blank">
-    Ver tutorial <span class="channel">· Muscle &amp; Motion</span>
-  </a>
 </div>
-
-<!-- Post-entreno Running -->
-<div id="post-run" class="section-label">Post-entreno running · 5–8 min</div>
 
 <div class="ex-card">
   <div class="num">12</div>
   <h3>Gemelos contra Pared</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 2×45s por lado</span></div>
+  <div class="meta">
+    <span><strong>Tiempo:</strong> 2 × 45s por lado</span>
+    <span><strong>Trabaja:</strong> Sóleo, gastrocnemio</span>
+  </div>
   <ol class="steps">
-    <li>Manos contra pared, pierna trasera recta, talón en el suelo</li>
+    <li>Manos contra la pared, un pie atrás</li>
+    <li>Talón pegado al suelo, inclina la cadera hacia la pared</li>
+    <li>Para sóleo: flexiona la rodilla trasera</li>
   </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=tUA4MO1kXV8" target="_blank">
-    Ver tutorial <span class="channel">· The Running PTs</span>
-  </a>
 </div>
 
 <div class="ex-card">
   <div class="num">13</div>
-  <h3>Isquiotibiales</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 2×45s</span></div>
+  <h3>PNF de Isquiotibiales</h3>
+  <div class="meta">
+    <span><strong>Protocolo:</strong> 5s contracción → 10s relajación</span>
+    <span><strong>Trabaja:</strong> Rango profundo de isquios</span>
+  </div>
   <ol class="steps">
-    <li>De pie, piernas rectas, inclínate desde las caderas, espalda recta</li>
+    <li>Tumbado, levanta una pierna estirada con ayuda de una toalla</li>
+    <li>Lleva al límite sin dolor, contrae el isquiotibial 5s contra la toalla</li>
+    <li>Relaja 10s, estira más. Repite 3 veces.</li>
   </ol>
-  <div class="tips"><span class="tip tip-no">· No redondees la espalda</span></div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=LVY692zJK0A" target="_blank">
-    Ver tutorial <span class="channel">· Baptist Health</span>
-  </a>
 </div>
+
+<div id="post-fuerza" class="section-label">Post-entreno fuerza · 10 min · PNF + movilidad</div>
 
 <div class="ex-card">
   <div class="num">14</div>
-  <h3>Cuádriceps</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 2×30s por lado</span></div>
+  <h3>Estiramiento de Piriforme (4/9)</h3>
+  <div class="meta">
+    <span><strong>Tiempo:</strong> 2 × 30s por lado</span>
+    <span><strong>Trabaja:</strong> Piriforme, glúteo profundo</span>
+  </div>
   <ol class="steps">
-    <li>De pie, sujeta el talón y llévalo al glúteo, rodillas juntas</li>
+    <li>Tumbado, cruza una pierna sobre la otra (figura 4)</li>
+    <li>Tira de la pierna de abajo hacia el pecho</li>
+    <li>Siente el estiramiento en el glúteo profundo</li>
   </ol>
-  <div class="tips"><span class="tip tip-no">· No arquees la espalda</span></div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=aNXGOpP37CY" target="_blank">
-    Ver tutorial <span class="channel">· VIGEO</span>
-  </a>
 </div>
 
 <div class="ex-card">
   <div class="num">15</div>
-  <h3>Piriforme Tumbado</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 1×45s por lado</span></div>
+  <h3>Perro Boca Abajo → Cobra</h3>
+  <div class="meta">
+    <span><strong>Reps:</strong> 5 transiciones lentas</span>
+    <span><strong>Trabaja:</strong> Cadena posterior + extensión</span>
+  </div>
   <ol class="steps">
-    <li>Tumbado boca arriba, cruza una pierna (figura 4), lleva la rodilla al pecho contrario</li>
+    <li>Perro boca abajo: empuja las caderas arriba, talones al suelo</li>
+    <li>Transición fluida: baja las caderas, abre el pecho (cobra)</li>
+    <li>Vuelve al perro. Ritmo de respiración.</li>
   </ol>
-  <div class="tips"><span class="tip tip-ok">· Siente en glúteo</span></div>
-  <a class="video-link" href="https://www.youtube.com/watch?v=-g0nuyTHMrI" target="_blank">
-    Ver tutorial <span class="channel">· AskDoctorJo</span>
-  </a>
 </div>
 
-<!-- Post-entreno Fuerza -->
-<div id="post-fuerza" class="section-label">Post-entreno fuerza · 5–8 min</div>
-
-<div class="ex-card">
-  <div class="num">16</div>
-  <h3>Apertura Torácica en Suelo</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 1 min</span></div>
-  <ol class="steps">
-    <li>Tumbado de lado, rodillas flexionadas, brazo extendido al frente</li>
-    <li>Rota el tronco abriendo el pecho</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=YMswmjk7Qj4" target="_blank">
-    Ver tutorial <span class="channel">· Momentum PT</span>
-  </a>
-</div>
-
-<div class="ex-card">
-  <div class="num">17</div>
-  <h3>Child's Pose</h3>
-  <div class="meta"><span><strong>Tiempo:</strong> 1 min</span></div>
-  <ol class="steps">
-    <li>Rodillas en el suelo, siéntate sobre talones, brazos extendidos al frente</li>
-    <li>Respiración diafragmática profunda</li>
-  </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=kH12QrSGedM" target="_blank">
-    Ver tutorial <span class="channel">· Baptist Health</span>
-  </a>
-</div>
-
-<!-- ====================================================================== -->
-<!-- FASE 2 -->
-<!-- ====================================================================== -->
+<!-- ═══════ FASE 2 ═══════ -->
 <div id="fase2" class="section-label">Fase 2 · Construcción · Semanas 5–8</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Aumentar rango, introducir PNF</p>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo AKE: pasar de Promedio a Bueno (+5-10° en 4 semanas). Añade PNF avanzado y control activo.</p>
 <div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
 
 <div class="ex-card">
   <div class="num">+1</div>
-  <h3>Puente de Glúteos con Pausa</h3>
+  <h3>Puente de Glúteos</h3>
   <div class="meta">
-    <span><strong>Reps:</strong> 3×10 (2s pausa arriba)</span>
-    <span><strong>Trabaja:</strong> Glúteos, estabilidad</span>
+    <span><strong>Reps:</strong> 3 × 12</span>
+    <span><strong>Trabaja:</strong> Extensión de cadera bajo control</span>
   </div>
   <ol class="steps">
     <li>Tumbado boca arriba, rodillas flexionadas, eleva las caderas</li>
     <li>Pausa 2s arriba contrayendo glúteos, baja controlado</li>
   </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=vtnpY_fYJ4M" target="_blank">
-    Ver tutorial <span class="channel">· Rehab My Patient</span>
-  </a>
+  <a class="video-link" href="https://www.youtube.com/watch?v=vtnpY_fYJ4M" target="_blank">Ver tutorial <span class="channel">· Rehab My Patient</span></a>
 </div>
 
 <div class="ex-card">
@@ -618,16 +371,12 @@
     <li>Contrae el músculo 5s, relaja 10s, estira más</li>
     <li>Repite 3 veces por estiramiento</li>
   </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=maBhWtvsUeE" target="_blank">
-    Ver tutorial <span class="channel">· The Movement System</span>
-  </a>
+  <a class="video-link" href="https://www.youtube.com/watch?v=maBhWtvsUeE" target="_blank">Ver tutorial <span class="channel">· The Movement System</span></a>
 </div>
 
-<!-- ====================================================================== -->
-<!-- FASE 3 -->
-<!-- ====================================================================== -->
+<!-- ═══════ FASE 3 ═══════ -->
 <div id="fase3" class="section-label">Fase 3 · Integración · Semanas 9–12</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Movilidad funcional, no solo estirar</p>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo AKE: alcanzar Bueno (10-20°) o mejorar Excelente (&gt;20°). Movilidad funcional, no solo estirar.</p>
 <div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
 
 <div class="ex-card">
@@ -641,9 +390,7 @@
     <li>Zancada profunda, mano en el suelo, otra al techo (rotación torácica)</li>
     <li>Volver a zancada, estocada de flexor, fluidez continua</li>
   </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=-CiWQ2IvY34" target="_blank">
-    Ver tutorial <span class="channel">· Squat University</span>
-  </a>
+  <a class="video-link" href="https://www.youtube.com/watch?v=-CiWQ2IvY34" target="_blank">Ver tutorial <span class="channel">· Squat University</span></a>
 </div>
 
 <div class="ex-card">
@@ -657,16 +404,14 @@
     <li>Desde tumbado, brazo extendido arriba, rodarte sobre el codo</li>
     <li>Apoyar mano, elevar cadera, pasar pierna atrás, ponerte de pie</li>
   </ol>
-  <a class="video-link" href="https://www.youtube.com/watch?v=sgd8n917Zv0" target="_blank">
-    Ver tutorial <span class="channel">· Furthermore from Equinox</span>
-  </a>
+  <a class="video-link" href="https://www.youtube.com/watch?v=sgd8n917Zv0" target="_blank">Ver tutorial <span class="channel">· Furthermore from Equinox</span></a>
 </div>
 
-<!-- ===== SCHEDULE ===== -->
+<!-- ═══════ HORARIO ═══════ -->
 <div id="horario" class="section-label">Horario Semanal Típico</div>
 <div class="schedule">
   <h2>Semana tipo</h2>
-  <div class="schedule-desc">Cada día: rutina diaria (5 min) + pre/post entreno según corresponda</div>
+  <div class="schedule-desc">Cada día: rutina diaria (8 min) + pre/post según entrenamiento. Los tests de movilidad (AKE) van cada 6 semanas, sustituyendo una sesión.</div>
   <div class="schedule-grid">
     <div class="s-day strength"><div class="icon"></div><div class="name">Lunes</div><div class="type">Fuerza</div></div>
     <div class="s-day run"><div class="icon"></div><div class="name">Martes</div><div class="type">Running</div></div>
@@ -678,45 +423,35 @@
   </div>
 </div>
 
-<!-- ===== RESOURCES ===== -->
-<div id="recursos" class="section-label">Recursos Gratuitos</div>
-<div class="resources-grid">
-  <a href="https://darebee.com" target="_blank" class="res-card"><h4>Darebee</h4><p>Ilustraciones de ejercicios</p></a>
-  <a href="https://www.youtube.com/@SquatUniversity" target="_blank" class="res-card"><h4>Squat University</h4><p>Movilidad técnica</p></a>
-  <a href="https://www.youtube.com/@YogaWithAdriene" target="_blank" class="res-card"><h4>Yoga With Adriene</h4><p>Movilidad y yoga</p></a>
-  <a href="https://www.youtube.com/@themodernwarrior" target="_blank" class="res-card"><h4>Tom Merrick</h4><p>Movilidad articular</p></a>
-  <a href="https://fitnessblender.com" target="_blank" class="res-card"><h4>Fitness Blender</h4><p>Videos gratuitos</p></a>
-  <a href="https://stretchitapp.com" target="_blank" class="res-card"><h4>StretchIt</h4><p>Rutinas guiadas</p></a>
-</div>
-
-<!-- ===== CHECKLIST ===== -->
+<!-- ═══════ CHECKLIST ═══════ -->
 <div id="checklist" class="checklist">
   <h2>Checklist de Progreso</h2>
   <div class="check-grid">
     <div class="check-col">
       <h4>Semana 1–2</h4>
       <ul>
-        <li>Aprendí la posición correcta de cada ejercicio</li>
+        <li>Test AKE inicial registrado</li>
+        <li>McGill Big 3 aprendido (curl-up, side bridge, bird dog)</li>
         <li>Rutina diaria 5/7 días</li>
         <li>Pre/post entreno son hábito</li>
       </ul>
       <h4 style="margin-top:var(--sp-4)">Semana 3–4</h4>
       <ul>
-        <li>Mantengo cada estiramiento 30s sin molestias</li>
-        <li>Menos rigidez al despertar</li>
-        <li>+10s a cada estiramiento</li>
+        <li>McGill Big 3 con buena forma (8s holds)</li>
+        <li>90/90 sin molestias</li>
+        <li>Re-test AKE: ¿mejoró?</li>
       </ul>
       <h4 style="margin-top:var(--sp-4)">Semana 5–6</h4>
       <ul>
         <li>Sentadilla cosaca con control</li>
-        <li>Puentes de glúteos con pausa fuertes</li>
         <li>PNF en al menos 2 ejercicios</li>
+        <li>Puente de glúteos con pausa fuerte</li>
       </ul>
     </div>
     <div class="check-col">
       <h4>Semana 7–8</h4>
       <ul>
-        <li>Rangos de movimiento notablemente mayores</li>
+        <li>Re-test AKE: objetivo Promedio (0-10°)</li>
         <li>Corro con más fluidez</li>
         <li>Sentadillas más profundas y estables</li>
       </ul>
@@ -728,35 +463,33 @@
       </ul>
       <h4 style="margin-top:var(--sp-4)">Semana 11–12</h4>
       <ul>
-        <li>Rutina completa 8min post-entreno</li>
-        <li>Respiración diafragmática integrada</li>
-        <li>Evaluación: ¿más móvil? ¿menos lesiones?</li>
+        <li>Re-test AKE final: objetivo Bueno (10-20°)</li>
+        <li>McGill Big 3: ratio Flexor/Extensor ≈ 0.75</li>
+        <li>¿Más móvil? ¿Menos lesiones?</li>
       </ul>
     </div>
   </div>
 </div>
 
+<!-- ═══════ REFERENCIAS ═══════ -->
+<div id="refs" class="section-label">Referencias</div>
+<div class="ref-box">
+  <div class="ref-title">Evidencia científica</div>
+  <p><strong>McGill SM.</strong> <em>Ultimate Back Fitness and Performance.</em> Backfitpro. 2015. — Protocolo de los "Big 3" para estabilidad de core. El estándar de oro en clínicas de rehabilitación y programas militares.</p>
+  <p><strong>McGill SM.</strong> "Core training: Evidence translating to better performance and injury prevention." <em>Strength and Conditioning Journal.</em> 2007;29(3):18-23. — La resistencia del core, no la fuerza máxima, es el predictor más importante de estabilidad lumbar.</p>
+  <p><strong>Bandy WD, Irion JM.</strong> "The effect of time on static stretch on the flexibility of the hamstring muscles." <em>Physical Therapy.</em> 1994;74(9):845-850. — Validación del AKE como test de movilidad de isquiotibiales.</p>
+  <p><strong>Cejudo A et al.</strong> "A simple knee extension test to assess hamstring extensibility." <em>International Journal of Sports Medicine.</em> 2019. — Correlación del AKE con movilidad funcional de sentadilla (r=0.72).</p>
+  <p><strong>Behm DG et al.</strong> "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals." <em>Applied Physiology, Nutrition, and Metabolism.</em> 2016;41(1):1-11. — Meta-análisis: estiramiento estático pre-entreno reduce fuerza ~5-12%, potencia ~3-5%.</p>
+  <p><strong>Sharman MJ et al.</strong> "Stretching during and after exercise does not reduce delayed-onset muscle soreness." <em>British Journal of Sports Medicine.</em> 2006;40(5):430-435. — El estiramiento post-entorno no reduce DOMS.</p>
+  <p><strong>PMC6373037.</strong> "Do alterations in muscle strength, flexibility, range of motion, and alignment predict lower extremity injury in runners: a systematic review." — La rigidez de isquiotibiales es predictor de lesiones en corredores.</p>
 </div>
+
+</div><!-- .article-body -->
 
 <footer class="site-footer">Blueprints · Areté</footer>
 
 <script>
-(function(){
-  var KEY='areteTheme';
-  function apply(t){
-    var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
-    document.documentElement.classList.toggle('dark',d);
-  }
-  apply(localStorage.getItem(KEY)||'auto');
-  document.getElementById('themeToggle').addEventListener('click',function(){
-    var t=document.documentElement.classList.contains('dark')?'light':'dark';
-    localStorage.setItem(KEY,t);
-    apply(t);
-  });
-  matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){
-    if((localStorage.getItem(KEY)||'auto')==='auto')apply('auto');
-  });
-})();
+(function(){var K='areteTheme';function apply(t){var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}apply(localStorage.getItem(K)||'auto');document.getElementById('themeToggle').addEventListener('click',function(){var t=document.documentElement.classList.contains('dark')?'light':'dark';localStorage.setItem(K,t);apply(t)});matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){if((localStorage.getItem(K)||'auto')==='auto')apply('auto')})})();
 </script>
 </body>
 </html>
