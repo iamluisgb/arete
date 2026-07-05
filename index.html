@@ -32,12 +32,11 @@
 </div>
 
 <div class="chip-bar" id="chipBar">
-  <button class="chip active" data-filter="all">Todos <span class="chip-count">10</span></button>
+  <button class="chip active" data-filter="all">Todos <span class="chip-count">9</span></button>
   <button class="chip" data-filter="manifesto">Manifiesto <span class="chip-count">1</span></button>
   <button class="chip" data-filter="fase">Fases <span class="chip-count">4</span></button>
   <button class="chip" data-filter="nutricion">Nutrición <span class="chip-count">2</span></button>
   <button class="chip" data-filter="kettlebell">Kettlebell <span class="chip-count">1</span></button>
-  <button class="chip" data-filter="running">Running <span class="chip-count">1</span></button>
   <button class="chip" data-filter="niveles">Niveles <span class="chip-count">1</span></button>
 </div>
 
@@ -92,11 +91,12 @@
     <h3>Efecto Kettlebell: 10 semanas</h3>
     <p>El programa completo con una sola pesa rusa. Fundamentos, fuerza, potencia y acondicionamiento en 4 fases progresivas.</p>
   </a>
-  <a href="app.html#secRunning" class="article-card" data-filter="running">
-    <div class="card-phase">Running</div>
-    <h3>Corre con propósito</h3>
-    <p>GPS tracking en tiempo real, zonas de ritmo, planes estructurados y récords personales. Todo integrado en tu tracker.</p>
-    <div class="card-meta">Abrir tracker →</div>
+</div>
+
+<div style="padding:0 var(--sp-5);max-width:640px;margin:0 auto;animation:fadeIn .3s ease-out;margin-bottom:var(--sp-6)">
+  <a href="app.html#secRunning" style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);text-decoration:none;color:inherit">
+    <div><div style="font-size:var(--fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px">Running</div><h3 style="font-size:1rem;font-weight:700;margin:0">Corre con propósito</h3></div>
+    <div style="color:var(--accent);font-weight:600;font-size:var(--fs-sm)">Abrir tracker →</div>
   </a>
 </div>
 
@@ -118,7 +118,6 @@
     if((localStorage.getItem(KEY)||'auto')==='auto')apply('auto');
   });
 
-  // ── Filter chips ──
   var chips = document.querySelectorAll('.chip');
   var articles = document.querySelectorAll('.article-card');
   chips.forEach(function(chip){
