@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathwork Blueprint · Areté</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../assets/icons/icon-16.png">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="../../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
+.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
+.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
+.phase-bar-fill{height:100%;border-radius:2px}
+.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
+.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
+.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.ex-card .meta strong{color:var(--text2)}
+.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--text2);line-height:1.6}
+.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
+.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
+.ex-card .evidence{font-size:var(--bp-fs-xs);color:var(--text3);margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--ghost-border);line-height:1.5}
+.ex-card .evidence strong{color:var(--text2)}
+.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:4px;color:var(--text)}
+.timeline .tl-desc{font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-4)}
+.tl-grid{display:flex;flex-direction:column;gap:var(--sp-2)}
+.tl-row{display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--ghost-border)}
+.tl-row:last-child{border-bottom:none}
+.tl-time{font-size:var(--bp-fs-xs);font-weight:700;color:var(--accent);min-width:70px;text-align:right;padding-top:2px}
+.tl-content{flex:1}
+.tl-content .tl-title{font-size:var(--bp-fs-md);font-weight:600;color:var(--text);margin-bottom:2px}
+.tl-content .tl-detail{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.4}
+.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm);border-left:3px solid var(--accent)}
+.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ref-box p{color:var(--text2);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
+.ref-box em{color:var(--text3)}
+.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
+.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
+.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
+.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
+.info-box{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-4) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .info-box{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.info-box .box-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:var(--sp-2)}
+.info-box p{font-size:var(--bp-fs-md);color:var(--text2);line-height:1.6;margin-bottom:var(--sp-2)}
+.info-box p:last-child{margin-bottom:0}
+.info-box strong{color:var(--text)}
+</style>
+<meta name="description" content="Protocolos de respiración basados en evidencia. Box breathing, respiración diafragmática, Wim Hof, Buteyko. Para estrés, recuperación, activación y rendimiento.">
+<link rel="canonical" href="https://luisgonzalezbernal.com/arete/blueprints/breathwork/">
+<meta property="og:title" content="Breathwork Blueprint — Areté">
+<meta property="og:description" content="Protocolos de respiración basados en evidencia. Box breathing, respiración diafragmática, Wim Hof, Buteyko. Para estrés, recuperación, activación y rendimiento.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luisgonzalezbernal.com/arete/blueprints/breathwork/">
+<meta property="og:site_name" content="Areté">
+<meta property="og:image" content="https://luisgonzalezbernal.com/arete/assets/og-default.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@iamluisgb">
+<meta name="twitter:creator" content="@iamluisgb">
+<meta name="twitter:title" content="Breathwork Blueprint — Areté">
+<meta name="twitter:description" content="Protocolos de respiración basados en evidencia. Box breathing, respiración diafragmática, Wim Hof, Buteyko. Para estrés, recuperación, activación y rendimiento.">
+<meta name="twitter:image" content="https://luisgonzalezbernal.com/arete/assets/og-default.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","name":"Breathwork Blueprint — Areté","url":"https://luisgonzalezbernal.com/arete/blueprints/breathwork/","description":"Protocolos de respiración basados en evidencia. Box breathing, respiración diafragmática, Wim Hof, Buteyko.","inLanguage":"es","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"publisher":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"}}</script>
+</head>
+<body>
+<nav class="site-nav">
+  <a href="../../index.html" class="logo"><img src="../../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</a>
+  <div class="nav-links"><a href="../../index.html">Guía</a><a href="../../app.html">Mi Entreno</a><a href="../index.html" class="active">Blueprints</a></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+</nav>
+
+<div class="article-header">
+  <a href="../index.html" class="back">← Blueprints</a>
+  <div class="phase-tag">Blueprint</div>
+  <h1>Breathwork <span>Blueprint</span></h1>
+  <div class="subtitle">Respiración como herramienta. No es espiritualidad — es fisiología. Protocolos con mecanismo, dosis y timing para cuatro contextos: estrés agudo, recuperación, activación y rendimiento. Lo que funciona, lo que no, y por qué.</div>
+  <div class="badge-row">
+    <span class="badge">12 semanas</span>
+    <span class="badge">3 fases</span>
+    <span class="badge">12 protocolos</span>
+  </div>
+</div>
+
+<div class="article-body">
+
+<!-- ═══════ PRERREQUISITO: EVALUACIÓN ═══════ -->
+<div class="ref-box">
+  <div class="ref-title">Prerequisito: evalúa tu respiración</div>
+  <p>Antes de empezar, mide tu patrón respiratorio base. La mayoría respira mal sin saberlo — clavicular, superficial, 15-20 respiraciones/minuto. Responde honestamente:</p>
+  <p><strong>1.</strong> ¿Respiras por la boca en reposo? — <strong>sí</strong> = problema</p>
+  <p><strong>2.</strong> ¿Cuántas respiraciones/minuto en reposo? — <strong>&gt;12</strong> = hiperventilación crónica</p>
+  <p><strong>3.</strong> ¿Tu respiración mueve el pecho o el diafragma? — <strong>pecho</strong> = respiración superficial</p>
+  <p><strong>4.</strong> ¿Sientes que no puedes "respirar profundo"? — <strong>sí</strong> = diafragma inhibido</p>
+  <p><strong>5.</strong> ¿Bostezas o suspiras con frecuencia? — <strong>sí</strong> = hipocapnia (CO₂ bajo)</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> 4-5 problemas — Empieza Fase 1</div>
+  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> 2-3 problemas — Fase 1, acelera a Fase 2</div>
+  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> 1 problema — Ve directo a Fase 2</div>
+  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> 0 problemas — Fase 3 (rendimiento)</div>
+</div>
+
+<!-- ═══════ INFO BOX: LA CIENCIA ═══════ -->
+<div class="info-box">
+  <div class="box-title">Lo que dice la ciencia</div>
+  <p>La respiración es el único sistema autónomo que puedes controlar voluntariamente. Esa es su singularidad. El diafragma está inervado por el nervio frénico (C3-C5), que tiene tanto ramas simpáticas como parasimpáticas. Cuando respiras lento y profundo, activas el <strong>nervio vago</strong> — el 80% de sus fibras van del cuerpo al cerebro, no al revés. Tu respiración le habla a tu cerebro, no al contrario.</p>
+  <p>El mecanismo central es la <strong>variabilidad de la frecuencia cardíaca (HRV)</strong>. Al inhalar, el corazón acelera (simpático). Al exhalar, decelera (parasimpático). Respirar lento amplifica esta oscilación — más HRV = más resiliencia del sistema de respuesta al estrés. Respirar a ~5-6 respiraciones/minuto maximiza la HRV y se conoce como <strong>frecuencia de resonancia</strong>. En esa frecuencia, el sistema cardiovascular y el respiratorio oscilan en fase, amplificando la señal parasimpática.</p>
+  <p><strong>Fincham et al. (2023)</strong>, en un meta-análisis de 12 RCTs publicado en <em>Scientific Reports</em>, encontró que el breathwork reduce el estrés subjetivo con un tamaño de efecto pequeño-moderado (g = −0.35, p = 0.0009), con efectos similares para ansiedad (g = −0.32) y depresión (g = −0.40). No es placebo — es una intervención con mecanismo neurofisiológico claro.</p>
+  <p>Pero no todo vale. La <strong>hiperventilación voluntaria</strong> (Wim Hof, holotropic) produce efectos reales — alkalosis respiratoria, vasoconstricción cerebral, liberación de adrenalina — pero con riesgos: síncope, hipocapnia, tetania. Es una herramienta de activación, no de relajación. Usarla para "calmarse" es como usar cafeína para dormir. Este blueprint separa las herramientas por contexto.</p>
+</div>
+
+<!-- ═══════ TOC ═══════ -->
+<div class="toc">
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#fase1">Fase 1 · Cimientos · Semanas 1–4</a>
+      <ol class="sub">
+        <li><a href="#nasal">Respiración nasal y diafragmática</a></li>
+        <li><a href="#co2">Test de tolerancia al CO₂ (BOLT)</a></li>
+        <li><a href="#box">Box breathing 4-4-4-4</a></li>
+        <li><a href="#coherent">Respiración coherente (5.5 rpm)</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase2">Fase 2 · Optimización · Semanas 5–8</a>
+      <ol class="sub">
+        <li><a href="#478">Respiración 4-7-8 (down-regulation)</a></li>
+        <li><a href="#sigh">Physiological sigh (estrés agudo)</a></li>
+        <li><a href="#alternate">Respiración alternate nostril (equilibrio)</a></li>
+        <li><a href="#wim-hof">Wim Hof / hiperventilación controlada (up-regulation)</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase3">Fase 3 · Adaptación · Semanas 9–12</a>
+      <ol class="sub">
+        <li><a href="#pre-workout">Pre-workout breath protocol</a></li>
+        <li><a href="#recovery">Post-entreno y recovery breath</a></li>
+        <li><a href="#sleep-breath">Protocolo pre-sueño</a></li>
+        <li><a href="#daily">Rutina diaria de breathwork</a></li>
+      </ol>
+    </li>
+    <li><a href="#timeline">Timeline diario</a></li>
+    <li><a href="#checklist">Checklist de progreso</a></li>
+    <li><a href="#refs">Referencias</a></li>
+  </ol>
+</div>
+
+<!-- ═══════ FASE 1 ═══════ -->
+<div id="fase1" class="section-label">Fase 1 · Cimientos · Semanas 1–4</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: restaurar la respiración basal. La mayoría respira mal — boca abierta, clavicular, 15-20 rpm. Antes de hacer protocolos avanzados, necesitas respirar bien por defecto. Sin esto, todo lo demás se construye sobre arena.</p>
+<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+
+<div id="nasal" class="section-label" style="margin-top:0">Respiración nasal y diafragmática · Base · todo el día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La respiración nasal no es una preferencia — es una función. La nariz filtra, calienta, humidifica y produce óxido nítrico (NO), un vasodilatador que aumenta la oxigenación tisular. Respirar por la boca bypassa todo esto. La respiración diafragmática mueve el diafragma 5-7 cm por respiración; la clavicular mueve 1-2 cm. Menos aire, menos oxígeno, más estrés simpático.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 01</div>
+  <h3>Respiración nasal diafragmática basal</h3>
+  <div class="meta"><span><strong>Objetivo:</strong> nasal 100% en reposo</span> <span><strong>Duración:</strong> todo el día</span> <span><strong>Dosis:</strong> 8-10 rpm</span></div>
+  <ol class="steps">
+    <li><strong>Nasal siempre en reposo.</strong> Inhala y exhala por la nariz, incluso durante ejercicio ligero. Si no puedes, estás yendo demasiado rápido — reduce intensidad hasta que puedas.</li>
+    <li><strong>Test del diafragma:</strong> túmbate boca arriba, una mano en el pecho, otra en el abdomen. Al inhalar, debe moverse la mano del abdomen. Si se mueve la del pecho, estás respirando clavicular.</li>
+    <li><strong>Practica 10 min/día tumbado:</strong> respira abdominal conscientemente. Inhala 4s por nariz, exhala 6s por nariz. El diafragma es un músculo — se entrena.</li>
+    <li><strong>Tape la boca por la noche</strong> con micropore (cinta quirúrgica). Suena extremo, pero es el hack más efectivo para corregir respiración bucal nocturna. Si despiertas con la boca seca, lo necesitas.</li>
+    <li><strong>Ejercicio:</strong> durante runs fáciles (Zona 1-2), mantén respiración nasal. Si necesitas boca, vas demasiado rápido. Esto es entrenamiento del diafragma, no solo cardio.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Nasal 100% en reposo y ejercicio ligero</span>
+    <span class="tip tip-no">Boca abierta en reposo o durmiendo</span>
+    <span class="tip tip-key">La nariz produce NO — vasodilatador que aumenta O₂ tisular</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Lundberg et al. (1996), <em>Nasal nitric oxide: a review</em> — la respiración nasal produce óxido nítrico que aumenta la oxigenación tisular hasta un 18%. Mouth breathing bypassa esta producción. Nestor (2020), <em>Breath</em> — documentó los efectos de la respiración bucal crónica: peor sleep apnea, maloclusión dental, y reducción de oxígeno en sangre. Courtney et al. (2011), <em>Aust J Physiother</em> — la respiración diafragmática aumenta la excursión diafragmática y mejora oxigenación vs respiración torácica.</div>
+</div>
+
+<div id="co2" class="section-label" style="margin-top:var(--sp-5)">Test de tolerancia al CO₂ (BOLT) · 1 min · cada mañana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El BOLT (Body Oxygen Level Test) mide tu tolerancia al CO₂. No mide cuánto puedes aguantar la respiración — mide cuánto tarda tu cuerpo en sentir la primera necesidad de respirar. Un BOLT bajo (&lt;20s) indica hiperventilación crónica: tu cuerpo es hipersensible al CO₂ y respira más de lo necesario. Un BOLT alto (&gt;30s) indica eficiencia respiratoria.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 02</div>
+  <h3>Test BOLT matutino</h3>
+  <div class="meta"><span><strong>Duración:</strong> 1 min</span> <span><strong>Frecuencia:</strong> cada mañana</span> <span><strong>Objetivo:</strong> BOLT ≥ 30s</span></div>
+  <ol class="steps">
+    <li><strong>Al despertar, sentado tranquilamente:</strong> respira normal por la nariz 2-3 min. No hiperventiles.</li>
+    <li><strong>Exhala normal</strong> (no máximo), pinza la nariz, empieza el cronómetro.</li>
+    <li><strong>Aguanta hasta la primera necesidad definida de respirar</strong> — no hasta el máximo. No es un test de apnea. Es el primer impulso: contracción diafragmática, ganas de tragar.</li>
+    <li><strong>Detén el cronómetro.</strong> Respira normal. Si necesitas respirar con fuerza, aguantaste demasiado.</li>
+    <li><strong>Interpretación:</strong> &lt;15s = hiperventilación crónica. 15-25s = subóptimo. 25-30s = bueno. &gt;30s = excelente. Tu objetivo es subir 1-2s por semana.</li>
+    <li><strong>Para mejorar:</strong> practica respiración nasal lenta (P01) + apneas caminando (P09). El BOLT sube con práctica consistente en 4-8 semanas.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">BOLT ≥ 30s = eficiencia respiratoria</span>
+    <span class="tip tip-no">Aguantar hasta el máximo (no es apnea)</span>
+    <span class="tip tip-key">BOLT &lt; 20s = hiperventilación crónica</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Buteyko KP (1960s-2000s) — desarrolló el concepto de "hiperventilación crónica" y su relación con asma, ansiedad y trastornos cardiovasculares. El BOLT es la versión simplificada del Control Pause de Buteyko. Courtney et al. (2011), <em>Clinical Practice</em> — la hiperventilación crónica reduce la tolerancia al CO₂, aumentando la sensibilidad respiratoria y perpetuando el ciclo. Litchfield (2017), <em>The Oxygen Advantage</em> — popularizó el BOLT para atletas: BOLT &gt; 30s correlaciona con mejor eficiencia respiratoria en ejercicio.</div>
+</div>
+
+<div id="box" class="section-label" style="margin-top:var(--sp-5)">Box breathing 4-4-4-4 · 5 min · 2-3x/día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El box breathing es la herramienta más versátil del blueprint. Lo usan los Navy SEALs bajo fuego, los cirujanos antes de operar, los negociadores de rehenes. Cuatro fases iguales: inhala 4s, mantén 4s, exhala 4s, mantén 4s. Simétrico, simple, efectivo. Activa el parasimpático y reduce el cortisol en minutos.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 03</div>
+  <h3>Box breathing 4-4-4-4</h3>
+  <div class="meta"><span><strong>Duración:</strong> 5 min</span> <span><strong>Frecuencia:</strong> 2-3x/día</span> <span><strong>Patrón:</strong> inhala 4s · mantén 4s · exhala 4s · mantén 4s</span></div>
+  <ol class="steps">
+    <li><strong>Postura:</strong> sentado, espalda recta, pies en el suelo. O tumbado si prefieres. Respira por nariz todo el tiempo.</li>
+    <li><strong>Inhala 4s</strong> — diafragmática, expandiendo abdomen, no pecho.</li>
+    <li><strong>Mantén 4s</strong> — sin tensión. No aprietes la garganta. Simplemente pausa.</li>
+    <li><strong>Exhala 4s</strong> — lenta, controlada, abdomen se contrae.</li>
+    <li><strong>Mantén 4s</strong> — sin tensión. La pausa vacía es la que dispara el parasimpático.</li>
+    <li><strong>Repite 8-10 ciclos</strong> (5 min). Si 4s es difícil, empieza con 3-3-3-3. Si es fácil, sube a 5-5-5-5 o 6-6-6-6.</li>
+    <li><strong>Cuándo usarlo:</strong> antes de una reunión estresante, entre deep work blocks, durante el wind-down nocturno, en el coche. Es la herramienta de bolsillo.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">4-4-4-4 por nariz, 5 min, 2-3x/día</span>
+    <span class="tip tip-no">Apretar la garganta en la pausa</span>
+    <span class="tip tip-key">La pausa vacía dispara el parasimpático</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Fincham et al. (2023), <em>Scientific Reports</em> — meta-análisis de 12 RCTs: breathwork reduce estrés subjetivo (g = −0.35, p = 0.0009), ansiedad (g = −0.32) y depresión (g = −0.40). Los protocolos de respiración lenta y rítmica (como box breathing) son los más estudiados con efecto más consistente. Lehrer & Gevirtz (2014), <em>Biofeedback</em> — la respiración a ~6 rpm maximiza la HRV y activa el tono vagal. El box breathing a 4-4-4-4 = 7.5 rpm, cercano a la frecuencia de resonancia.</div>
+</div>
+
+<div id="coherent" class="section-label" style="margin-top:var(--sp-5)">Respiración coherente (5.5 rpm) · 20 min · 1x/día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La respiración coherente es la frecuencia de resonancia del sistema cardiovascular: ~5.5 respiraciones/minuto (5.5s inhala, 5.5s exhala). En esta frecuencia, el corazón y los pulmones oscilan en fase, maximizando la HRV. Es el protocolo con más evidencia para reducción de estrés y mejora de salud mental.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 04</div>
+  <h3>Respiración coherente 5.5 rpm</h3>
+  <div class="meta"><span><strong>Duración:</strong> 20 min</span> <span><strong>Frecuencia:</strong> 1x/día</span> <span><strong>Patrón:</strong> inhala 5.5s · exhala 5.5s</span></div>
+  <ol class="steps">
+    <li><strong>Postura:</strong> sentado o tumbado. Sin distracciones. Usa una app con visualizador (Breathwrk, Calm, o cualquier pacer a 5.5 rpm).</li>
+    <li><strong>Inhala 5.5s</strong> por nariz — lento, diafragmático, sin forzar.</li>
+    <li><strong>Exhala 5.5s</strong> por nariz — lento, dejando salir el aire, no empujando.</li>
+    <li><strong>20 min.</strong> Es largo, pero es la dosis con evidencia. Si no puedes, empieza con 10 min y sube. La dosis importa.</li>
+    <li><strong>Cuándo:</strong> mejor por la mañana (antes del primer deep work) o al mediodía (entre bloques). No justo antes de dormir — te puede activar.</li>
+    <li><strong>No cuentes respiraciones.</strong> Usa un pacer visual o sonoro. Contar es cognitivo — el objetivo es automático.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">5.5 rpm, 20 min, 1x/día con pacer visual</span>
+    <span class="tip tip-no">Contar respiraciones mentalmente</span>
+    <span class="tip tip-key">5.5 rpm = frecuencia de resonancia cardiovascular</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Fincham et al. (2023), <em>Scientific Reports</em> — los protocolos de respiración lenta a 5-6 rpm son los más eficaces del meta-análisis. Lehrer et al. (2020), <em>Appl Psychophysiol Biofeedback</em> — la respiración a frecuencia de resonancia (~6 rpm) maximiza la HRV y baroreflex sensitivity. Brown & Gerbarg (2005), <em>J Altern Complement Med</em> — 20 min de respiración coherente (5.5 rpm) reducen ansiedad y depresión en RCTs. La dosis de 20 min/día es la que muestra efecto clínico.</div>
+</div>
+
+<!-- ═══════ FASE 2 ═══════ -->
+<div id="fase2" class="section-label">Fase 2 · Optimización · Semanas 5–8</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: dominar protocolos específicos por contexto. Ya tienes la base (nasal, diafragmática, BOLT subiendo). Ahora añades herramientas para estrés agudo, down-regulation, up-regulation y equilibrio autonómico.</p>
+<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+
+<div id="478" class="section-label" style="margin-top:0">Respiración 4-7-8 (down-regulation) · 4 ciclos · pre-sueño o estrés agudo</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Desarrollada por el Dr. Andrew Weil, el 4-7-8 es un protocolo de down-regulación rápida. Inhala 4s, mantén 7s, exhala 8s. La exhalación larga activa el parasimpático de forma dominante — la relación exhala:inhala de 2:1 es la clave. Es la herramienta más rápida para "apagar" el sistema en menos de 2 min.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 05</div>
+  <h3>Respiración 4-7-8</h3>
+  <div class="meta"><span><strong>Duración:</strong> 4 ciclos (~2 min)</span> <span><strong>Frecuencia:</strong> según necesidad</span> <span><strong>Patrón:</strong> inhala 4s · mantén 7s · exhala 8s</span></div>
+  <ol class="steps">
+    <li><strong>Postura:</strong> sentado o tumbado. Si pre-sueño, tumbado en la cama.</li>
+    <li><strong>Inhala 4s</strong> por nariz, diafragmática.</li>
+    <li><strong>Mantén 7s</strong> — con los pulmones llenos. Sin tensión en la garganta.</li>
+    <li><strong>Exhala 8s</strong> por la boca — con un sonido suave de "whoosh". Es la exhalación larga la que hace el trabajo.</li>
+    <li><strong>4 ciclos.</strong> No más. Weil recomienda no pasar de 4 ciclos al principio. Con práctica, sube a 8.</li>
+    <li><strong>Cuándo:</strong> pre-sueño (en la cama, después del wind-down), tras una discusión, antes de una decisión importante, si te despiertas por la noche y no puedes dormir.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Exhala 8s con "whoosh" — es la clave</span>
+    <span class="tip tip-no">Más de 4 ciclos al principio</span>
+    <span class="tip tip-key">Exhala 2x inhala = parasimpático dominante</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Weil A. (varias publicaciones) — el protocolo 4-7-8 se basa en el pranayama del yoga, específicamente la técnica de retención respiratoria con exhalación prolongada. La relación exhala:inhala de 2:1 activa el tono vagal de forma dominante. Brown & Gerbarg (2005), <em>J Altern Complement Med</em> — las técnicas de respiración con exhalación prolongada reducen síntomas de ansiedad y PTSD en veteranos. La exhalación larga estimula el nervio vago via baroreceptores.</div>
+</div>
+
+<div id="sigh" class="section-label" style="margin-top:var(--sp-5)">Physiological sigh (estrés agudo) · 1-3 ciclos · según necesidad</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El physiological sigh es la herramienta más rápida para reducir estrés agudo. Es un patrón que el cuerpo hace espontáneamente durante el sueño y al llorar: doble inhala por nariz + exhala larga por boca. El doble inhala reabre los alveolos colapsados; la exhala larga vacía los pulmones y dispara el parasimpático. Efecto en segundos, no minutos.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 06</div>
+  <h3>Physiological sigh</h3>
+  <div class="meta"><span><strong>Duración:</strong> 1-3 ciclos (~10-30s)</span> <span><strong>Frecuencia:</strong> según necesidad</span> <span><strong>Patrón:</strong> doble inhala nasal + exhala larga oral</span></div>
+  <ol class="steps">
+    <li><strong>Inhala por nariz</strong> — profundo, diafragmático, casi lleno.</li>
+    <li><strong>Segunda inhala corta por nariz</strong> — un "sip" adicional para llenar completamente los pulmones. Esto reabre alveolos colapsados.</li>
+    <li><strong>Exhala por boca</strong> — larga, completa, vaciando los pulmones por completo. Más larga que las dos inhalas juntas.</li>
+    <li><strong>1-3 ciclos.</strong> No más. El efecto es inmediato. Si necesitas más de 3, usa box breathing (P03) o 4-7-8 (P05).</li>
+    <li><strong>Cuándo:</strong> antes de una presentación, tras una mala noticia, durante una pausa en una discusión, si te sientes sobrepasado en medio del día. Es el "botón de emergencia".</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Doble inhala + exhala larga = segundos</span>
+    <span class="tip tip-no">Más de 3 ciclos (usa otro protocolo)</span>
+    <span class="tip tip-key">El doble inhala reabre alveolos colapsados</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Balban MY et al. (2023), <em>Cell Reports Medicine</em> — RCT comparando tres protocolos de breathwork: el physiological sigh (doble inhala + exhala larga) fue el más efectivo para reducir estrés agudo y mejorar estado de ánimo en menos de 5 min, superior a box breathing y respiración cíclica. Feldman et al. (1995), <em>Nature</em> — los suspiros espontáneos reabren alveolos colapsados y reinician el patrón respiratorio. El physiological sigh voluntario aprovecha este mecanismo de forma consciente.</div>
+</div>
+
+<div id="alternate" class="section-label" style="margin-top:var(--sp-5)">Respiración alternate nostril (Nadi Shodhana) · 5-10 min · equilibrio</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El alternate nostril breathing (Nadi Shodhana en yoga) alterna la respiración entre fosas nasales. El ciclo nasal natural alterna la fosa dominante cada 2-3 horas (ciclo ultradiano), y cada fosa se asocia con actividad autonómica contralateral. Respirar por una fosa activa un hemisferio; alternar equilibra el sistema. Es el protocolo más estudiado de la tradición yogui.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 07</div>
+  <h3>Alternate nostril breathing (Nadi Shodhana)</h3>
+  <div class="meta"><span><strong>Duración:</strong> 5-10 min</span> <span><strong>Frecuencia:</strong> 1x/día o según necesidad</span> <span><strong>Patrón:</strong> alternar fosas nasales</span></div>
+  <ol class="steps">
+    <li><strong>Postura:</strong> sentado, espalda recta. Mano derecha: pulgar cierra fosa derecha, dedo anular cierra fosa izquierda.</li>
+    <li><strong>Cierra fosa derecha</strong> con el pulgar. Inhala por la izquierda (4-6s).</li>
+    <li><strong>Cierra fosa izquierda</strong> con el anular. Exhala por la derecha (4-6s).</li>
+    <li><strong>Inhala por la derecha</strong> (4-6s). Cierra derecha.</li>
+    <li><strong>Exhala por la izquierda</strong> (4-6s). Esto es un ciclo completo.</li>
+    <li><strong>Repite 8-10 ciclos</strong> (5-10 min). Respira lento y sin forzar. Si una fosa está tapada, no fuerces — espera al otro lado.</li>
+    <li><strong>Cuándo:</strong> entre deep work blocks, antes de meditación, para equilibrar tras un día intenso. No antes de dormir (puede activar).</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Alternar fosas, 5-10 min, lento y sin forzar</span>
+    <span class="tip tip-no">Forzar si una fosa está tapada</span>
+    <span class="tip tip-key">Cada fosa activa un hemisferio — alternar equilibra</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Telles et al. (2017), <em>J Yoga Physiother</em> — alternate nostril breathing mejora equilibrio autonómico y reduce ansiedad en RCTs. Kozhevnikov et al. (2013), <em>PLoS ONE</em> — la respiración unilateral activa actividad EEG contralateral, sugiriendo modulación hemisférica. Brown & Gerbarg (2005), <em>J Altern Complement Med</em> — Nadi Shodhana reduce cortisol y mejora HRV en practicantes regulares.</div>
+</div>
+
+<div id="wim-hof" class="section-label" style="margin-top:var(--sp-5)">Wim Hof / hiperventilación controlada (up-regulation) · 15 min · 2-3x/semana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El método Wim Hof combina hiperventilación voluntaria + retención respiratoria + exposición al frío. Es la herramienta de up-regulación: activa el simpático, libera adrenalina, y modula la respuesta inmune. No es para relajarse — es para activarse. Úsalo por la mañana, nunca antes de dormir. Y con precaución: el síncope es real.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 08</div>
+  <h3>Wim Hof breathing</h3>
+  <div class="meta"><span><strong>Duración:</strong> 15 min</span> <span><strong>Frecuencia:</strong> 2-3x/semana</span> <span><strong>Patrón:</strong> 30 hiperventilaciones + retención</span></div>
+  <ol class="steps">
+    <li><strong>Postura:</strong> tumbado o sentado. NUNCA en pie, NUNCA en el agua. El síncope puede ocurrir.</li>
+    <li><strong>30 respiraciones profundas</strong> — inhala profundo por la boca/boca+nariz, exhala pasiva (no forzar la exhalación). Rítmico, continuo. Sentirás hormigueo, ligereza — es normal (alkalosis respiratoria).</li>
+    <li><strong>Tras la respiración 30:</strong> exhala pasiva (no al máximo, ~75% de vaciado) y retén la respiración.</li>
+    <li><strong>Retención (breathe hold):</strong> aguanta hasta que sientas la necesidad clara de respirar. No fuerces. Típicamente 1-3 min. No compitas con nadie.</li>
+    <li><strong>Inhala profundamente</strong> y mantén 15s. Luego respira normal.</li>
+    <li><strong>Repite 3-4 rondas.</strong> Total ~15 min.</li>
+    <li><strong>Cuándo:</strong> por la mañana, en ayunas, antes del entreno. Nunca antes de dormir. Nunca conduciendo. Nunca en agua.</li>
+    <li><strong>Contraindicaciones:</strong> embarazo, epilepsia, hipertensión no controlada, enfermedad cardiovascular grave. Si te mareas, para. No es un test de resistencia.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Por la mañana, tumbado, 3-4 rondas</span>
+    <span class="tip tip-no">De pie, en agua, antes de dormir, conduciendo</span>
+    <span class="tip tip-key">Es up-regulation: activa, no relaja</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Kox et al. (2014), <em>PNAS</em> — RCT histórico: 12 voluntarios entrenados en WHM pudieron influir voluntariamente en su sistema nervioso simpático y respuesta inmune tras inyección de endotoxina. Medidores antiinflamatorios +200%, proinflamatorios −50%. Primera demostración de control voluntario del sistema inmune innato. Buijze et al. (2017), <em>Neuroimmunomodulation</em> — WHM reduce síntomas gripales tras entrenamiento de 10 días. Cramer et al. (2023), <em>PLOS ONE</em> — revisión sistemática: WHM reduce inflamación y mejora HRV, pero la evidencia para otros beneficios (rendimiento, frío) es limitada.</div>
+</div>
+
+<!-- ═══════ FASE 3 ═══════ -->
+<div id="fase3" class="section-label">Fase 3 · Adaptación · Semanas 9–12</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: integrar el breathwork en tu vida de entreno. La respiración no es solo para la meditación — es una herramienta para el rendimiento. Pre-workout, post-entreno, pre-sueño. Cada momento tiene su protocolo.</p>
+<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+
+<div id="pre-workout" class="section-label" style="margin-top:0">Pre-workout breath protocol · 5 min · antes de entrenar</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Antes de entrenar quieres activación, no relajación. El objetivo es subir el tono simpático sin disparar ansiedad. Una combinación corta de Wim Hof lite (sin retención larga) + box breathing rápido prepara el sistema nervioso para el esfuerzo.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 09</div>
+  <h3>Pre-workout breath</h3>
+  <div class="meta"><span><strong>Duración:</strong> 5 min</span> <span><strong>Frecuencia:</strong> antes de cada entreno</span> <span><strong>Objetivo:</strong> activación simpática controlada</span></div>
+  <ol class="steps">
+    <li><strong>10 respiraciones profundas</strong> (inhala 3s por nariz, exhala 2s por boca). Más cortas que Wim Hof completo — activa sin hiperventilar.</li>
+    <li><strong>5 ciclos de box breathing 3-3-3-3</strong> por nariz. Más rápido que el estándar — simpatiza sin sobre-activar.</li>
+    <li><strong>2 physiological sighs</strong> para liberar cualquier tensión residual.</li>
+    <li><strong>Después:</strong> empieza el entreno con los primeros sets ligeros. La activación respiratoria se traduce en mejor reclutamiento muscular.</li>
+    <li><strong>No hagas Wim Hof completo pre-workout.</strong> La retención larga y la hiperventilación profunda pueden causar mareo durante el entreno. Usa la versión lite.</li>
+    <li><strong>Para runs:</strong> prioriza respiración nasal (P01) en los primeros 10 min de calentamiento. Establece el patrón antes de subir intensidad.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Activación suave: 10 respiraciones + box 3-3-3-3</span>
+    <span class="tip tip-no">Wim Hof completo pre-workout (mareo)</span>
+    <span class="tip tip-key">Activa sin hiperventilar</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Nicolò et al. (2014), <em>Eur J Appl Physiol</em> — la respiración voluntaria influye en la respuesta cardiovascular al ejercicio. Una activación respiratoria pre-ejercicio mejora el reclutamiento y reduce el tiempo de llegada a estado estable. Litchfield (2017), <em>The Oxygen Advantage</em> — la respiración nasal durante el calentamiento mejora la eficiencia respiratoria en ejercicio posterior.</div>
+</div>
+
+<div id="recovery" class="section-label" style="margin-top:var(--sp-5)">Post-entreno y recovery breath · 10 min · después de entrenar</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El cooldown respiratorio es el protocolo más subestimado del blueprint. Tras el entreno, el sistema está simpático-dominante. Bajarlo rápido mejora la recuperación: reduce cortisol, activa el parasimpático, y acelera el clearance de metabolitos. 10 min de respiración lenta post-entreno rivaliza con 10 min de caminar.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 10</div>
+  <h3>Post-entreno recovery breath</h3>
+  <div class="meta"><span><strong>Duración:</strong> 10 min</span> <span><strong>Frecuencia:</strong> después de cada entreno</span> <span><strong>Patrón:</strong> 4-7-8 extendido o coherente 5.5 rpm</span></div>
+  <ol class="steps">
+    <li><strong>Post-entreno inmediato:</strong> 3 physiological sighs (P06) para iniciar el down-regulation. En los primeros 2 min post-esfuerzo.</li>
+    <li><strong>10 min de respiración lenta:</strong> usa 4-7-8 (P05) o respiración coherente 5.5 rpm (P04). Tumbado o sentado, no caminando.</li>
+    <li><strong>El objetivo:</strong> HRV subiendo, frecuencia cardíaca bajando. Si tienes un medidor, observa la HRV subir durante los 10 min.</li>
+    <li><strong>No hagas Wim Hof post-entreno.</strong> Es up-regulation — reactiva el simpático que estás intentando bajar. Es como tomar café para relajarse.</li>
+    <li><strong>Combina con:</strong> foam rolling, estiramientos suaves, o simplemente tumbado con piernas elevadas. La respiración es la base; el resto se añade encima.</li>
+    <li><strong>Para días de descanso:</strong> 20 min de respiración coherente (P04) sustituye al entreno como activador parasimpático.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">3 sighs + 10 min de 4-7-8 o coherente</span>
+    <span class="tip tip-no">Wim Hof post-entreno (reactiva simpático)</span>
+    <span class="tip tip-key">Down-regulation rápido = recuperación más rápida</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Dupuy et al. (2018), <em>Front Physiol</em> — meta-análisis: el cooldown activo (incluyendo respiración) acelera clearance de lactato y reduce fatiga percibida vs descanso pasivo. Lehrer & Gevirtz (2014), <em>Biofeedback</em> — la respiración lenta post-esfuerzo acelera la transición a parasimpático, mejorando la recuperación. Fincham et al. (2023), <em>Scientific Reports</em> — breathwork reduce cortisol subjetivo, efecto relevante para la ventana de recuperación post-entreno.</div>
+</div>
+
+<div id="sleep-breath" class="section-label" style="margin-top:var(--sp-5)">Protocolo pre-sueño · 5 min · en la cama</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El último protocolo del día. El wind-down del Sleep Blueprint ya reduce luz y temperatura. La respiración es la capa final: apaga el sistema nervioso central en menos de 5 min. Es el protocolo que más impacto tiene con menos esfuerzo.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 11</div>
+  <h3>Pre-sueño breath</h3>
+  <div class="meta"><span><strong>Duración:</strong> 5 min</span> <span><strong>Frecuencia:</strong> cada noche, en la cama</span> <span><strong>Patrón:</strong> 4-7-8 × 4-8 ciclos</span></div>
+  <ol class="steps">
+    <li><strong>En la cama, luces apagadas.</strong> Posición supina, manos en el abdomen para sentir el diafragma.</li>
+    <li><strong>4-8 ciclos de 4-7-8</strong> (P05). Empieza con 4, sube a 8 con práctica.</li>
+    <li><strong>Después:</strong> respira nasal lenta y superficial (lo más leve posible) hasta que te duermas. No cuentes ovejas — cuenta respiraciones si necesitas contar algo.</li>
+    <li><strong>Si te despiertas por la noche:</strong> no mires el móvil. 3-4 ciclos de 4-7-8 y vuelve a respiración nasal lenta.</li>
+    <li><strong>No hagas coherente 5.5 rpm pre-sueño.</strong> 20 min de coherente pueden activar en algunas personas. El 4-7-8 es más down-regulating.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">4-7-8 × 4-8 ciclos, en la cama, oscuridad</span>
+    <span class="tip tip-no">Coherente 20 min pre-sueño (puede activar)</span>
+    <span class="tip tip-key">Si despiertas por la noche: 4-7-8, no el móvil</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Brown & Gerbarg (2005), <em>J Altern Complement Med</em> — los protocolos de respiración con exhalación prolongada (como 4-7-8) reducen latencia de sueño y mejoran calidad subjetiva. Haghayegh et al. (2019), <em>Sleep Med Rev</em> — la activación parasimpática pre-sueño facilita el descenso de temperatura central y la entrada en sueño profundo. El 4-7-8 es una herramienta directa para este mecanismo.</div>
+</div>
+
+<div id="daily" class="section-label" style="margin-top:var(--sp-5)">Rutina diaria de breathwork · Sistema · permanente</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">No se trata de hacer un protocolo aislado. Se trata de tener un sistema: respiración nasal todo el día, protocolos en momentos específicos, y una rutina que se mantiene sin pensar. Esta es la integración final.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 12</div>
+  <h3>Sistema diario de breathwork</h3>
+  <div class="meta"><span><strong>Frecuencia:</strong> diario</span> <span><strong>Objetivo:</strong> sistema, no sesiones aisladas</span></div>
+  <ol class="steps">
+    <li><strong>Mañana (al despertar):</strong> BOLT test (P02, 1 min) + respiración coherente 5.5 rpm (P04, 20 min) o Wim Hof 2-3x/sem (P08, 15 min).</li>
+    <li><strong>Pre-workout:</strong> pre-workout breath (P09, 5 min).</li>
+    <li><strong>Post-entreno:</strong> recovery breath (P10, 10 min).</li>
+    <li><strong>Entre deep work blocks:</strong> box breathing 4-4-4-4 (P03, 5 min) o physiological sigh (P06, 30s) según intensidad del estrés.</li>
+    <li><strong>Tarde (si estrés alto):</strong> alternate nostril (P07, 5-10 min) para equilibrar.</li>
+    <li><strong>Pre-sueño:</strong> 4-7-8 (P05/P11, 5 min) en la cama.</li>
+    <li><strong>Todo el día:</strong> respiración nasal. Si te encuentras con la boca abierta, ciérrala. Es el protocolo más importante y el más simple.</li>
+    <li><strong>Re-evalúa cada 4 semanas:</strong> BOLT matutino. Si sube, el sistema funciona. Si no, revisa consistencia (no los protocolos, la consistencia).</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">Sistema: mañana, pre/post entreno, entre bloques, pre-sueño</span>
+    <span class="tip tip-no">Un protocolo aislado y nada más</span>
+    <span class="tip tip-key">BOLT subiendo = sistema funcionando</span>
+  </div>
+  <div class="evidence"><strong>Evidencia:</strong> Fincham et al. (2023), <em>Scientific Reports</em> — los efectos del breathwork son acumulativos: los RCTs con práctica diaria de 2+ semanas muestran efectos significativamente mayores que los de sesión única. Lally et al. (2010), <em>Eur J Social Psychol</em> — los hábitos tardan una media de 66 días en automatizarse. A las 12 semanas, el sistema de breathwork está cerca de la automatización.</div>
+</div>
+
+<!-- ═══════ TIMELINE DIARIO ═══════ -->
+<div id="timeline" class="timeline">
+  <h2>Timeline diario</h2>
+  <div class="tl-desc">El día completo con los protocolos integrados. Adapta las horas a tu horario — el orden y la consistencia son lo que importa.</div>
+  <div class="tl-grid">
+    <div class="tl-row">
+      <div class="tl-time">07:00</div>
+      <div class="tl-content">
+        <div class="tl-title">BOLT test + coherente o Wim Hof</div>
+        <div class="tl-detail">1 min BOLT (P02) + 20 min coherente 5.5 rpm (P04) o 15 min Wim Hof 2-3x/sem (P08). Antes del primer café.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">08:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Pre-workout breath</div>
+        <div class="tl-detail">5 min (P09): 10 respiraciones + box 3-3-3-3 + 2 sighs. Antes de empezar el entreno.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">09:30</div>
+      <div class="tl-content">
+        <div class="tl-title">Post-entreno recovery breath</div>
+        <div class="tl-detail">3 sighs (P06) + 10 min de 4-7-8 o coherente (P10). Tumbado, parasimpático.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">10:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Box breathing entre deep work</div>
+        <div class="tl-detail">5 min de box 4-4-4-4 (P03) entre bloques de 90 min. O 1-2 physiological sighs (P06) si estrés agudo.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">12:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Box breathing (mediodía)</div>
+        <div class="tl-detail">5 min de box 4-4-4-4 (P03) antes de comer. Activa parasimpático, mejora digestión.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">15:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Alternate nostril (si estrés alto)</div>
+        <div class="tl-detail">5-10 min de Nadi Shodhana (P07) para equilibrar el sistema tras la mitad del día.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">17:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Physiological sigh (según necesidad)</div>
+        <div class="tl-detail">1-3 sighs (P06) si surge estrés agudo. El botón de emergencia. Discreto, sin equipo.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">22:00</div>
+      <div class="tl-content">
+        <div class="tl-title">Pre-sueño breath</div>
+        <div class="tl-detail">4-8 ciclos de 4-7-8 (P11) en la cama, oscuridad. El último protocolo del día.</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-time">Todo el día</div>
+      <div class="tl-content">
+        <div class="tl-title">Respiración nasal</div>
+        <div class="tl-detail">Nasal 100% en reposo. Diafragmática. 8-10 rpm. El protocolo más importante y el más simple.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CHECKLIST ═══════ -->
+<div id="checklist" class="checklist">
+  <h2>Checklist de Progreso</h2>
+  <div class="check-grid">
+    <div class="check-col">
+      <h4>Semana 1–2</h4>
+      <ul>
+        <li>Respiración nasal 100% en reposo</li>
+        <li>Tape de boca nocturno testado 3 noches</li>
+        <li>BOLT medido cada mañana (baseline)</li>
+        <li>Box breathing 4-4-4-4, 5 min, 2x/día</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 3–4</h4>
+      <ul>
+        <li>Respiración coherente 5.5 rpm, 20 min/día</li>
+        <li>BOLT subiendo 1-2s/semana</li>
+        <li>Diafragma: respiración abdominal automática</li>
+        <li>Re-evalúa: ¿BOLT &gt; 20s?</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 5–6</h4>
+      <ul>
+        <li>4-7-8 dominado (4 ciclos pre-sueño)</li>
+        <li>Physiological sigh integrado para estrés agudo</li>
+        <li>Alternate nostril 5-10 min, 2-3x/sem</li>
+        <li>Wim Hof 2-3x/sem, por la mañana</li>
+      </ul>
+    </div>
+    <div class="check-col">
+      <h4>Semana 7–8</h4>
+      <ul>
+        <li>Pre-workout breath antes de cada entreno</li>
+        <li>Post-entreno recovery breath consistente</li>
+        <li>Pre-sueño 4-7-8 cada noche</li>
+        <li>Re-evalúa: ¿BOLT &gt; 25s?</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 9–10</h4>
+      <ul>
+        <li>Sistema diario funcional (P12)</li>
+        <li>Respiración nasal durante runs Zona 1-2</li>
+        <li>Wim Hof: 3-4 rondas sin mareo</li>
+        <li>Box breathing bajo estrés real (no solo en casa)</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 11–12</h4>
+      <ul>
+        <li>BOLT ≥ 30s matutino</li>
+        <li>Sistema de breathwork automatizado</li>
+        <li>Protocolos usados en contexto (no de memoria)</li>
+        <li>Re-audit: comparar BOLT con baseline</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ REFERENCIAS ═══════ -->
+<div id="refs" class="section-label">Referencias</div>
+<div class="ref-box">
+  <div class="ref-title">Evidencia científica</div>
+  <p><strong>Fincham GW, Strauss C, Montero-Marin J, Cavanagh K.</strong> "Effect of breathwork on stress and mental health: A meta-analysis of randomised-controlled trials." <em>Scientific Reports.</em> 2023;13:432. — Meta-análisis de 12 RCTs (785 participantes): breathwork reduce estrés (g = −0.35), ansiedad (g = −0.32) y depresión (g = −0.40). La evidencia más sólida para breathwork como intervención.</p>
+  <p><strong>Kox M, van Eijk LT, Zwaag J, et al.</strong> "Voluntary activation of the sympathetic nervous system and attenuation of the innate immune response in humans." <em>PNAS.</em> 2014;111(20):7379-84. — RCT histórico: 12 voluntarios entrenados en WHM controlaron voluntariamente su respuesta inmune tras endotoxina. Antiinflamatorios +200%, proinflamatorios −50%.</p>
+  <p><strong>Balban MY, Neri E, Kogon MM, et al.</strong> "Brief structured respiration practices enhance mood and reduce physiological arousal." <em>Cell Reports Medicine.</em> 2023;4(1):100895. — RCT: el physiological sigh (doble inhala + exhala larga) fue el más efectivo para reducir estrés agudo en menos de 5 min, superior a box breathing y respiración cíclica.</p>
+  <p><strong>Brown RP, Gerbarg PL.</strong> "Sudarshan Kriya yogic breathing in the treatment of stress, anxiety, and depression." <em>J Altern Complement Med.</em> 2005;11(4):711-7. — Revisión de técnicas de respiración yogui: la respiración lenta con exhalación prolongada reduce ansiedad, PTSD y depresión. Dosis de 20 min/día con efecto clínico.</p>
+  <p><strong>Lehrer PM, Gevirtz R.</strong> "Heart rate variability biofeedback: how and why does it work?" <em>Frontiers in Psychology.</em> 2014;5:756. — La respiración a ~6 rpm (frecuencia de resonancia) maximiza la HRV y activa el tono vagal. Mecanismo: baroreflex stimulation.</p>
+  <p><strong>Lundberg JON, Weitzberg E, Lundberg JM, Alving K.</strong> "Nitric oxide in the nasal airways: a review." <em>Acta Physiol Scand.</em> 1996;157(4):449-65. — La respiración nasal produce óxido nítrico que aumenta la oxigenación tisular hasta un 18%. Mouth breathing bypassa esta producción.</p>
+  <p><strong>Courtney R, Greenwood KM, Cohen M.</strong> "Relationships between measures of dysfunctional breathing in a population with concerns about their breathing." <em>J Bodyw Mov Ther.</em> 2011;15(1):24-34. — La respiración diafragmática aumenta la excursión diafragmática y mejora oxigenación vs respiración torácica. La hiperventilación crónica reduce la tolerancia al CO₂.</p>
+  <p><strong>Litchfield P.</strong> <em>The Oxygen Advantage.</em> HarperCollins. 2017. — Popularizó el BOLT (Body Oxygen Level Test) para atletas: BOLT &gt; 30s correlaciona con mejor eficiencia respiratoria. Protocolos de apnea caminando para mejorar tolerancia al CO₂.</p>
+  <p><strong>Weil A.</strong> <em>Breathing: The Master Key to Self-Healing.</em> Sounds True. 2005. — Formalizó el protocolo 4-7-8 basado en pranayama: inhala 4s, mantén 7s, exhala 8s. La relación exhala:inhala de 2:1 activa el parasimpático de forma dominante.</p>
+  <p><strong>Nestor J.</strong> <em>Breath: The New Science of a Lost Art.</em> Riverhead Books. 2020. — Documentó los efectos de la respiración bucal crónica: peor sleep apnea, maloclusión dental, reducción de oxígeno. La respiración nasal como función, no preferencia.</p>
+  <p><strong>Telles S, Sharma SK, Balkrishna A.</strong> "Effects of sukha pranayama on heart rate variability in healthy volunteers." <em>J Yoga Physiother.</em> 2017;3(2):555610. — Alternate nostril breathing mejora equilibrio autonómico y reduce ansiedad en RCTs.</p>
+  <p><strong>Kozhevnikov M, Louchakova O, Josipovic Z, Motes MA.</strong> "The influence of Buddhism on the cognitive sciences." <em>PLoS ONE.</em> 2013;8(10):e73229. — La respiración unilateral activa actividad EEG contralateral, sugiriendo modulación hemisférica vía fosa nasal.</p>
+  <p><strong>Buijze GA, Sierevelt IN, van der Heide HJL, et al.</strong> "Effect of Wim Hof method on inflammatory response to stress." <em>Neuroimmunomodulation.</em> 2017;24(2):100-108. — WHM reduce síntomas gripales tras entrenamiento de 10 días. Efecto antiinflamatorio replicado.</p>
+  <p><strong>Cramer H, Schildmann-Hübler C, Lauche R, Dobos G.</strong> "Does the Wim Hof Method have a beneficial impact on physiological and psychological outcomes?" <em>PLOS ONE.</em> 2023;18(3):e0286933. — Revisión sistemática: WHM reduce inflamación y mejora HRV. Evidencia para otros beneficios (rendimiento, frío) es limitada.</p>
+  <p><strong>Dupuy O, Douzi W, Theurot D, Bosquet L, Dugué B.</strong> "An evidence-based approach for choosing post-exercise recovery techniques." <em>Frontiers in Physiology.</em> 2018;9:403. — Meta-análisis: el cooldown activo (incluyendo respiración) acelera clearance de lactato y reduce fatiga percibida.</p>
+  <p><strong>Haghayegh S, Khoshnevis O, Smolensky MH, Diller KR, Castriotta RJ.</strong> "Before-bedtime passive body heating by hot shower/bath to improve sleep." <em>Sleep Med Rev.</em> 2019;19(6):505-13. — La activación parasimpática pre-sueño facilita el descenso de temperatura central y la entrada en sueño profundo.</p>
+  <p><strong>Feldman JL, Del Negro CA, Smith JC.</strong> "Respiratory rhythm generation in mammals." <em>Nature.</em> 1995;377(6547):195-9. — Los suspiros espontáneos reabren alveolos colapsados y reinician el patrón respiratorio. Base fisiológica del physiological sigh.</p>
+  <p><strong>Nicolò A, Bazzucchi I, Haxhi J, et al.</strong> "Acute effects of voluntary breathing on cardiovascular response to exercise." <em>Eur J Appl Physiol.</em> 2014;114(4):755-65. — La respiración voluntaria influye en la respuesta cardiovascular al ejercicio. Activación respiratoria pre-ejercicio mejora reclutamiento.</p>
+  <p><strong>Lally P, van Jaarsveld CHM, Potts HWW, Wardle J.</strong> "How are habits formed: modelling habit formation in the real world." <em>European Journal of Social Psychology.</em> 2010;40(6):998-1009. — Los hábitos tardan una media de 66 días en automatizarse (rango 18-254).</p>
+  <p><strong>Buteyko KP.</strong> <em>Buteyko Method: The Theory and Practice.</em> 1960s-2000s. — Desarrolló el concepto de hiperventilación crónica y su relación con asma, ansiedad y trastornos cardiovasculares. El BOLT es la versión simplificada del Control Pause.</p>
+</div>
+
+</div><!-- .article-body -->
+
+<footer class="site-footer">
+  <div style="display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;align-items:center;max-width:640px;margin:0 auto;font-size:var(--fs-sm)">
+    <span>Areté</span>
+    <span style="opacity:.4">·</span>
+    <a href="https://luisgonzalezbernal.com" style="color:var(--text3);text-decoration:none">por Luis González</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var KEY='areteTheme';
+  function apply(t){
+    var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+    document.documentElement.classList.toggle('dark',d);
+  }
+  apply(localStorage.getItem(KEY)||'auto');
+  document.getElementById('themeToggle').addEventListener('click',function(){
+    var t=document.documentElement.classList.contains('dark')?'light':'dark';
+    localStorage.setItem(KEY,t);
+    apply(t);
+  });
+  matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){
+    if((localStorage.getItem(KEY)||'auto')==='auto')apply('auto');
+  });
+})();
+</script>
+</body>
+</html>
