@@ -211,7 +211,7 @@ nav .links a:hover,nav .links a.active{color:var(--accent)}
 
 // ── Data ──
 const domains = [
-  { id:'push',     name:'Fuerza empuje',      icon:'fitness_center',   val:'1.30×',   sub:'SQ 1.30 · DL 1.55 · BP 1.05 · OHP 0.70', level:3, color:'var(--accent)' },
+  { id:'push',     name:'Fuerza máxima',      icon:'fitness_center',   val:'1.30×',   sub:'SQ 1.30 · DL 1.55 · BP 1.05 · OHP 0.70', level:3, color:'var(--accent)' },
   { id:'pull',     name:'Fuerza tracción',     icon:'front_hand',       val:'12 reps',  sub:'Dominadas estrictas', level:3, color:'var(--teal)' },
   { id:'glyco',    name:'Glicolítico',         icon:'bolt',             val:'68s',      sub:'400m sprint', level:2, color:'var(--red)' },
   { id:'cardio',   name:'Cardiovascular',      icon:'favorite',         val:'24:30',    sub:'5K · VO2max ~44', level:3, color:'var(--color-running)' },
@@ -258,7 +258,7 @@ setTimeout(() => {
     const isW = d.id===worst.id;
     h+=`<circle cx="${x}" cy="${y}" r="${isW?6:4}" fill="${d.color}" ${isW?'class="pulse"':''}/>`;
   });
-  const labels=['Empuje','Tracción','Glicolítico','Cardio','F-Core','Core','Movilidad'];
+  const labels=['Fuerza máx','Tracción','Glicolítico','Cardio','F-Core','Core','Movilidad'];
   for(let i=0;i<n;i++){
     const a=start+i*step, lr=R+20;
     const x=cx+lr*Math.cos(a), y=cy+lr*Math.sin(a);
