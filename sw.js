@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v97';
+const CACHE_NAME = 'arete-v98';
 const ASSETS = [
   './',
   './app.html',
@@ -8,11 +8,11 @@ const ASSETS = [
   './manifest.json',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './blog/index.html',
   './blog/filosofia-arete.html',
-  './blog/fase1-fuerza.html',
-  './blog/fase2-hipertrofia.html',
-  './blog/fase3-definicion.html',
-  './blog/fase4-ajustes.html',
+  './blog/8-dominios.html',
+  './blog/programa-arete.html',
+  './blog/crear-plan.html',
   './blog/nutricion.html',
   './blog/suplementos.html',
   './blog/efecto-kettlebell.html',
