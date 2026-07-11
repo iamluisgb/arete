@@ -19,13 +19,6 @@ img{max-width:100%;border-radius:var(--sp-3)}
 .site-nav .nav-links a{color:var(--text2)}.site-nav .nav-links a:hover{color:var(--accent)}
 .site-nav .nav-links a.active{color:var(--accent)}
 
-/* Theme toggle */
-.theme-toggle{flex-shrink:0;background:none;border:none;padding:6px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:color .2s,background .15s;font-family:inherit}
-.theme-toggle:hover{color:var(--accent);background:var(--surface2)}
-.theme-toggle .icon-sun,.theme-toggle .icon-moon{display:none}
-:root.dark .theme-toggle .icon-sun{display:block}
-:root:not(.dark) .theme-toggle .icon-moon{display:block}
-
 /* Hero */
 .hero{padding:clamp(64px,9vh,96px) var(--sp-5) var(--sp-10);text-align:center;max-width:680px;margin:0 auto;animation:fadeIn .3s ease-out}
 .hero h1{font-size:clamp(2.4rem,6vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.08;margin-bottom:var(--sp-3)}
@@ -106,4 +99,4 @@ img{max-width:100%;border-radius:var(--sp-3)}
 
 /* Responsive */
 
-@media(max-width:400px){.site-nav .nav-links{gap:var(--sp-3);font-size:var(--fs-base)}.theme-toggle{padding:4px}}
+@media(max-width:400px){.site-nav .nav-links{gap:var(--sp-3);font-size:var(--fs-base)}}
