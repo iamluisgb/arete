@@ -865,14 +865,14 @@ input.prefilled:focus{background:var(--surface);border:none}
 /* ── Quirón, tu coach ─────────────────────────────────────── */
 #quironFab{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:90;width:52px;height:52px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px var(--accent-glow);transition:transform .1s}
 #quironFab:active{transform:scale(.92)}
-#quironFab .material-symbols-outlined{font-size:26px}
+#quironFab svg{width:25px;height:25px;stroke-width:1.9}
 body.quiron-open #quironFab{display:none}
 .quiron-panel{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;flex-direction:column}
 .quiron-panel.open{display:flex;animation:fadeIn .15s ease-out}
 .quiron-header{display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:var(--surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 :root.dark .quiron-header{background:rgba(19,19,19,.4)}
 .quiron-title{flex:1;display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em}
-.quiron-title .material-symbols-outlined{color:var(--accent);font-size:24px}
+.quiron-title svg{width:21px;height:21px;color:var(--accent);stroke-width:2}
 .quiron-sub{font-size:var(--fs-sm);font-weight:500;color:var(--text2);text-transform:none;letter-spacing:0}
 .quiron-hbtn{background:var(--surface2);border:none;color:var(--text);width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .quiron-hbtn .material-symbols-outlined{font-size:20px}
@@ -903,3 +903,10 @@ body.quiron-open #quironFab{display:none}
 .quiron-setup-icon{font-size:2rem}
 .quiron-setup .btn{width:auto}
 .quiron-setup[hidden]{display:none}
+.quiron-history-modal{z-index:210}
+.quiron-history-item{display:flex;align-items:center;gap:8px;padding:12px;border-radius:12px;background:var(--surface2);margin-bottom:8px;cursor:pointer}
+.qh-text{flex:1;min-width:0}
+.qh-title{font-size:var(--fs-md);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qh-meta{font-size:var(--fs-xs);color:var(--text2);margin-top:2px}
+.qh-del{background:none;border:none;color:var(--text3);font-size:var(--fs-md);padding:8px;cursor:pointer;flex-shrink:0}
+.quiron-history-empty{color:var(--text2);font-size:var(--fs-base);text-align:center;padding:16px 8px}

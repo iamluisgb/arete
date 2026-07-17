@@ -13,6 +13,8 @@ import { esc } from '../utils.js';
 import { toast } from './toast.js';
 
 const CONVO_KEY = 'areteQuiron';
+const ARCHIVE_KEY = 'areteQuironArchive';
+const ARCHIVE_MAX = 15;
 const GATHER_MAX_ROUNDS = 3;
 
 const CHIPS = [
@@ -38,6 +40,58 @@ function loadConvo() {
 function saveConvo() {
   try { localStorage.setItem(CONVO_KEY, JSON.stringify(convo)); }
   catch { /* llena: la conversación es prescindible */ }
+}
+
+// ── Archivo de conversaciones (local, fuera del backup de Drive) ────────────
+// Al empezar una nueva conversación, la actual se archiva (cap 15, FIFO).
+// El histórico durable del entrenamiento vive en la db; esto es solo para no
+// perder un análisis reciente al abrir un tema nuevo.
+
+function loadArchive() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ARCHIVE_KEY));
+    return Array.isArray(a) ? a : [];
+  } catch { return []; }
+}
+function saveArchive(a) {
+  try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a.slice(0, ARCHIVE_MAX))); }
+  catch { /* llena */ }
+}
+function archiveCurrent() {
+  if (!convo.some(m => m.role === 'assistant')) return;   // nada que guardar
+  const title = (convo.find(m => m.role === 'user')?.content || 'Conversación').slice(0, 60);
+  saveArchive([{ ts: Date.now(), title, messages: convo }, ...loadArchive()]);
+}
+
+function renderHistoryList() {
+  const list = document.getElementById('quironHistoryList');
+  const arch = loadArchive();
+  if (!arch.length) {
+    list.innerHTML = '<p class="quiron-history-empty">Sin conversaciones guardadas. Al pulsar “nueva conversación”, la actual se guarda aquí.</p>';
+    return;
+  }
+  list.innerHTML = arch.map((c, i) => {
+    const d = new Date(c.ts);
+    const when = d.toLocaleDateString('es', { day: 'numeric', month: 'short' }) + ' · ' +
+      d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    const n = c.messages.filter(m => m.role !== 'data').length;
+    return `<div class="quiron-history-item" data-idx="${i}">
+      <div class="qh-text"><div class="qh-title">${esc(c.title)}</div><div class="qh-meta">${when} · ${n} mensajes</div></div>
+      <button class="qh-del" data-del="${i}" aria-label="Borrar">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function resumeConversation(idx) {
+  const arch = loadArchive();
+  const c = arch[idx];
+  if (!c) return;
+  archiveCurrent();
+  // La retomada sale del archivo (vuelve a ser la activa)
+  saveArchive(loadArchive().filter(x => x.ts !== c.ts));
+  convo = c.messages;
+  saveConvo();
+  renderConvo();
 }
 
 // Contexto de programas para el snapshot (resuelto aquí; context.js queda puro)
@@ -310,9 +364,34 @@ export function initQuiron(db) {
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);
   document.getElementById('quironNewBtn').addEventListener('click', () => {
     if (busy) abortCtrl?.abort();
+    archiveCurrent();
     convo = [];
     saveConvo();
     renderConvo();
+  });
+
+  // Historial de conversaciones
+  const historyModal = document.getElementById('quironHistoryModal');
+  document.getElementById('quironHistoryBtn').addEventListener('click', () => {
+    renderHistoryList();
+    historyModal.classList.add('open');
+  });
+  document.getElementById('quironHistoryClose').addEventListener('click', () => historyModal.classList.remove('open'));
+  historyModal.addEventListener('click', (e) => {
+    if (e.target === historyModal) { historyModal.classList.remove('open'); return; }
+    const del = e.target.closest('.qh-del');
+    if (del) {
+      const arch = loadArchive();
+      arch.splice(parseInt(del.dataset.del), 1);
+      saveArchive(arch);
+      renderHistoryList();
+      return;
+    }
+    const item = e.target.closest('.quiron-history-item');
+    if (item && !busy) {
+      resumeConversation(parseInt(item.dataset.idx));
+      historyModal.classList.remove('open');
+    }
   });
 
   els.send.addEventListener('click', () => {

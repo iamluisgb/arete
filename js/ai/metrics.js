@@ -129,9 +129,11 @@ export function recentPRs(workouts, days = 30, ref = new Date()) {
   return prs.sort((a, b) => b.rm - a.rm);
 }
 
-/** Tendencia de peso corporal: último registro y delta vs ~30 días atrás */
+/** Tendencia de peso corporal: último registro y delta vs ~30 días atrás.
+ *  El campo real de la app es 'peso' (ver bodyMeasures en programs.json). */
+const logWeight = (l) => l.peso ?? l.weight ?? 0;
 export function bodyTrend(bodyLogs, ref = new Date()) {
-  const withWeight = (bodyLogs || []).filter(l => l.weight > 0).sort((a, b) => a.date.localeCompare(b.date));
+  const withWeight = (bodyLogs || []).filter(l => logWeight(l) > 0).sort((a, b) => a.date.localeCompare(b.date));
   if (!withWeight.length) return null;
   const latest = withWeight[withWeight.length - 1];
   // Registro más cercano a 30 días antes del último (no de hoy: el usuario puede llevar sin pesarse)
@@ -141,8 +143,8 @@ export function bodyTrend(bodyLogs, ref = new Date()) {
     if (gap >= 20 && (!past || gap < daysAgo(past.date, new Date(latest.date + 'T12:00:00')))) past = l;
   }
   return {
-    weight: latest.weight, date: latest.date,
-    delta30: past ? Math.round((latest.weight - past.weight) * 10) / 10 : null,
+    weight: logWeight(latest), date: latest.date,
+    delta30: past ? Math.round((logWeight(latest) - logWeight(past)) * 10) / 10 : null,
   };
 }
 

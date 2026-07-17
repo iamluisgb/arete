@@ -2,3 +2,7 @@ PLAN-9-10.md
 PLAN-EVOLUCION.md
 node_modules/
 stitch/
+
+# Datos personales y salidas de evals (el repo es público)
+evals/fixtures/
+evals/out/
