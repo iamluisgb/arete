@@ -7,5 +7,5 @@ export const DEFAULT_AGE = 32;
 export const DEFAULT_TIMER_DURATION = 120;
 export const REVISION_PREVIEW_LIMIT = 20;
 export const LOCALE = 'es';
-export const APP_VERSION = '2.0.0';
+export const APP_VERSION = '2.1.0';
 export const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];

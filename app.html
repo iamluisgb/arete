@@ -259,6 +259,38 @@
   </div>
   <a href="blog/crear-plan.html" class="create-plan-link">¿No tienes un plan? Aprende a crear uno</a>
 
+  <div class="sec-title sec-title-accent sec-title-mt">Quirón (IA)</div>
+  <div class="settings-card">
+    <div class="sc-row" style="flex-direction:column;align-items:stretch;gap:10px">
+      <div>
+        <label>Proveedor</label>
+        <select id="quironProvider">
+          <option value="nan">nan</option>
+          <option value="openai">OpenAI</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+      <div>
+        <label>Base URL</label>
+        <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div>
+        <label>API key</label>
+        <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
+        <div class="input-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</div>
+      </div>
+      <div>
+        <label>Modelo</label>
+        <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <datalist id="quironModelList"></datalist>
+      </div>
+      <button class="btn btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
+      <div id="quironAiStatus" class="drive-status"></div>
+    </div>
+  </div>
+
   <div class="sec-title sec-title-accent sec-title-mt">Google Drive</div>
   <div class="settings-card">
     <div class="sc-row sc-row-toggle">
@@ -760,6 +792,26 @@
   </div>
   <button class="btn btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
+<button id="quironFab" aria-label="Quirón, tu coach"><span class="material-symbols-outlined">psychology</span></button>
+<div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
+  <div class="quiron-header">
+    <div class="quiron-title"><span class="material-symbols-outlined">psychology</span> QUIRÓN <span class="quiron-sub">tu coach</span></div>
+    <button class="quiron-hbtn" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span></button>
+    <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div class="quiron-msgs" id="quironMsgs"></div>
+  <div class="quiron-setup" id="quironSetup" hidden>
+    <div class="quiron-setup-icon">🏹</div>
+    <p><strong>Quirón necesita un proveedor de IA.</strong></p>
+    <p>Configura tu API key para hablar con tu coach. Tus datos de entrenamiento no salen de tu dispositivo salvo hacia el proveedor que tú elijas.</p>
+    <button class="btn btn-sm" id="quironGoSettings">Ir a Ajustes</button>
+  </div>
+  <div class="quiron-chips" id="quironChips"></div>
+  <div class="quiron-inputbar" id="quironInputBar">
+    <textarea id="quironInput" rows="1" placeholder="Pregunta a tu coach…" enterkeyhint="send"></textarea>
+    <button id="quironSendBtn" aria-label="Enviar"><span class="material-symbols-outlined">arrow_upward</span></button>
+  </div>
+</div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div class="onboarding-overlay" id="onboarding">
   <div class="onboarding-card">

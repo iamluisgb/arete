@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v98';
+const CACHE_NAME = 'arete-v99';
 const ASSETS = [
   './',
   './app.html',
@@ -52,7 +52,13 @@ const ASSETS = [
   './js/ui/timer.js',
   './js/ui/toast.js',
   './js/ui/drive-ui.js',
-  './js/drive.js'
+  './js/drive.js',
+  './js/ui/quiron.js',
+  './js/ai/llm.js',
+  './js/ai/metrics.js',
+  './js/ai/context.js',
+  './js/ai/tools.js',
+  './js/ai/soul.js'
 ];
 
 // Install: cache all assets and activate immediately

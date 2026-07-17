@@ -15,6 +15,7 @@ import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
 import { renderDashboard } from './ui/dashboard.js';
+import { initQuiron } from './ui/quiron.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
@@ -309,6 +310,7 @@ function bindEvents() {
   });
   initBody(db);
   initRunning(db);
+  initQuiron(db);
   restoreLastTab(db);
 
   // Program selector modal
