@@ -912,3 +912,21 @@ body.quiron-open #quironFab{display:none}
 .quiron-history-empty{color:var(--text2);font-size:var(--fs-base);text-align:center;padding:16px 8px}
 .q-report-choice{align-self:flex-start;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:var(--fs-md);color:var(--text2)}
 .q-report-choice span{width:100%}
+
+/* ── Propuesta de plan de Quirón (Fase 5.0) ───────────────── */
+.q-proposal{align-self:stretch;background:var(--surface);border:1px solid var(--accent-soft);border-radius:16px;padding:14px;margin:2px 0 6px;display:flex;flex-direction:column;gap:10px}
+:root.dark .q-proposal{background:var(--surface2)}
+.q-proposal.applied{border-color:var(--border);opacity:.85}
+.q-prop-head{display:flex;align-items:flex-start;gap:10px}
+.q-prop-head .material-symbols-outlined{color:var(--accent);font-size:22px;flex-shrink:0}
+.q-prop-titles{min-width:0}
+.q-prop-title{font-size:var(--fs-lg);font-weight:700;line-height:1.2}
+.q-prop-tag{font-size:var(--fs-sm);color:var(--text2);margin-top:2px}
+.q-prop-summary{font-size:var(--fs-md);color:var(--text);line-height:1.45}
+.q-prop-toggle{align-self:flex-start;background:none;border:none;color:var(--accent);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:0;cursor:pointer}
+.q-prop-detail{display:flex;flex-direction:column;gap:4px;background:var(--surface2);border-radius:10px;padding:10px 12px}
+:root.dark .q-prop-detail{background:rgba(0,0,0,.25)}
+.q-prop-line{font-size:var(--fs-base);color:var(--text);line-height:1.4}
+.q-prop-actions{display:flex;gap:8px}
+.q-prop-actions .btn{flex:1}
+.q-proposal.applied .q-prop-apply{background:var(--green);box-shadow:none}

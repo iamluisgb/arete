@@ -310,7 +310,17 @@ function bindEvents() {
   });
   initBody(db);
   initRunning(db);
-  initQuiron(db);
+  // Quirón puede crear/editar planes: al aplicar o deshacer, refrescar la UI que
+  // depende del programa activo (selector, fase, sesiones, sección visible, lista custom).
+  initQuiron(db, {
+    onProgramsChanged: () => {
+      updatePhaseUI(db);
+      populateSessions(db);
+      renderProgramSelector();
+      renderCustomProgramsList();
+      refreshActiveSection(db);
+    },
+  });
   restoreLastTab(db);
 
   // Program selector modal

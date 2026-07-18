@@ -6,11 +6,18 @@
 
 import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport } from '../ai/context.js';
-import { QUIRON_TOOLS, makeToolExecutor } from '../ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
-import { getPrograms, getProgramList, getAllPhases, getRunningProgramList } from '../programs.js';
+import {
+  getPrograms, getProgramList, getAllPhases, getRunningProgramList,
+  validateProgram, applyProgramProposal, undoProgramCommit, getProgramById,
+  isBuiltinProgram, programPhaseKeys,
+} from '../programs.js';
 import { esc } from '../utils.js';
 import { toast } from './toast.js';
+
+// Callback para refrescar la app subyacente tras aplicar/deshacer un plan.
+let onProgramsChanged = () => {};
 
 const CONVO_KEY = 'areteQuiron';
 const ARCHIVE_KEY = 'areteQuironArchive';
@@ -27,6 +34,7 @@ const CHIPS = [
 let convo = [];          // [{role:'user'|'assistant'|'data', content}] — solo lo persistente
                          // 'data' = resultados de herramientas: no se pinta y viaja como 'user'
                          // (nan solo admite mensajes 'system' en el índice 0)
+let dbRef = null;        // referencia a la db (para re-render de tarjetas persistidas)
 let busy = false;
 let abortCtrl = null;
 let els = {};
@@ -138,7 +146,10 @@ function renderConvo() {
   els.msgs.innerHTML = '';
   for (const m of convo) {
     if (m.role === 'user') appendBubble('user', mdLite(m.label || m.content));
-    else if (m.role === 'assistant') appendBubble('assistant', mdLite(m.content));
+    else if (m.role === 'assistant') {
+      if (m.content?.trim()) appendBubble('assistant', mdLite(m.content));
+      if (m.proposals) for (const p of m.proposals) els.msgs.appendChild(renderProposalCard(dbRef, p, m));
+    }
     // 'data' (datos recuperados / informe): no se pinta
   }
   updateChips();
@@ -198,20 +209,28 @@ async function send(db, text, opts = {}) {
       : { role: m.role, content: m.content };
     const history = convo.map(toApi);
 
-    // 1) Recolección: el modelo pide herramientas si el snapshot no basta.
+    // 1) Recolección + propuestas: el modelo pide herramientas de lectura si el
+    //    snapshot no basta, y puede proponer escrituras (propose_program) que NO se
+    //    aplican: se recogen para mostrar una tarjeta de confirmación tras el turno.
     const gathered = [];
+    const proposals = [];
     if (!opts.skipGather) {
+      const executor = makeToolExecutor(db, {
+        getPrograms,
+        validateProgram,
+        onProposal: (p) => proposals.push(p),
+      });
       try {
         await LLM.chatToolsLoop({
           messages: [
             system,
             ...history,
-            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Antes de responder: si necesitas histórico que no esté en el snapshot, pide las herramientas necesarias. Cuando tengas los datos (o si el snapshot ya basta), responde exactamente "LISTO". NO respondas aún al atleta.' },
+            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) Si el atleta pide CREAR o EDITAR un plan: es OBLIGATORIO que llames a propose_program con el plan COMPLETO en JSON (consulta antes su e1RM/marca para calibrar). NO escribas el plan como tabla ni texto — la app SOLO lo puede aplicar si viene por propose_program. Si respondes "LISTO" sin haber llamado a propose_program cuando se pide un plan, el plan se pierde.\n3) Cuando tengas los datos y (si procede) hayas registrado la propuesta, responde exactamente "LISTO". NO respondas aún al atleta.' },
           ],
-          tools: QUIRON_TOOLS,
+          tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
           execute: async (name, args) => {
-            const out = await makeToolExecutor(db, { getPrograms })(name, args);
-            gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
+            const out = await executor(name, args);
+            if (name !== 'propose_program') gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
             return out;
           },
           maxRounds: GATHER_MAX_ROUNDS,
@@ -228,7 +247,34 @@ async function send(db, text, opts = {}) {
       history.push(toApi(convo[convo.length - 1]));
     }
 
-    // 2) Respuesta final, streameada.
+    // 2a) Si el modelo pidió crear/editar un plan: la app lo GENERA (JSON-en-contenido,
+    //     fiable) y muestra la tarjeta de confirmación. No pasa por el stream normal.
+    const planRequests = proposals.filter(p => p.type === 'program_request');
+    if (planRequests.length) {
+      bubble.innerHTML = '<span class="q-typing">generando tu plan…</span>';
+      const built = [];
+      const proseParts = [];
+      for (const req of planRequests) {
+        try {
+          const { program, prose } = await generatePlan(db, req, signal);
+          proseParts.push(prose);
+          built.push({ type: 'program', program, basedOn: req.basedOn || null, summary: program._meta?.desc || '', id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` });
+        } catch (e) {
+          if (e.name === 'AbortError') throw e;
+          proseParts.push(`No pude generar el plan: ${e.message}`);
+        }
+      }
+      const proseText = proseParts.filter(Boolean).join('\n\n') || 'Aquí tienes el plan para revisar.';
+      bubble.innerHTML = mdLite(proseText);
+      const msg = { role: 'assistant', content: proseText, proposals: built };
+      convo.push(msg);
+      saveConvo();
+      for (const p of built) els.msgs.appendChild(renderProposalCard(db, p, msg));
+      els.msgs.scrollTop = els.msgs.scrollHeight;
+      return;
+    }
+
+    // 2b) Respuesta final, streameada.
     let full = '';
     let truncated = false;
     await LLM.chatStream({
@@ -253,6 +299,7 @@ async function send(db, text, opts = {}) {
         btn.addEventListener('click', () => { btn.remove(); send(db, 'Continúa exactamente donde lo dejaste.'); });
         els.msgs.appendChild(btn);
       }
+      els.msgs.scrollTop = els.msgs.scrollHeight;
     }
   } catch (e) {
     if (e.name === 'AbortError') {
@@ -295,6 +342,134 @@ function offerReport(db) {
     card.remove();
     sendReport(db, b.dataset.period);
   });
+}
+
+// ── Generación de planes (Fase 5.4): JSON-en-contenido ──────────────────────
+// Los modelos rellenan mal objetos JSON grandes como argumentos de tool, pero sí
+// emiten JSON grande fiablemente en el contenido. Pedimos prosa + un bloque ```json,
+// extraemos y validamos; reintenta una vez con el error de validación.
+
+const PLAN_SCHEMA_HELP = `Forma EXACTA del plan (schema de Areté):
+- Fuerza: { "_meta": { "name": "...", "desc": "..." }, "1": { "name": "Semana 1", "desc": "...", "sessions": { "Día 1": [ { "name": "Sentadilla", "sets": 3, "reps": "5", "type": "main", "kg": 90 } ] } }, "2": { ... } }
+- Running: añade "_meta": { ..., "sport": "running" }; los bloques de sesión llevan { "name", "mode": "run-steady"|"run-intervals", "duration", "zone", "pace", "distance", "reps" }.
+Una clave numérica ("1","2",...) por fase o semana. type: "main" | "assist" | "hiit". En fuerza, incluye "kg" objetivo cuando puedas calibrar con el e1RM. Devuelve UN solo bloque \`\`\`json, sin texto después.`;
+
+function extractJsonBlock(text) {
+  const m = text.match(/```json\s*([\s\S]*?)```/) || text.match(/```\s*([\s\S]*?)```/);
+  return m ? { json: m[1].trim(), prose: text.slice(0, m.index).trim() } : { json: null, prose: text.trim() };
+}
+
+async function generatePlan(db, req, signal) {
+  const snapshot = buildSnapshot(db, progContext(db));
+  let editContext = '';
+  if (req.basedOn) {
+    const base = getProgramById(req.basedOn);
+    if (base) {
+      const { _revisions, ...clean } = base;
+      editContext = `\n\nEDITAS el plan existente "${base._meta?.name}" (id ${req.basedOn}). Su JSON actual es:\n${JSON.stringify(clean)}\nAplica los cambios pedidos y devuelve el plan ENTERO ya modificado.`;
+    }
+  }
+  const ask = (extra) => [
+    buildSystemMessage(snapshot),
+    { role: 'user', content: `Genera un plan de entrenamiento. Objetivo: ${req.goal}.${editContext}\n\nResponde en DOS partes: (1) 2-3 frases en prosa explicando la calibración con mis datos y una nota de seguridad; (2) un ÚNICO bloque \`\`\`json con el plan completo.\n\n${PLAN_SCHEMA_HELP}${extra || ''}` },
+  ];
+
+  let lastErr = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const extra = attempt === 0 ? '' : `\n\nEl intento anterior falló: ${lastErr}. Corrígelo y devuelve el plan completo.`;
+    const full = await LLM.chatStream({ messages: ask(extra), maxTokens: 4096, signal });
+    const { json, prose } = extractJsonBlock(full);
+    if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
+    let parsed;
+    try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
+    const err = validateProgram(parsed);
+    if (err) { lastErr = err; continue; }
+    return { program: parsed, prose: prose || 'Te he preparado este plan. Revísalo y aplícalo si te encaja.' };
+  }
+  throw new Error(lastErr || 'no se pudo generar un plan válido');
+}
+
+// ── Propuestas de escritura (Fase 5.0): tarjeta de confirmación ──────────────
+
+function planStructure(program) {
+  return programPhaseKeys(program).map(k => {
+    const ph = program[k] || {};
+    const sess = Object.keys(ph.sessions || {});
+    return `${ph.name || 'Fase ' + k}: ${sess.length} sesión(es)${sess.length ? ' — ' + sess.join(', ') : ''}`;
+  });
+}
+
+// Renderiza la tarjeta de una propuesta de plan. `p` es mutable (p.applied) y vive
+// en el mensaje del asistente (persiste en la conversación).
+function renderProposalCard(db, p, msg) {
+  const card = document.createElement('div');
+  card.className = 'q-proposal';
+  const program = p.program || {};
+  const name = program._meta?.name || 'Plan';
+  const isRunning = program._meta?.sport === 'running';
+  let actionLabel = 'Nuevo plan';
+  if (p.basedOn) {
+    const base = getProgramById(p.basedOn);
+    const baseName = base?._meta?.name || p.basedOn;
+    actionLabel = isBuiltinProgram(p.basedOn) ? `Adaptación de ${esc(baseName)}` : `Edición de ${esc(baseName)}`;
+  }
+  const nPhases = programPhaseKeys(program).length;
+  const detail = planStructure(program).map(s => `<div class="q-prop-line">${esc(s)}</div>`).join('');
+
+  card.innerHTML = `
+    <div class="q-prop-head">
+      <span class="material-symbols-outlined">assignment</span>
+      <div class="q-prop-titles">
+        <div class="q-prop-title">${esc(name)}</div>
+        <div class="q-prop-tag">${actionLabel} · ${nPhases} ${isRunning ? 'semanas' : 'fases'}</div>
+      </div>
+    </div>
+    ${p.summary ? `<div class="q-prop-summary">${esc(p.summary)}</div>` : ''}
+    <button class="q-prop-toggle" type="button">Ver plan</button>
+    <div class="q-prop-detail" hidden>${detail}</div>
+    <div class="q-prop-actions">
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
+    </div>`;
+
+  const applyBtn = card.querySelector('.q-prop-apply');
+  const discardBtn = card.querySelector('.q-prop-discard');
+  const paint = () => {
+    applyBtn.textContent = p.applied ? '✓ Aplicado' : 'Aplicar plan';
+    applyBtn.disabled = !!p.applied;
+    discardBtn.style.display = p.applied ? 'none' : '';
+    card.classList.toggle('applied', !!p.applied);
+  };
+  paint();
+
+  card.querySelector('.q-prop-toggle').addEventListener('click', (e) => {
+    const d = card.querySelector('.q-prop-detail');
+    d.hidden = !d.hidden;
+    e.target.textContent = d.hidden ? 'Ver plan' : 'Ocultar';
+  });
+  discardBtn.addEventListener('click', () => card.remove());
+  applyBtn.addEventListener('click', () => {
+    if (p.applied) return;
+    let token;
+    try { ({ token } = applyProgramProposal(db, p)); }
+    catch (e) { toast('No se pudo aplicar: ' + e.message, 'error'); return; }
+    p.applied = true;
+    saveConvo();
+    paint();
+    onProgramsChanged();
+    toast(`Plan aplicado — ${name}`, 'success', {
+      action: 'Deshacer',
+      onAction: () => {
+        undoProgramCommit(db, token);
+        p.applied = false;
+        saveConvo();
+        paint();
+        onProgramsChanged();
+        toast('Cambio deshecho', 'info');
+      },
+    });
+  });
+  return card;
 }
 
 function autoGrow() {
@@ -372,7 +547,9 @@ function persistSettings() {
 
 // ── Init ────────────────────────────────────────────────────────────────────
 
-export function initQuiron(db) {
+export function initQuiron(db, opts = {}) {
+  dbRef = db;
+  if (typeof opts.onProgramsChanged === 'function') onProgramsChanged = opts.onProgramsChanged;
   els = {
     fab: document.getElementById('quironFab'),
     panel: document.getElementById('quironPanel'),

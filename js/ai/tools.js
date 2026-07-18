@@ -75,6 +75,31 @@ export const QUIRON_TOOLS = [
   },
 ];
 
+// Herramientas de ESCRITURA (Fase 5.0). No mutan la db: registran una PROPUESTA que
+// la app muestra al atleta para confirmar (patrón proponer→preview→confirmar→deshacer).
+// Se activan solo en el chat normal (no en el informe).
+// La tool es una SEÑAL LIGERA de intención (no el plan entero): los modelos rellenan
+// mal objetos JSON grandes como argumentos de tool, pero sí describen el objetivo en
+// una frase. Cuando el modelo la llama, la app genera el JSON real con una llamada
+// dedicada (JSON-en-contenido, fiable) y muestra la tarjeta de confirmación.
+export const QUIRON_WRITE_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'propose_program',
+      description: 'Úsala cuando el atleta pida CREAR o EDITAR un plan de entrenamiento. No emites el plan aquí: describes en `goal` qué plan hay que generar (deporte, días/semana, duración, ejercicios/objetivo, progresión) y la app lo construye y se lo muestra para confirmar. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas objetivo en `goal`.',
+      parameters: {
+        type: 'object',
+        properties: {
+          goal: { type: 'string', description: 'Descripción completa del plan a generar, en una o dos frases, incluyendo cargas/ritmos de referencia del atleta si aplican.' },
+          basedOn: { type: 'string', description: 'Opcional: id del plan que se edita (bifurca si es de fábrica, versiona si es custom). Omitir para un plan nuevo.' },
+        },
+        required: ['goal'],
+      },
+    },
+  },
+];
+
 const fmtDur = (s) => {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
   return h ? `${h}h${String(m).padStart(2, '0')}` : `${m}min`;
@@ -91,10 +116,20 @@ function inRange(date, from, to) {
  * Ejecutor de herramientas sobre la db. Devuelve SIEMPRE strings compactos
  * (es lo que se manda de vuelta al modelo como mensaje `tool`).
  * @param {Object} db
- * @param {Object} progFns  { getPrograms } — inyectable para tests
+ * @param {Object} deps  { getPrograms, validateProgram, onProposal } — inyectable para tests.
+ *   Las tools de lectura solo usan getPrograms; las de escritura, validateProgram + onProposal.
  */
-export function makeToolExecutor(db, progFns = {}) {
+export function makeToolExecutor(db, deps = {}) {
+  const progFns = deps;   // alias: las tools de lectura ya usaban `progFns.getPrograms`
   return async function execute(name, args = {}) {
+    // ── Escritura: señal de intención (la app genera el plan real y lo confirma) ──
+    if (name === 'propose_program') {
+      const goal = String(args.goal || '').trim();
+      if (!goal) return 'ERROR: falta `goal` describiendo el plan a generar.';
+      if (deps.onProposal) deps.onProposal({ type: 'program_request', goal, basedOn: args.basedOn || null });
+      return 'Solicitud de plan registrada. La app generará el plan y se lo mostrará al atleta para confirmar. En tu respuesta, dile en una frase que le has preparado un plan para revisar (sin listar el detalle).';
+    }
+
     if (name === 'get_exercise_history') {
       const q = String(args.name || '').toLowerCase().trim();
       if (!q) return 'ERROR: falta el nombre del ejercicio.';

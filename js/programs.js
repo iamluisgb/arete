@@ -150,6 +150,101 @@ export function deleteCustomProgram(db, id) {
   }
 }
 
+// ── Escritura de planes por Quirón (Fase 5.0/5.2/5.4) ───────────────────────
+// Primitiva de seguridad: un plan propuesto NO se aplica solo. Cuando se aplica:
+//  - Plan nuevo → custom nuevo.
+//  - basedOn = plan de FÁBRICA → bifurca a un custom con `_forkedFrom` (el de fábrica,
+//    que es un fichero de solo lectura, queda intacto).
+//  - basedOn = plan CUSTOM → versiona: empuja el estado actual a `_revisions` (pila
+//    FIFO) y reemplaza el contenido. El original queda recuperable.
+// Todo cambio devuelve un token de undo (snapshot) que `undoProgramCommit` restaura.
+
+const REVISIONS_MAX = 10;
+
+/** @returns {Object|null} programa (de fábrica o custom) por id */
+export function getProgramById(id) {
+  return ALL_PROGRAMS[id] || ALL_RUNNING_PROGRAMS[id] || null;
+}
+
+const META_KEYS = new Set(['_meta', '_customId', '_forkedFrom', '_revisions']);
+/** @returns {string[]} claves de fase de un objeto-programa (sin metadatos) */
+export function programPhaseKeys(program) {
+  return Object.keys(program || {}).filter(k => !META_KEYS.has(k));
+}
+
+/** Re-sincroniza las entradas CUSTOM del registro en memoria desde db (las de fábrica no se tocan) */
+export function reindexCustomPrograms(db) {
+  for (const id of Object.keys(ALL_PROGRAMS)) if (!BUILTIN_IDS.has(id)) delete ALL_PROGRAMS[id];
+  for (const id of Object.keys(ALL_RUNNING_PROGRAMS)) if (!BUILTIN_IDS.has(id)) delete ALL_RUNNING_PROGRAMS[id];
+  for (const cp of getCustomPrograms(db)) {
+    if (cp._meta?.sport === 'running') ALL_RUNNING_PROGRAMS[cp._customId] = cp;
+    else ALL_PROGRAMS[cp._customId] = cp;
+  }
+}
+
+/**
+ * Aplica una propuesta de plan ya validada. Devuelve { token, id, action } donde
+ * `token` sirve para deshacer y `action` es 'create' | 'fork' | 'revise'.
+ */
+export function applyProgramProposal(db, proposal) {
+  const token = {
+    customPrograms: JSON.parse(JSON.stringify(db.customPrograms || [])),
+    program: db.program, phase: db.phase,
+    runningProgram: db.runningProgram, runningWeek: db.runningWeek,
+  };
+  if (!Array.isArray(db.customPrograms)) db.customPrograms = [];
+  const { program, basedOn } = proposal;
+  const isRunning = program._meta?.sport === 'running';
+  let id, action;
+
+  if (basedOn && !isBuiltinProgram(basedOn)) {
+    // Versionar un custom existente: empujar versión actual a _revisions y reemplazar.
+    const idx = db.customPrograms.findIndex(p => p._customId === basedOn);
+    if (idx >= 0) {
+      const cur = db.customPrograms[idx];
+      const { _customId, _forkedFrom, _revisions = [], ...content } = cur;
+      const revs = [{ ts: Date.now(), snapshot: content }, ..._revisions].slice(0, REVISIONS_MAX);
+      const next = { ...program, _customId, _revisions: revs };
+      if (_forkedFrom) next._forkedFrom = _forkedFrom;
+      db.customPrograms[idx] = next;
+      id = _customId; action = 'revise';
+      saveDB(db);
+      reindexCustomPrograms(db);
+    }
+  }
+
+  if (!id) {
+    // Plan nuevo, o bifurcación de uno de fábrica (que queda intacto).
+    const tagged = { ...program };
+    if (basedOn && isBuiltinProgram(basedOn)) tagged._forkedFrom = basedOn;
+    id = importCustomProgram(db, tagged);   // fija _customId, persiste e indexa
+    action = basedOn ? 'fork' : 'create';
+  }
+
+  // Activar el plan resultante para que el resto de la app lo use.
+  if (isRunning) {
+    db.runningProgram = id; db.runningWeek = 1;
+  } else {
+    db.program = id;
+    db.phase = parseInt(programPhaseKeys(program)[0]) || 1;
+    setActiveProgram(id);
+  }
+  saveDB(db);
+  return { token, id, action };
+}
+
+/** Deshace un applyProgramProposal restaurando el snapshot */
+export function undoProgramCommit(db, token) {
+  db.customPrograms = token.customPrograms;
+  db.program = token.program;
+  db.phase = token.phase;
+  db.runningProgram = token.runningProgram;
+  db.runningWeek = token.runningWeek;
+  saveDB(db);
+  reindexCustomPrograms(db);
+  setActiveProgram(db.program || 'arete');
+}
+
 // ── Running programs ────────────────────────────────────
 
 /** @returns {Array<{id:string, name:string, desc:string}>} All running programs */
