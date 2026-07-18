@@ -1,7 +1,7 @@
 // Fase 5.0 — primitiva de escritura: versionado de planes + tool propose_program.
 import { describe, it, expect, beforeEach } from 'vitest';
 import { applyProgramProposal, undoProgramCommit } from '../js/programs.js';
-import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout } from '../js/data.js';
+import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../js/data.js';
 import { makeToolExecutor } from '../js/ai/tools.js';
 
 beforeEach(() => { localStorage.clear(); });
@@ -129,5 +129,46 @@ describe('ingesta de workouts', () => {
     undoWorkout(db, { id });
     expect(db.workouts).toHaveLength(0);
     expect(db.deletedIds).toContain(id);   // no se resucita en un merge
+  });
+});
+
+describe('ingesta de carreras', () => {
+  const raw = { sport: 'running', date: '2026-07-18', session: 'Rodaje mañana', type: 'rodaje', distance: 8.2, duration: '45:30', pace: '5:33' };
+
+  it('valida: exige distancia o duración', () => {
+    expect(validateRun(raw)).toBeNull();
+    expect(validateRun({ distance: 0, duration: 0 })).toBeTruthy();
+    expect(validateRun({ duration: '30:00' })).toBeNull();   // solo duración basta
+    expect(validateRun(null)).toBeTruthy();
+  });
+
+  it('normaliza tiempos "mm:ss" a segundos y respeta el tipo', () => {
+    const n = normalizeRun(raw);
+    expect(n.duration).toBe(45 * 60 + 30);   // 2730 s
+    expect(n.pace).toBe(5 * 60 + 33);        // 333 s/km
+    expect(n.distance).toBe(8.2);
+    expect(n.type).toBe('rodaje');
+    expect(n.source).toBe('ingest');
+  });
+
+  it('calcula el ritmo si falta (duración/distancia) y descarta tipos inválidos', () => {
+    const n = normalizeRun({ distance: 10, duration: '50:00', type: 'inventado' });
+    expect(n.pace).toBe(300);                 // 3000 s / 10 km
+    expect(n.type).toBe('libre');             // tipo desconocido → libre
+  });
+
+  it('aplica la carrera a runningLogs (no a workouts); undo la revierte', () => {
+    const db = { ...freshDB(), runningLogs: [], runningProgram: 'c25k' };
+    const { id, kind } = applyRun(db, raw);
+    expect(kind).toBe('run');
+    expect(db.runningLogs).toHaveLength(1);
+    expect(db.workouts).toHaveLength(0);      // NO cae en fuerza
+    const r = db.runningLogs[0];
+    expect(r.id).toBe(id);
+    expect(r.program).toBe('c25k');
+    expect(r.distance).toBe(8.2);
+    undoRun(db, { id });
+    expect(db.runningLogs).toHaveLength(0);
+    expect(db.deletedIds).toContain(id);
   });
 });

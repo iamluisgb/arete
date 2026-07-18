@@ -13,8 +13,9 @@ import {
   validateProgram, applyProgramProposal, undoProgramCommit, getProgramById,
   isBuiltinProgram, programPhaseKeys,
 } from '../programs.js';
-import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout } from '../data.js';
+import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
+import { formatPace, formatRunDuration } from './running-helpers.js';
 import { toast } from './toast.js';
 
 // Callback para refrescar la app subyacente tras aplicar/deshacer un plan.
@@ -265,9 +266,9 @@ async function send(db, text, opts = {}) {
             built.push({ type: 'program', program, basedOn: req.basedOn || null, summary: program._meta?.desc || '', id: uid() });
           } else {
             bubble.innerHTML = '<span class="q-typing">estructurando el entreno…</span>';
-            const { workout, prose } = await generateWorkout(db, req, signal);
+            const { sport, workout, run, prose } = await generateWorkout(db, req, signal);
             proseParts.push(prose);
-            built.push({ type: 'workout', workout, id: uid() });
+            built.push({ type: 'workout', sport, workout, run, id: uid() });
           }
         } catch (e) {
           if (e.name === 'AbortError') throw e;
@@ -401,9 +402,25 @@ async function generatePlan(db, req, signal) {
 
 // ── Ingesta de entrenos (Fase 5.1): estructurar texto → workout JSON ─────────
 
-const WORKOUT_SCHEMA_HELP = `Forma EXACTA del entreno (JSON):
-{ "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" }, { "kg": "100", "reps": "5" } ] } ] }
-Reglas: una entrada por serie en "sets" (si dice "5x5 a 100", son 5 series de kg 100 reps 5). kg y reps como texto; kg "" si es peso corporal. Sé FIEL a lo que dice el atleta: no inventes series ni pesos. Devuelve UN solo bloque \`\`\`json, sin texto después.`;
+const WORKOUT_SCHEMA_HELP = `Forma EXACTA (JSON). Primero detecta el DEPORTE:
+- FUERZA → { "sport": "strength", "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" }, { "kg": "100", "reps": "5" } ] } ] }
+- CARRERA/RUNNING → { "sport": "running", "date": "YYYY-MM-DD", "session": "nombre corto", "type": "rodaje", "distance": 8.2, "duration": "45:30", "pace": "5:33", "notes": "" }
+Reglas fuerza: una entrada por serie en "sets" (si dice "5x5 a 100", son 5 series de kg 100 reps 5). kg y reps como texto; kg "" si es peso corporal.
+Reglas running: "distance" en km (decimal). "duration" y "pace" como "mm:ss" o "h:mm:ss". "type" uno de: rodaje, intervalos, tempo, fartlek, cuestas, competicion, libre. Convierte millas a km (1 mi = 1.609 km) si aplica y anótalo en notes.
+Sé FIEL a lo que dice el atleta: no inventes. Devuelve UN solo bloque \`\`\`json, sin texto después.`;
+
+// Clasifica un JSON de ingesta como carrera o fuerza y lo valida/normaliza.
+// Devuelve { sport, workout } | { sport, run } | { err }.
+function classifyIngest(parsed) {
+  const isRun = parsed?.sport === 'running'
+    || (!Array.isArray(parsed?.exercises) && (parsed?.distance != null || parsed?.duration != null));
+  if (isRun) {
+    const err = validateRun(parsed);
+    return err ? { err } : { sport: 'running', run: normalizeRun(parsed) };
+  }
+  const err = validateWorkout(parsed);
+  return err ? { err } : { sport: 'strength', workout: normalizeWorkout(parsed) };
+}
 
 async function generateWorkout(db, req, signal) {
   const hoy = new Date().toISOString().slice(0, 10);
@@ -418,9 +435,9 @@ async function generateWorkout(db, req, signal) {
     if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
     let parsed;
     try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
-    const err = validateWorkout(parsed);
-    if (err) { lastErr = err; continue; }
-    return { workout: normalizeWorkout(parsed), prose: prose || 'Entreno listo para revisar.' };
+    const c = classifyIngest(parsed);
+    if (c.err) { lastErr = c.err; continue; }
+    return { ...c, prose: prose || 'Entreno listo para revisar.' };
   }
   throw new Error(lastErr || 'no pude estructurar el entreno');
 }
@@ -450,12 +467,14 @@ function downscaleImage(file) {
   });
 }
 
-const VISION_PROMPT = `Esta es una CAPTURA de una app de registro de entrenamiento (Strong, Hevy, Garmin, Strava u otra). Extrae el entrenamiento a JSON.
+const VISION_PROMPT = `Esta es una CAPTURA de una app de registro de entrenamiento (Strong, Hevy, Garmin, Strava u otra). Primero detecta si es FUERZA (pesas, series/reps) o CARRERA (running: distancia, ritmo, tiempo). Extrae el entrenamiento a JSON con la forma que corresponda:
 
-Forma EXACTA:
-{ "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" } ] } ] }
+- FUERZA → { "sport": "strength", "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" } ] } ] }
+- CARRERA → { "sport": "running", "date": "YYYY-MM-DD", "session": "nombre corto", "type": "rodaje", "distance": 8.2, "duration": "45:30", "pace": "5:33", "notes": "" }
 
-Reglas: una entrada por serie en "sets". kg y reps como texto; kg "" si es peso corporal. Convierte libras a kg si la captura usa lb (1 lb = 0.4536 kg) y anótalo en notes. Usa la fecha de la captura si aparece; si no, déjala vacía. Sé FIEL a lo que se ve: no inventes. Responde con una frase breve y luego UN solo bloque \`\`\`json.`;
+Reglas fuerza: una entrada por serie en "sets". kg y reps como texto; kg "" si es peso corporal. Convierte libras a kg si la captura usa lb (1 lb = 0.4536 kg) y anótalo en notes.
+Reglas running: "distance" en km (convierte millas si hace falta, 1 mi = 1.609 km). "duration" y "pace" como "mm:ss" o "h:mm:ss". "type" uno de: rodaje, intervalos, tempo, fartlek, cuestas, competicion, libre.
+Usa la fecha de la captura si aparece; si no, déjala vacía. Sé FIEL a lo que se ve: no inventes. Responde con una frase breve y luego UN solo bloque \`\`\`json.`;
 
 async function ingestFromImage(db, file, signal) {
   const image = await downscaleImage(file);
@@ -467,9 +486,9 @@ async function ingestFromImage(db, file, signal) {
     if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
     let parsed;
     try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
-    const err = validateWorkout(parsed);
-    if (err) { lastErr = err; continue; }
-    return { workout: normalizeWorkout(parsed), prose: prose || 'He leído la captura. Revisa el entreno antes de guardarlo.' };
+    const c = classifyIngest(parsed);
+    if (c.err) { lastErr = c.err; continue; }
+    return { ...c, prose: prose || 'He leído la captura. Revisa el entreno antes de guardarlo.' };
   }
   throw new Error(lastErr || 'no pude leer el entreno de la captura');
 }
@@ -487,9 +506,9 @@ async function handleImage(db, file) {
   setBusy(true);
   abortCtrl = new AbortController();
   try {
-    const { workout, prose } = await ingestFromImage(db, file, abortCtrl.signal);
+    const { sport, workout, run, prose } = await ingestFromImage(db, file, abortCtrl.signal);
     bubble.innerHTML = mdLite(prose);
-    const p = { type: 'workout', workout, id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
+    const p = { type: 'workout', sport, workout, run, id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
     const msg = { role: 'assistant', content: prose, proposals: [p] };
     convo.push(msg);
     saveConvo();
@@ -542,8 +561,38 @@ function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
   });
 }
 
+// Tarjeta de una carrera ingerida (Fase 5.1) → va a runningLogs, no a workouts.
+function renderRunCard(db, p, msg) {
+  const card = document.createElement('div');
+  card.className = 'q-proposal';
+  const r = p.run;
+  const typeLabel = r.type ? r.type.charAt(0).toUpperCase() + r.type.slice(1) : 'Carrera';
+  const bits = [];
+  if (r.distance) bits.push(`${r.distance} km`);
+  if (r.duration) bits.push(formatRunDuration(r.duration));
+  if (r.pace) bits.push(`${formatPace(r.pace)} /km`);
+  card.innerHTML = `
+    <div class="q-prop-head">
+      <span class="material-symbols-outlined">directions_run</span>
+      <div class="q-prop-titles">
+        <div class="q-prop-title">${esc(r.session || typeLabel)}</div>
+        <div class="q-prop-tag">Registrar carrera · ${esc(r.date)} · ${esc(typeLabel)}</div>
+      </div>
+    </div>
+    ${r.notes ? `<div class="q-prop-summary">${esc(r.notes)}</div>` : ''}
+    <div class="q-prop-detail"><div class="q-prop-line">${esc(bits.join(' · ')) || '—'}</div></div>
+    <div class="q-prop-actions">
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
+    </div>`;
+  wireProposalActions(card, p, 'Registrar', `Carrera registrada — ${r.date} · verla en Running → Historial`,
+    () => applyRun(db, r), (t) => undoRun(db, t));
+  return card;
+}
+
 // Tarjeta de un entreno ingerido (Fase 5.1).
 function renderWorkoutCard(db, p, msg) {
+  if (p.sport === 'running') return renderRunCard(db, p, msg);
   const card = document.createElement('div');
   card.className = 'q-proposal';
   const w = p.workout;
@@ -565,7 +614,7 @@ function renderWorkoutCard(db, p, msg) {
       <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
       <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
-  wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date}`,
+  wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date} · verlo en Fuerza → Historial`,
     () => applyWorkout(db, w), (t) => undoWorkout(db, t));
   return card;
 }

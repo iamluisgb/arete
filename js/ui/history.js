@@ -1,7 +1,7 @@
 import { saveDB, markDeleted } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { formatDate, esc, confirmDanger } from '../utils.js';
-import { getActiveProgram } from '../programs.js';
+import { getProgramById } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { toast } from './toast.js';
 import { openShareEditor } from './share-editor.js';
@@ -11,22 +11,41 @@ let historyPage = 0;
 let _currentDb = null;
 let _lastWorkoutCount = -1;
 
+function planName(id) {
+  const pid = id || 'arete';
+  return getProgramById(pid)?._meta?.name || pid;
+}
+
 function renderItem(w) {
   const summary = w.exercises.filter(e => e.sets.some(s => s.kg)).map(e => `${esc(e.name)}: ${e.sets.map(s => `${esc(s.kg) || '—'}×${esc(s.reps) || '—'}`).join(', ')}`).join(' · ');
   const hs = w.exercises.filter(e => !e.sets.some(s => s.kg) && e.sets[0]?.reps).map(e => `${esc(e.name)}: ${esc(e.sets[0].reps)}`).join(' · ');
   const hasPR = w.prs && w.prs.length > 0;
   const prBadge = hasPR ? '<span style="font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px">🏆 PR</span>' : '';
-  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">Fase ${ROMAN[w.phase - 1] || w.phase} · ${w.session}${prBadge}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
+  const plan = `<span class="hi-plan">${esc(planName(w.program))}</span>`;
+  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">Fase ${ROMAN[w.phase - 1] || w.phase} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
+}
+
+/** Repuebla el selector de plan (preservando la selección actual). */
+function populatePlanFilter(db) {
+  const sel = document.getElementById('historyProgFilter');
+  if (!sel) return;
+  const current = sel.value;
+  const ids = [...new Set(db.workouts.map(w => w.program || 'arete'))];
+  const opts = ['<option value="">Todos los planes</option>']
+    .concat(ids.map(id => `<option value="${esc(id)}">${esc(planName(id))}</option>`));
+  sel.innerHTML = opts.join('');
+  if (current && ids.includes(current)) sel.value = current;
 }
 
 /** Render paginated workout history list */
 export function renderHistory(db, dateFilter) {
   _currentDb = db;
   historyPage = 0;
+  populatePlanFilter(db);
   const filter = document.getElementById('historyFilter').value;
-  const prog = getActiveProgram();
+  const progFilter = document.getElementById('historyProgFilter')?.value || '';
   let items = [...db.workouts].reverse();
-  items = items.filter(w => (w.program || 'arete') === prog);
+  if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
   if (filter) items = items.filter(w => w.session === filter);
   if (dateFilter) items = items.filter(w => w.date === dateFilter);
 
@@ -47,9 +66,9 @@ function loadMore() {
   if (!_currentDb) return;
   historyPage++;
   const filter = document.getElementById('historyFilter').value;
-  const prog = getActiveProgram();
+  const progFilter = document.getElementById('historyProgFilter')?.value || '';
   let items = [..._currentDb.workouts].reverse();
-  items = items.filter(w => (w.program || 'arete') === prog);
+  if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
   if (filter) items = items.filter(w => w.session === filter);
 
   const end = (historyPage + 1) * PAGE_SIZE;
@@ -130,6 +149,7 @@ export function getDetailWorkout(db) {
 /** Initialize history section: bind filter, list clicks, and detail modal */
 export function initHistory(db, { onEdit }) {
   document.getElementById('historyFilter').addEventListener('change', () => renderHistory(db));
+  document.getElementById('historyProgFilter')?.addEventListener('change', () => renderHistory(db));
   document.getElementById('historyList').addEventListener('click', (e) => {
     if (e.target.closest('.load-more-btn')) { loadMore(); return; }
     const item = e.target.closest('.history-item[data-id]');

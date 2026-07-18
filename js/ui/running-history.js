@@ -1,6 +1,11 @@
 import { esc, formatDate } from '../utils.js';
 import { toast } from './toast.js';
+import { getProgramById } from '../programs.js';
 import { formatPace, formatRunDuration, ZONE_COLORS } from './running-helpers.js';
+
+function planName(id) {
+  return id ? (getProgramById(id)?._meta?.name || id) : '';
+}
 
 // ── History rendering ───────────────────────────────────
 
@@ -47,6 +52,7 @@ export function renderRunHistory(db, $historyFilter, $historyList, dateFilter) {
             <div class="run-hist-top">
               <span class="run-hist-date">${formatDate(log.date)}</span>
               <span class="run-hist-type">${esc(typeLabel)}</span>
+              ${planName(log.program) ? `<span class="hi-plan">${esc(planName(log.program))}</span>` : ''}
             </div>
             ${log.session ? `<div class="run-hist-session">${esc(log.session)}</div>` : ''}
             <div class="run-hist-details">${esc(details)}</div>

@@ -132,6 +132,76 @@ export function undoWorkout(db, token) {
   saveDB(db);
 }
 
+// ── Ingesta de carreras (Fase 5.1) ──────────────────────────────────────────
+// Una carrera ingerida (de texto o captura) NO va a db.workouts (fuerza) sino a
+// db.runningLogs, con la misma forma que una carrera GPS/manual. Así aparece en
+// el historial de running en vez de quedar huérfana como "entreno de fuerza".
+
+const RUN_TYPES = new Set(['libre', 'rodaje', 'intervalos', 'tempo', 'fartlek', 'cuestas', 'competicion']);
+
+/** Convierte "mm:ss" / "h:mm:ss" / número → segundos. Un número plano se toma como segundos. */
+function parseTimeToSec(v) {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number') return Math.max(0, Math.round(v));
+  const s = String(v).trim();
+  if (/^\d+(\.\d+)?$/.test(s)) return Math.round(parseFloat(s));
+  const parts = s.split(':').map(Number);
+  if (parts.some(n => Number.isNaN(n))) return 0;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
+
+/** Valida una carrera parseada de ingesta. Devuelve string de error o null. */
+export function validateRun(r) {
+  if (!r || typeof r !== 'object') return 'no es un objeto';
+  const dist = parseFloat(r.distance) || 0;
+  const dur = parseTimeToSec(r.duration);
+  if (dist <= 0 && dur <= 0) return 'sin distancia ni duración';
+  return null;
+}
+
+/** Normaliza una carrera ingerida a la forma de un runningLog. */
+export function normalizeRun(r) {
+  const distance = +(parseFloat(r.distance) || 0).toFixed(3);
+  const duration = parseTimeToSec(r.duration);
+  let pace = parseTimeToSec(r.pace);
+  if (!pace && distance > 0 && duration > 0) pace = Math.round(duration / distance);
+  const num = (v) => (v != null && v !== '' && !Number.isNaN(parseFloat(v)) ? Math.round(parseFloat(v)) : null);
+  return {
+    date: (r.date || today()).slice(0, 10),
+    session: (r.session || '').toString().slice(0, 60),
+    type: RUN_TYPES.has(r.type) ? r.type : 'libre',
+    distance,
+    duration,
+    pace,
+    hr: num(r.hr),
+    hrMax: num(r.hrMax),
+    elevation: num(r.elevation),
+    cadence: num(r.cadence),
+    notes: (r.notes || '').toString(),
+    source: 'ingest',
+  };
+}
+
+/** Aplica una carrera ingerida: id/programa y la añade a runningLogs. Devuelve token de undo. */
+export function applyRun(db, run, meta = {}) {
+  const id = Date.now() + Math.floor(Math.random() * 1000);
+  const norm = normalizeRun(run);
+  const log = { id, ...norm, program: meta.program ?? db.runningProgram ?? '', week: 0 };
+  if (!Array.isArray(db.runningLogs)) db.runningLogs = [];
+  db.runningLogs.push(log);
+  saveDB(db);
+  return { id, kind: 'run' };
+}
+
+/** Deshace un applyRun */
+export function undoRun(db, token) {
+  db.runningLogs = (db.runningLogs || []).filter(r => r.id !== token.id);
+  markDeleted(db, token.id);
+  saveDB(db);
+}
+
 /** @returns {boolean} true if db has valid minimal structure */
 export function validateDB(db) {
   return db && typeof db === 'object' && Array.isArray(db.workouts) && Array.isArray(db.bodyLogs);

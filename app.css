@@ -123,6 +123,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .history-item .hi-date{font-size:var(--fs-base);color:var(--accent);font-weight:700}
 .history-item .hi-session{font-size:var(--fs-base);color:var(--text2);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--text);margin-top:6px;line-height:1.4}
+.history-item .hi-plan{font-size:.6rem;color:var(--text3);background:var(--surface2,rgba(128,128,128,.12));padding:1px 6px;border-radius:6px;font-weight:600;white-space:nowrap}
 .history-item .hi-edit-btn{background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;margin-top:var(--sp-2);transition:opacity .2s}
 .history-item .hi-edit-btn:active{opacity:.7}
 .load-more-btn{display:block;width:100%;background:var(--surface2);border:none;color:var(--text2);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;border-radius:var(--radius);cursor:pointer;margin-top:var(--sp-1);transition:background .2s}.load-more-btn:active{background:var(--border)}
