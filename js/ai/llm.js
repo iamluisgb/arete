@@ -40,6 +40,19 @@ export function currentProvider() {
   return PROVIDERS.find(p => p.baseUrl.replace(/\/+$/, '') === b) || null;
 }
 
+// Modelo de VISIÓN (para ingesta de capturas, Fase 5.1). El modelo de texto por
+// defecto (deepseek) no tiene visión; en nan usamos qwen3.6 (verificado). Resolución:
+// ajuste explícito del usuario → qwen3.6 si el proveedor es nan → vacío (sin visión).
+export function getVisionModelSetting() { return get('areteAiVisionModel', ''); }
+export function setVisionModel(m) { set('areteAiVisionModel', (m || '').trim()); }
+export function getVisionModel() {
+  const explicit = getVisionModelSetting().trim();
+  if (explicit) return explicit;
+  if (currentProvider()?.id === 'nan') return 'qwen3.6';
+  return '';
+}
+export function hasVision() { return getVisionModel().length > 0; }
+
 // nan rechaza peticiones concurrentes a la misma key, así que serializamos
 // TODAS las llamadas: cada una espera a que termine la anterior.
 let lastCall = Promise.resolve();
@@ -51,6 +64,7 @@ function serialize(task) {
 
 export function chatStream(opts)    { return serialize(() => _chatStream(opts)); }
 export function chatToolsLoop(opts) { return serialize(() => _chatToolsLoop(opts)); }
+export function chatVision(opts)    { return serialize(() => _chatVision(opts)); }
 
 // ---- Reintentos con backoff en errores transitorios --------------------------
 
@@ -210,6 +224,32 @@ async function _chatToolsLoop({ messages, tools, execute, maxRounds = 4, maxToke
     }
   }
   return { content: '', rounds: maxRounds, calls, exhausted: true };
+}
+
+// Llamada MULTIMODAL (texto + imagen) al modelo de visión. No-streaming: más simple y
+// suficiente para extraer datos de una captura. `image` es un data: URI. Devuelve el texto.
+async function _chatVision({ image, prompt, maxTokens = 2048, signal }) {
+  const key = getKey().trim();
+  if (!key) throw new Error('Falta la API key.');
+  const model = getVisionModel();
+  if (!model) throw new Error('No hay modelo de visión para este proveedor. Configúralo en Ajustes → Quirón.');
+  const res = await fetchRetrying(`${getBaseUrl()}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model, stream: false, max_tokens: maxTokens,
+      messages: [{ role: 'user', content: [
+        { type: 'text', text: prompt },
+        { type: 'image_url', image_url: { url: image } },
+      ] }],
+    }),
+    signal,
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Error del modelo de visión (${res.status}). ${apiErrMsg(body)}`);
+  }
+  return (await res.json()).choices?.[0]?.message?.content || '';
 }
 
 // Prueba de conexión para Ajustes: una completion mínima sin streaming.

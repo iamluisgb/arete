@@ -1,4 +1,4 @@
-import { mergeDB } from './utils.js';
+import { mergeDB, today } from './utils.js';
 import { stripHeavyFields, splitAndStoreRoutes, clearRunStore, getAllRunRoutes } from './run-store.js';
 
 const SK = 'arete';
@@ -81,6 +81,55 @@ export function loadDB() {
 export function markDeleted(db, id) {
   if (!db.deletedIds) db.deletedIds = [];
   if (!db.deletedIds.includes(id)) db.deletedIds.push(id);
+}
+
+// ── Ingesta de entrenos por Quirón (Fase 5.1) ───────────────────────────────
+// Un workout ingerido (de texto o de una captura) NO se guarda solo: pasa por la
+// tarjeta de revisión y confirmación (proponer→revisar→confirmar→deshacer).
+
+/** Valida un workout parseado de ingesta. Devuelve string de error o null. */
+export function validateWorkout(w) {
+  if (!w || typeof w !== 'object') return 'no es un objeto';
+  if (!Array.isArray(w.exercises) || !w.exercises.length) return 'sin ejercicios';
+  for (const ex of w.exercises) {
+    if (!ex.name) return 'un ejercicio sin nombre';
+    if (!Array.isArray(ex.sets) || !ex.sets.length) return `"${ex.name}" sin series`;
+  }
+  return null;
+}
+
+/** Normaliza un workout ingerido a la forma de la app (kg/reps como strings). */
+export function normalizeWorkout(w, meta = {}) {
+  return {
+    date: (w.date || today()).slice(0, 10),
+    session: (w.session || 'Importado').toString().slice(0, 60),
+    notes: (w.notes || '').toString(),
+    exercises: (w.exercises || []).map(ex => ({
+      name: String(ex.name || '').trim(),
+      sets: (ex.sets || []).map(s => ({
+        kg: s.kg != null && s.kg !== '' ? String(s.kg) : '',
+        reps: s.reps != null && s.reps !== '' ? String(s.reps) : '',
+      })),
+    })),
+  };
+}
+
+/** Aplica un workout ingerido: le asigna id/fase/programa y lo añade. Devuelve token de undo. */
+export function applyWorkout(db, workout, meta = {}) {
+  const id = Date.now() + Math.floor(Math.random() * 1000);
+  const norm = normalizeWorkout(workout);
+  const w = { id, ...norm, phase: meta.phase ?? db.phase, program: meta.program ?? db.program ?? 'arete' };
+  if (!Array.isArray(db.workouts)) db.workouts = [];
+  db.workouts.push(w);
+  saveDB(db);
+  return { id };
+}
+
+/** Deshace un applyWorkout */
+export function undoWorkout(db, token) {
+  db.workouts = (db.workouts || []).filter(w => w.id !== token.id);
+  markDeleted(db, token.id);
+  saveDB(db);
 }
 
 /** @returns {boolean} true if db has valid minimal structure */

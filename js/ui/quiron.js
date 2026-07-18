@@ -13,6 +13,7 @@ import {
   validateProgram, applyProgramProposal, undoProgramCommit, getProgramById,
   isBuiltinProgram, programPhaseKeys,
 } from '../programs.js';
+import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout } from '../data.js';
 import { esc } from '../utils.js';
 import { toast } from './toast.js';
 
@@ -225,7 +226,7 @@ async function send(db, text, opts = {}) {
           messages: [
             system,
             ...history,
-            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) Si el atleta pide CREAR o EDITAR un plan: es OBLIGATORIO que llames a propose_program con el plan COMPLETO en JSON (consulta antes su e1RM/marca para calibrar). NO escribas el plan como tabla ni texto — la app SOLO lo puede aplicar si viene por propose_program. Si respondes "LISTO" sin haber llamado a propose_program cuando se pide un plan, el plan se pierde.\n3) Cuando tengas los datos y (si procede) hayas registrado la propuesta, responde exactamente "LISTO". NO respondas aún al atleta.' },
+            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) Si el atleta pide CREAR o EDITAR un plan: llama a propose_program describiendo el plan en `goal` (consulta antes su e1RM/marca para calibrar).\n3) Si el atleta describe un ENTRENO YA HECHO para registrarlo (ej. "hoy sentadilla 5x5 a 100"): llama a log_workout con esa descripción en `description`.\n4) En 2) y 3) NO escribas el plan/entreno como tabla — la app lo genera desde la herramienta. Si respondes "LISTO" sin llamar a la herramienta cuando se pide, se pierde.\n5) Cuando tengas los datos y (si procede) hayas llamado a la herramienta, responde exactamente "LISTO". NO respondas aún al atleta.' },
           ],
           tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
           execute: async (name, args) => {
@@ -247,24 +248,33 @@ async function send(db, text, opts = {}) {
       history.push(toApi(convo[convo.length - 1]));
     }
 
-    // 2a) Si el modelo pidió crear/editar un plan: la app lo GENERA (JSON-en-contenido,
-    //     fiable) y muestra la tarjeta de confirmación. No pasa por el stream normal.
-    const planRequests = proposals.filter(p => p.type === 'program_request');
-    if (planRequests.length) {
-      bubble.innerHTML = '<span class="q-typing">generando tu plan…</span>';
+    // 2a) Si el modelo pidió crear/editar un plan o registrar un entreno: la app lo
+    //     GENERA (JSON-en-contenido, fiable) y muestra la tarjeta de confirmación.
+    //     No pasa por el stream normal.
+    const writeRequests = proposals.filter(p => p.type === 'program_request' || p.type === 'workout_request');
+    if (writeRequests.length) {
       const built = [];
       const proseParts = [];
-      for (const req of planRequests) {
+      const uid = () => `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      for (const req of writeRequests) {
         try {
-          const { program, prose } = await generatePlan(db, req, signal);
-          proseParts.push(prose);
-          built.push({ type: 'program', program, basedOn: req.basedOn || null, summary: program._meta?.desc || '', id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` });
+          if (req.type === 'program_request') {
+            bubble.innerHTML = '<span class="q-typing">generando tu plan…</span>';
+            const { program, prose } = await generatePlan(db, req, signal);
+            proseParts.push(prose);
+            built.push({ type: 'program', program, basedOn: req.basedOn || null, summary: program._meta?.desc || '', id: uid() });
+          } else {
+            bubble.innerHTML = '<span class="q-typing">estructurando el entreno…</span>';
+            const { workout, prose } = await generateWorkout(db, req, signal);
+            proseParts.push(prose);
+            built.push({ type: 'workout', workout, id: uid() });
+          }
         } catch (e) {
           if (e.name === 'AbortError') throw e;
-          proseParts.push(`No pude generar el plan: ${e.message}`);
+          proseParts.push(`No pude procesarlo: ${e.message}`);
         }
       }
-      const proseText = proseParts.filter(Boolean).join('\n\n') || 'Aquí tienes el plan para revisar.';
+      const proseText = proseParts.filter(Boolean).join('\n\n') || 'Listo para revisar.';
       bubble.innerHTML = mdLite(proseText);
       const msg = { role: 'assistant', content: proseText, proposals: built };
       convo.push(msg);
@@ -389,6 +399,177 @@ async function generatePlan(db, req, signal) {
   throw new Error(lastErr || 'no se pudo generar un plan válido');
 }
 
+// ── Ingesta de entrenos (Fase 5.1): estructurar texto → workout JSON ─────────
+
+const WORKOUT_SCHEMA_HELP = `Forma EXACTA del entreno (JSON):
+{ "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" }, { "kg": "100", "reps": "5" } ] } ] }
+Reglas: una entrada por serie en "sets" (si dice "5x5 a 100", son 5 series de kg 100 reps 5). kg y reps como texto; kg "" si es peso corporal. Sé FIEL a lo que dice el atleta: no inventes series ni pesos. Devuelve UN solo bloque \`\`\`json, sin texto después.`;
+
+async function generateWorkout(db, req, signal) {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const sys = { role: 'system', content: `Estructuras entrenos ya realizados al schema de Areté. Hoy es ${hoy}. No inventes datos que el atleta no diga.` };
+  const ask = (extra) => [sys, { role: 'user', content: `Registra este entreno: ${req.description}\n\nResponde en DOS partes: (1) una frase breve de confirmación en prosa; (2) un ÚNICO bloque \`\`\`json con el entreno.\n\n${WORKOUT_SCHEMA_HELP}${extra || ''}` }];
+
+  let lastErr = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const extra = attempt === 0 ? '' : `\n\nEl intento anterior falló: ${lastErr}. Corrígelo.`;
+    const full = await LLM.chatStream({ messages: ask(extra), maxTokens: 2048, signal });
+    const { json, prose } = extractJsonBlock(full);
+    if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
+    let parsed;
+    try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
+    const err = validateWorkout(parsed);
+    if (err) { lastErr = err; continue; }
+    return { workout: normalizeWorkout(parsed), prose: prose || 'Entreno listo para revisar.' };
+  }
+  throw new Error(lastErr || 'no pude estructurar el entreno');
+}
+
+// ── Ingesta por captura (Fase 5.1): imagen → visión → workout ────────────────
+// El vídeo/imagen se procesa EN EL CLIENTE: se reescala a ~1024px y se manda solo
+// esa versión al modelo de visión (deepseek no tiene visión; en nan, qwen3.6).
+
+const VISION_MAX_DIM = 1024;
+
+// Reescala una imagen (File) a JPEG data URI con dimensión máxima VISION_MAX_DIM.
+function downscaleImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, VISION_MAX_DIM / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('no se pudo leer la imagen')); };
+    img.src = url;
+  });
+}
+
+const VISION_PROMPT = `Esta es una CAPTURA de una app de registro de entrenamiento (Strong, Hevy, Garmin, Strava u otra). Extrae el entrenamiento a JSON.
+
+Forma EXACTA:
+{ "date": "YYYY-MM-DD", "session": "nombre corto", "notes": "", "exercises": [ { "name": "Sentadilla", "sets": [ { "kg": "100", "reps": "5" } ] } ] }
+
+Reglas: una entrada por serie en "sets". kg y reps como texto; kg "" si es peso corporal. Convierte libras a kg si la captura usa lb (1 lb = 0.4536 kg) y anótalo en notes. Usa la fecha de la captura si aparece; si no, déjala vacía. Sé FIEL a lo que se ve: no inventes. Responde con una frase breve y luego UN solo bloque \`\`\`json.`;
+
+async function ingestFromImage(db, file, signal) {
+  const image = await downscaleImage(file);
+  let lastErr = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const extra = attempt === 0 ? '' : `\n\nEl intento anterior falló: ${lastErr}. Devuelve solo el bloque \`\`\`json válido.`;
+    const full = await LLM.chatVision({ image, prompt: VISION_PROMPT + extra, maxTokens: 2048, signal });
+    const { json, prose } = extractJsonBlock(full);
+    if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
+    let parsed;
+    try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
+    const err = validateWorkout(parsed);
+    if (err) { lastErr = err; continue; }
+    return { workout: normalizeWorkout(parsed), prose: prose || 'He leído la captura. Revisa el entreno antes de guardarlo.' };
+  }
+  throw new Error(lastErr || 'no pude leer el entreno de la captura');
+}
+
+// Flujo de adjuntar imagen: reescala, extrae, muestra tarjeta de revisión.
+async function handleImage(db, file) {
+  if (busy) return;
+  if (!file || !file.type.startsWith('image/')) { toast('Selecciona una imagen', 'error'); return; }
+  if (showSetupIfNeeded()) { openPanel(); return; }
+  if (!LLM.hasVision()) { toast('Configura un modelo de visión en Ajustes → Quirón', 'error'); return; }
+  if (!navigator.onLine) { toast('Quirón necesita conexión', 'error'); return; }
+
+  appendBubble('user', '<span class="q-img-chip"><span class="material-symbols-outlined">image</span> Captura de entreno</span>');
+  const bubble = appendBubble('assistant', '<span class="q-typing">leyendo la captura…</span>');
+  setBusy(true);
+  abortCtrl = new AbortController();
+  try {
+    const { workout, prose } = await ingestFromImage(db, file, abortCtrl.signal);
+    bubble.innerHTML = mdLite(prose);
+    const p = { type: 'workout', workout, id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
+    const msg = { role: 'assistant', content: prose, proposals: [p] };
+    convo.push(msg);
+    saveConvo();
+    els.msgs.appendChild(renderWorkoutCard(db, p, msg));
+    els.msgs.scrollTop = els.msgs.scrollHeight;
+  } catch (e) {
+    bubble.innerHTML = e.name === 'AbortError'
+      ? '<span class="q-err">— detenido —</span>'
+      : `<span class="q-err">${esc(e.message)}</span>`;
+  } finally {
+    setBusy(false);
+    abortCtrl = null;
+  }
+}
+
+// ── Propuestas de escritura (Fase 5.0/5.1): tarjeta de confirmación ──────────
+
+// Cablea Aplicar/Descartar/Deshacer, común a planes y entrenos. `doApply` devuelve el
+// token de undo; `doUndo(token)` lo revierte.
+function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
+  const applyBtn = card.querySelector('.q-prop-apply');
+  const discardBtn = card.querySelector('.q-prop-discard');
+  const paint = () => {
+    applyBtn.textContent = p.applied ? '✓ Aplicado' : applyLabel;
+    applyBtn.disabled = !!p.applied;
+    discardBtn.style.display = p.applied ? 'none' : '';
+    card.classList.toggle('applied', !!p.applied);
+  };
+  paint();
+  discardBtn.addEventListener('click', () => card.remove());
+  applyBtn.addEventListener('click', () => {
+    if (p.applied) return;
+    let token;
+    try { token = doApply(); } catch (e) { toast('No se pudo aplicar: ' + e.message, 'error'); return; }
+    p.applied = true;
+    saveConvo();
+    paint();
+    onProgramsChanged();
+    toast(successMsg, 'success', {
+      action: 'Deshacer',
+      onAction: () => {
+        doUndo(token);
+        p.applied = false;
+        saveConvo();
+        paint();
+        onProgramsChanged();
+        toast('Cambio deshecho', 'info');
+      },
+    });
+  });
+}
+
+// Tarjeta de un entreno ingerido (Fase 5.1).
+function renderWorkoutCard(db, p, msg) {
+  const card = document.createElement('div');
+  card.className = 'q-proposal';
+  const w = p.workout;
+  const detail = w.exercises.map(ex => {
+    const sets = ex.sets.map(s => s.kg ? `${esc(s.kg)}×${esc(s.reps || '?')}` : esc(s.reps || '')).join(' ');
+    return `<div class="q-prop-line">${esc(ex.name)}: ${sets}</div>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="q-prop-head">
+      <span class="material-symbols-outlined">fitness_center</span>
+      <div class="q-prop-titles">
+        <div class="q-prop-title">${esc(w.session || 'Entreno')}</div>
+        <div class="q-prop-tag">Registrar entreno · ${esc(w.date)} · ${w.exercises.length} ejercicio(s)</div>
+      </div>
+    </div>
+    ${w.notes ? `<div class="q-prop-summary">${esc(w.notes)}</div>` : ''}
+    <div class="q-prop-detail">${detail}</div>
+    <div class="q-prop-actions">
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
+    </div>`;
+  wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date}`,
+    () => applyWorkout(db, w), (t) => undoWorkout(db, t));
+  return card;
+}
+
 // ── Propuestas de escritura (Fase 5.0): tarjeta de confirmación ──────────────
 
 function planStructure(program) {
@@ -399,9 +580,11 @@ function planStructure(program) {
   });
 }
 
-// Renderiza la tarjeta de una propuesta de plan. `p` es mutable (p.applied) y vive
-// en el mensaje del asistente (persiste en la conversación).
+// Renderiza la tarjeta de una propuesta. `p` es mutable (p.applied) y vive en el
+// mensaje del asistente (persiste en la conversación). Despacha por tipo.
 function renderProposalCard(db, p, msg) {
+  if (p.type === 'workout') return renderWorkoutCard(db, p, msg);
+
   const card = document.createElement('div');
   card.className = 'q-proposal';
   const program = p.program || {};
@@ -432,43 +615,13 @@ function renderProposalCard(db, p, msg) {
       <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
 
-  const applyBtn = card.querySelector('.q-prop-apply');
-  const discardBtn = card.querySelector('.q-prop-discard');
-  const paint = () => {
-    applyBtn.textContent = p.applied ? '✓ Aplicado' : 'Aplicar plan';
-    applyBtn.disabled = !!p.applied;
-    discardBtn.style.display = p.applied ? 'none' : '';
-    card.classList.toggle('applied', !!p.applied);
-  };
-  paint();
-
   card.querySelector('.q-prop-toggle').addEventListener('click', (e) => {
     const d = card.querySelector('.q-prop-detail');
     d.hidden = !d.hidden;
     e.target.textContent = d.hidden ? 'Ver plan' : 'Ocultar';
   });
-  discardBtn.addEventListener('click', () => card.remove());
-  applyBtn.addEventListener('click', () => {
-    if (p.applied) return;
-    let token;
-    try { ({ token } = applyProgramProposal(db, p)); }
-    catch (e) { toast('No se pudo aplicar: ' + e.message, 'error'); return; }
-    p.applied = true;
-    saveConvo();
-    paint();
-    onProgramsChanged();
-    toast(`Plan aplicado — ${name}`, 'success', {
-      action: 'Deshacer',
-      onAction: () => {
-        undoProgramCommit(db, token);
-        p.applied = false;
-        saveConvo();
-        paint();
-        onProgramsChanged();
-        toast('Cambio deshecho', 'info');
-      },
-    });
-  });
+  wireProposalActions(card, p, 'Aplicar plan', `Plan aplicado — ${name}`,
+    () => applyProgramProposal(db, p).token, (t) => undoProgramCommit(db, t));
   return card;
 }
 
@@ -502,6 +655,7 @@ function initSettingsUI() {
   els.setBaseUrl.readOnly = !!preset;
   els.setKey.value = LLM.getKey();
   els.setModel.value = LLM.getModel();
+  els.setVisionModel.value = LLM.getVisionModelSetting();
   fillModelOptions(preset?.id);
 
   els.setProvider.addEventListener('change', () => {
@@ -517,7 +671,7 @@ function initSettingsUI() {
     fillModelOptions(p?.id);
     persistSettings();
   });
-  for (const el of [els.setBaseUrl, els.setKey, els.setModel]) {
+  for (const el of [els.setBaseUrl, els.setKey, els.setModel, els.setVisionModel]) {
     el.addEventListener('change', persistSettings);
   }
   els.setTest.addEventListener('click', async () => {
@@ -542,6 +696,7 @@ function persistSettings() {
   LLM.setBaseUrl(els.setBaseUrl.value);
   LLM.setKey(els.setKey.value);
   LLM.setModel(els.setModel.value);
+  LLM.setVisionModel(els.setVisionModel.value);
   showSetupIfNeeded();
 }
 
@@ -559,11 +714,14 @@ export function initQuiron(db, opts = {}) {
     inputbar: document.getElementById('quironInputBar'),
     input: document.getElementById('quironInput'),
     send: document.getElementById('quironSendBtn'),
+    attach: document.getElementById('quironAttachBtn'),
+    imageInput: document.getElementById('quironImageInput'),
     setProvider: document.getElementById('quironProvider'),
     setBaseUrl: document.getElementById('quironBaseUrl'),
     setKey: document.getElementById('quironKey'),
     setModel: document.getElementById('quironModel'),
     setModelList: document.getElementById('quironModelList'),
+    setVisionModel: document.getElementById('quironVisionModel'),
     setTest: document.getElementById('quironTestBtn'),
     setStatus: document.getElementById('quironAiStatus'),
   };
@@ -575,6 +733,14 @@ export function initQuiron(db, opts = {}) {
   els.fab.addEventListener('click', openPanel);
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);
   document.getElementById('quironReportBtn').addEventListener('click', () => offerReport(db));
+
+  // Adjuntar captura → ingesta de entreno
+  els.attach.addEventListener('click', () => { if (!busy) els.imageInput.click(); });
+  els.imageInput.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';   // permite re-seleccionar la misma imagen
+    if (file) handleImage(db, file);
+  });
   document.getElementById('quironNewBtn').addEventListener('click', () => {
     if (busy) abortCtrl?.abort();
     archiveCurrent();

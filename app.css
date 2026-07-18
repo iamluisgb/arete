@@ -930,3 +930,8 @@ body.quiron-open #quironFab{display:none}
 .q-prop-actions{display:flex;gap:8px}
 .q-prop-actions .btn{flex:1}
 .q-proposal.applied .q-prop-apply{background:var(--green);box-shadow:none}
+#quironAttachBtn{width:40px;height:44px;background:none;border:none;color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+#quironAttachBtn .material-symbols-outlined{font-size:24px}
+#quironAttachBtn:active{opacity:.6}
+.q-img-chip{display:inline-flex;align-items:center;gap:6px}
+.q-img-chip .material-symbols-outlined{font-size:18px;vertical-align:middle}

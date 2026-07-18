@@ -286,6 +286,11 @@
         <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
         <datalist id="quironModelList"></datalist>
       </div>
+      <div>
+        <label>Modelo de visión (opcional)</label>
+        <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="input-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</div>
+      </div>
       <button class="btn btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
       <div id="quironAiStatus" class="drive-status"></div>
     </div>
@@ -810,6 +815,8 @@
   </div>
   <div class="quiron-chips" id="quironChips"></div>
   <div class="quiron-inputbar" id="quironInputBar">
+    <button id="quironAttachBtn" aria-label="Cargar entreno desde captura" title="Cargar entreno desde captura"><span class="material-symbols-outlined">add_a_photo</span></button>
+    <input type="file" id="quironImageInput" accept="image/*" hidden>
     <textarea id="quironInput" rows="1" placeholder="Pregunta a tu coach…" enterkeyhint="send"></textarea>
     <button id="quironSendBtn" aria-label="Enviar"><span class="material-symbols-outlined">arrow_upward</span></button>
   </div>

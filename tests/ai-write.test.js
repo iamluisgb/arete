@@ -1,6 +1,7 @@
 // Fase 5.0 — primitiva de escritura: versionado de planes + tool propose_program.
 import { describe, it, expect, beforeEach } from 'vitest';
 import { applyProgramProposal, undoProgramCommit } from '../js/programs.js';
+import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout } from '../js/data.js';
 import { makeToolExecutor } from '../js/ai/tools.js';
 
 beforeEach(() => { localStorage.clear(); });
@@ -75,5 +76,58 @@ describe('propose_program (tool = señal de intención)', () => {
     const exec = makeToolExecutor(freshDB(), { onProposal: (p) => proposals.push(p) });
     expect(await exec('propose_program', {})).toContain('ERROR');
     expect(proposals).toHaveLength(0);
+  });
+});
+
+describe('log_workout (tool = señal de intención)', () => {
+  it('registra la solicitud de entreno con la descripción', async () => {
+    const proposals = [];
+    const exec = makeToolExecutor(freshDB(), { onProposal: (p) => proposals.push(p) });
+    const ok = await exec('log_workout', { description: 'sentadilla 5x5 a 100' });
+    expect(ok).toContain('Entreno recibido');
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0]).toMatchObject({ type: 'workout_request', description: 'sentadilla 5x5 a 100' });
+  });
+  it('error si falta la descripción', async () => {
+    const exec = makeToolExecutor(freshDB(), {});
+    expect(await exec('log_workout', {})).toContain('ERROR');
+  });
+});
+
+describe('ingesta de workouts', () => {
+  const raw = {
+    date: '2026-07-18', session: 'Torso',
+    exercises: [
+      { name: 'Press de Banca', sets: [{ kg: 70, reps: 5 }, { kg: 70, reps: 5 }] },
+      { name: 'Dominadas', sets: [{ kg: '', reps: 10 }] },
+    ],
+  };
+
+  it('valida entrenos correctos y rechaza los vacíos', () => {
+    expect(validateWorkout(raw)).toBeNull();
+    expect(validateWorkout({ exercises: [] })).toBeTruthy();
+    expect(validateWorkout({ exercises: [{ name: 'X', sets: [] }] })).toContain('sin series');
+    expect(validateWorkout({ exercises: [{ sets: [{ reps: 5 }] }] })).toContain('sin nombre');
+  });
+
+  it('normaliza kg/reps a strings y respeta el peso corporal', () => {
+    const n = normalizeWorkout(raw);
+    expect(n.exercises[0].sets[0]).toEqual({ kg: '70', reps: '5' });
+    expect(n.exercises[1].sets[0]).toEqual({ kg: '', reps: '10' });
+    expect(n.date).toBe('2026-07-18');
+  });
+
+  it('aplica el entreno con id/fase/programa; undo lo revierte', () => {
+    const db = { ...freshDB(), phase: 2, program: 'kettlebell' };
+    const { id } = applyWorkout(db, raw);
+    expect(db.workouts).toHaveLength(1);
+    const w = db.workouts[0];
+    expect(w.id).toBe(id);
+    expect(w.phase).toBe(2);
+    expect(w.program).toBe('kettlebell');
+    expect(w.exercises[0].name).toBe('Press de Banca');
+    undoWorkout(db, { id });
+    expect(db.workouts).toHaveLength(0);
+    expect(db.deletedIds).toContain(id);   // no se resucita en un merge
   });
 });

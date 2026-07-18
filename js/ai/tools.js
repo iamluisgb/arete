@@ -98,6 +98,20 @@ export const QUIRON_WRITE_TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'log_workout',
+      description: 'Úsala cuando el atleta describa un entrenamiento YA HECHO para registrarlo (p. ej. "hoy sentadilla 5x5 a 100, banca 3x5 a 70"). Pasa en `description` el texto del entreno tal cual, con la fecha si la menciona. La app lo estructura y le muestra una tarjeta para revisar y confirmar antes de guardar.',
+      parameters: {
+        type: 'object',
+        properties: {
+          description: { type: 'string', description: 'El entrenamiento a registrar, en el texto del atleta (ejercicios, series, kg, reps, fecha si la dice).' },
+        },
+        required: ['description'],
+      },
+    },
+  },
 ];
 
 const fmtDur = (s) => {
@@ -122,12 +136,18 @@ function inRange(date, from, to) {
 export function makeToolExecutor(db, deps = {}) {
   const progFns = deps;   // alias: las tools de lectura ya usaban `progFns.getPrograms`
   return async function execute(name, args = {}) {
-    // ── Escritura: señal de intención (la app genera el plan real y lo confirma) ──
+    // ── Escritura: señales de intención (la app genera el dato real y lo confirma) ──
     if (name === 'propose_program') {
       const goal = String(args.goal || '').trim();
       if (!goal) return 'ERROR: falta `goal` describiendo el plan a generar.';
       if (deps.onProposal) deps.onProposal({ type: 'program_request', goal, basedOn: args.basedOn || null });
       return 'Solicitud de plan registrada. La app generará el plan y se lo mostrará al atleta para confirmar. En tu respuesta, dile en una frase que le has preparado un plan para revisar (sin listar el detalle).';
+    }
+    if (name === 'log_workout') {
+      const description = String(args.description || '').trim();
+      if (!description) return 'ERROR: falta `description` con el entrenamiento a registrar.';
+      if (deps.onProposal) deps.onProposal({ type: 'workout_request', description });
+      return 'Entreno recibido. La app lo estructurará y le mostrará al atleta una tarjeta para revisar y confirmar. En tu respuesta, dile en una frase que lo tiene listo para revisar (sin repetir todas las series).';
     }
 
     if (name === 'get_exercise_history') {
