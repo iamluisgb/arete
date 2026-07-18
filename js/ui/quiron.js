@@ -5,7 +5,7 @@
 // La conversación vive en localStorage 'areteQuiron', fuera de la db sincronizada.
 
 import * as LLM from '../ai/llm.js';
-import { buildSnapshot } from '../ai/context.js';
+import { buildSnapshot, buildReport } from '../ai/context.js';
 import { QUIRON_TOOLS, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import { getPrograms, getProgramList, getAllPhases, getRunningProgramList } from '../programs.js';
@@ -103,6 +103,7 @@ function progContext(db) {
   const runProg = getRunningProgramList().find(p => p.id === db.runningProgram);
   return {
     name: active?.name, phaseName: phase?.name, sessionNames,
+    plannedPerWeek: sessionNames.length,
     runProgramName: runProg?.name, runWeek: runProg ? db.runningWeek : 0,
   };
 }
@@ -136,9 +137,9 @@ function appendBubble(role, html) {
 function renderConvo() {
   els.msgs.innerHTML = '';
   for (const m of convo) {
-    if (m.role === 'user') appendBubble('user', mdLite(m.content));
+    if (m.role === 'user') appendBubble('user', mdLite(m.label || m.content));
     else if (m.role === 'assistant') appendBubble('assistant', mdLite(m.content));
-    // 'data' (datos recuperados): no se pinta
+    // 'data' (datos recuperados / informe): no se pinta
   }
   updateChips();
 }
@@ -165,14 +166,18 @@ function showSetupIfNeeded() {
   return needs;
 }
 
-async function send(db, text) {
+// opts.label    → texto visible en la burbuja del usuario (si el prompt real es largo/técnico)
+// opts.dataBlob → datos ya calculados por la app (p. ej. el informe); van adjuntos al turno
+// opts.skipGather → saltar la fase de recolección con tools (cuando ya tenemos todo, p. ej. informe)
+async function send(db, text, opts = {}) {
   const q = (text || '').trim();
   if (!q || busy) return;
   if (showSetupIfNeeded()) return;
   if (!navigator.onLine) { toast('Quirón necesita conexión', 'error'); return; }
 
-  convo.push({ role: 'user', content: q });
-  appendBubble('user', mdLite(q));
+  convo.push(opts.label ? { role: 'user', content: q, label: opts.label } : { role: 'user', content: q });
+  appendBubble('user', mdLite(opts.label || q));
+  if (opts.dataBlob) convo.push({ role: 'data', content: opts.dataBlob });
   updateChips();
   saveConvo();
   els.input.value = '';
@@ -195,26 +200,28 @@ async function send(db, text) {
 
     // 1) Recolección: el modelo pide herramientas si el snapshot no basta.
     const gathered = [];
-    try {
-      await LLM.chatToolsLoop({
-        messages: [
-          system,
-          ...history,
-          { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Antes de responder: si necesitas histórico que no esté en el snapshot, pide las herramientas necesarias. Cuando tengas los datos (o si el snapshot ya basta), responde exactamente "LISTO". NO respondas aún al atleta.' },
-        ],
-        tools: QUIRON_TOOLS,
-        execute: async (name, args) => {
-          const out = await makeToolExecutor(db, { getPrograms })(name, args);
-          gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
-          return out;
-        },
-        maxRounds: GATHER_MAX_ROUNDS,
-        maxTokens: 1024,
-        signal,
-      });
-    } catch (e) {
-      if (e.name === 'AbortError') throw e;
-      console.warn('Recolección falló; respondo solo con el snapshot:', e);
+    if (!opts.skipGather) {
+      try {
+        await LLM.chatToolsLoop({
+          messages: [
+            system,
+            ...history,
+            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Antes de responder: si necesitas histórico que no esté en el snapshot, pide las herramientas necesarias. Cuando tengas los datos (o si el snapshot ya basta), responde exactamente "LISTO". NO respondas aún al atleta.' },
+          ],
+          tools: QUIRON_TOOLS,
+          execute: async (name, args) => {
+            const out = await makeToolExecutor(db, { getPrograms })(name, args);
+            gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
+            return out;
+          },
+          maxRounds: GATHER_MAX_ROUNDS,
+          maxTokens: 1024,
+          signal,
+        });
+      } catch (e) {
+        if (e.name === 'AbortError') throw e;
+        console.warn('Recolección falló; respondo solo con el snapshot:', e);
+      }
     }
     if (gathered.length) {
       convo.push({ role: 'data', content: gathered.join('\n\n') });
@@ -260,6 +267,34 @@ async function send(db, text) {
     setBusy(false);
     abortCtrl = null;
   }
+}
+
+// Informe (Fase 5b): los agregados los calcula la app (buildReport); Quirón los
+// convierte en el formato RESUMEN. Sin fase de recolección: ya tenemos todo.
+function sendReport(db, period) {
+  const pc = progContext(db);
+  const dataBlob = buildReport(db, pc, { period });
+  const label = period === 'month' ? '📊 Informe mensual' : '📊 Informe semanal';
+  const instruction = `Genera mi INFORME ${period === 'month' ? 'del último mes' : 'de la última semana'} usando los DATOS DEL INFORME adjuntos (ya calculados por la app: cítalos, no los recalcules).\n\nEstructura EXACTA de la respuesta:\n1) Primero, SOLO la tabla RESUMEN dentro de un bloque de código \`\`\`.\n2) Después, FUERA del bloque de código, en prosa normal con **negritas** y lista numerada: 2-3 recomendaciones concretas y accionables. Termina con una nota de seguridad (no cargar sobre dolor).\n\nNO metas las recomendaciones dentro del bloque de código.`;
+  send(db, instruction, { label, dataBlob, skipGather: true });
+}
+
+// Ofrece elegir periodo con dos botones inline (reusa el patrón de "Continuar").
+function offerReport(db) {
+  if (busy) return;
+  const card = document.createElement('div');
+  card.className = 'q-report-choice';
+  card.innerHTML = `<span>¿Qué informe quieres?</span>
+    <button class="q-chip" data-period="week">Semanal</button>
+    <button class="q-chip" data-period="month">Mensual</button>`;
+  els.msgs.appendChild(card);
+  els.msgs.scrollTop = els.msgs.scrollHeight;
+  card.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-period]');
+    if (!b) return;
+    card.remove();
+    sendReport(db, b.dataset.period);
+  });
 }
 
 function autoGrow() {
@@ -362,6 +397,7 @@ export function initQuiron(db) {
 
   els.fab.addEventListener('click', openPanel);
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);
+  document.getElementById('quironReportBtn').addEventListener('click', () => offerReport(db));
   document.getElementById('quironNewBtn').addEventListener('click', () => {
     if (busy) abortCtrl?.abort();
     archiveCurrent();

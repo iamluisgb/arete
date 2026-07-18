@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   epley, daysAgo, workoutTonnage, e1rmByExercise, weekStartOf, weeklySeries,
   loadRatio, recentPRs, bodyTrend, lastStrengthSessions, lastRuns,
+  periodStats, runIntensitySplit,
 } from '../js/ai/metrics.js';
-import { buildSnapshot } from '../js/ai/context.js';
+import { buildSnapshot, buildReport } from '../js/ai/context.js';
 import { makeToolExecutor } from '../js/ai/tools.js';
 
 // Fecha de referencia fija para todos los tests: jueves 2026-07-16
@@ -146,6 +147,51 @@ describe('buildSnapshot', () => {
   it('avisa cuando no hay entrenamientos', () => {
     const snap = buildSnapshot({ settings: {}, workouts: [], runningLogs: [], bodyLogs: [] }, {}, REF);
     expect(snap).toContain('SIN ENTRENAMIENTOS');
+  });
+});
+
+describe('periodStats', () => {
+  it('agrega el periodo actual vs el anterior', () => {
+    const ps = periodStats(DB, 7, REF);
+    expect(ps.current.strengthSessions).toBe(1);
+    expect(ps.current.tonnage).toBe(2130);        // 100×5×3 + 70×5 + 70×4
+    expect(ps.current.runSessions).toBe(1);
+    expect(ps.current.km).toBe(10);
+    expect(ps.current.runMin).toBe(60);
+    // Periodo anterior (días 7-14) vacío → deltas null
+    expect(ps.previous.tonnage).toBe(0);
+    expect(ps.tonnageDeltaPct).toBeNull();
+    expect(ps.kmDeltaPct).toBeNull();
+  });
+});
+
+describe('runIntensitySplit', () => {
+  it('reparte fácil vs calidad por km en la ventana', () => {
+    const s = runIntensitySplit(DB.runningLogs, 28, REF);
+    expect(s.easyKm).toBe(10);      // rodaje
+    expect(s.qualityKm).toBe(6);    // intervalos
+    expect(s.easyN).toBe(1);
+    expect(s.qualityN).toBe(1);
+    expect(s.easyPct).toBe(63);     // 10/16
+  });
+  it('easyPct null sin carreras', () => {
+    expect(runIntensitySplit([], 28, REF).easyPct).toBeNull();
+  });
+});
+
+describe('buildReport', () => {
+  it('compone el informe semanal con periodo, intensidad y adherencia', () => {
+    const rep = buildReport(DB, { plannedPerWeek: 3 }, { period: 'week', ref: REF });
+    expect(rep).toContain('INFORME · ÚLTIMA SEMANA');
+    expect(rep).toContain('2130 kg tonelaje');
+    expect(rep).toContain('Adherencia fuerza: 1/3');
+    // Ventana semanal (7d): solo entra el rodaje → 100% fácil (los intervalos son de 26d atrás)
+    expect(rep).toContain('Intensidad carrera: 100% fácil');
+    expect(rep).toContain('e1RM');
+  });
+  it('el informe mensual usa ventana de 4 semanas', () => {
+    const rep = buildReport(DB, {}, { period: 'month', ref: REF });
+    expect(rep).toContain('INFORME · ÚLTIMAS 4 SEMANAS');
   });
 });
 

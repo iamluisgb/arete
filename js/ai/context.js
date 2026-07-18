@@ -7,7 +7,7 @@
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
-  lastStrengthSessions, lastRuns,
+  lastStrengthSessions, lastRuns, periodStats, runIntensitySplit,
 } from './metrics.js';
 
 /**
@@ -79,6 +79,64 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   if (runs.length) { L.push('ÚLTIMAS CARRERAS:'); for (const x of runs) L.push('  ' + x); }
 
   if (!str.length && !runs.length) L.push('SIN ENTRENAMIENTOS REGISTRADOS TODAVÍA.');
+
+  return L.join('\n');
+}
+
+/**
+ * Datos del INFORME (Fase 5b): agregados de un periodo para que Quirón produzca el
+ * formato RESUMEN. Añade lo que el snapshot no trae con marco temporal: tonelaje del
+ * periodo vs anterior, adherencia vs plan, reparto de intensidad de carrera (80/20)
+ * y lectura de la señal de descarga. Los números salen de metrics.js (JS, exactos).
+ * @param {Object} prog  contexto de programas; usa `prog.plannedPerWeek` (nº de sesiones
+ *                       de la fase activa) para la adherencia si viene.
+ * @param {'week'|'month'} period
+ */
+export function buildReport(db, prog = {}, { period = 'week', ref = new Date() } = {}) {
+  const days = period === 'month' ? 28 : 7;
+  const weeks = period === 'month' ? 4 : 1;
+  const label = period === 'month' ? 'ÚLTIMAS 4 SEMANAS' : 'ÚLTIMA SEMANA';
+  const L = [`INFORME · ${label} (hasta ${ref.toISOString().slice(0, 10)})`];
+
+  const ps = periodStats(db, days, ref);
+  const dPct = (v) => v == null ? 's/ref' : `${v >= 0 ? '+' : ''}${v}%`;
+  L.push(`Fuerza: ${ps.current.strengthSessions} sesiones · ${ps.current.tonnage} kg tonelaje (${dPct(ps.tonnageDeltaPct)} vs periodo anterior)`);
+  L.push(`Running: ${ps.current.runSessions} sesiones · ${ps.current.km} km (${dPct(ps.kmDeltaPct)}) · ${ps.current.runMin} min`);
+
+  // Adherencia vs plan (proxy): sesiones de fuerza hechas vs planificadas por la fase activa
+  if (prog.plannedPerWeek > 0) {
+    const planned = prog.plannedPerWeek * weeks;
+    const pct = Math.round((ps.current.strengthSessions / planned) * 100);
+    L.push(`Adherencia fuerza: ${ps.current.strengthSessions}/${planned} sesiones planificadas (${pct}%)`);
+  }
+
+  // Reparto de intensidad de carrera (80/20)
+  const split = runIntensitySplit(db.runningLogs, days, ref);
+  if (split.easyN + split.qualityN > 0) {
+    L.push(`Intensidad carrera: ${split.easyPct}% fácil (${split.easyKm} km) / ${100 - split.easyPct}% calidad (${split.qualityKm} km) — objetivo ≈80/20`);
+  }
+
+  // Señal de descarga
+  const lr = loadRatio(db, ref);
+  if (lr.ratio != null) {
+    L.push(`Carga aguda 7d vs media 28d: ratio ${lr.ratio} (${lr.ratio > 1.3 ? 'PICO — considerar descarga' : lr.ratio < 0.8 ? 'semana suave' : 'rango normal'})`);
+  }
+
+  // PRs y peso
+  const prs = recentPRs(db.workouts, days, ref);
+  L.push(prs.length ? `PRs del periodo: ${prs.map(p => `${p.name} ${p.rm} kg`).join(' · ')}` : 'PRs del periodo: ninguno');
+  const bt = bodyTrend(db.bodyLogs, ref);
+  if (bt) L.push(`Peso: ${bt.weight} kg${bt.delta30 != null ? ` (${bt.delta30 > 0 ? '+' : ''}${bt.delta30} kg vs ~30d)` : ''}`);
+
+  // e1RM tendencia de los principales (mejor histórico | mejor últimos 30d)
+  const rms = e1rmByExercise(db.workouts, ref);
+  const top = Object.entries(rms).filter(([, r]) => r.best).sort((a, b) => b[1].best.rm - a[1].best.rm).slice(0, 6);
+  if (top.length) {
+    L.push('e1RM (histórico | reciente 30d):');
+    for (const [name, r] of top) {
+      L.push(`  ${name}: ${r.best.rm.toFixed(1)} | ${r.recent ? r.recent.rm.toFixed(1) : '—'}`);
+    }
+  }
 
   return L.join('\n');
 }

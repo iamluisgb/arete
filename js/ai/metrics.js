@@ -117,6 +117,55 @@ export function loadRatio(db, ref = new Date()) {
   return { acute: Math.round(acute), chronicWeekly: Math.round(chronicWeekly), ratio: Math.round((acute / chronicWeekly) * 100) / 100 };
 }
 
+/**
+ * Agregados de un periodo de `days` días vs el periodo anterior de igual duración.
+ * Para el informe: tonelaje, sesiones de fuerza, sesiones de running, km y minutos,
+ * con el delta % de tonelaje y km respecto al periodo previo.
+ */
+export function periodStats(db, days = 7, ref = new Date()) {
+  const bucket = (from, to) => {
+    const s = { tonnage: 0, strengthSessions: 0, runSessions: 0, km: 0, runMin: 0 };
+    for (const w of (db.workouts || [])) {
+      const d = daysAgo(w.date, ref);
+      if (d >= from && d < to) { s.strengthSessions++; s.tonnage += workoutTonnage(w); }
+    }
+    for (const r of (db.runningLogs || [])) {
+      const d = daysAgo(r.date, ref);
+      if (d >= from && d < to) { s.runSessions++; s.km += (r.distance || 0); s.runMin += (r.duration || 0) / 60; }
+    }
+    s.km = Math.round(s.km * 10) / 10;
+    s.runMin = Math.round(s.runMin);
+    return s;
+  };
+  const cur = bucket(0, days);
+  const prev = bucket(days, days * 2);
+  const pct = (a, b) => (b > 0 ? Math.round(((a - b) / b) * 100) : null);
+  return { current: cur, previous: prev, tonnageDeltaPct: pct(cur.tonnage, prev.tonnage), kmDeltaPct: pct(cur.km, prev.km) };
+}
+
+// Clasificación de tipo de carrera en fácil (Z1-Z2) vs calidad (Z3+) para el 80/20.
+// libre/rodaje = fácil; intervalos/tempo/cuestas/fartlek/competicion = calidad.
+const QUALITY_RUN_TYPES = new Set(['intervalos', 'tempo', 'cuestas', 'fartlek', 'competicion']);
+
+/** Reparto de intensidad de carrera (80/20) en los últimos `days` días, por km */
+export function runIntensitySplit(runningLogs, days = 28, ref = new Date()) {
+  let easyKm = 0, qualityKm = 0, easyN = 0, qualityN = 0;
+  for (const r of (runningLogs || [])) {
+    const d = daysAgo(r.date, ref);
+    if (d < 0 || d >= days) continue;
+    const km = r.distance || 0;
+    if (QUALITY_RUN_TYPES.has(r.type)) { qualityKm += km; qualityN++; }
+    else { easyKm += km; easyN++; }
+  }
+  const total = easyKm + qualityKm;
+  return {
+    easyKm: Math.round(easyKm * 10) / 10,
+    qualityKm: Math.round(qualityKm * 10) / 10,
+    easyN, qualityN,
+    easyPct: total > 0 ? Math.round((easyKm / total) * 100) : null,
+  };
+}
+
 /** PRs de e1RM logrados en los últimos `days` días (mejor set reciente ≥ mejor histórico) */
 export function recentPRs(workouts, days = 30, ref = new Date()) {
   const byEx = e1rmByExercise(workouts, ref);

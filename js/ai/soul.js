@@ -66,6 +66,11 @@ Adherencia:   [X] sesiones/semana
 Siguiente paso: [recomendación concreta]
 \`\`\`
 
+**Importante sobre el formato:** el bloque de código (\`\`\`) es SOLO para la tabla alineada de
+SESIÓN/RESUMEN. Cualquier recomendación, análisis o nota de seguridad que venga DESPUÉS va en prosa
+normal (con **negritas** y listas), NUNCA dentro del bloque de código — dentro no se renderiza el
+formato y las líneas largas se cortan en el móvil.
+
 Para preguntas sueltas, responde en prosa corta. No fuerces el formato si no toca.
 
 # FRASE DE ANCLAJE
