@@ -1,7 +1,7 @@
 import { saveDB, markDeleted } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { formatDate, esc, confirmDanger } from '../utils.js';
-import { getProgramById } from '../programs.js';
+import { getActiveProgram, getProgramById } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { toast } from './toast.js';
 import { openShareEditor } from './share-editor.js';
@@ -25,16 +25,26 @@ function renderItem(w) {
   return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">Fase ${ROMAN[w.phase - 1] || w.phase} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
 }
 
-/** Repuebla el selector de plan (preservando la selección actual). */
+// Por defecto el historial muestra el plan ACTIVO (vista limpia de siempre).
+// "Todos los planes" es la salida para que ninguna sesión quede nunca oculta.
+// Una vez el usuario toca el filtro, su elección manda durante la sesión.
+let _planFilterTouched = false;
+
+/** Repuebla el selector de plan. Pre-selecciona el plan activo hasta que el usuario elige. */
 function populatePlanFilter(db) {
   const sel = document.getElementById('historyProgFilter');
   if (!sel) return;
-  const current = sel.value;
+  const prev = sel.value;
   const ids = [...new Set(db.workouts.map(w => w.program || 'arete'))];
   const opts = ['<option value="">Todos los planes</option>']
     .concat(ids.map(id => `<option value="${esc(id)}">${esc(planName(id))}</option>`));
   sel.innerHTML = opts.join('');
-  if (current && ids.includes(current)) sel.value = current;
+  if (_planFilterTouched) {
+    sel.value = ids.includes(prev) ? prev : '';   // respeta la elección (incl. "Todos")
+  } else {
+    const active = getActiveProgram();
+    sel.value = ids.includes(active) ? active : '';
+  }
 }
 
 /** Render paginated workout history list */
@@ -149,7 +159,7 @@ export function getDetailWorkout(db) {
 /** Initialize history section: bind filter, list clicks, and detail modal */
 export function initHistory(db, { onEdit }) {
   document.getElementById('historyFilter').addEventListener('change', () => renderHistory(db));
-  document.getElementById('historyProgFilter')?.addEventListener('change', () => renderHistory(db));
+  document.getElementById('historyProgFilter')?.addEventListener('change', () => { _planFilterTouched = true; renderHistory(db); });
   document.getElementById('historyList').addEventListener('click', (e) => {
     if (e.target.closest('.load-more-btn')) { loadMore(); return; }
     const item = e.target.closest('.history-item[data-id]');
