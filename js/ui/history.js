@@ -30,6 +30,15 @@ function renderItem(w) {
 // Una vez el usuario toca el filtro, su elección manda durante la sesión.
 let _planFilterTouched = false;
 
+/** Filtro de plan efectivo (fuente única para historial Y calendario).
+ *  '' = todos los planes; si no, id de programa. Por defecto, el plan activo. */
+export function currentPlanFilter() {
+  const sel = document.getElementById('historyProgFilter');
+  if (!sel) return getActiveProgram();
+  if (_planFilterTouched) return sel.value;        // el usuario mandó (incl. "Todos")
+  return sel.value || getActiveProgram();          // por defecto, plan activo
+}
+
 /** Repuebla el selector de plan. Pre-selecciona el plan activo hasta que el usuario elige. */
 function populatePlanFilter(db) {
   const sel = document.getElementById('historyProgFilter');
@@ -53,7 +62,7 @@ export function renderHistory(db, dateFilter) {
   historyPage = 0;
   populatePlanFilter(db);
   const filter = document.getElementById('historyFilter').value;
-  const progFilter = document.getElementById('historyProgFilter')?.value || '';
+  const progFilter = currentPlanFilter();
   let items = [...db.workouts].reverse();
   if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
   if (filter) items = items.filter(w => w.session === filter);
@@ -76,7 +85,7 @@ function loadMore() {
   if (!_currentDb) return;
   historyPage++;
   const filter = document.getElementById('historyFilter').value;
-  const progFilter = document.getElementById('historyProgFilter')?.value || '';
+  const progFilter = currentPlanFilter();
   let items = [..._currentDb.workouts].reverse();
   if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
   if (filter) items = items.filter(w => w.session === filter);
@@ -159,7 +168,7 @@ export function getDetailWorkout(db) {
 /** Initialize history section: bind filter, list clicks, and detail modal */
 export function initHistory(db, { onEdit }) {
   document.getElementById('historyFilter').addEventListener('change', () => renderHistory(db));
-  document.getElementById('historyProgFilter')?.addEventListener('change', () => { _planFilterTouched = true; renderHistory(db); });
+  document.getElementById('historyProgFilter')?.addEventListener('change', () => { _planFilterTouched = true; renderCalendar(db); renderHistory(db); });
   document.getElementById('historyList').addEventListener('click', (e) => {
     if (e.target.closest('.load-more-btn')) { loadMore(); return; }
     const item = e.target.closest('.history-item[data-id]');

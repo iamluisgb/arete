@@ -1,6 +1,5 @@
 import { showDetail } from './history.js';
-import { renderHistory } from './history.js';
-import { getActiveProgram } from '../programs.js';
+import { renderHistory, currentPlanFilter } from './history.js';
 
 let calViewDate = new Date();
 
@@ -15,8 +14,8 @@ export function renderCalendar(db) {
   const panel = document.getElementById('calendarPanel');
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const prog = getActiveProgram();
-  const filtered = db.workouts.filter(w => (w.program || 'arete') === prog);
+  const pf = currentPlanFilter();
+  const filtered = pf ? db.workouts.filter(w => (w.program || 'arete') === pf) : db.workouts;
   const wd = {};
   filtered.forEach(w => { if (!wd[w.date]) wd[w.date] = []; wd[w.date].push(w.session); });
   const vm = new Date(calViewDate.getFullYear(), calViewDate.getMonth(), 1);
@@ -63,8 +62,8 @@ export function initCalendar(db) {
 }
 
 export function calDayClick(ds, db) {
-  const prog = getActiveProgram();
-  const ws = db.workouts.filter(w => w.date === ds && (w.program || 'arete') === prog);
+  const pf = currentPlanFilter();
+  const ws = db.workouts.filter(w => w.date === ds && (!pf || (w.program || 'arete') === pf));
   if (ws.length === 1) showDetail(ws[0].id, db);
   else if (ws.length > 1) {
     document.getElementById('historyFilter').value = '';
