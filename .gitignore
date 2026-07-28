@@ -6,3 +6,10 @@ stitch/
 # Datos personales y salidas de evals (el repo es público)
 evals/fixtures/
 evals/out/
+
+# Evaluación local de medios con licencia (© Gym visual) — NUNCA se versiona
+.eval/
+
+# Prototipo de diseño: referencia medios de .eval/ (evaluación local,
+# incluidos los de Gym visual). Publicarlo dejaría una página rota.
+sesion-fuerza-prototype.html

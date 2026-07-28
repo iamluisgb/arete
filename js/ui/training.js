@@ -4,6 +4,8 @@ import { getPrograms, getActiveProgram, getAllPhases } from '../programs.js';
 import { esc } from '../utils.js';
 import { toast } from './toast.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
+import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
+import { pictHtml } from './exercise-pict.js';
 
 // Re-export for tests
 export { exFmtTime, parseDurationStr, buildTimerConfig };
@@ -137,13 +139,17 @@ function _setupExDots(count) {
   ).join('');
   $dots.classList.add('visible');
 
-  // Click to scroll
-  $dots.addEventListener('click', (e) => {
-    const dot = e.target.closest('.ex-dot');
-    if (!dot) return;
-    const card = $exerciseList.children[parseInt(dot.dataset.dot)];
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
+  // Click to scroll — se enlaza UNA vez: se re-renderiza en cada sesión y antes
+  // acumulaba un listener por render.
+  if (!$dots.dataset.bound) {
+    $dots.dataset.bound = '1';
+    $dots.addEventListener('click', (e) => {
+      const dot = e.target.closest('.ex-dot');
+      if (!dot) return;
+      const card = $exerciseList.children[parseInt(dot.dataset.dot)];
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
 
   // IntersectionObserver
   if (_exObserver) _exObserver.disconnect();
@@ -181,9 +187,11 @@ function setFormVisible(show) {
   const miniTimer = document.getElementById('miniTimer');
   const dots = document.getElementById('exerciseDots');
   const saveBar = document.getElementById('saveBar');
-  [timerBar, miniTimer, $prefillBanner, dots, $exerciseList, saveBar].forEach(el => {
+  const runnerBtn = document.getElementById('startRunnerBtn');
+  [timerBar, miniTimer, $prefillBanner, dots, $exerciseList, saveBar, runnerBtn].forEach(el => {
     if (el) el.style.display = show ? '' : 'none';
   });
+  if (!show && isRunnerOpen()) closeRunner();
   if ($sessionOverview) $sessionOverview.style.display = show ? 'none' : '';
 }
 
@@ -300,6 +308,27 @@ export function loadSessionTemplate(db, autoPrefill) {
     }
   }).join('');
   _setupExDots(exercises.length);
+
+  // El runner es una capa encima de esta lista: se prepara tras cada render,
+  // pero solo se abre por acción explícita — nunca al editar un entreno pasado.
+  prepareRunner(exercises, scheduleDraft);
+  _renderRunnerCta();
+}
+
+/** Botón para entrar al runner. Oculto al editar y si la sesión no tiene series. */
+function _renderRunnerCta() {
+  let btn = document.getElementById('startRunnerBtn');
+  if (editingId || !hasSets()) { btn?.remove(); return; }
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'startRunnerBtn';
+    btn.className = 'start-runner-btn';
+    btn.addEventListener('click', () => openRunner());
+    $exerciseList.insertAdjacentElement('beforebegin', btn);
+  }
+  const done = $exerciseList.querySelectorAll('.set-label.set-done').length;
+  btn.textContent = done ? 'Continuar sesión' : 'Empezar sesión';
 }
 
 function timerBtnHtml(i, mode) {
@@ -330,7 +359,7 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
     ) : '';
     pi = `<div class="prev-data">Anterior: ${prevStr}${badge}</div>`;
   }
-  return `<div class="ex-card"><div class="ex-name">${esc(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}</div>`;
+  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}</div>`;
 }
 
 function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {
@@ -815,18 +844,20 @@ function _markSetDone(label) {
   label.classList.add('set-done');
   label.classList.remove('active-set');
   label.textContent = '✓';
-  _updateActiveSet(label.closest('.sets-grid'));
+  _updateActiveSet();
 }
 
 function _unmarkSetDone(label) {
   label.classList.remove('set-done');
   label.textContent = label.dataset.original || `S${(parseInt(label.dataset.set) || 0) + 1}`;
-  _updateActiveSet(label.closest('.sets-grid'));
+  _updateActiveSet();
 }
 
-function _updateActiveSet(grid) {
-  if (!grid) return;
-  const labels = grid.querySelectorAll('.set-label');
+// La serie activa es una en toda la SESIÓN, no una por ejercicio: operando por
+// `.sets-grid` una sesión de 3 ejercicios mostraba 3 series "activas" a la vez.
+function _updateActiveSet() {
+  if (!$exerciseList) return;
+  const labels = $exerciseList.querySelectorAll('.set-label');
   let found = false;
   labels.forEach(l => {
     l.classList.remove('active-set');

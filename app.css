@@ -936,3 +936,97 @@ body.quiron-open #quironFab{display:none}
 #quironAttachBtn:active{opacity:.6}
 .q-img-chip{display:inline-flex;align-items:center;gap:6px}
 .q-img-chip .material-symbols-outlined{font-size:18px;vertical-align:middle}
+
+/* ══ Ilustraciones de ejercicio ══════════════════════════
+   Flipbook de N fotogramas: cada uno visible 1/N del ciclo, repartido por
+   retardo negativo. Fondo transparente, así que no necesitan ficha. */
+.ex-pict{position:relative;display:inline-block;flex-shrink:0;width:52px;height:52px;vertical-align:middle}
+.ex-pict img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;border-radius:0}
+.ex-pict.sm{width:34px;height:34px}
+.ex-pict.lg{width:168px;height:168px}
+.ex-pict.f1 img{animation:none;opacity:1}
+.ex-pict.f2 img{animation:exPict2 2.4s steps(1,end) infinite}
+.ex-pict.f3 img{animation:exPict3 3s steps(1,end) infinite}
+.ex-pict.f4 img{animation:exPict4 3.2s steps(1,end) infinite}
+.ex-pict.f2 img:nth-child(2){animation-delay:-1.2s}
+.ex-pict.f3 img:nth-child(2){animation-delay:-1s}
+.ex-pict.f3 img:nth-child(3){animation-delay:-2s}
+.ex-pict.f4 img:nth-child(2){animation-delay:-.8s}
+.ex-pict.f4 img:nth-child(3){animation-delay:-1.6s}
+.ex-pict.f4 img:nth-child(4){animation-delay:-2.4s}
+@keyframes exPict2{0%,49.99%{opacity:1}50%,100%{opacity:0}}
+@keyframes exPict3{0%,33.32%{opacity:1}33.33%,100%{opacity:0}}
+@keyframes exPict4{0%,24.99%{opacity:1}25%,100%{opacity:0}}
+.ex-pict img:only-child{animation:none;opacity:1}
+@media (prefers-reduced-motion:reduce){
+  .ex-pict img{animation:none!important}
+  .ex-pict img:first-child{opacity:1}
+}
+.ex-card .ex-name{display:flex;align-items:center;gap:8px}
+
+/* ══ Runner de sesión ════════════════════════════════════ */
+.start-runner-btn{display:block;width:100%;background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:15px;border-radius:var(--radius);cursor:pointer;min-height:52px;margin-bottom:var(--sp-3);box-shadow:0 8px 24px var(--accent-glow);-webkit-tap-highlight-color:transparent}
+.start-runner-btn:active{transform:scale(.985);opacity:.9}
+
+body.session-focus header,body.session-focus nav,
+body.session-focus .context-bar,body.session-focus .str-subnav{display:none}
+body.session-focus{padding-bottom:0;overflow:hidden}
+
+.set-runner{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;padding:var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);will-change:transform;visibility:hidden}
+.set-runner.up{transform:translateY(0);visibility:visible}
+.set-runner>*{width:100%;max-width:520px;margin-left:auto;margin-right:auto}
+.sr-top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:var(--sp-2)}
+.sr-top span{display:flex;align-items:center;gap:6px;min-width:0}
+.sr-ex .ex-pict{width:26px;height:26px}
+.sr-progress{display:flex;gap:3px;margin-bottom:var(--sp-3)}
+.sr-progress i{flex:1;height:4px;border-radius:2px;background:var(--surface2)}
+.sr-progress i.d{background:var(--green)}
+.sr-progress i.a{background:var(--accent)}
+
+.sr-phase{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-2)}
+.set-runner.is-work .sr-work,.set-runner.is-rest .sr-rest{display:flex}
+.sr-name{font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.02em;text-align:center}
+.sr-load{display:flex;align-items:flex-start;gap:var(--sp-3);margin-top:var(--sp-2)}
+.sr-load label{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sr-load span{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-weight:700}
+.set-runner .sr-in{width:122px;flex:0 0 auto;padding:10px 4px;font-size:3rem;font-weight:800;text-align:center;border-radius:14px;border:none;background:var(--surface);color:var(--text);font-family:var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.04em;min-height:76px}
+.set-runner .sr-in:focus{outline:2px solid var(--accent);outline-offset:1px}
+.sr-x{font-size:1.6rem;color:var(--text2);font-weight:700;margin-top:16px}
+.sr-prev{font-size:var(--fs-base);color:var(--text2);font-weight:600;margin-top:var(--sp-3);min-height:1.2em}
+
+.sr-ring{position:relative;width:220px;height:220px}
+.sr-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.sr-track{fill:none;stroke:var(--surface2);stroke-width:10}
+.sr-prog{fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .3s linear,stroke .3s}
+.sr-ring.ending .sr-prog{stroke:var(--green)}
+.sr-ring-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sr-time{font-size:3.4rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.04em;line-height:1}
+.sr-lbl{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);margin-top:4px}
+.sr-adj{display:flex;gap:var(--sp-2);margin-top:var(--sp-2)}
+.sr-adj-btn{background:var(--surface);border:1px solid var(--ghost-border);color:var(--text2);font-family:var(--font);font-size:var(--fs-base);font-weight:700;padding:9px 16px;border-radius:20px;min-height:44px;cursor:pointer}
+.sr-adj-btn:active{transform:scale(.95)}
+.sr-did{background:var(--surface);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:10px;width:100%;margin-top:var(--sp-3);border:1px solid var(--ghost-border)}
+.sr-did-who{flex:1;min-width:0}
+.sr-did-k{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-weight:700}
+.sr-did-v{font-size:var(--fs-md);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-runner .sr-did-in{width:62px;flex:0 0 auto;padding:9px 4px;font-size:var(--fs-xl);font-weight:700;text-align:center;border-radius:10px;min-height:44px;border:none;background:var(--surface2);color:var(--text);font-family:var(--font);font-variant-numeric:tabular-nums}
+.sr-did-x{font-size:var(--fs-md);color:var(--text2);font-weight:700}
+.sr-tip{font-size:var(--fs-base);color:var(--text2);text-align:center;margin-top:var(--sp-2);line-height:1.45}
+.sr-next{font-size:var(--fs-base);color:var(--text2);text-align:center;font-weight:600;margin-top:var(--sp-2)}
+.sr-next b{color:var(--text)}
+.sr-cta{width:100%;background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:16px;border-radius:var(--radius);cursor:pointer;min-height:54px;box-shadow:0 8px 24px var(--accent-glow);margin-top:var(--sp-3)}
+.sr-cta:active{transform:scale(.985);opacity:.9}
+.sr-cta.ready{background:var(--green);box-shadow:none}
+.sr-sub{width:100%;background:none;border:none;color:var(--text2);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;cursor:pointer;min-height:44px}
+@media (prefers-reduced-motion:reduce){.set-runner{transition:none}}
+
+/* ══ Contraste del texto funcional de la sesión ══════════
+   --text2 da 2,86:1 y --text3 2,06:1 sobre blanco; ambos fallan AA. En texto
+   decorativo pasa, pero "Kg", "Reps" y las etiquetas de serie son funcionales:
+   se leen de reojo, a contraluz y sudado. Se sube solo aquí, no en el token
+   global, que cambiaría el tono de toda la app.
+   PENDIENTE: revisar --text2/--text3 a nivel de sistema. */
+.ex-card .sets-header,.ex-card .set-label,
+.sr-load span,.sr-lbl,.sr-did-k{color:rgba(93,63,59,.78)}
+:root.dark .ex-card .sets-header,:root.dark .ex-card .set-label,
+:root.dark .sr-load span,:root.dark .sr-lbl,:root.dark .sr-did-k{color:rgba(231,189,183,.82)}
