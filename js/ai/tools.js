@@ -101,6 +101,20 @@ export const QUIRON_WRITE_TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'propose_session',
+      description: 'Úsala cuando el atleta pida UNA sesión concreta para hacer (hoy, mañana, "algo corto", "una sesión de pierna sin gimnasio"). Es un solo entrenamiento, no un plan de varias semanas: la app la guarda como sesión suya y puede iniciarla al momento. No emites la sesión aquí: describes en `goal` qué hay que generar (objetivo, material disponible, tiempo, cargas de referencia) y la app la construye. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas en `goal`.',
+      parameters: {
+        type: 'object',
+        properties: {
+          goal: { type: 'string', description: 'Descripción completa de la sesión a generar, en una o dos frases, incluyendo cargas/ritmos de referencia del atleta si aplican.' },
+        },
+        required: ['goal'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'log_workout',
       description: 'Úsala cuando el atleta describa un entrenamiento YA HECHO para registrarlo (p. ej. "hoy sentadilla 5x5 a 100, banca 3x5 a 70"). Pasa en `description` el texto del entreno tal cual, con la fecha si la menciona. La app lo estructura y le muestra una tarjeta para revisar y confirmar antes de guardar.',
       parameters: {
@@ -113,6 +127,12 @@ export const QUIRON_WRITE_TOOLS = [
     },
   },
 ];
+
+// Instrucción de la fase de recolección. Vive aquí (y no dentro de quiron.js)
+// para que los evals prueben EXACTAMENTE el prompt que corre en la app: el ruteo
+// entre sesión / plan / entreno registrado es lo único que separa esto de un
+// generador de ruido, y se valida con evals, no a ojo.
+export const GATHER_INSTRUCTION = '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) RUTEO — tres peticiones parecidas, tres herramientas distintas. Fíjate en el TIEMPO VERBAL y en el ALCANCE:\n   · UNA sesión para hacer (hoy, mañana, "algo corto", "una sesión de pierna") → propose_session con la sesión descrita en `goal`.\n   · Un PLAN de varias semanas o la edición de uno existente ("un plan de 8 semanas", "cámbiame el plan") → propose_program con el plan descrito en `goal`.\n   · Un entreno YA HECHO que quiere registrar ("hoy he hecho sentadilla 5x5 a 100") → log_workout con esa descripción en `description`.\n   En caso de duda entre sesión y plan: si no se mencionan semanas ni progresión, es una SESIÓN.\n3) Antes de proponer sesión o plan, consulta su e1RM/marca con las tools de lectura para calibrar las cargas y dilas en `goal`.\n4) NO escribas la sesión/el plan/el entreno como tabla — la app los genera desde la herramienta. Si respondes "LISTO" sin llamar a la herramienta cuando se pide, se pierde.\n5) Cuando tengas los datos y (si procede) hayas llamado a la herramienta, responde exactamente "LISTO". NO respondas aún al atleta.';
 
 const fmtDur = (s) => {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
@@ -142,6 +162,12 @@ export function makeToolExecutor(db, deps = {}) {
       if (!goal) return 'ERROR: falta `goal` describiendo el plan a generar.';
       if (deps.onProposal) deps.onProposal({ type: 'program_request', goal, basedOn: args.basedOn || null });
       return 'Solicitud de plan registrada. La app generará el plan y se lo mostrará al atleta para confirmar. En tu respuesta, dile en una frase que le has preparado un plan para revisar (sin listar el detalle).';
+    }
+    if (name === 'propose_session') {
+      const goal = String(args.goal || '').trim();
+      if (!goal) return 'ERROR: falta `goal` describiendo la sesión a generar.';
+      if (deps.onProposal) deps.onProposal({ type: 'session_request', goal });
+      return 'Solicitud de sesión registrada. La app la generará y se la mostrará al atleta para empezarla o guardarla. En tu respuesta, dile en una frase qué has pensado para esa sesión y por qué (sin listar los ejercicios).';
     }
     if (name === 'log_workout') {
       const description = String(args.description || '').trim();

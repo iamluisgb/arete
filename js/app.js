@@ -6,7 +6,8 @@ import { today, mergeDB, esc, trapFocus } from './utils.js';
 import { DEBOUNCE_BACKUP_MS, GIS_CHECK_INTERVAL_MS, GIS_CHECK_TIMEOUT_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
 import { initTimer } from './ui/timer.js';
 import { initNav, switchTab, switchStrTab, updatePhaseUI, updatePhaseDisplay, refreshActiveSection, restoreLastTab } from './ui/nav.js';
-import { initTraining, populateSessions, startEdit, cancelEdit } from './ui/training.js';
+import { initTraining, populateSessions, startEdit, cancelEdit, requestStartSession, getLiveDraft } from './ui/training.js';
+import { isRunnerOpen } from './ui/set-runner.js';
 import { initCalendar } from './ui/calendar.js';
 import { initHistory } from './ui/history.js';
 import { initBody } from './ui/body.js';
@@ -315,10 +316,26 @@ function bindEvents() {
   initQuiron(db, {
     onProgramsChanged: () => {
       updatePhaseUI(db);
-      populateSessions(db);
       renderProgramSelector();
       renderCustomProgramsList();
-      refreshActiveSection(db);
+      // Repoblar el desplegable re-renderiza el formulario y cierra el runner. Con
+      // sesiones sueltas el caso normal es pedirle algo a Quirón EN MITAD del
+      // entreno: si hay runner abierto o borrador vivo, no se toca lo que hay.
+      if (!isRunnerOpen() && !getLiveDraft(db)) {
+        populateSessions(db);
+        refreshActiveSection(db);
+      }
+    },
+    // Empezar una sesión propuesta: misma puerta que el botón del Plan (avisa si
+    // hay un entreno a medias) y salto a Fuerza → Actividad.
+    onStartSession: (ref) => {
+      const strengthBtn = document.querySelector('nav button[data-sec="secStrength"]');
+      requestStartSession(db, ref, null, {
+        onStarted: () => {
+          if (strengthBtn) switchTab(strengthBtn, db);
+          switchStrTab('strTrain', db);
+        },
+      });
     },
   });
   restoreLastTab(db);

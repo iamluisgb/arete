@@ -6,7 +6,8 @@ import { renderHistory } from './history.js';
 import { renderBodyForm, renderBodyHistory, calcProportions, calcCalories } from './body.js';
 import { render1RMs } from './settings.js';
 import { initProgress } from './progress.js';
-import { populateSessions, exTargetText, selectAndStartSession } from './training.js';
+import { populateSessions, exTargetText, requestStartSession } from './training.js';
+import { listCustomSessions, deleteCustomSession, sessionRef } from '../sessions.js';
 import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
 import { renderDashboard } from './dashboard.js';
 import { esc } from '../utils.js';
@@ -57,8 +58,80 @@ export function switchStrTab(tabName, db) {
   if (tabName === 'strPlan') renderStrPlan(db);
 }
 
+const CUSTOM_VISIBLE = 5;   // el resto se colapsa: la lista crece sola con el uso
+
+/**
+ * "Tus sesiones": las sueltas que ha guardado el atleta (hoy solo las propone
+ * Quirón). No son una fase ni parte del plan, por eso viven en su propio bloque,
+ * encima del selector de fase.
+ */
+function renderCustomSessions(db) {
+  const $el = document.getElementById('strPlanCustom');
+  if (!$el) return;
+  const sessions = listCustomSessions(db);
+
+  if (!sessions.length) {
+    $el.innerHTML = `<div class="str-plan-custom">
+      <div class="str-plan-custom-head"><span class="str-plan-custom-title">Tus sesiones</span></div>
+      <div class="str-plan-custom-empty">Aún no tienes ninguna. Pídele a Quirón una sesión para hoy y aparecerá aquí.
+        <button class="btn btn-outline btn-sm" data-ask-quiron="Prepárame una sesión para hoy">Pedir una sesión</button>
+      </div>
+    </div>`;
+  } else {
+    const expanded = $el.dataset.expanded === '1';
+    const shown = expanded ? sessions : sessions.slice(0, CUSTOM_VISIBLE);
+    $el.innerHTML = `<div class="str-plan-custom">
+      <div class="str-plan-custom-head">
+        <span class="str-plan-custom-title">Tus sesiones</span>
+        <span class="str-plan-session-count">${sessions.length}</span>
+      </div>
+      ${shown.map(s => `<div class="str-plan-session str-plan-session-custom">
+        <div class="str-plan-session-header">
+          <span class="str-plan-session-name">${esc(s.name)}</span>
+          <span class="str-plan-session-count">${s.exercises.length} ej.${s.lastUsedAt ? '' : ' · sin estrenar'}</span>
+        </div>
+        <div class="str-plan-ex-list">${s.exercises.map(ex =>
+          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
+        ).join('')}</div>
+        <div class="str-plan-custom-actions">
+          <button class="btn btn-outline btn-sm" data-del-session="${esc(s.id)}">Borrar</button>
+          <button class="btn str-plan-start-btn" data-start-session="${esc(sessionRef(s.id))}">Iniciar sesión</button>
+        </div>
+      </div>`).join('')}
+      ${sessions.length > CUSTOM_VISIBLE ? `<button class="str-plan-custom-more" data-toggle-more>${expanded ? 'Ver menos' : `Ver todas (${sessions.length})`}</button>` : ''}
+    </div>`;
+  }
+
+  $el.onclick = (e) => {
+    const start = e.target.closest('[data-start-session]');
+    if (start) {
+      requestStartSession(db, start.dataset.startSession, null, { onStarted: () => switchStrTab('strTrain', db) });
+      return;
+    }
+    const del = e.target.closest('[data-del-session]');
+    if (del) {
+      const s = listCustomSessions(db).find(x => x.id === del.dataset.delSession);
+      if (s && confirm(`¿Borrar "${s.name}"? Los entrenos que ya hiciste con ella se conservan.`)) {
+        deleteCustomSession(db, s.id);
+        renderCustomSessions(db);
+        populateSessions(db);
+      }
+      return;
+    }
+    const more = e.target.closest('[data-toggle-more]');
+    if (more) {
+      $el.dataset.expanded = $el.dataset.expanded === '1' ? '0' : '1';
+      renderCustomSessions(db);
+      return;
+    }
+    const ask = e.target.closest('[data-ask-quiron]');
+    if (ask) document.dispatchEvent(new CustomEvent('arete:ask-quiron', { detail: { prompt: ask.dataset.askQuiron } }));
+  };
+}
+
 /** Render strength Plan tab — browse all phases and sessions */
 function renderStrPlan(db) {
+  renderCustomSessions(db);
   const $phase = document.getElementById('strPlanPhase');
   const $content = document.getElementById('strPlanContent');
   if (!$phase || !$content) return;
@@ -100,8 +173,9 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
 
   $content.querySelectorAll('.str-plan-start-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      selectAndStartSession(btn.dataset.planSession, btn.dataset.planPhase, db);
-      switchStrTab('strTrain', db);
+      requestStartSession(db, btn.dataset.planSession, btn.dataset.planPhase, {
+        onStarted: () => switchStrTab('strTrain', db),
+      });
     });
   });
 }

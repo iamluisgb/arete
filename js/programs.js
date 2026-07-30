@@ -1,13 +1,11 @@
 import { saveDB } from './data.js';
+import { VALID_RUN_MODES, validateSessionExercises } from './sessions.js';
 
 let ALL_PROGRAMS = {};
 let ALL_RUNNING_PROGRAMS = {};
 let BUILTIN_IDS = new Set();
 let activeProgram = 'arete';
 let BODY_MEASURES = [];
-
-const VALID_MODES = new Set(['sets', 'result', 'interval', 'tabata', 'rounds', 'ladder', 'pyramid', 'amrap', 'emom', 'superset']);
-const VALID_RUN_MODES = new Set(['run-steady', 'run-intervals']);
 
 async function fetchJSON(url) {
   try {
@@ -114,11 +112,9 @@ export function validateProgram(data) {
     const phase = data[k];
     if (!phase.sessions || typeof phase.sessions !== 'object') return `Fase "${k}" no tiene sessions`;
     for (const [sName, exercises] of Object.entries(phase.sessions)) {
-      if (!Array.isArray(exercises)) return `Sesión "${sName}" de fase "${k}" no es un array`;
-      for (const ex of exercises) {
-        if (!ex.name) return `Un ejercicio en "${sName}" no tiene nombre`;
-        if (ex.mode && !VALID_MODES.has(ex.mode) && !VALID_RUN_MODES.has(ex.mode)) return `Modo "${ex.mode}" no es válido en "${ex.name}"`;
-      }
+      // Misma validación que una sesión suelta: una sola fuente de verdad.
+      const err = validateSessionExercises(exercises, `la sesión "${sName}" de la fase "${k}"`);
+      if (err) return err;
     }
   }
   return null; // null = valid

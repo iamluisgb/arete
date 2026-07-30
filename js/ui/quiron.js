@@ -6,13 +6,17 @@
 
 import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport } from '../ai/context.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, makeToolExecutor } from '../ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import {
   getPrograms, getProgramList, getAllPhases, getRunningProgramList,
   validateProgram, applyProgramProposal, undoProgramCommit, getProgramById,
   isBuiltinProgram, programPhaseKeys,
 } from '../programs.js';
+import {
+  validateSession, normalizeSession, applySessionProposal, undoSessionCommit,
+  catalogExerciseNames, unknownExercises, sessionRef,
+} from '../sessions.js';
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
@@ -20,6 +24,9 @@ import { toast } from './toast.js';
 
 // Callback para refrescar la app subyacente tras aplicar/deshacer un plan.
 let onProgramsChanged = () => {};
+// Callback para arrancar una sesión desde una propuesta (lo cablea app.js: aquí no
+// se sabe nada de pestañas ni de borradores a medias).
+let onStartSession = () => {};
 
 const CONVO_KEY = 'areteQuiron';
 const ARCHIVE_KEY = 'areteQuironArchive';
@@ -150,7 +157,10 @@ function renderConvo() {
     if (m.role === 'user') appendBubble('user', mdLite(m.label || m.content));
     else if (m.role === 'assistant') {
       if (m.content?.trim()) appendBubble('assistant', mdLite(m.content));
-      if (m.proposals) for (const p of m.proposals) els.msgs.appendChild(renderProposalCard(dbRef, p, m));
+      if (m.proposals) for (const p of m.proposals) {
+        if (p.discarded) continue;
+        els.msgs.appendChild(renderProposalCard(dbRef, p, m));
+      }
     }
     // 'data' (datos recuperados / informe): no se pinta
   }
@@ -227,7 +237,7 @@ async function send(db, text, opts = {}) {
           messages: [
             system,
             ...history,
-            { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) Si el atleta pide CREAR o EDITAR un plan: llama a propose_program describiendo el plan en `goal` (consulta antes su e1RM/marca para calibrar).\n3) Si el atleta describe un ENTRENO YA HECHO para registrarlo (ej. "hoy sentadilla 5x5 a 100"): llama a log_workout con esa descripción en `description`.\n4) En 2) y 3) NO escribas el plan/entreno como tabla — la app lo genera desde la herramienta. Si respondes "LISTO" sin llamar a la herramienta cuando se pide, se pierde.\n5) Cuando tengas los datos y (si procede) hayas llamado a la herramienta, responde exactamente "LISTO". NO respondas aún al atleta.' },
+            { role: 'user', content: GATHER_INSTRUCTION },
           ],
           tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
           execute: async (name, args) => {
@@ -252,7 +262,7 @@ async function send(db, text, opts = {}) {
     // 2a) Si el modelo pidió crear/editar un plan o registrar un entreno: la app lo
     //     GENERA (JSON-en-contenido, fiable) y muestra la tarjeta de confirmación.
     //     No pasa por el stream normal.
-    const writeRequests = proposals.filter(p => p.type === 'program_request' || p.type === 'workout_request');
+    const writeRequests = proposals.filter(p => p.type === 'program_request' || p.type === 'session_request' || p.type === 'workout_request');
     if (writeRequests.length) {
       const built = [];
       const proseParts = [];
@@ -264,6 +274,11 @@ async function send(db, text, opts = {}) {
             const { program, prose } = await generatePlan(db, req, signal);
             proseParts.push(prose);
             built.push({ type: 'program', program, basedOn: req.basedOn || null, summary: program._meta?.desc || '', id: uid() });
+          } else if (req.type === 'session_request') {
+            bubble.innerHTML = '<span class="q-typing">preparando la sesión…</span>';
+            const { session, prose } = await generateSession(db, req, signal);
+            proseParts.push(prose);
+            built.push({ type: 'session', session, summary: session.desc || '', id: uid(), ts: Date.now() });
           } else {
             bubble.innerHTML = '<span class="q-typing">estructurando el entreno…</span>';
             const { sport, workout, run, prose } = await generateWorkout(db, req, signal);
@@ -398,6 +413,53 @@ async function generatePlan(db, req, signal) {
     return { program: parsed, prose: prose || 'Te he preparado este plan. Revísalo y aplícalo si te encaja.' };
   }
   throw new Error(lastErr || 'no se pudo generar un plan válido');
+}
+
+// ── Generación de sesiones sueltas (Fase 5.5) ───────────────────────────────
+// Una sesión, no un plan: se guarda en db.customSessions y se puede empezar al
+// momento. Misma mecánica que el plan (prosa + bloque ```json, validar, 1 reintento),
+// con una restricción extra: los nombres de ejercicio deben salir del catálogo,
+// porque los que no casan pierden ilustración y consejo en el runner.
+
+const SESSION_SCHEMA_HELP = () => `Forma EXACTA de una sesión (schema de Areté):
+{ "name": "Empuje corto", "desc": "una frase con el objetivo", "exercises": [ { "name": "Press de Banca", "sets": 4, "reps": "6", "type": "main", "kg": 70 } ] }
+- "sets" numérico; "reps" como texto ("5", "8-10", "F" al fallo, "2min").
+- "type": "main" | "assist" | "extra".
+- Un bloque HIIT: { "name": "HIIT final", "type": "hiit", "sets": 1, "reps": "Tiempo", "rounds": 3, "rest": "90s", "exercises": [ { "name": "Burpees", "reps": 10 } ] }.
+- Modos especiales opcionales en "mode": sets, result, interval, tabata, rounds, ladder, pyramid, amrap, emom, superset. Sin "mode" son series normales.
+- Entre 3 y 8 ejercicios. Incluye "kg" objetivo cuando puedas calibrarlo con su e1RM.
+- Es UNA sola sesión: nada de semanas, fases ni progresión a varias semanas.
+USA EXACTAMENTE estos nombres de ejercicio siempre que exista uno equivalente (los que no estén se quedan sin ilustración ni consejo en la app):
+${catalogExerciseNames().join(' · ')}
+Devuelve UN solo bloque \`\`\`json, sin texto después.`;
+
+async function generateSession(db, req, signal) {
+  const snapshot = buildSnapshot(db, progContext(db));
+  const ask = (extra) => [
+    buildSystemMessage(snapshot),
+    { role: 'user', content: `Prepara UNA sesión de entrenamiento. Objetivo: ${req.goal}.\n\nResponde en DOS partes: (1) 2-3 frases en prosa explicando por qué esta sesión y cómo la has calibrado con mis datos, con nota de seguridad si aplica; (2) un ÚNICO bloque \`\`\`json con la sesión.\n\n${SESSION_SCHEMA_HELP()}${extra || ''}` },
+  ];
+
+  let lastErr = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const extra = attempt === 0 ? '' : `\n\nEl intento anterior falló: ${lastErr}. Corrígelo y devuelve la sesión completa.`;
+    const full = await LLM.chatStream({ messages: ask(extra), maxTokens: 2048, signal });
+    const { json, prose } = extractJsonBlock(full);
+    if (!json) { lastErr = 'no devolviste un bloque ```json'; continue; }
+    let parsed;
+    try { parsed = JSON.parse(json); } catch { lastErr = 'el JSON no era parseable'; continue; }
+    const session = normalizeSession(parsed);
+    const err = validateSession(session);
+    if (err) { lastErr = err; continue; }
+    // Demasiados nombres fuera del catálogo: la sesión se vería pobre. Un reintento.
+    const unknown = unknownExercises(session.exercises);
+    if (attempt === 0 && unknown.length && unknown.length >= Math.ceil(session.exercises.length / 2)) {
+      lastErr = `estos ejercicios no están en el catálogo: ${unknown.join(', ')}. Sustitúyelos por equivalentes de la lista`;
+      continue;
+    }
+    return { session, prose: prose || 'Te he preparado esta sesión. Puedes empezarla ya o guardarla para luego.' };
+  }
+  throw new Error(lastErr || 'no se pudo generar una sesión válida');
 }
 
 // ── Ingesta de entrenos (Fase 5.1): estructurar texto → workout JSON ─────────
@@ -538,7 +600,9 @@ function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
     card.classList.toggle('applied', !!p.applied);
   };
   paint();
-  discardBtn.addEventListener('click', () => card.remove());
+  // Descartar es una decisión, no un "ocultar": si no se persiste, la propuesta
+  // reaparece al reabrir el panel (renderConvo repinta desde la conversación).
+  discardBtn.addEventListener('click', () => { p.discarded = true; saveConvo(); card.remove(); });
   applyBtn.addEventListener('click', () => {
     if (p.applied) return;
     let token;
@@ -576,7 +640,7 @@ function renderRunCard(db, p, msg) {
       <span class="material-symbols-outlined">directions_run</span>
       <div class="q-prop-titles">
         <div class="q-prop-title">${esc(r.session || typeLabel)}</div>
-        <div class="q-prop-tag">Registrar carrera · ${esc(r.date)} · ${esc(typeLabel)}</div>
+        <div class="q-prop-tag">Ya hecho · ${esc(r.date)} · ${esc(typeLabel)}</div>
       </div>
     </div>
     ${r.notes ? `<div class="q-prop-summary">${esc(r.notes)}</div>` : ''}
@@ -605,7 +669,7 @@ function renderWorkoutCard(db, p, msg) {
       <span class="material-symbols-outlined">fitness_center</span>
       <div class="q-prop-titles">
         <div class="q-prop-title">${esc(w.session || 'Entreno')}</div>
-        <div class="q-prop-tag">Registrar entreno · ${esc(w.date)} · ${w.exercises.length} ejercicio(s)</div>
+        <div class="q-prop-tag">Ya hecho · ${esc(w.date)} · ${w.exercises.length} ejercicio(s)</div>
       </div>
     </div>
     ${w.notes ? `<div class="q-prop-summary">${esc(w.notes)}</div>` : ''}
@@ -616,6 +680,92 @@ function renderWorkoutCard(db, p, msg) {
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date} · verlo en Fuerza → Historial`,
     () => applyWorkout(db, w), (t) => undoWorkout(db, t));
+  return card;
+}
+
+// Tarjeta de una SESIÓN suelta (Fase 5.5). Se distingue de las otras dos por el
+// tiempo verbal ("Para hacer" vs "Ya hecho" vs "Plan"), no por el icono, que es
+// donde de verdad se confunden. La acción principal es empezarla: guardar es lo
+// secundario, porque el atleta que la pide quiere entrenar, no archivar.
+function renderSessionCard(db, p, msg) {
+  const card = document.createElement('div');
+  card.className = 'q-proposal';
+  const s = p.session || {};
+  const exs = s.exercises || [];
+  const detail = exs.map(ex => {
+    const target = ex.type === 'hiit'
+      ? `${ex.rounds || ''}${ex.rounds ? ' rondas' : 'HIIT'}`
+      : `${ex.sets || ''}${ex.sets && ex.reps ? '×' : ''}${ex.reps || ''}${ex.kg ? ` · ${ex.kg} kg` : ''}`;
+    return `<div class="q-prop-line">${esc(ex.name)}: ${esc(target)}</div>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="q-prop-head">
+      <span class="material-symbols-outlined">bolt</span>
+      <div class="q-prop-titles">
+        <div class="q-prop-title">${esc(s.name || 'Sesión')}</div>
+        <div class="q-prop-tag">Para hacer · ${exs.length} ejercicio(s)</div>
+      </div>
+    </div>
+    ${p.summary ? `<div class="q-prop-summary">${esc(p.summary)}</div>` : ''}
+    <button class="q-prop-toggle" type="button">Ver sesión</button>
+    <div class="q-prop-detail" hidden>${detail}</div>
+    <div class="q-prop-actions q-prop-actions-3">
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-outline btn-sm q-prop-save">Guardar para luego</button>
+      <button class="btn btn-sm q-prop-start">Empezar ahora</button>
+    </div>`;
+
+  card.querySelector('.q-prop-toggle').addEventListener('click', (e) => {
+    const d = card.querySelector('.q-prop-detail');
+    d.hidden = !d.hidden;
+    e.target.textContent = d.hidden ? 'Ver sesión' : 'Ocultar';
+  });
+
+  const saveBtn = card.querySelector('.q-prop-save');
+  const discardBtn = card.querySelector('.q-prop-discard');
+  const paint = () => {
+    saveBtn.textContent = p.applied ? '✓ Guardada' : 'Guardar para luego';
+    saveBtn.disabled = !!p.applied;
+    discardBtn.style.display = p.applied ? 'none' : '';
+    card.classList.toggle('applied', !!p.applied);
+  };
+  paint();
+  discardBtn.addEventListener('click', () => { p.discarded = true; saveConvo(); card.remove(); });
+
+  // Guardar es idempotente: la primera vez crea la suelta, después reutiliza su id.
+  const ensureSaved = () => {
+    if (p.applied && p.sessionId) return p.sessionId;
+    const taken = Object.keys(getPrograms()[db.phase]?.sessions || {});
+    const { id } = applySessionProposal(db, p.session, { taken, sourceTs: p.ts });
+    p.applied = true;
+    p.sessionId = id;
+    saveConvo();
+    paint();
+    onProgramsChanged();
+    return id;
+  };
+
+  saveBtn.addEventListener('click', () => {
+    let id;
+    try { id = ensureSaved(); } catch (e) { toast('No se pudo guardar: ' + e.message, 'error'); return; }
+    toast('Guardada en Fuerza → Plan → Tus sesiones', 'success', {
+      action: 'Deshacer',
+      onAction: () => {
+        undoSessionCommit(db, { id });
+        p.applied = false; p.sessionId = null;
+        saveConvo(); paint(); onProgramsChanged();
+        toast('Sesión descartada', 'info');
+      },
+    });
+  });
+
+  card.querySelector('.q-prop-start').addEventListener('click', () => {
+    let id;
+    try { id = ensureSaved(); } catch (e) { toast('No se pudo guardar: ' + e.message, 'error'); return; }
+    closePanel();
+    onStartSession(sessionRef(id), p.session?.name || '');
+  });
   return card;
 }
 
@@ -633,6 +783,15 @@ function planStructure(program) {
 // mensaje del asistente (persiste en la conversación). Despacha por tipo.
 function renderProposalCard(db, p, msg) {
   if (p.type === 'workout') return renderWorkoutCard(db, p, msg);
+  if (p.type === 'session') return renderSessionCard(db, p, msg);
+  if (p.type !== 'program' && !p.program) {
+    // Propuesta de una versión que no conocemos (o corrupta): no la interpretamos
+    // como plan, que pintaría una tarjeta sin sentido y aplicable.
+    const card = document.createElement('div');
+    card.className = 'q-proposal';
+    card.innerHTML = '<div class="q-prop-summary">Propuesta no reconocida por esta versión de la app.</div>';
+    return card;
+  }
 
   const card = document.createElement('div');
   card.className = 'q-proposal';
@@ -653,7 +812,7 @@ function renderProposalCard(db, p, msg) {
       <span class="material-symbols-outlined">assignment</span>
       <div class="q-prop-titles">
         <div class="q-prop-title">${esc(name)}</div>
-        <div class="q-prop-tag">${actionLabel} · ${nPhases} ${isRunning ? 'semanas' : 'fases'}</div>
+        <div class="q-prop-tag">Plan · ${actionLabel} · ${nPhases} ${isRunning ? 'semanas' : 'fases'}</div>
       </div>
     </div>
     ${p.summary ? `<div class="q-prop-summary">${esc(p.summary)}</div>` : ''}
@@ -754,6 +913,7 @@ function persistSettings() {
 export function initQuiron(db, opts = {}) {
   dbRef = db;
   if (typeof opts.onProgramsChanged === 'function') onProgramsChanged = opts.onProgramsChanged;
+  if (typeof opts.onStartSession === 'function') onStartSession = opts.onStartSession;
   els = {
     fab: document.getElementById('quironFab'),
     panel: document.getElementById('quironPanel'),
@@ -834,6 +994,14 @@ export function initQuiron(db, opts = {}) {
   els.chips.addEventListener('click', (e) => {
     const chip = e.target.closest('.q-chip');
     if (chip && !busy) send(db, chip.textContent);
+  });
+
+  // Atajo desde otras pantallas ("Pedir una sesión" en Fuerza → Plan): abre el
+  // panel con el prompt escrito, sin acoplar esas vistas a este módulo.
+  document.addEventListener('arete:ask-quiron', (e) => {
+    openPanel();
+    const prompt = e.detail?.prompt;
+    if (prompt && !busy) { els.input.value = prompt; autoGrow(); els.input.focus(); }
   });
 
   document.getElementById('quironGoSettings').addEventListener('click', () => {

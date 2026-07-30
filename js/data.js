@@ -20,9 +20,9 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const CURRENT_SCHEMA = 4;
+const CURRENT_SCHEMA = 5;
 
-const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], customPrograms: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
+const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
 
 /** Schema migrations — each takes a db object and mutates it in place */
 const migrations = [
@@ -48,6 +48,10 @@ const migrations = [
     if (!db.settings.maxHR) {
       db.settings.maxHR = db.settings.age ? 220 - db.settings.age : 0;
     }
+  },
+  // v4 → v5: sesiones sueltas (las que propone Quirón fuera del plan)
+  (db) => {
+    if (!Array.isArray(db.customSessions)) db.customSessions = [];
   },
 ];
 
@@ -279,6 +283,7 @@ export function validateImportData(d) {
   if (d.runningLogs && !Array.isArray(d.runningLogs)) return 'runningLogs no es un array';
   if (d.deletedIds && !Array.isArray(d.deletedIds)) return 'deletedIds no es un array';
   if (d.customPrograms && !Array.isArray(d.customPrograms)) return 'customPrograms no es un array';
+  if (d.customSessions && !Array.isArray(d.customSessions)) return 'customSessions no es un array';
   return null;
 }
 

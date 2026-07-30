@@ -22,7 +22,10 @@ function renderItem(w) {
   const hasPR = w.prs && w.prs.length > 0;
   const prBadge = hasPR ? '<span style="font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px">🏆 PR</span>' : '';
   const plan = `<span class="hi-plan">${esc(planName(w.program))}</span>`;
-  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">Fase ${ROMAN[w.phase - 1] || w.phase} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
+  // Una suelta no pertenece a la fase en la que estaba el atleta ese día: decirlo
+  // sería inventar una relación con su plan que no existe.
+  const origen = w.sessionId ? 'Tu sesión' : `Fase ${ROMAN[w.phase - 1] || w.phase}`;
+  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">${origen} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
 }
 
 // Por defecto el historial muestra el plan ACTIVO (vista limpia de siempre).
@@ -114,7 +117,7 @@ export function showDetail(id, db) {
   document.getElementById('detailPhase').style.fontSize = fs(.68);
   document.getElementById('detailDate').textContent = formatDate(w.date);
   document.getElementById('detailSession').textContent = w.session;
-  document.getElementById('detailPhase').textContent = 'Fase ' + (ROMAN[w.phase - 1] || w.phase);
+  document.getElementById('detailPhase').textContent = w.sessionId ? 'Tu sesión' : 'Fase ' + (ROMAN[w.phase - 1] || w.phase);
 
   let totalVol = 0, totalSets = 0, maxKg = 0;
   const prNames = new Set((w.prs || []).map(p => p.exercise));

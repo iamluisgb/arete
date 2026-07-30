@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildSnapshot } from '../js/ai/context.js';
-import { QUIRON_TOOLS, makeToolExecutor } from '../js/ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../js/ai/tools.js';
 import { buildSystemMessage } from '../js/ai/soul.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -75,13 +75,16 @@ async function chat(messages, { tools, toolChoice, maxTokens = 4096 } = {}) {
 // Turno completo como en la app (js/ui/quiron.js): recolección + respuesta.
 async function runTurn(question, { ctx, getPrograms }) {
   const system = buildSystemMessage(buildSnapshot(db, ctx));
-  const execute = makeToolExecutor(db, { getPrograms });
+  const proposals = [];
+  const execute = makeToolExecutor(db, { getPrograms, onProposal: (p) => proposals.push(p) });
   const convo = [system, { role: 'user', content: question }];
 
-  const gatherMsgs = [...convo, { role: 'user', content: '[INSTRUCCIÓN DE LA APP] Antes de responder: si necesitas histórico que no esté en el snapshot, pide las herramientas necesarias. Cuando tengas los datos (o si el snapshot ya basta), responde exactamente "LISTO". NO respondas aún al atleta.' }];
+  // Mismo prompt de recolección que la app (GATHER_INSTRUCTION) y mismas tools,
+  // incluidas las de escritura: así el eval mide el ruteo real, no una imitación.
+  const gatherMsgs = [...convo, { role: 'user', content: GATHER_INSTRUCTION }];
   const calls = [];
   for (let round = 1; round <= 3; round++) {
-    const msg = await chat(gatherMsgs, { tools: QUIRON_TOOLS, toolChoice: round < 3 ? 'auto' : 'none', maxTokens: 1024 });
+    const msg = await chat(gatherMsgs, { tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS], toolChoice: round < 3 ? 'auto' : 'none', maxTokens: 1024 });
     const toolCalls = msg.tool_calls || [];
     if (!toolCalls.length) break;
     gatherMsgs.push({ role: 'assistant', content: msg.content || null, tool_calls: toolCalls });
@@ -96,8 +99,11 @@ async function runTurn(question, { ctx, getPrograms }) {
   if (calls.length) {
     convo.push({ role: 'user', content: '[DATOS DEL HISTÓRICO — generados por la app, no por el atleta]\n' + calls.map(c => `[${c.name}(${JSON.stringify(c.args)})]\n${c.result}`).join('\n\n') });
   }
+  // Si el modelo pidió una escritura, la app no streamea la respuesta normal: el
+  // turno termina en la tarjeta de propuesta. Para el eval basta con qué pidió.
+  if (proposals.length) return { answer: '(propuesta de escritura)', calls, proposals };
   const answer = await chat(convo);
-  return { answer: answer.content || '', calls };
+  return { answer: answer.content || '', calls, proposals };
 }
 
 // ── Escenarios ──────────────────────────────────────────────────────────────
@@ -134,6 +140,37 @@ const SCENARIOS = [
     ban: [/esta semana has corrido \d+/i],
     desc: 'No hay carreras desde abril: debe decir que no hay registros recientes, no inventar km.',
   },
+  // ── Ruteo de escritura: tres frases casi iguales, tres destinos distintos.
+  // Es el riesgo de calidad de la Fase 5.5: equivocarse aquí no es un error de
+  // formato, es escribir en el sitio que no toca.
+  {
+    id: 'ruteo-sesion',
+    prompt: 'Prepárame una sesión de pierna para hoy, tengo 45 minutos.',
+    expectTool: 'propose_session',
+    banTool: ['propose_program', 'log_workout'],
+    desc: 'Una sesión para hacer hoy → propose_session (no un plan, no un registro).',
+  },
+  {
+    id: 'ruteo-sesion-sin-material',
+    prompt: 'Hoy no puedo ir al gimnasio. Dame algo que pueda hacer en casa con una kettlebell.',
+    expectTool: 'propose_session',
+    banTool: ['propose_program'],
+    desc: 'Petición implícita de UNA sesión, sin la palabra "sesión".',
+  },
+  {
+    id: 'ruteo-plan',
+    prompt: 'Hazme un plan de 8 semanas para subir la sentadilla, 3 días por semana.',
+    expectTool: 'propose_program',
+    banTool: ['propose_session'],
+    desc: 'Varias semanas y progresión → propose_program.',
+  },
+  {
+    id: 'ruteo-registro',
+    prompt: 'Hoy he hecho sentadilla 5x5 a 100 y press banca 3x5 a 70.',
+    expectTool: 'log_workout',
+    banTool: ['propose_session', 'propose_program'],
+    desc: 'Entreno en pasado → log_workout, nunca una propuesta.',
+  },
   {
     id: 'plan-objetivo',
     prompt: 'Quiero preparar un ultra de 100K de montaña para dentro de 9 meses. ¿Cómo enfocarías mi plan viniendo de donde vengo?',
@@ -156,15 +193,20 @@ for (const sc of toRun) {
   const t0 = Date.now();
   try {
     const { answer, calls } = await runTurn(sc.prompt, pc);
+    const names = calls.map(c => c.name);
     const okFails = (sc.ok || []).filter(r => !r.test(answer));
     const banFails = (sc.ban || []).filter(r => r.test(answer));
-    const pass = okFails.length === 0 && banFails.length === 0;
+    const toolFails = [];
+    if (sc.expectTool && !names.includes(sc.expectTool)) toolFails.push(`esperaba ${sc.expectTool}`);
+    for (const t of (sc.banTool || [])) if (names.includes(t)) toolFails.push(`no debía llamar a ${t}`);
+    const pass = okFails.length === 0 && banFails.length === 0 && toolFails.length === 0;
     if (!pass) failures++;
     console.log(`${pass ? '✓' : '✗'} (${((Date.now() - t0) / 1000).toFixed(1)}s, tools: ${calls.map(c => c.name).join(', ') || '—'})`);
     report.push(`## ${sc.id} — ${pass ? '✓ PASS' : '✗ FAIL'}`, '', `**Prompt:** ${sc.prompt}`, '', `**Criterio:** ${sc.desc}`, '');
     if (calls.length) report.push(`**Tools:** ${calls.map(c => `${c.name}(${JSON.stringify(c.args)})`).join(' · ')}`, '');
     if (okFails.length) report.push(`**Checks fallidos (esperados):** ${okFails.map(String).join(' , ')}`, '');
     if (banFails.length) report.push(`**Checks fallidos (prohibidos):** ${banFails.map(String).join(' , ')}`, '');
+    if (toolFails.length) report.push(`**Ruteo fallido:** ${toolFails.join(' , ')}`, '');
     report.push('**Respuesta:**', '', answer.trim(), '', '---', '');
   } catch (e) {
     failures++;

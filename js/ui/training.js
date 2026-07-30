@@ -1,6 +1,7 @@
 import { saveDB, getSaveRevision } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { getPrograms, getActiveProgram, getAllPhases } from '../programs.js';
+import { listCustomSessions, getCustomSession, isSessionRef, refToId, sessionRef, touchCustomSession } from '../sessions.js';
 import { esc } from '../utils.js';
 import { toast } from './toast.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
@@ -13,6 +14,32 @@ export { exFmtTime, parseDurationStr, buildTimerConfig };
 let editingId = null;
 let _formExpanded = false;
 let $exerciseList, $trainSession, $trainDate, $trainNotes, $prefillBanner, $prefillText, $saveBtn, $prCelebration, $prList, $sessionOverview;
+
+// ── Referencias de sesión ────────────────────────────────
+// El valor del <select> es el NOMBRE si la sesión viene del plan, y `cs:<id>` si
+// es una suelta. Todo lo que antes leía `progs[db.phase].sessions[valor]` pasa por
+// aquí, para que una suelta se comporte igual sin ser una fase.
+//
+// `_editSpec` cubre el caso en que se edita un entreno cuya suelta ya no existe:
+// el workout se guardó con su especificación copiada (w.spec) y esa manda.
+let _editSpec = null;
+
+/** @returns {{name:string, exercises:Array, customId:?string}|null} */
+export function resolveSession(db, ref) {
+  if (isSessionRef(ref)) {
+    const s = getCustomSession(db, refToId(ref));
+    if (s) return { name: s.name, exercises: s.exercises, customId: s.id };
+    // Suelta borrada: solo se puede resolver desde la copia del entreno en edición.
+    return _editSpec && _editSpec.ref === ref ? _editSpec : null;
+  }
+  const exercises = getPrograms()[db.phase]?.sessions?.[ref];
+  return exercises ? { name: ref, exercises, customId: null } : null;
+}
+
+/** Sesión seleccionada ahora mismo en el formulario */
+function currentSession(db) {
+  return resolveSession(db, $trainSession?.value);
+}
 
 // ── Session draft auto-save ──────────────────────────────
 const DRAFT_KEY = 'arete_sessionDraft';
@@ -106,25 +133,98 @@ function clearEditState() {
 }
 
 /** Populate session select dropdowns based on active phase */
-export function populateSessions(db) {
+export function populateSessions(db, opts = {}) {
   cacheSelectors();
   const progs = getPrograms();
   if (!progs[db.phase]) { db.phase = parseInt(Object.keys(progs)[0]) || 1; }
   const ss = Object.keys(progs[db.phase].sessions);
-  $trainSession.innerHTML = ss.map(s => `<option value="${s}">${s}</option>`).join('');
-  document.getElementById('historyFilter').innerHTML = '<option value="">Todas</option>' + ss.map(s => `<option value="${s}">${s}</option>`).join('');
+  const customs = listCustomSessions(db);
+  const opt = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
+
+  // Las sueltas van en su propio grupo: no son parte del plan y no deben
+  // parecerlo. El <optgroup> lo separa sin inventar una fase.
+  $trainSession.innerHTML = ss.map(s => opt(s, s)).join('')
+    + (customs.length ? `<optgroup label="Tus sesiones">${customs.map(s => opt(sessionRef(s.id), s.name)).join('')}</optgroup>` : '');
+  // El historial filtra por NOMBRE de sesión (los entrenos guardan el nombre).
+  document.getElementById('historyFilter').innerHTML = '<option value="">Todas</option>'
+    + ss.map(s => opt(s, s)).join('')
+    + (customs.length ? `<optgroup label="Tus sesiones">${customs.map(s => opt(s.name, s.name)).join('')}</optgroup>` : '');
 
   const prog = getActiveProgram();
-  const lastW = db.workouts.filter(w => w.phase === db.phase && (w.program || 'arete') === prog).sort((a, b) => a.date.localeCompare(b.date)).pop();
+  const lastW = db.workouts.filter(w => !w.sessionId && w.phase === db.phase && (w.program || 'arete') === prog).sort((a, b) => a.date.localeCompare(b.date)).pop();
   if (lastW && ss.length > 1) {
     const lastIdx = ss.indexOf(lastW.session);
     const nextIdx = (lastIdx + 1) % ss.length;
     $trainSession.value = ss[nextIdx];
   }
-  _formExpanded = false;
+  // Una selección explícita (venir de una propuesta o del Plan) manda sobre la rotación.
+  if (opts.select && [...$trainSession.options].some(o => o.value === opts.select)) {
+    $trainSession.value = opts.select;
+  }
+  _formExpanded = !!opts.expand;
   loadSessionTemplate(db, true);
   // Restore draft if there's one saved for the current session (only when form shown)
   if (_formExpanded && restoreDraft()) toast('Borrador restaurado', 'info');
+}
+
+/**
+ * Borrador vivo (<12 h) si lo hay, con el nombre legible de su sesión. Sirve para
+ * no tirar a la basura un entreno a medias al saltar a otra sesión.
+ * @returns {{ref:string, name:string, ts:number}|null}
+ */
+export function getLiveDraft(db) {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d?.session || Date.now() - d.ts > 12 * 60 * 60 * 1000) return null;
+    return { ref: d.session, name: resolveSession(db, d.session)?.name || d.session, ts: d.ts };
+  } catch { return null; }
+}
+
+/** Descarta el borrador actual (lo usa el aviso al saltar de sesión). */
+export function discardDraft() { clearDraft(); }
+
+/**
+ * Inicia una sesión protegiendo el entreno a medias. El borrador es una sola
+ * ranura: saltar a otra sesión y guardarla lo borraba en silencio, y el salto más
+ * probable es justo ese (preguntarle algo a Quirón en mitad del entreno).
+ * @param {string} ref        nombre del plan o `cs:<id>`
+ * @param {?number} phaseKey  fase de la sesión del plan (null en sueltas)
+ * @param {Object} opts       { onStarted } — p. ej. cambiar a la pestaña Entrenar
+ */
+export function requestStartSession(db, ref, phaseKey, opts = {}) {
+  cacheSelectors();
+  const start = () => { selectAndStartSession(ref, phaseKey, db); opts.onStarted?.(); };
+  const draft = getLiveDraft(db);
+  if (!draft || draft.ref === ref) { start(); return; }
+
+  const target = resolveSession(db, ref)?.name || ref;
+  const mins = Math.round((Date.now() - draft.ts) / 60000);
+  const ago = mins < 60 ? `hace ${mins} min` : `hace ${Math.round(mins / 60)} h`;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.innerHTML = `<div class="modal">
+    <h3>Tienes un entreno a medias</h3>
+    <p class="draft-guard-text">Empezaste <strong>${esc(draft.name)}</strong> ${ago}. Si empiezas <strong>${esc(target)}</strong> ahora, ese borrador se pierde.</p>
+    <div class="draft-guard-actions">
+      <button class="btn" data-act="resume">Seguir con ${esc(draft.name)}</button>
+      <button class="btn btn-outline" data-act="switch">Empezar ${esc(target)}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (!act && e.target !== overlay) return;
+    overlay.remove();
+    if (act === 'switch') { clearDraft(); start(); }
+    else if (act === 'resume') {
+      populateSessions(db, { select: draft.ref, expand: true });
+      opts.onStarted?.();
+    }
+  });
 }
 
 // ── Exercise scroll spy dots ─────────────────────────────
@@ -195,14 +295,15 @@ function setFormVisible(show) {
   if ($sessionOverview) $sessionOverview.style.display = show ? 'none' : '';
 }
 
-function renderSessionOverview(db, session, exercises) {
-  const prev = getPrevSession(db, session);
+function renderSessionOverview(db, sess, exercises) {
+  const session = sess.name;
+  const prev = getPrevSession(db, sess);
   const hasDraft = (() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return false;
       const d = JSON.parse(raw);
-      return d.session === session && Date.now() - d.ts < 12 * 60 * 60 * 1000;
+      return d.session === $trainSession.value && Date.now() - d.ts < 12 * 60 * 60 * 1000;
     } catch { return false; }
   })();
 
@@ -223,7 +324,7 @@ function renderSessionOverview(db, session, exercises) {
     <div class="session-overview-card">
       <div class="so-header">
         <span class="so-name">${esc(session)}</span>
-        <span class="so-count">${exercises.length} ejercicios</span>
+        <span class="so-count">${sess.customId ? 'Tu sesión · ' : ''}${exercises.length} ejercicios</span>
       </div>
       <div class="so-list">${exercises.map(ex => {
         if (ex.type === 'hiit' && ex.exercises && ex.exercises.length > 0) {
@@ -255,11 +356,10 @@ function renderSessionOverview(db, session, exercises) {
 export function loadSessionTemplate(db, autoPrefill) {
   if (isExTimerActive()) stopExTimer(false);
   clearEditState();
-  const session = $trainSession.value;
-  const progs = getPrograms();
-  if (!progs[db.phase]) return;
-  const exercises = progs[db.phase].sessions[session];
-  if (!exercises) return;
+  const ref = $trainSession.value;
+  const sess = resolveSession(db, ref);
+  if (!sess) return;
+  const { name: session, exercises } = sess;
 
   // Show overview if form not yet expanded and not editing
   const hasDraft = (() => {
@@ -267,18 +367,18 @@ export function loadSessionTemplate(db, autoPrefill) {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return false;
       const d = JSON.parse(raw);
-      return d.session === session && Date.now() - d.ts < 12 * 60 * 60 * 1000;
+      return d.session === ref && Date.now() - d.ts < 12 * 60 * 60 * 1000;
     } catch { return false; }
   })();
 
   if (!_formExpanded && !editingId && !hasDraft && $sessionOverview) {
-    renderSessionOverview(db, session, exercises);
+    renderSessionOverview(db, sess, exercises);
     setFormVisible(false);
     return;
   }
 
   setFormVisible(true);
-  const prev = getPrevSession(db, session);
+  const prev = getPrevSession(db, sess);
   const shouldPrefill = autoPrefill && prev;
 
   if (shouldPrefill) {
@@ -563,9 +663,14 @@ export function clearPrefill() {
   $exerciseList.querySelectorAll('input').forEach(inp => inp.value = '');
 }
 
-function getPrevSession(db, n) {
-  const prog = getActiveProgram();
-  const f = db.workouts.filter(w => w.session === n && w.phase === db.phase && (w.program || 'arete') === prog);
+// Entreno anterior de esta misma sesión. Una suelta se identifica por su id: no
+// pertenece a una fase ni a un plan, así que casar por (nombre, fase, programa)
+// la dejaría sin prefill en cuanto el atleta cambia de plan.
+function getPrevSession(db, sess) {
+  if (!sess) return null;
+  const f = sess.customId
+    ? db.workouts.filter(w => w.sessionId === sess.customId)
+    : db.workouts.filter(w => !w.sessionId && w.session === sess.name && w.phase === db.phase && (w.program || 'arete') === getActiveProgram());
   return f.length ? f[f.length - 1] : null;
 }
 
@@ -691,6 +796,21 @@ function _prevBadgeHtml(prevStr, bestResult, isTime) {
 /** Pre-fill the training form for editing an existing workout */
 export function startEdit(workout, db) {
   _formExpanded = true;
+  // Entreno de una sesión suelta: se edita contra la copia guardada con él, aunque
+  // la suelta ya no exista. La opción se inyecta al vuelo si hace falta.
+  if (workout.sessionId) {
+    const ref = sessionRef(workout.sessionId);
+    _editSpec = { ref, name: workout.session, exercises: workout.spec || workout.exercises, customId: workout.sessionId };
+    if (![...$trainSession.options].some(o => o.value === ref)) {
+      $trainSession.insertAdjacentHTML('beforeend', `<option value="${esc(ref)}">${esc(workout.session)}</option>`);
+    }
+    $trainDate.value = workout.date;
+    $trainSession.value = ref;
+    $trainNotes.value = workout.notes || '';
+    _fillEditForm(workout, db);
+    return;
+  }
+  _editSpec = null;
   if (workout.phase !== db.phase) {
     db.phase = workout.phase;
     saveDB(db);
@@ -704,7 +824,11 @@ export function startEdit(workout, db) {
   $trainDate.value = workout.date;
   $trainSession.value = workout.session;
   $trainNotes.value = workout.notes || '';
+  _fillEditForm(workout, db);
+}
 
+/** Pinta la plantilla y vuelca los datos del entreno que se edita. */
+function _fillEditForm(workout, db) {
   loadSessionTemplate(db, false);
 
   editingId = workout.id;
@@ -727,12 +851,23 @@ export function startEdit(workout, db) {
 
 export function cancelEdit(db) {
   clearEditState();
-  loadSessionTemplate(db, true);
+  _editSpec = null;
+  if (!resolveSession(db, $trainSession.value)) populateSessions(db);
+  else loadSessionTemplate(db, true);
 }
 
-/** Programmatically select a session and expand the training form */
-export function selectAndStartSession(sessionName, phaseKey, db) {
+/**
+ * Selecciona una sesión y despliega el formulario.
+ * @param {string} ref       nombre de sesión del plan, o `cs:<id>` de una suelta
+ * @param {?number} phaseKey fase a la que pertenece; null/undefined en las sueltas
+ *                           (una suelta NO cambia la fase activa del atleta)
+ */
+export function selectAndStartSession(ref, phaseKey, db) {
   cacheSelectors();
+  if (isSessionRef(ref)) {
+    populateSessions(db, { select: ref, expand: true });
+    return;
+  }
   const needPhaseSwitch = parseInt(phaseKey) !== db.phase;
   if (needPhaseSwitch) {
     db.phase = parseInt(phaseKey);
@@ -743,7 +878,7 @@ export function selectAndStartSession(sessionName, phaseKey, db) {
     document.getElementById('phaseName').textContent = phase ? `Fase ${roman} · ${phase.name}` : `Fase ${roman}`;
     populateSessions(db);
   }
-  $trainSession.value = sessionName;
+  $trainSession.value = ref;
   _formExpanded = true;
   loadSessionTemplate(db, true);
 }
@@ -751,12 +886,11 @@ export function selectAndStartSession(sessionName, phaseKey, db) {
 /** Save or update a workout from the training form data */
 export function saveWorkout(db) {
   const date = $trainDate.value;
-  const session = $trainSession.value;
   const notes = $trainNotes.value;
-  const progs = getPrograms();
-  if (!progs[db.phase]) return;
-  const exercises = progs[db.phase].sessions[session];
-  if (!exercises) return;
+  const sess = resolveSession(db, $trainSession.value);
+  if (!sess) return;
+  const session = sess.name;
+  const exercises = sess.exercises;
 
   const exData = exercises.map((ex, i) => {
     const mode = ex.mode || (ex.type === 'hiit' || ex.type === 'density' ? 'result' : 'sets');
@@ -798,20 +932,27 @@ export function saveWorkout(db) {
 
   const prog = getActiveProgram();
 
+  // Si viene de una sesión suelta, el entreno se lleva su id y una COPIA de la
+  // especificación: borrar la suelta no puede romper el historial ni su edición.
+  const build = (id) => {
+    const w = { id, date, session, phase: db.phase, program: prog, notes, exercises: exData };
+    if (sess.customId) {
+      w.sessionId = sess.customId;
+      w.spec = JSON.parse(JSON.stringify(exercises));
+    }
+    if (prs.length > 0) w.prs = prs;
+    return w;
+  };
+
   if (editingId) {
     const idx = db.workouts.findIndex(w => w.id === editingId);
-    if (idx !== -1) {
-      const workout = { id: editingId, date, session, phase: db.phase, program: prog, notes, exercises: exData };
-      if (prs.length > 0) workout.prs = prs;
-      db.workouts[idx] = workout;
-    }
+    if (idx !== -1) db.workouts[idx] = build(editingId);
     editingId = null;
   } else {
-    const workout = { id: Date.now(), date, session, phase: db.phase, program: prog, notes, exercises: exData };
-    if (prs.length > 0) workout.prs = prs;
-    db.workouts.push(workout);
+    db.workouts.push(build(Date.now()));
   }
   saveDB(db);
+  if (sess.customId) touchCustomSession(db, sess.customId);
 
   if (prs.length > 0) {
     $prList.innerHTML = prs.map(p =>
@@ -833,7 +974,8 @@ export function saveWorkout(db) {
   }
   clearDraft();
   _formExpanded = false;
-  loadSessionTemplate(db, true);
+  if (_editSpec) { _editSpec = null; populateSessions(db); }
+  else loadSessionTemplate(db, true);
   toast(wasEditing ? 'Cambios guardados' : 'Sesión guardada');
 }
 
@@ -925,10 +1067,5 @@ export function initTraining(db, { onCancelEdit }) {
   $prCelebration.addEventListener('click', function () { this.style.display = 'none'; });
 
   // Exercise timer event delegation
-  initExTimerEvents($exerciseList, (exIdx) => {
-    const progs = getPrograms();
-    const session = $trainSession.value;
-    const exercises = progs[db.phase]?.sessions[session];
-    return exercises?.[exIdx] || null;
-  });
+  initExTimerEvents($exerciseList, (exIdx) => currentSession(db)?.exercises?.[exIdx] || null);
 }
