@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { exFmtTime, parseDurationStr, buildTimerConfig } from '../js/ui/training.js';
+import { _subExWorkSec, _isRestStep, _subExLabel } from '../js/ui/training-timer.js';
 
 // ── exFmtTime ────────────────────────────────────────────
 
@@ -221,5 +222,51 @@ describe('buildTimerConfig — result/HIIT (stopwatch)', () => {
     const cfg = buildTimerConfig('result', { name: 'X' });
     expect(cfg.phases).toEqual([]);
     expect(cfg.totalRounds).toBe(0);
+  });
+});
+
+// ── Subejercicios de HIIT ────────────────────────────────
+// El schema admite `duration` ("1min") y `reps` en formato tiempo ("30s"). Antes solo
+// se leía `reps`, así que los bloques por `duration` — HIIT-2 de Areté y los que
+// genera Quirón — se quedaban sin cuenta atrás y había que tocar "Hecho" a mano.
+describe('_subExWorkSec', () => {
+  it('lee la duración de `duration`', () => {
+    expect(_subExWorkSec({ name: 'Sentadillas', duration: '1min' })).toBe(60);
+    expect(_subExWorkSec({ name: 'Plancha', duration: '45s' })).toBe(45);
+  });
+
+  it('sigue leyendo `reps` cuando expresa tiempo', () => {
+    expect(_subExWorkSec({ name: 'Plancha', reps: '30s' })).toBe(30);
+  });
+
+  it('devuelve 0 en los que van por repeticiones (avance manual)', () => {
+    expect(_subExWorkSec({ name: 'Burpees', reps: 10 })).toBe(0);
+    expect(_subExWorkSec({ name: 'Swings', reps: 15, perSide: true })).toBe(0);
+    expect(_subExWorkSec(null)).toBe(0);
+  });
+
+  it('`duration` manda sobre `reps` si están los dos', () => {
+    expect(_subExWorkSec({ name: 'X', duration: '20s', reps: '40s' })).toBe(20);
+  });
+});
+
+describe('_isRestStep', () => {
+  it('distingue el descanso dentro de la ronda del trabajo', () => {
+    expect(_isRestStep({ name: 'Descanso', duration: '1min', isRest: true })).toBe(true);
+    expect(_isRestStep({ name: 'Burpees', reps: 10 })).toBe(false);
+    expect(_isRestStep(undefined)).toBe(false);
+  });
+});
+
+describe('_subExLabel', () => {
+  it('formatea el objetivo tal como se ve en la fila', () => {
+    expect(_subExLabel({ name: 'X', duration: '1min' })).toBe('1min');
+    expect(_subExLabel({ name: 'X', reps: 10 })).toBe('10');
+    expect(_subExLabel({ name: 'X', reps: 5, perSide: true })).toBe('5×c/lado');
+  });
+
+  it('no escupe "undefined" cuando falta el objetivo', () => {
+    expect(_subExLabel({ name: 'X' })).toBe('');
+    expect(_subExLabel(null)).toBe('');
   });
 });

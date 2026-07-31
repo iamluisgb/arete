@@ -2,10 +2,14 @@
 import { esc } from '../utils.js';
 import { playAlarm } from './timer.js';
 import { beep, vibrate, getAudioCtx } from './audio.js';
+import { pictHtml, tipFor } from './exercise-pict.js';
 
 let activeExTimer = null;
 let lastBeepSec = -1;
 let wakeLock = null;
+
+const PREP_SEC = 3;          // cuenta atrás de preparación antes de la ronda 1
+const REST_ADJ_MIN = 0;      // el descanso ajustable no baja de aquí
 
 async function requestWakeLock() {
   try {
@@ -39,8 +43,31 @@ export function parseDurationStr(str) {
 
 function _exWorkSec(repsStr) {
   if (!repsStr) return 0;
-  const s = repsStr.toLowerCase().replace(/\s/g, '');
+  const s = String(repsStr).toLowerCase().replace(/\s/g, '');
   return /\d+(s|min|h)/.test(s) ? parseDurationStr(s) : 0;
+}
+
+/**
+ * Segundos de trabajo de un subejercicio de HIIT. El schema admite DOS formas de
+ * expresar tiempo — `duration` ("1min") y `reps` en formato tiempo ("30s") — y
+ * antes solo se leía `reps`: los bloques por `duration` (HIIT-2 de Areté, y los que
+ * genera Quirón) se quedaban sin cuenta atrás y había que tocar "Hecho" a mano.
+ * @returns {number} 0 si el ejercicio va por repeticiones (avance manual)
+ */
+export function _subExWorkSec(e) {
+  if (!e) return 0;
+  return parseDurationStr(e.duration) || _exWorkSec(e.reps);
+}
+
+/** Un paso de descanso dentro de la ronda (`isRest`), no un ejercicio. */
+export function _isRestStep(e) { return !!e?.isRest; }
+
+/** Etiqueta de objetivo de un subejercicio, tal como se ve en la fila. */
+export function _subExLabel(e) {
+  if (!e) return '';
+  if (e.duration) return String(e.duration);
+  if (e.reps == null || e.reps === '') return '';
+  return e.perSide ? `${e.reps}×c/lado` : `${e.reps}`;
 }
 
 export function buildTimerConfig(mode, ex) {
@@ -111,6 +138,36 @@ export function buildTimerConfig(mode, ex) {
   return { phases: [], totalRounds: 0, type: 'stopwatch' };
 }
 
+/**
+ * Panel de trabajo de un HIIT guiado. Fuente única: antes existía duplicado en
+ * renderExTimerUI (ronda 1) y en _rebuildHiitWorkUI (rondas siguientes), y solo uno
+ * de los dos recibía cada mejora.
+ */
+function _hiitWorkHTML(config, round, exIdx) {
+  const { exercises, rounds } = config;
+  const timerCls = config.isCircuit ? 'circuit-work' : 'hiit-work';
+  const active = exercises[exIdx];
+  const isRest = _isRestStep(active);
+  const exItems = exercises.map((e, idx) => {
+    const cls = (idx < exIdx ? ' done' : (idx === exIdx ? ' active' : '')) + (_isRestStep(e) ? ' rest-step' : '');
+    return `<div class="hiit-ex-item${cls}" data-ex-item="${idx}"><span class="hiit-ex-name">${esc(e.name)}</span><span class="hiit-ex-reps">${esc(_subExLabel(e))}</span></div>`;
+  }).join('');
+  // El pictograma del ejercicio activo: en fuerza el runner ya lo muestra, y aquí
+  // sirve además de indicador de "qué toca" sin tener que leer la lista.
+  const illus = isRest ? '' : pictHtml(active?.name || '');   // '' si no hay match fiable
+  return `<div class="ex-timer ${timerCls}${isRest ? ' step-rest' : ''}">
+    ${_hiitDotsSVG(round, rounds)}
+    <div class="ex-timer-phase">RONDA ${round} / ${rounds}<span class="hiit-session-elapsed">0:00</span></div>
+    <div class="ex-timer-display">0:00</div>
+    <div class="hiit-illus">${illus}</div>
+    <div class="hiit-ex-list">${exItems}</div>
+    <div class="ex-timer-actions">
+      <button class="hiit-ex-btn">${isRest ? 'Saltar descanso' : `Hecho (${exIdx + 1}/${exercises.length})`}</button>
+      <button class="ex-timer-stop">II Pausar</button>
+    </div>
+  </div>`;
+}
+
 function _hiitDotsSVG(currentRound, totalRounds) {
   const dots = Array.from({ length: totalRounds }, (_, i) => {
     const cls = i < currentRound - 1 ? 'hrd filled' : 'hrd';
@@ -152,23 +209,7 @@ function renderExTimerUI(zone) {
       <div class="ex-timer-actions"><button class="ex-timer-round-btn">Ronda ✓</button><button class="ex-timer-stop">II Pausar</button></div>
     </div>`;
   } else if (t === 'hiit-rounds') {
-    const { exercises, rounds } = config;
-    const timerCls = config.isCircuit ? 'circuit-work' : 'hiit-work';
-    const exItems = exercises.map((e, idx) => {
-      const repsLabel = e.duration ? e.duration : (e.perSide ? `${e.reps}×c/lado` : `${e.reps}`);
-      const cls = idx === 0 ? ' active' : '';
-      return `<div class="hiit-ex-item${cls}" data-ex-item="${idx}"><span class="hiit-ex-name">${esc(e.name)}</span><span class="hiit-ex-reps">${repsLabel}</span></div>`;
-    }).join('');
-    zone.innerHTML = `<div class="ex-timer ${timerCls}">
-      ${_hiitDotsSVG(1, rounds)}
-      <div class="ex-timer-phase">RONDA 1 / ${rounds}<span class="hiit-session-elapsed">0:00</span></div>
-      <div class="ex-timer-display">0:00</div>
-      <div class="hiit-ex-list">${exItems}</div>
-      <div class="ex-timer-actions">
-        <button class="hiit-ex-btn">Hecho (1/${exercises.length})</button>
-        <button class="ex-timer-stop">II Pausar</button>
-      </div>
-    </div>`;
+    zone.innerHTML = _hiitWorkHTML(config, 1, 0);
     activeExTimer.hiitCurrentRound = 1;
     activeExTimer.hiitCurrentExIdx = 0;
     activeExTimer.exWorkInterval = null;
@@ -188,7 +229,7 @@ function renderExTimerUI(zone) {
 }
 
 function updateExTimerDisplay() {
-  if (!activeExTimer) return;
+  if (!activeExTimer || activeExTimer.prepping) return;
   const zone = document.querySelector(`.ex-timer-zone[data-ex="${activeExTimer.exIdx}"]`);
   if (!zone) return;
   const display = zone.querySelector('.ex-timer-display');
@@ -227,7 +268,7 @@ function updateExTimerDisplay() {
 }
 
 function tickExTimer() {
-  if (!activeExTimer) return;
+  if (!activeExTimer || activeExTimer.prepping) return;
   const { config } = activeExTimer;
   const t = config.type;
 
@@ -318,17 +359,61 @@ export function startExTimer(exIdx, mode, ex) {
   };
   lastBeepSec = -1;
 
-  renderExTimerUI(zone);
   requestWakeLock();
   getAudioCtx().resume();
 
+  // Un HIIT guiado no puede empezar a contar mientras el móvil está en la mano:
+  // 3-2-1 con el primer ejercicio en pantalla, y el reloj de sesión arranca después.
+  if (config.type === 'hiit-rounds') {
+    document.body.classList.add('hiit-focus');
+    _startHiitPrep(zone);
+    return;
+  }
+
+  renderExTimerUI(zone);
   if (config.type === 'phased' && config.phases[0]?.type === 'work') {
     exBeepWork();
   }
-  if (config.type === 'hiit-rounds') {
-    document.body.classList.add('hiit-focus');
-    exBeepWork();
-  }
+}
+
+/** Cuenta atrás de preparación. Al acabar (o al saltarla) arranca la ronda 1. */
+function _startHiitPrep(zone) {
+  if (!activeExTimer) return;
+  const first = activeExTimer.config.exercises?.[0];
+  activeExTimer.prepping = true;
+  let left = PREP_SEC;
+
+  const paint = () => {
+    zone.innerHTML = `<div class="ex-timer hiit-prep">
+      <div class="ex-timer-phase">PREPÁRATE</div>
+      <div class="hiit-prep-count">${left}</div>
+      <div class="hiit-illus">${pictHtml(first?.name || '')}</div>
+      <div class="hiit-prep-next">Empiezas con <strong>${esc(first?.name || '')}</strong> · ${esc(first ? _subExLabel(first) : '')}</div>
+      <div class="ex-timer-actions"><button class="hiit-prep-skip">Empezar ya</button></div>
+    </div>`;
+  };
+  paint();
+  beep(660, 100);
+
+  activeExTimer.prepInterval = setInterval(() => {
+    if (!activeExTimer) return;
+    left--;
+    if (left <= 0) { _finishHiitPrep(zone); return; }
+    paint();
+    beep(660, 100);
+  }, 1000);
+}
+
+function _finishHiitPrep(zone) {
+  if (!activeExTimer) return;
+  clearInterval(activeExTimer.prepInterval);
+  activeExTimer.prepInterval = null;
+  activeExTimer.prepping = false;
+  // El tiempo de la preparación no cuenta como tiempo de HIIT.
+  activeExTimer.startedAt = Date.now();
+  activeExTimer.phaseStartedAt = Date.now();
+  renderExTimerUI(zone);
+  exBeepWork();
 }
 
 export function stopExTimer(completed) {
@@ -336,6 +421,7 @@ export function stopExTimer(completed) {
   clearInterval(activeExTimer.interval);
   if (activeExTimer.restInterval) clearInterval(activeExTimer.restInterval);
   if (activeExTimer.exWorkInterval) clearInterval(activeExTimer.exWorkInterval);
+  if (activeExTimer.prepInterval) clearInterval(activeExTimer.prepInterval);
 
   const zone = document.querySelector(`.ex-timer-zone[data-ex="${activeExTimer.exIdx}"]`);
   const btn = document.querySelector(`[data-ex-timer="${activeExTimer.exIdx}"]`);
@@ -429,23 +515,7 @@ export function handleExTimerRound() {
 function _rebuildHiitWorkUI(zone) {
   if (!activeExTimer) return;
   const { config, hiitCurrentRound, hiitCurrentExIdx } = activeExTimer;
-  const { exercises, rounds } = config;
-  const timerCls = config.isCircuit ? 'circuit-work' : 'hiit-work';
-  const exItems = exercises.map((e, idx) => {
-    const repsLabel = e.duration ? e.duration : (e.perSide ? `${e.reps}×c/lado` : `${e.reps}`);
-    const cls = idx < hiitCurrentExIdx ? ' done' : (idx === hiitCurrentExIdx ? ' active' : '');
-    return `<div class="hiit-ex-item${cls}" data-ex-item="${idx}"><span class="hiit-ex-name">${esc(e.name)}</span><span class="hiit-ex-reps">${repsLabel}</span></div>`;
-  }).join('');
-  zone.innerHTML = `<div class="ex-timer ${timerCls}">
-    ${_hiitDotsSVG(hiitCurrentRound, rounds)}
-    <div class="ex-timer-phase">RONDA ${hiitCurrentRound} / ${rounds}<span class="hiit-session-elapsed">0:00</span></div>
-    <div class="ex-timer-display">0:00</div>
-    <div class="hiit-ex-list">${exItems}</div>
-    <div class="ex-timer-actions">
-      <button class="hiit-ex-btn">Hecho (${hiitCurrentExIdx + 1}/${exercises.length})</button>
-      <button class="ex-timer-stop">II Pausar</button>
-    </div>
-  </div>`;
+  zone.innerHTML = _hiitWorkHTML(config, hiitCurrentRound, hiitCurrentExIdx);
   activeExTimer.resting = false;
   _startExWorkCountdown(zone);
 }
@@ -467,8 +537,13 @@ function _skipRest() {
 function _startExWorkCountdown(zone) {
   if (!activeExTimer || activeExTimer.resting) return;
   const ex = activeExTimer.config.exercises[activeExTimer.hiitCurrentExIdx];
-  const duration = _exWorkSec(ex?.reps);
-  if (duration <= 0) return;
+  const duration = _subExWorkSec(ex);
+  if (duration <= 0) return;   // por repeticiones: avanza el atleta
+
+  // Cambio de lado a mitad, solo cuando el ejercicio va por tiempo: en uno por
+  // reps no hay reloj del que colgar el aviso y sería adivinar.
+  const halfAt = ex?.perSide ? Math.floor(duration / 2) : -1;
+  let halfDone = false;
 
   activeExTimer.exWorkStartedAt = Date.now();
   let lastExBeep = -1;
@@ -478,6 +553,14 @@ function _startExWorkCountdown(zone) {
     const remaining = Math.max(0, duration - elapsed);
     const activeReps = zone.querySelector('.hiit-ex-item.active .hiit-ex-reps');
     if (activeReps) activeReps.textContent = remaining > 0 ? exFmtTime(remaining) : '0:00';
+    if (halfAt > 0 && !halfDone && remaining <= halfAt) {
+      halfDone = true;
+      beep(880, 120); vibrate([80, 60, 80]);
+      const activeName = zone.querySelector('.hiit-ex-item.active .hiit-ex-name');
+      if (activeName && !activeName.querySelector('.hiit-side-cue')) {
+        activeName.insertAdjacentHTML('beforeend', '<span class="hiit-side-cue">cambia de lado</span>');
+      }
+    }
     if (remaining <= 3 && remaining > 0 && remaining !== lastExBeep) {
       lastExBeep = remaining;
       beep(660 + (3 - remaining) * 220, 100);
@@ -496,16 +579,26 @@ function startRestCountdown(zone, duration, onComplete) {
 
   if (config.type === 'hiit-rounds') {
     const nextRound = activeExTimer.hiitCurrentRound;
+    // Ajustable en caliente, como el descanso del runner de fuerza: el número del
+    // plan es una estimación, y la fatiga del día no la conocía quien lo escribió.
+    activeExTimer.restTotal = duration;
+    const firstNext = config.exercises[0];
+    const tip = firstNext ? tipFor(firstNext.name) : '';
     const timerEl = zone.querySelector('.ex-timer');
     if (timerEl) {
       timerEl.className = 'ex-timer hiit-rest';
       timerEl.innerHTML = `
         <div class="ex-timer-phase">DESCANSA<span class="hiit-session-elapsed">0:00</span></div>
         <div class="ex-timer-display">${exFmtTime(duration)}</div>
+        <div class="hiit-rest-adj">
+          <button type="button" class="sr-adj-btn" data-hiit-adj="-30">−30s</button>
+          <button type="button" class="sr-adj-btn" data-hiit-adj="30">+30s</button>
+        </div>
         <div class="hiit-rest-next">
           Siguiente: <strong>Ronda ${nextRound}</strong><br>
-          <span>${config.exercises.map(e => e.name).join(' · ')}</span>
+          <span>${esc(config.exercises.map(e => e.name).join(' · '))}</span>
         </div>
+        ${tip ? `<div class="hiit-rest-tip">${esc(tip)}</div>` : ''}
         <div class="ex-timer-actions">
           <button class="hiit-skip-btn" aria-label="Saltar descanso y comenzar la siguiente ronda">Saltar descanso</button>
         </div>`;
@@ -514,7 +607,7 @@ function startRestCountdown(zone, duration, onComplete) {
     const restInterval = setInterval(() => {
       if (!activeExTimer) { clearInterval(restInterval); return; }
       const elapsed = Math.floor((Date.now() - restStart) / 1000);
-      const remaining = Math.max(0, duration - elapsed);
+      const remaining = Math.max(0, activeExTimer.restTotal - elapsed);
       const display = zone.querySelector('.ex-timer-display');
       if (display) display.textContent = exFmtTime(remaining);
       const sessionEl = zone.querySelector('.hiit-session-elapsed');
@@ -599,11 +692,32 @@ function _updateHiitUI(zone) {
   zone.querySelectorAll('.hiit-ex-item').forEach((el, idx) => {
     el.className = 'hiit-ex-item' +
       (idx < hiitCurrentExIdx ? ' done' : '') +
-      (idx === hiitCurrentExIdx ? ' active' : '');
+      (idx === hiitCurrentExIdx ? ' active' : '') +
+      (_isRestStep(exercises[idx]) ? ' rest-step' : '');
+    // La cuenta atrás escribe sobre esta etiqueta mientras el paso está activo; al
+    // pasar hay que devolverle su objetivo o la fila se queda con un "0:00" fósil
+    // (visible sobre todo en rondas sin descanso, que no repintan el panel).
+    const reps = el.querySelector('.hiit-ex-reps');
+    if (reps) reps.textContent = _subExLabel(exercises[idx]);
+    el.querySelector('.hiit-side-cue')?.remove();
   });
 
+  // Paso de descanso dentro de la ronda: se ve y suena distinto, y el botón deja de
+  // pedir "Hecho" (nadie "hace" un descanso) para ofrecer saltarlo.
+  const active = exercises[hiitCurrentExIdx];
+  const isRest = _isRestStep(active);
+  const timerEl = zone.querySelector('.ex-timer');
+  if (timerEl) timerEl.classList.toggle('step-rest', isRest);
+  const prevWasRest = _isRestStep(exercises[hiitCurrentExIdx - 1]);
+  if (isRest) exBeepRest();
+  else if (prevWasRest) exBeepWork();
+  else beep(1000, 80);           // avance normal: un clic, no una alarma
+
+  const illusEl = zone.querySelector('.hiit-illus');
+  if (illusEl) illusEl.innerHTML = isRest ? '' : pictHtml(active?.name || '');
+
   const btn = zone.querySelector('.hiit-ex-btn');
-  if (btn) btn.textContent = `Hecho (${hiitCurrentExIdx + 1}/${exercises.length})`;
+  if (btn) btn.textContent = isRest ? 'Saltar descanso' : `Hecho (${hiitCurrentExIdx + 1}/${exercises.length})`;
 
   if (!activeExTimer.resting) _startExWorkCountdown(zone);
 }
@@ -650,7 +764,7 @@ export function pauseExTimer() {
     clearInterval(activeExTimer.exWorkInterval);
     activeExTimer.exWorkInterval = null;
     const ex = activeExTimer.config.exercises?.[activeExTimer.hiitCurrentExIdx];
-    const exDur = _exWorkSec(ex?.reps);
+    const exDur = _subExWorkSec(ex);
     activeExTimer.exWorkPausedRemaining = exDur > 0
       ? Math.max(0, exDur - Math.floor((Date.now() - activeExTimer.exWorkStartedAt) / 1000))
       : null;
@@ -671,7 +785,7 @@ export function resumeExTimer() {
   activeExTimer.interval = setInterval(tickExTimer, 250);
   if (activeExTimer.exWorkPausedRemaining != null) {
     const ex = activeExTimer.config.exercises?.[activeExTimer.hiitCurrentExIdx];
-    const exDur = _exWorkSec(ex?.reps);
+    const exDur = _subExWorkSec(ex);
     activeExTimer.exWorkStartedAt = Date.now() - (exDur - activeExTimer.exWorkPausedRemaining) * 1000;
     activeExTimer.exWorkPausedRemaining = null;
     const zone = document.querySelector(`.ex-timer-zone[data-ex="${activeExTimer.exIdx}"]`);
@@ -749,6 +863,23 @@ export function initExTimerEvents($exerciseList, getExercise) {
     if (hiitExBtn) { handleHiitExDone(); return; }
     const skipBtn = e.target.closest('.hiit-skip-btn');
     if (skipBtn) { _skipRest(); return; }
+    const prepSkip = e.target.closest('.hiit-prep-skip');
+    if (prepSkip) {
+      const zone = document.querySelector(`.ex-timer-zone[data-ex="${activeExTimer?.exIdx}"]`);
+      if (zone) _finishHiitPrep(zone);
+      return;
+    }
+    // Ajuste del descanso de ronda en caliente (paridad con el runner de fuerza).
+    const adj = e.target.closest('[data-hiit-adj]');
+    if (adj && activeExTimer?.resting) {
+      activeExTimer.restTotal = Math.max(REST_ADJ_MIN, (activeExTimer.restTotal || 0) + parseInt(adj.dataset.hiitAdj));
+      vibrate(40);
+      return;
+    }
+    // La fila activa entera avanza: con el móvil en el suelo y las manos sudadas,
+    // un botón de 44 px es un objetivo pequeño.
+    const item = e.target.closest('.hiit-ex-item.active');
+    if (item && !activeExTimer?.resting && !activeExTimer?.paused) { handleHiitExDone(); return; }
   });
 
   document.addEventListener('touchstart', function u() {

@@ -394,6 +394,23 @@ body.hiit-focus .ex-mode-info{display:none}
 .ex-timer.circuit-work .hrd{border-color:var(--accent)}
 .ex-timer.circuit-work .hrd.filled{background:var(--accent)}
 .ex-timer.circuit-work .hiit-ex-item.active{color:var(--accent);border-bottom-color:var(--accent)}
+.hiit-illus{display:flex;justify-content:center;align-items:center;min-height:0;margin:2px 0}
+.hiit-illus:empty{display:none}
+.hiit-illus .ex-pict{width:96px;height:96px}
+.hiit-ex-item.rest-step{color:var(--text3);font-style:italic}
+.hiit-ex-item.rest-step.active{color:var(--accent);font-style:normal;border-bottom-color:var(--accent)}
+.ex-timer.step-rest{background:var(--surface2);border-color:var(--accent)}
+.ex-timer.step-rest .ex-timer-phase{color:var(--accent)}
+.hiit-side-cue{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:8px;background:var(--accent);color:#fff;font-size:var(--fs-xs);font-weight:700;letter-spacing:.3px}
+.hiit-rest-adj{display:flex;justify-content:center;gap:8px;margin-bottom:12px}
+.hiit-rest-tip{font-size:var(--fs-sm);color:var(--text2);line-height:1.4;margin:0 0 12px;padding:0 4px}
+.ex-timer.hiit-prep{background:var(--surface2);border:2px solid var(--green);border-radius:var(--radius);padding:20px 16px 16px;text-align:center}
+.ex-timer.hiit-prep .ex-timer-phase{color:var(--green);font-size:var(--fs-xs);letter-spacing:2px}
+.hiit-prep-count{font-size:4rem;font-weight:800;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums;color:var(--text)}
+.hiit-prep-next{font-size:var(--fs-sm);color:var(--text2);margin:8px 0 14px}
+.hiit-prep-next strong{color:var(--text)}
+.hiit-prep-skip{width:100%;padding:14px;min-height:48px;border-radius:14px;border:1.5px solid var(--green);background:none;color:var(--green);font-family:var(--font);font-size:var(--fs-base);font-weight:700;cursor:pointer}
+.hiit-prep-skip:active{background:var(--green);color:#fff;transform:scale(.97)}
 .ex-timer.circuit-done{background:rgba(212,55,44,.1);border:1.5px solid var(--accent)}
 .ex-timer.circuit-done .ex-timer-phase{color:var(--accent);font-size:var(--fs-sm);letter-spacing:1px}
 .ex-timer.circuit-done .ex-timer-display{color:var(--accent)}
