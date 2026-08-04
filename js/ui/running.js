@@ -7,6 +7,9 @@ import { GpsTracker } from './running-tracker.js';
 import { beep, vibrate, startCountdown, beepSplit, beepWorkStart, beepRestStart, beepAllDone, beepSegmentChange, startKeepAlive, stopKeepAlive, resumeKeepAlive } from './running-audio.js';
 import { ZONE_COLORS, ZONE_LABELS, getPaceZones, getHRZones, RUN_TYPE_META, formatPace, formatRunDuration, parseRunDuration, estimateZone, parseSegDistance, parseSegDuration, segModeToRunType } from './running-helpers.js';
 import { HRMonitor } from './hr-monitor.js';
+import { canTrackRuns } from '../platform.js';
+import { computeProfile, ROMAN as ROMAN_LEVEL } from '../domains.js';
+import { parseActivity, findDuplicate, readFile, ImportError } from './run-import.js';
 import { renderRunHistory as _renderRunHistory } from './running-history.js';
 import { openShareEditor } from './share-editor.js';
 import { renderRunProgress as _renderRunProgress } from './running-progress.js';
@@ -284,6 +287,8 @@ export function initRunning(db) {
   // Manual entry modal
   document.getElementById('runManualBtn').addEventListener('click', () => openManualModal(db));
   document.getElementById('runManualCloseBtn').addEventListener('click', () => closeManualModal(db));
+
+  initImport(db);
 
   // Live tracking controls
   $pauseBtn.addEventListener('click', () => togglePause());
@@ -650,10 +655,13 @@ function startGpsRun(db) {
 
   // GPS gap detection
   tracker.onGapDetected((gapSec) => {
-    toast(`GPS pausado ${Math.round(gapSec)}s — mantén la pantalla encendida`, 'warning');
+    toast(`Hueco de GPS de ${Math.round(gapSec)}s — la distancia puede quedarse corta`, 'warning');
   });
 
-  toast('Mantén la pantalla encendida para GPS continuo', 'info');
+  // Antes se avisaba aquí de "mantén la pantalla encendida para GPS continuo":
+  // la app pidiéndole al usuario que compensara un límite del navegador. El
+  // tracker ya solo se ofrece en la app nativa, donde el foreground service lo
+  // resuelve y ese aviso sobra.
 
   // Show overlay
   $overlay.classList.add('active');
@@ -1475,6 +1483,81 @@ function renderZoneBars(container, zoneTimes) {
   container.innerHTML = `<div class="run-detail-hr-title">Tiempo en zona</div>${bars}`;
 }
 
+// ── Importar del reloj ───────────────────────────────────
+//
+// La entrada de datos pasa a ser importar > manual > GPS. Todo lo que hay
+// alrededor (plan, historial, progreso, PRs, zonas, dominios) trabaja sobre
+// `db.runningLogs`, así que una carrera importada vale exactamente igual que
+// una medida por la app.
+
+function initImport(db) {
+  const $btn = document.getElementById('runImportBtn');
+  const $file = document.getElementById('runImportFile');
+  const $gps = document.getElementById('runGpsActions');
+  const $hint = document.getElementById('runImportHint');
+  if (!$btn || !$file) return;
+
+  // El tracker solo donde el sistema operativo deja medir de verdad.
+  if ($gps) $gps.hidden = !canTrackRuns();
+  if ($hint) {
+    $hint.textContent = canTrackRuns()
+      ? 'Exporta el GPX desde Garmin Connect o Strava, o mide desde aquí.'
+      : 'Exporta la actividad en GPX desde Garmin Connect o Strava. Se lee también TCX.';
+  }
+
+  $btn.addEventListener('click', () => $file.click());
+  $file.addEventListener('change', async () => {
+    const file = $file.files?.[0];
+    $file.value = '';                       // permite reimportar el mismo fichero
+    if (!file) return;
+    try {
+      const act = parseActivity(await readFile(file), file.name);
+      const dup = findDuplicate(db, act);
+      if (dup && !confirm(`Ya tienes una carrera de ${act.date} de ${dup.distance.toFixed(2)} km. ¿Importarla igualmente?`)) return;
+      saveImportedRun(db, act);
+    } catch (e) {
+      toast(e instanceof ImportError ? e.message : 'No se pudo importar el fichero', 'error');
+    }
+  });
+}
+
+function saveImportedRun(db, act) {
+  const log = {
+    id: Date.now(),
+    date: act.date || today(),
+    session: '',
+    program: db.runningProgram || '',
+    week: parseInt($weekSelect?.value) || 0,
+    // El fichero no dice qué clase de sesión era: 'libre' es lo honesto, y el
+    // atleta lo reclasifica desde el detalle si quiere.
+    type: 'libre',
+    distance: act.distance,
+    duration: act.duration,
+    pace: act.pace,
+    hr: act.hr,
+    hrMax: act.hrMax,
+    hrTimeSeries: null,
+    hrZoneTimes: null,
+    elevation: act.elevation,
+    cadence: null,
+    splits: act.splits || [],
+    route: act.route,
+    segments: [],
+    source: act.source,
+    notes: act.name || '',
+  };
+
+  if (!Array.isArray(db.runningLogs)) db.runningLogs = [];
+  db.runningLogs.push(log);
+  const heavy = extractHeavyFields(log);
+  if (heavy) saveRunRoute(log.id, heavy);
+  saveDB(db);
+
+  checkAndNotifyPRs(db, log);
+  toast(`Importada: ${act.distance.toFixed(2)} km`);
+  refreshRunning(db);
+}
+
 // ── Manual entry modal ───────────────────────────────────
 
 function openManualModal(db) {
@@ -1880,6 +1963,26 @@ function checkAndNotifyPRs(db, newLog) {
     const msg = beaten.map(d => `${d} km: ${formatRunDuration(newPrs[d].time)}`).join(' | ');
     toast(`Nuevo PR! ${msg}`, 'success');
   }
+  notifyDomainChange(db, newLog);
+}
+
+/**
+ * Correr deja de ser una isla: un 5K mejor sube el dominio de resistencia
+ * aeróbica, y decirlo es lo que conecta la carrera con la tesis del sistema.
+ */
+function notifyDomainChange(db, newLog) {
+  const antes = computeProfile({
+    ...db,
+    runningLogs: (db.runningLogs || []).filter(l => l.id !== newLog.id),
+  }).domains.find(d => d.id === 'cardio');
+  const ahora = computeProfile(db).domains.find(d => d.id === 'cardio');
+  if (!ahora || ahora.level <= (antes?.level || 0)) return;
+
+  setTimeout(() => toast(
+    `Resistencia aeróbica: nivel ${ROMAN_LEVEL[ahora.level]}`,
+    'success',
+    { action: 'Ver perfil', onAction: () => document.querySelector('nav button[data-sec="secProfile"]')?.click() },
+  ), 1800);
 }
 
 // ── Delegated functions (from sub-modules) ───────────────

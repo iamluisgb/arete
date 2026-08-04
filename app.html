@@ -255,22 +255,34 @@
     <!-- Próxima sesión del plan -->
     <div id="runNextSession"></div>
 
-    <!-- Botón principal de inicio (contextual) -->
-    <button class="run-start-btn" id="runStartBtn">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-      Iniciar carrera
+    <!-- Añadir carrera: importar del reloj es la vía principal. El tracker GPS
+         solo aparece donde el sistema operativo deja medirlo de verdad. -->
+    <button class="run-start-btn" id="runImportBtn">
+      <span class="material-symbols-outlined">download</span>
+      Importar del reloj
     </button>
+    <input type="file" id="runImportFile" accept=".gpx,.tcx,.xml,application/gpx+xml" hidden>
     <div class="run-secondary-actions">
-      <button class="run-secondary-btn" id="runFreeRunBtn">
-        <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
-        Carrera libre
-      </button>
-      <span class="run-secondary-sep"></span>
       <button class="run-secondary-btn" id="runManualBtn">
         <span class="material-symbols-outlined" style="font-size:18px">edit_note</span>
         Registro manual
       </button>
     </div>
+
+    <!-- Solo con GPS fiable (app nativa): en el navegador se oculta -->
+    <div id="runGpsActions" hidden>
+      <button class="run-start-btn" id="runStartBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Iniciar carrera
+      </button>
+      <div class="run-secondary-actions">
+        <button class="run-secondary-btn" id="runFreeRunBtn">
+          <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
+          Carrera libre
+        </button>
+      </div>
+    </div>
+    <div class="run-import-hint" id="runImportHint"></div>
   </div>
 
   <!-- TAB 2: Historial -->

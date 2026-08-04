@@ -1189,3 +1189,5 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dtest-res-mlvl{font-size:var(--fs-sm);font-weight:800;color:var(--text2);min-width:24px;text-align:right}
 .dtest-res-note{font-size:var(--fs-sm);color:var(--text2);line-height:1.5;margin-bottom:var(--sp-3)}
 .dtest-res-next{font-size:var(--fs-base);font-weight:700;color:var(--text2);margin:var(--sp-4) 0}
+.run-import-hint{font-size:var(--fs-sm);color:var(--text2);text-align:center;line-height:1.5;margin-top:var(--sp-3)}
+#runImportBtn .material-symbols-outlined{font-size:22px}

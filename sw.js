@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v119';
+const CACHE_NAME = 'arete-v120';
 const ASSETS = [
   './',
   './app.html',
@@ -158,6 +158,8 @@ const ASSETS = [
   './js/ui/sortable.js',
   './js/ui/nav.js',
   './js/domains.js',
+  './js/platform.js',
+  './js/ui/run-import.js',
   './js/ui/profile.js',
   './js/ui/domain-test.js',
   './js/ui/training.js',
