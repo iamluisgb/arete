@@ -3,7 +3,7 @@ import { splitAndStoreRoutes } from './run-store.js';
 import { loadPrograms, setActiveProgram, getActiveProgram, getPrograms, getProgramList, isBuiltinProgram, validateProgram, importCustomProgram, deleteCustomProgram, getCustomPrograms } from './programs.js';
 import { formatPace, parseRunDuration, formatRunDuration, getPaceZones, getHRZones, ZONE_COLORS } from './ui/running-helpers.js';
 import { today, mergeDB, esc, trapFocus } from './utils.js';
-import { DEBOUNCE_BACKUP_MS, GIS_CHECK_INTERVAL_MS, GIS_CHECK_TIMEOUT_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
+import { DEBOUNCE_BACKUP_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
 import { initTimer } from './ui/timer.js';
 import { initNav, switchTab, switchStrTab, updatePhaseUI, updatePhaseDisplay, refreshActiveSection, restoreLastTab } from './ui/nav.js';
 import { initTraining, populateSessions, startEdit, cancelEdit, requestStartSession, getLiveDraft } from './ui/training.js';
@@ -11,7 +11,7 @@ import { isRunnerOpen } from './ui/set-runner.js';
 import { initCalendar } from './ui/calendar.js';
 import { initHistory } from './ui/history.js';
 import { initBody } from './ui/body.js';
-import { initDrive, silentBackup, syncOnLoad, onSyncStatus, isSyncing, clearStoredToken } from './drive.js';
+import { connectIfNeeded, isConnected, backupToDrive, silentBackup, syncOnLoad, onSyncStatus, onReconnectNeeded, isSyncing, clearStoredToken } from './drive.js';
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
@@ -66,7 +66,9 @@ function updateSyncUI() {
   const desc = document.getElementById('autoSyncDesc');
   if (isAutoSync()) {
     btn.classList.add('active');
-    desc.textContent = 'Activada';
+    // Sin permiso guardado la sincronización está activada pero no sincroniza:
+    // decirlo evita el silencio de creer que hay copia y no haberla.
+    desc.textContent = isConnected() ? 'Activada' : 'Activada — falta reconectar con Google';
   } else {
     btn.classList.remove('active');
     desc.textContent = 'Desactivada';
@@ -108,25 +110,8 @@ function renderProgramSelector() {
   }).join('');
 }
 
-// === SEED ===
-function seedInitialData() {
-  if (db.workouts.length > 0) return;
-  db.workouts.push({
-    id: 1739145600000, date: '2026-02-09', session: 'Sesión A', phase: 1, notes: 'Primera sesión',
-    exercises: [
-      { name: 'Sentadilla', sets: [{ kg: '65', reps: '5' }, { kg: '65', reps: '5' }, { kg: '65', reps: '5' }] },
-      { name: 'Press de Banca', sets: [{ kg: '50', reps: '5' }, { kg: '50', reps: '5' }, { kg: '50', reps: '5' }] },
-      { name: 'Peso Muerto', sets: [{ kg: '70', reps: '5' }, { kg: '70', reps: '5' }] },
-      { name: 'Dominada Prono', sets: [{ kg: '', reps: '14' }, { kg: '', reps: '11' }, { kg: '', reps: '8' }] },
-      { name: 'Plancha Abdominal', sets: [{ kg: '', reps: '2min' }, { kg: '', reps: '2min' }] }
-    ]
-  });
-  saveDB(db);
-}
-
 // === INIT ===
 async function init() {
-  seedInitialData();
   initToast();
   initTheme();
 
@@ -261,22 +246,13 @@ async function init() {
 
   updateSyncUI();
 
-  // Initialize Google Drive when GIS library is ready
-  const startDrive = () => {
-    initDrive();
-    if (isAutoSync()) syncOnLoad(db, saveDB);
-  };
-  if (typeof google !== 'undefined' && google.accounts) {
-    startDrive();
-  } else {
-    const checkGIS = setInterval(() => {
-      if (typeof google !== 'undefined' && google.accounts) {
-        clearInterval(checkGIS);
-        startDrive();
-      }
-    }, GIS_CHECK_INTERVAL_MS);
-    setTimeout(() => clearInterval(checkGIS), GIS_CHECK_TIMEOUT_MS);
-  }
+  // El permiso de Drive vive en localStorage y se renueva solo: no hay librería
+  // externa que esperar, se puede sincronizar desde el primer instante.
+  onReconnectNeeded(() => {
+    updateSyncUI();
+    toast('Google retiró el permiso de Drive. Vuelve a activar la sincronización en Ajustes.', 'error');
+  });
+  if (isAutoSync()) syncOnLoad(db, saveDB);
 
   // Flush pending backup when leaving, re-sync when returning
   document.addEventListener('visibilitychange', () => {
@@ -386,6 +362,7 @@ function bindEvents() {
     try {
       status.textContent = 'Conectando con Google...';
       status.className = 'drive-status';
+      await connectIfNeeded();
       await backupToDrive(db);
       localStorage.setItem(AUTOSYNC_KEY, '1');
       updateSyncUI();

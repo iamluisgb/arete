@@ -44,7 +44,25 @@ Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y 
 - `https://luisgonzalezbernal.com/arete/` — GitHub Pages, sigue vivo sirviendo la raíz del repo
   desde `main` (todo el repo, sin lista blanca). Los `canonical`/`og:url` aún apuntan aquí.
 
-### Google Drive
-La sincronización usa un client ID de OAuth ([`js/drive.js`](js/drive.js)). Cada origen nuevo
-desde el que se sirva la app tiene que estar en los orígenes JavaScript autorizados de Google
-Cloud Console, o el login de Drive falla solo en ese dominio.
+## Google Drive
+
+Copia de seguridad y sync automático contra la carpeta `appDataFolder` del usuario.
+
+- [`js/drive-auth.js`](js/drive-auth.js) — autorización: **authorization-code + PKCE**. El
+  `refresh_token` vive en localStorage y el access token solo en memoria, renovado en silencio.
+  Es lo que hace que la sincronización automática siga funcionando pasada la primera hora; el
+  implicit flow anterior daba tokens de 1h sin renovación, así que el "auto-sync" moría solo.
+- [`auth/callback.html`](auth/callback.html) — destino del popup de Google; devuelve el código
+  por `BroadcastChannel` y se cierra.
+- [`workers/auth/`](workers/auth/) — Worker `arete-auth`, gemelo del de bookreader. Custodia el
+  `client_secret` (el navegador no puede) y hace de intermediario con Google. No guarda nada.
+  Deploy: `npx wrangler deploy --cwd workers/auth`. El secreto:
+  `npx wrangler secret put GOOGLE_CLIENT_SECRET --cwd workers/auth`.
+- [`js/drive.js`](js/drive.js) — llamadas a la API. Un 401 renueva el token y reintenta una vez;
+  solo si vuelve a fallar se considera permiso perdido y se pide reconectar.
+
+**Cada origen nuevo desde el que se sirva la app** hay que darlo de alta en el OAuth client de
+Google Cloud Console, y en dos sitios distintos: **orígenes JavaScript autorizados** y **URIs de
+redirección autorizados** (`<origen>/auth/callback.html`). Además hay que añadirlo a
+`ALLOWED_ORIGINS` en [`workers/auth/wrangler.toml`](workers/auth/wrangler.toml) y redesplegar el
+Worker, o el CORS lo rechaza con un 403.

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v115';
+const CACHE_NAME = 'arete-v116';
 const ASSETS = [
   './',
   './app.html',
@@ -167,6 +167,7 @@ const ASSETS = [
   './js/ui/toast.js',
   './js/ui/drive-ui.js',
   './js/drive.js',
+  './js/drive-auth.js',
   './js/ui/quiron.js',
   './js/ai/llm.js',
   './js/ai/metrics.js',

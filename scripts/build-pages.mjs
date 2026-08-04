@@ -30,6 +30,7 @@ const PUBLIC = [
   'manifest.json',
   'programs.json',
   'js',
+  'auth',
   'assets',
   'blog',
   'blueprints',

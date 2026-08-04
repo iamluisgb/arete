@@ -1,0 +1,12 @@
+name = "arete-auth"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# El client_secret NO va aquí: es un secret del Worker.
+#   npx wrangler secret put GOOGLE_CLIENT_SECRET --cwd workers/auth
+
+[vars]
+# Client ID público del OAuth client de Google (el mismo que usaba el implicit flow)
+GOOGLE_CLIENT_ID = "146475241021-2sschmrutnqdeug5fo6onc772im94ltt.apps.googleusercontent.com"
+# Orígenes permitidos por CORS, separados por comas (dev + producción)
+ALLOWED_ORIGINS = "http://localhost:8000,https://arete.raiatech.com,https://arete-6a8.pages.dev,https://luisgonzalezbernal.com"

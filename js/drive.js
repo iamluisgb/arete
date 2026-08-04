@@ -1,105 +1,70 @@
 import { mergeDB } from './utils.js';
 import { getAllRunRoutes, splitAndStoreRoutes } from './run-store.js';
+import { connect, disconnect, isConnected, getAccessToken } from './drive-auth.js';
 
-// Google Drive backup/restore via GIS implicit flow + REST API
+// Google Drive backup/restore sobre la REST API. La autorización (auth-code +
+// PKCE, refresh silencioso vía Worker) vive en drive-auth.js.
 
-const CLIENT_ID = '146475241021-2sschmrutnqdeug5fo6onc772im94ltt.apps.googleusercontent.com';
-const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const BACKUP_FILENAME = 'arete-backup.json';
 
-let tokenClient = null;
-let accessToken = null;
-let tokenExpiry = 0;
+export { connect, isConnected };
 
-const TOKEN_KEY = 'areteToken';
-const EXPIRY_KEY = 'areteTokenExpiry';
-
-function persistToken() {
-  try {
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    localStorage.setItem(EXPIRY_KEY, tokenExpiry.toString());
-  } catch (e) { console.warn('persistToken: localStorage unavailable', e); }
+// Para acciones nacidas de un clic: abre el popup de Google solo si todavía no
+// hay permiso guardado. El sync automático NO llama aquí — nunca debe abrir un
+// popup por su cuenta.
+export async function connectIfNeeded() {
+  if (!isConnected()) await connect();
 }
 
-/** Remove stored OAuth token from memory and localStorage */
+/** Olvida el permiso de Drive: hay que volver a pasar por Google para reconectar. */
 export function clearStoredToken() {
-  accessToken = null;
-  tokenExpiry = 0;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(EXPIRY_KEY);
+  disconnect();
 }
 
-function restoreToken() {
-  const t = localStorage.getItem(TOKEN_KEY);
-  const e = parseInt(localStorage.getItem(EXPIRY_KEY)) || 0;
-  if (t && Date.now() < e) {
-    accessToken = t;
-    tokenExpiry = e;
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(EXPIRY_KEY);
-  }
-}
-
-/** Initialize Google Identity Services token client */
-export function initDrive() {
-  restoreToken();
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPE,
-    callback: () => {},
-  });
-}
-
+/** ¿Se puede sincronizar sin molestar al usuario? */
 export function hasValidToken() {
-  return accessToken && Date.now() < tokenExpiry;
+  return isConnected();
 }
 
 function ensureAuth() {
-  return new Promise((resolve, reject) => {
-    if (hasValidToken()) {
-      resolve(accessToken);
-      return;
-    }
-    tokenClient.callback = (response) => {
-      if (response.error) {
-        reject(new Error(response.error_description || response.error));
-        return;
-      }
-      accessToken = response.access_token;
-      tokenExpiry = Date.now() + (response.expires_in * 1000) - 60000;
-      persistToken();
-      resolve(accessToken);
-    };
-    tokenClient.requestAccessToken();
-  });
+  return getAccessToken();
 }
 
-async function driveFetch(res, context) {
+// Llama a la API con un access token fresco. Un 401 con permiso permanente
+// guardado no es "vuelve a loguearte": es un token que caducó antes de lo que
+// creíamos (reloj desajustado, token revocado en otra sesión). Se renueva y se
+// reintenta UNA vez; solo si el segundo intento vuelve 401 se pide reconectar.
+async function driveFetch(request, context) {
+  let token = await ensureAuth();
+  let res = await request(token);
+  if (res.status === 401) {
+    token = await getAccessToken(true);
+    res = await request(token);
+  }
   if (res.ok) return res;
   if (res.status === 401) {
-    clearStoredToken();
-    throw new Error('token_expired');
+    disconnect();
+    throw new Error('reconnect');
   }
   throw new Error(`${context}: ${res.status}`);
 }
 
-async function findBackupFile(token) {
+async function findBackupFile() {
   const url = 'https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({
     spaces: 'appDataFolder',
     fields: 'files(id,name,modifiedTime)',
     q: `name='${BACKUP_FILENAME}'`,
     pageSize: '1',
   });
-  const res = await fetch(url, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  await driveFetch(res, 'Error al buscar backup');
+  const res = await driveFetch(
+    (token) => fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }),
+    'Error al buscar backup'
+  );
   const data = await res.json();
   return data.files && data.files.length > 0 ? data.files[0] : null;
 }
 
-async function uploadFile(token, content, existingFileId) {
+async function uploadFile(content, existingFileId) {
   const metadata = existingFileId
     ? { name: BACKUP_FILENAME }
     : { name: BACKUP_FILENAME, parents: ['appDataFolder'] };
@@ -118,30 +83,30 @@ async function uploadFile(token, content, existingFileId) {
     ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart`
     : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
 
-  const res = await fetch(url, {
+  const res = await driveFetch((token) => fetch(url, {
     method: existingFileId ? 'PATCH' : 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': `multipart/related; boundary=${boundary}`,
     },
     body,
-  });
-  await driveFetch(res, 'Error al subir backup');
+  }), 'Error al subir backup');
   return res.json();
 }
 
-async function downloadFile(token, fileId) {
-  const res = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
+async function downloadFile(fileId) {
+  const res = await driveFetch(
+    (token) => fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    ),
+    'Error al descargar backup'
   );
-  await driveFetch(res, 'Error al descargar backup');
   return res.text();
 }
 
 /** Upload db to Google Drive appData folder (reconstructs full running logs from IDB) */
 export async function backupToDrive(db) {
-  const token = await ensureAuth();
   // Reconstruct full running logs with heavy fields from IndexedDB
   let fullDB = db;
   if (db.runningLogs?.length) {
@@ -155,17 +120,16 @@ export async function backupToDrive(db) {
     }
   }
   const content = JSON.stringify(fullDB, null, 2);
-  const existing = await findBackupFile(token);
-  await uploadFile(token, content, existing ? existing.id : null);
+  const existing = await findBackupFile();
+  await uploadFile(content, existing ? existing.id : null);
   return { success: true, updated: !!existing };
 }
 
 /** Download and parse backup from Drive */
 export async function restoreFromDrive() {
-  const token = await ensureAuth();
-  const file = await findBackupFile(token);
+  const file = await findBackupFile();
   if (!file) return { success: false, reason: 'no_backup' };
-  const content = await downloadFile(token, file.id);
+  const content = await downloadFile(file.id);
   let data;
   try { data = JSON.parse(content); } catch { throw new Error('Backup corrupto (JSON inválido)'); }
   if (!data.workouts) throw new Error('Formato de backup no valido');
@@ -176,26 +140,28 @@ export async function restoreFromDrive() {
 
 /** List all Drive file revisions for version recovery */
 export async function listRevisions() {
-  const token = await ensureAuth();
-  const file = await findBackupFile(token);
+  const file = await findBackupFile();
   if (!file) return { success: false, reason: 'no_backup' };
-  const res = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${file.id}/revisions?fields=revisions(id,modifiedTime,size)`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
+  const res = await driveFetch(
+    (token) => fetch(
+      `https://www.googleapis.com/drive/v3/files/${file.id}/revisions?fields=revisions(id,modifiedTime,size)`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    ),
+    'Error al listar revisiones'
   );
-  await driveFetch(res, 'Error al listar revisiones');
   const data = await res.json();
   return { success: true, fileId: file.id, revisions: data.revisions || [] };
 }
 
 /** Download and parse a specific Drive file revision */
 export async function downloadRevision(fileId, revisionId) {
-  const token = await ensureAuth();
-  const res = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${fileId}/revisions/${revisionId}?alt=media`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
+  const res = await driveFetch(
+    (token) => fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}/revisions/${revisionId}?alt=media`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    ),
+    'Error al descargar revisión'
   );
-  await driveFetch(res, 'Error al descargar revisión');
   const content = await res.text();
   try { return JSON.parse(content); } catch { throw new Error('Revisión corrupta (JSON inválido)'); }
 }
@@ -224,8 +190,7 @@ export async function silentBackup(db) {
     setLocalSyncTime();
     setSyncStatus('ok');
   } catch (e) {
-    console.warn('silentBackup failed:', e);
-    setSyncStatus('error');
+    reportSyncError(e, 'silentBackup');
   } finally {
     _syncing = false;
   }
@@ -237,7 +202,7 @@ export async function syncOnLoad(db, saveFn) {
   try {
     _syncing = true;
     setSyncStatus('syncing');
-    const file = await findBackupFile(accessToken);
+    const file = await findBackupFile();
     if (!file) {
       _syncing = false;
       await silentBackup(db);
@@ -246,7 +211,7 @@ export async function syncOnLoad(db, saveFn) {
     const driveTime = new Date(file.modifiedTime).getTime();
     const localTime = getLocalSyncTime();
     if (driveTime > localTime) {
-      const content = await downloadFile(accessToken, file.id);
+      const content = await downloadFile(file.id);
       let data;
       try { data = JSON.parse(content); } catch { console.warn('syncOnLoad: corrupt JSON from Drive'); _syncing = false; return; }
       if (data.workouts) {
@@ -268,8 +233,7 @@ export async function syncOnLoad(db, saveFn) {
     _syncing = false;
     await silentBackup(db);
   } catch (e) {
-    console.warn('syncOnLoad failed:', e);
-    setSyncStatus('error');
+    reportSyncError(e, 'syncOnLoad');
     _syncing = false;
   }
 }
@@ -278,3 +242,14 @@ let _syncStatusCb = null;
 /** @param {Function} cb - Called with 'syncing' | 'ok' | 'error' */
 export function onSyncStatus(cb) { _syncStatusCb = cb; }
 function setSyncStatus(status) { if (_syncStatusCb) _syncStatusCb(status); }
+
+let _reconnectCb = null;
+/** Called when Google revoked the permission and the user must connect again. */
+export function onReconnectNeeded(cb) { _reconnectCb = cb; }
+// Un fallo de red es transitorio y no merece molestar a nadie; perder el
+// permiso es lo único que el usuario tiene que arreglar a mano.
+function reportSyncError(e, where) {
+  console.warn(`${where} failed:`, e);
+  setSyncStatus('error');
+  if (e && e.message === 'reconnect' && _reconnectCb) _reconnectCb();
+}

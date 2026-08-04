@@ -1,7 +1,7 @@
 import { saveDB } from '../data.js';
 import { LOCALE, REVISION_PREVIEW_LIMIT } from '../constants.js';
 import { mergeDB, esc } from '../utils.js';
-import { backupToDrive, restoreFromDrive, listRevisions, downloadRevision } from '../drive.js';
+import { backupToDrive, restoreFromDrive, listRevisions, downloadRevision, connectIfNeeded } from '../drive.js';
 
 /** Bind all Drive-related UI events in the Settings section */
 export function initDriveUI(db) {
@@ -17,6 +17,7 @@ export function initDriveUI(db) {
     btn.disabled = true;
     setBtnText(btn, 'Guardando...');
     try {
+      await connectIfNeeded();
       await backupToDrive(db);
       status.textContent = `Copia guardada en Drive (${new Date().toLocaleString(LOCALE)})`;
       status.className = 'drive-status drive-success';
@@ -39,6 +40,7 @@ export function initDriveUI(db) {
     btn.disabled = true;
     setBtnText(btn, 'Cargando...');
     try {
+      await connectIfNeeded();
       const result = await restoreFromDrive();
       if (!result.success) {
         status.textContent = 'No hay copia de seguridad en Drive';
@@ -77,6 +79,7 @@ export function initDriveUI(db) {
     btn.disabled = true;
     setBtnText(btn, 'Cargando revisiones...');
     try {
+      await connectIfNeeded();
       const result = await listRevisions();
       if (!result.success) {
         status.textContent = 'No hay copia de seguridad en Drive';
