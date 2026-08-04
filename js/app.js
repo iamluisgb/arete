@@ -221,6 +221,10 @@ async function init() {
     switchTrainMode(mode, db);
     switchTab(btn, db);
   };
+  document.getElementById('dashLevel')?.addEventListener('click', () => {
+    const btn = document.querySelector('nav button[data-sec="secProfile"]');
+    if (btn) switchTab(btn, db);
+  });
   document.getElementById('dashStartBtn')?.addEventListener('click', () => goEntrenar('str'));
   document.getElementById('dashStartRunBtn')?.addEventListener('click', () => goEntrenar('run'));
   document.getElementById('appVersion').textContent = `Areté v${APP_VERSION}`;

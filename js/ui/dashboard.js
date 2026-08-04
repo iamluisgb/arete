@@ -1,5 +1,6 @@
 import { esc } from '../utils.js';
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
+import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
@@ -112,7 +113,36 @@ function calcStreak(workouts, runningLogs) {
   return streak;
 }
 
+/**
+ * El nivel, en la primera pantalla. Sin esto "Hoy" abría con cuatro anillos
+ * genéricos y una cita motivacional: nada que distinga a Areté de un tracker.
+ * Es un resumen, no un segundo radar — el radar vive en Perfil, y este bloque
+ * lleva hasta él.
+ */
+function renderLevel(db) {
+  const $el = document.getElementById('dashLevel');
+  if (!$el) return;
+  const p = computeProfile(db);
+
+  if (!p.measured) {
+    $el.innerHTML = `<span class="dash-level-num">—</span>
+      <span class="dash-level-txt"><b>Aún no tienes perfil</b>
+      <span>Mide un dominio y empieza a dibujarse</span></span>
+      <span class="material-symbols-outlined dash-level-go">chevron_right</span>`;
+    return;
+  }
+
+  const detalle = p.provisional
+    ? `Limitado por ${p.limitedBy.name.toLowerCase()} · ${p.measured}/${p.total} medidos`
+    : `Limitado por ${p.limitedBy.name.toLowerCase()}`;
+  $el.innerHTML = `<span class="dash-level-num">${ROMAN[p.level]}</span>
+    <span class="dash-level-txt"><b>${esc(LEVEL_NAMES[p.level])}</b>
+    <span>${esc(detalle)}</span></span>
+    <span class="material-symbols-outlined dash-level-go">chevron_right</span>`;
+}
+
 export function renderDashboard(db) {
+  renderLevel(db);
   const weekStart = getWeekStart();
   const weekWorkouts = db.workouts.filter(w => new Date(w.date + 'T12:00:00') >= weekStart);
 

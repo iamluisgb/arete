@@ -1191,3 +1191,12 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dtest-res-next{font-size:var(--fs-base);font-weight:700;color:var(--text2);margin:var(--sp-4) 0}
 .run-import-hint{font-size:var(--fs-sm);color:var(--text2);text-align:center;line-height:1.5;margin-top:var(--sp-3)}
 #runImportBtn .material-symbols-outlined{font-size:22px}
+
+/* Nivel en "Hoy": un resumen que lleva al Perfil, no un segundo radar. */
+.dash-level{display:flex;align-items:center;gap:var(--sp-3);width:100%;background:var(--surface);border:none;border-radius:var(--radius-lg);padding:var(--sp-4);margin-bottom:var(--sp-5);cursor:pointer;text-align:left;font-family:var(--font);color:var(--text);min-height:64px}
+.dash-level:active{opacity:.85}
+.dash-level-num{flex-shrink:0;font-size:var(--fs-3xl);font-weight:800;letter-spacing:-.03em;color:var(--accent);min-width:44px;text-align:center}
+.dash-level-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dash-level-txt b{font-size:var(--fs-md);font-weight:700}
+.dash-level-txt span{font-size:var(--fs-sm);color:var(--text2)}
+.dash-level-go{flex-shrink:0;color:var(--text2);font-size:22px}

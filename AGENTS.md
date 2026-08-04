@@ -7,6 +7,58 @@ sin build step: lo que hay en el repo es lo que se sirve.
 - Servir en local: `python3 -m http.server` y abrir `index.html` (landing) o `app.html` (la app).
   Hace falta un servidor: los módulos ES y el service worker no funcionan con `file://`.
 - `npm test` — vitest sobre `tests/` (jsdom). `npm run test:watch` para iterar.
+- **Al iterar en el navegador, el service worker sirve la versión cacheada** y tus cambios en
+  `js/` no aparecen. Desregístralo y vacía cachés desde DevTools, o abre desde otro puerto.
+
+## Los 7 dominios — el núcleo del producto
+
+Areté no es un tracker: mide **7 dominios de rendimiento** y tu nivel es **el más bajo**. La
+tesis está argumentada en [`blog/8-dominios.html`](blog/8-dominios.html) y es código en
+[`js/domains.js`](js/domains.js), que es la **fuente de verdad del perfil**.
+
+Dos reglas que no se negocian, porque son el producto:
+1. El nivel de un dominio es el **mínimo** de sus métricas (un OHP rezagado no se disuelve en
+   una media).
+2. El nivel global es el **mínimo de los dominios medidos**. Los que faltan **no** cuentan como
+   nivel 0 — eso convertiría cualquier perfil incompleto en nivel I; el perfil se marca
+   `provisional` en su lugar.
+
+Las métricas llegan por dos vías y la UI distingue una de otra:
+- **Derivadas** — salen solas de lo ya registrado: los cuatro básicos en ratio al peso corporal
+  (Epley + el peso más reciente de `bodyLogs`), las dominadas sin lastre del historial y el
+  mejor 5K de `runningLogs`. Sin peso corporal no hay ratios de fuerza, y el perfil lo dice.
+- **Medidas** — `db.domainTests`, un registro por métrica con su fecha. Caducan (6 semanas los
+  tests baratos, 10 los caros). Un test manual **siempre gana** a la derivación.
+
+Un test manual guarda **una fila por métrica, con ids distintos**: el merge de Drive deduplica
+por id y tres McGill con el mismo id se comerían entre ellos.
+
+Los umbrales están calibrados para hombre de ~75 kg. Está declarado en pantalla
+(`CALIBRATION_NOTE`), no solo en el blog: falta la columna femenina (ver `mejoras_arete.md` #7).
+
+## Navegación
+
+`Hoy · Entrenar · Perfil · Cuerpo · Más`.
+
+**Entrenar** contiene fuerza y carrera como dos modos (`#secStrength` / `#secRunning`, clase
+`.train-panel`), no como dos secciones. El modo vive en `areteTrainMode` y `switchStrTab()` lo
+fuerza a fuerza, que es lo que usan "Iniciar sesión" y Quirón. `migrateLastTab()` traduce las
+pestañas viejas (`secStrength`/`secRunning`) — no la borres o los usuarios existentes abrirán la
+app en una sección que ya no existe.
+
+## Running: se importa, no se trackea
+
+Areté no compite en tracking GPS contra Strava y Garmin. El tracker se ofrece **solo donde el
+sistema operativo deja cumplirlo**, detrás de `canTrackRuns()` ([`js/platform.js`](js/platform.js)):
+en el wrapper nativo hay foreground service; en el navegador `watchPosition` se estrangula en
+segundo plano.
+
+La entrada de datos es **importar > manual > GPS**. [`js/ui/run-import.js`](js/ui/run-import.js)
+lee GPX y TCX con el `DOMParser`, sin dependencias. Los `.FIT` son binarios y todavía no se
+leen; se detectan por extensión antes de parsear para poder decir "expórtalo como GPX".
+
+Todo lo demás de running (plan, calendario, historial, progreso, PRs, zonas) trabaja sobre
+`db.runningLogs`, **no sobre el tracker**: por eso importar basta para que nada se pierda.
 
 ## Despliegue
 
