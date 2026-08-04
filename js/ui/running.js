@@ -451,9 +451,19 @@ export function initRunning(db) {
   // Tracker callbacks
   tracker.onUpdate(data => { updateLiveUI(data); saveActiveRun(); });
   tracker.onSplit(split => onSplitComplete(split));
-  tracker.onError(msg => {
-    toast(msg, 'error');
-    if (tracker.state === 'idle') closeLiveOverlay();
+  tracker.onError((msg, opts) => {
+    if (!opts?.fatal) { toast(msg, 'error'); return; }
+    // Sin GPS la carrera no puede continuar. Dejar el overlay abierto con la
+    // nav oculta y un cronómetro a cero es un callejón sin salida: o se
+    // rescata lo ya recorrido, o se sale ofreciendo el registro manual.
+    if (tracker.distance > 0.05) {
+      toast(`${msg} — se guarda lo recorrido`, 'error');
+      stopGpsRun(db);
+      return;
+    }
+    tracker.stop();
+    closeLiveOverlay();
+    toast(msg, 'error', { action: 'Registrar a mano', onAction: () => openManualModal(db) });
   });
   tracker.onAutoPause(paused => {
     if (paused) {

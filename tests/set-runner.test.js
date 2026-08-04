@@ -36,6 +36,7 @@ function montarGrid(exercises) {
 }
 
 const $ = sel => document.querySelector(sel);
+const $$ = sel => [...document.querySelectorAll(sel)];
 const input = (ex, set, field) =>
   $(`#exerciseList input[data-ex="${ex}"][data-set="${set}"][data-field="${field}"]`);
 
@@ -154,13 +155,99 @@ describe('avance por las series', () => {
     expect(input(1, 0, 'kg').value).toBe('60');   // data-ex="1", no "2"
   });
 
-  it('al terminar la última serie cierra la hoja', () => {
+  it('sin resumen que enseñar, al terminar la última serie cierra la hoja', () => {
     const uno = [{ name: 'Sentadilla', sets: 1, reps: '5', type: 'main' }];
     montarGrid(uno);
     prepareRunner(uno, () => {});
     openRunner();
     $('.sr-cta').click();
     expect(isRunnerOpen()).toBe(false);
+  });
+});
+
+// El flujo terminaba cerrando la hoja sin decir nada y dejando el guardado en un
+// botón al final de la lista, con scroll. Esta fase es el remate del flujo.
+describe('cierre de sesión', () => {
+  const UNO = [{ name: 'Sentadilla', sets: 1, reps: '5', type: 'main' }];
+  const RESUMEN = {
+    session: 'Sesión A', setsDone: 1, setsTotal: 1, volume: 500,
+    prs: [{ exercise: 'Sentadilla', kg: 100, prevKg: 95 }],
+    volumeDelta: 6, volumePrevDate: '07/28',
+  };
+
+  it('tras la última serie muestra el resumen en vez de cerrar', () => {
+    montarGrid(UNO);
+    prepareRunner(UNO, () => {}, { summary: () => RESUMEN, save: () => {} });
+    openRunner();
+    $('.sr-cta').click();
+
+    expect(isRunnerOpen()).toBe(true);
+    expect($('#setRunner').classList.contains('is-done')).toBe(true);
+    expect($('.sr-done-title').textContent).toBe('Sesión A');
+    expect($('.sr-done-stats').textContent).toContain('1 / 1');
+    expect($('.sr-done-prs').textContent).toContain('Sentadilla');
+    expect($('.sr-done-vol').textContent).toContain('500 kg');
+    expect($('.sr-cta').textContent).toBe('Guardar sesión');
+  });
+
+  it('el CTA del resumen guarda y cierra', () => {
+    montarGrid(UNO);
+    const save = vi.fn();
+    prepareRunner(UNO, () => {}, { summary: () => RESUMEN, save });
+    openRunner();
+    $('.sr-cta').click();   // última serie → resumen
+    $('.sr-cta').click();   // guardar
+
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(isRunnerOpen()).toBe(false);
+  });
+
+  it('"Revisar antes de guardar" cierra sin guardar', () => {
+    montarGrid(UNO);
+    const save = vi.fn();
+    prepareRunner(UNO, () => {}, { summary: () => RESUMEN, save });
+    openRunner();
+    $('.sr-cta').click();
+    $('.sr-sub').click();
+
+    expect(save).not.toHaveBeenCalled();
+    expect(isRunnerOpen()).toBe(false);
+  });
+
+  it('con más de tres récords enseña los tres mayores y cuenta el resto', () => {
+    montarGrid(UNO);
+    const prs = [
+      { exercise: 'Ligero', kg: 40, prevKg: 35 },
+      { exercise: 'Medio', kg: 80, prevKg: 75 },
+      { exercise: 'Pesado', kg: 120, prevKg: 115 },
+      { exercise: 'Máximo', kg: 160, prevKg: 155 },
+      { exercise: 'Otro', kg: 60, prevKg: 55 },
+    ];
+    prepareRunner(UNO, () => {}, { summary: () => ({ ...RESUMEN, prs }), save: () => {} });
+    openRunner();
+    $('.sr-cta').click();
+
+    const txt = $('.sr-done-prs').textContent;
+    expect($$('.sr-done-pr')).toHaveLength(3);
+    expect(txt).toContain('Máximo');
+    expect(txt).toContain('Pesado');
+    expect(txt).not.toContain('Ligero');
+    expect($('.sr-done-more').textContent).toBe('y 2 récords más');
+  });
+
+  it('reabrir una sesión nueva descarta el resumen anterior', () => {
+    montarGrid(UNO);
+    prepareRunner(UNO, () => {}, { summary: () => RESUMEN, save: () => {} });
+    openRunner();
+    $('.sr-cta').click();
+    expect($('#setRunner').classList.contains('is-done')).toBe(true);
+
+    document.body.innerHTML = '';
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    expect($('#setRunner').classList.contains('is-work')).toBe(true);
+    expect($('.sr-sub').textContent).toBe('Ver sesión completa');
   });
 });
 

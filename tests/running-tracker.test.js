@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { haversine, GpsTracker } from '../js/ui/running-tracker.js';
 
 // ── haversine ────────────────────────────────────────────
@@ -141,5 +141,54 @@ describe('GpsTracker', () => {
 
   it('stop returns null when already idle', () => {
     expect(tracker.stop()).toBeNull();
+  });
+});
+
+// Un permiso denegado dejaba al usuario con el overlay abierto, el cronómetro a
+// cero y la nav oculta. La UI necesita distinguir el error del que no se vuelve.
+describe('clasificación de errores de GPS', () => {
+  let tracker, errores, origGeo;
+
+  beforeEach(() => {
+    tracker = new GpsTracker();
+    errores = [];
+    tracker.onError((msg, opts) => errores.push({ msg, ...opts }));
+    origGeo = navigator.geolocation;
+  });
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'geolocation', { value: origGeo, configurable: true });
+  });
+
+  /** Arranca el watcher capturando su callback de error. */
+  function watcherConError() {
+    let onErr;
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: { watchPosition: (_ok, err) => { onErr = err; return 1; }, clearWatch: () => {} },
+    });
+    tracker._startGps();
+    return onErr;
+  }
+
+  it('sin geolocalización en el dispositivo el error es fatal', () => {
+    Object.defineProperty(navigator, 'geolocation', { value: undefined, configurable: true });
+    expect(tracker.start()).toBe(false);
+    expect(errores[0]).toMatchObject({ fatal: true });
+  });
+
+  it('permiso denegado (code 1) es fatal', () => {
+    watcherConError()({ code: 1 });
+    expect(errores[0]).toMatchObject({ msg: 'Permiso GPS denegado', fatal: true });
+  });
+
+  it('GPS no disponible (code 2) es fatal', () => {
+    watcherConError()({ code: 2 });
+    expect(errores[0]).toMatchObject({ fatal: true });
+  });
+
+  it('un timeout (code 3) NO es fatal: el watch sigue vivo y se recupera solo', () => {
+    watcherConError()({ code: 3 });
+    expect(errores[0]).toMatchObject({ msg: 'Timeout GPS', fatal: false });
   });
 });

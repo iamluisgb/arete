@@ -111,7 +111,7 @@ function renderSegmentCards(segs, db) {
     }
 
     return `
-      <div class="run-segment-card" style="border-left-color:${color}">
+      <div class="run-segment-card">
         <div class="run-seg-header">
           <span class="run-seg-name">${esc(seg.name)}</span>
           <span class="run-seg-zone" style="background:${color}">${zone}</span>

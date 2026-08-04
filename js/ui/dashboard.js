@@ -141,9 +141,7 @@ export function renderDashboard(db) {
   setRing('dashSessionsRing', sessionCount / sessionGoal);
 
   // Running metrics
-  console.log('[Dashboard] runningLogs count:', (db.runningLogs || []).length, 'sample:', db.runningLogs?.[0]);
   const weekRuns = (db.runningLogs || []).filter(r => new Date(r.date + 'T12:00:00') >= weekStart);
-  console.log('[Dashboard] weekRuns count:', weekRuns.length, 'weekStart:', weekStart.toISOString());
   const runWeekKm = weekRuns.reduce((sum, r) => sum + (parseFloat(r.distance) || 0), 0);
   const runGoalKm = db.runningGoal?.target || 20;
   const runKmEl = document.getElementById('dashRunKmValue');
@@ -199,7 +197,7 @@ export function renderDashboard(db) {
       const pace = item.pace ? `${formatPace(item.pace)} /km` : '';
       const dur = item.duration ? formatRunDuration(item.duration) : '';
       return `<div class="dash-act-card dash-act-run">
-        <div class="dash-act-name"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">directions_run</span> ${esc(typeLabel)}</div>
+        <div class="dash-act-name"><span class="material-symbols-outlined dash-act-icon">directions_run</span>${esc(typeLabel)}</div>
         <div class="dash-act-detail">${[dist, pace].filter(Boolean).join(' · ')}</div>
         <div class="dash-act-detail">${dur}</div>
         <div class="dash-act-time">${formatDate(item.date)}</div>
@@ -209,7 +207,8 @@ export function renderDashboard(db) {
     const topExercises = item.exercises.slice(0, 2).map(e => esc(e.name)).join(', ');
     const totalSets = item.exercises.reduce((sum, e) => sum + e.sets.length, 0);
     return `<div class="dash-act-card${hasPR ? ' has-pr' : ''}">
-      <div class="dash-act-name"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">fitness_center</span> ${esc(item.session)}</div>
+      ${hasPR ? '<div class="dash-act-chip">Récord</div>' : ''}
+      <div class="dash-act-name"><span class="material-symbols-outlined dash-act-icon">fitness_center</span>${esc(item.session)}</div>
       <div class="dash-act-detail">${topExercises}</div>
       <div class="dash-act-detail">${totalSets} series</div>
       <div class="dash-act-time">${formatDate(item.date)}</div>

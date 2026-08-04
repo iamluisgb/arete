@@ -90,7 +90,7 @@ export class GpsTracker {
     if (this.state === 'tracking') return;
 
     if (!navigator.geolocation) {
-      this._onError?.('GPS no disponible en este dispositivo');
+      this._onError?.('GPS no disponible en este dispositivo', { fatal: true });
       return false;
     }
 
@@ -423,7 +423,9 @@ export class GpsTracker {
           2: 'GPS no disponible',
           3: 'Timeout GPS'
         };
-        this._onError?.(msgs[err.code] || 'Error GPS');
+        // Un timeout se recupera solo (el watch sigue vivo); un permiso denegado
+        // o un GPS no disponible no, y la UI tiene que poder salir del overlay.
+        this._onError?.(msgs[err.code] || 'Error GPS', { fatal: err.code === 1 || err.code === 2 });
       },
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
     );

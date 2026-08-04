@@ -54,6 +54,8 @@ let restLeft = 0, restTotal = 0, restTimer = null, restEndsAt = 0;
 let lastBeep = -1;
 let wakeLock = null;
 let onDirty = null;        // avisa a training.js para que persista el borrador
+let hooks = null;          // { summary(), save() } — los pone training.js
+let sessionStart = 0;      // instante de la primera apertura, para la duración
 
 // ── wake lock ────────────────────────────────────────────
 async function acquireWakeLock() {
@@ -162,6 +164,13 @@ function ensureSheet() {
       <div class="sr-tip"></div>
       <div class="sr-next"></div>
     </div>
+    <div class="sr-phase sr-done">
+      <div class="sr-done-title"></div>
+      <div class="sr-done-sub">completada</div>
+      <div class="sr-done-stats"></div>
+      <div class="sr-done-prs"></div>
+      <div class="sr-done-vol"></div>
+    </div>
     <button type="button" class="sr-cta"></button>
     <button type="button" class="sr-sub">Ver sesión completa</button>`;
   document.body.appendChild(sheet);
@@ -194,6 +203,7 @@ function setPhase(p) {
   phase = p;
   sheet.classList.toggle('is-work', p === 'work');
   sheet.classList.toggle('is-rest', p === 'rest');
+  sheet.classList.toggle('is-done', p === 'done');
 }
 
 function showWork(n) {
@@ -215,6 +225,7 @@ function showWork(n) {
   const cta = $('.sr-cta');
   cta.textContent = 'Serie hecha ✓';
   cta.classList.remove('ready');
+  $('.sr-sub').textContent = 'Ver sesión completa';
   setPhase('work');
   paintProgress();
 }
@@ -283,9 +294,51 @@ function markDone() {
   else finish();
 }
 
+function fmtVol(kg) {
+  return kg >= 1000 ? `${(kg / 1000).toFixed(1)} t` : `${Math.round(kg)} kg`;
+}
+
+/** Tercera fase: el trabajo ya está hecho, falta decir qué salió y guardarlo. */
+function paintDone(d) {
+  $('.sr-done-title').textContent = d.session || 'Sesión';
+  const mins = Math.max(1, Math.round((Date.now() - (sessionStart || Date.now())) / 60000));
+  $('.sr-done-stats').innerHTML = `
+    <div class="sr-done-stat"><b>${d.setsDone} / ${d.setsTotal}</b><span>series</span></div>
+    <div class="sr-done-stat"><b>${mins} min</b><span>duración</span></div>`;
+  // Con más de tres récords la lista empuja el CTA fuera de pantalla y deja de
+  // celebrar nada: se enseñan los tres mayores y el resto se cuenta.
+  const prs = [...(d.prs || [])].sort((a, b) => b.kg - a.kg);
+  const shown = prs.slice(0, 3);
+  $('.sr-done-prs').innerHTML = shown.map(p => `
+    <div class="sr-done-pr">
+      <span class="sr-done-pr-chip">Récord</span>
+      <span class="sr-done-pr-ex">${esc(p.exercise)}</span>
+      <span class="sr-done-pr-kg">${p.prevKg > 0 ? `${p.prevKg} → ` : ''}${p.kg} kg</span>
+    </div>`).join('')
+    + (prs.length > shown.length
+      ? `<div class="sr-done-more">y ${prs.length - shown.length} récord${prs.length - shown.length > 1 ? 's' : ''} más</div>`
+      : '');
+  $('.sr-done-vol').innerHTML = d.volume > 0
+    ? `Volumen <b>${fmtVol(d.volume)}</b>${d.volumeDelta != null
+        ? ` <span class="sr-done-delta ${d.volumeDelta >= 0 ? 'up' : 'down'}">${d.volumeDelta >= 0 ? '+' : ''}${d.volumeDelta}% vs ${esc(d.volumePrevDate)}</span>` : ''}`
+    : '';
+  const cta = $('.sr-cta');
+  cta.textContent = 'Guardar sesión';
+  cta.classList.add('ready');
+  $('.sr-sub').textContent = 'Revisar antes de guardar';
+  paintProgress();
+}
+
+// El flujo mejor construido de la app terminaba cerrando la hoja sin decir nada
+// y dejando el guardado en un botón al final de la lista. Aquí es donde el
+// esfuerzo se convierte en dato, así que aquí es donde se cierra.
 function finish() {
   stopRest();
-  close();
+  releaseWakeLock();
+  const d = hooks?.summary?.();
+  if (!d) { close(); return; }
+  setPhase('done');
+  paintDone(d);
 }
 
 // ── ciclo de vida ────────────────────────────────────────
@@ -297,6 +350,9 @@ export function openRunner(n) {
   if (!sets.length) return;
   ensureSheet();
   const start = Number.isInteger(n) ? n : Math.max(firstPending(), 0);
+  // Se cuenta desde la primera apertura de la sesión, no desde cada reapertura:
+  // salir a mirar la lista a mitad de entreno no reinicia el cronómetro.
+  if (!sessionStart) sessionStart = Date.now();
   sheet.classList.add('up');
   document.body.classList.add('session-focus');
   acquireWakeLock();
@@ -316,9 +372,11 @@ export function close() {
  * @param {Array}    exercises  ejercicios de la sesión
  * @param {Function} dirty      callback para persistir el borrador
  */
-export function prepareRunner(exercises, dirty) {
+export function prepareRunner(exercises, dirty, sessionHooks) {
   sets = buildSetList(exercises);
   onDirty = dirty;
+  hooks = sessionHooks || null;
+  sessionStart = 0;
   if (isRunnerOpen()) close();
 }
 
@@ -327,6 +385,7 @@ export function hasSets() { return sets.length > 0; }
 // ── eventos ──────────────────────────────────────────────
 function bindSheet() {
   $('.sr-cta').addEventListener('click', () => {
+    if (phase === 'done') { hooks?.save?.(); close(); return; }
     if (phase === 'work') markDone();
     else if (sets[idx + 1]) showWork(idx + 1);
     else finish();

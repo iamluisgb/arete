@@ -411,7 +411,10 @@ export function loadSessionTemplate(db, autoPrefill) {
 
   // El runner es una capa encima de esta lista: se prepara tras cada render,
   // pero solo se abre por acción explícita — nunca al editar un entreno pasado.
-  prepareRunner(exercises, scheduleDraft);
+  prepareRunner(exercises, scheduleDraft, {
+    summary: () => buildSessionSummary(db),
+    save: () => saveWorkout(db, { fromRunner: true }),
+  });
   _renderRunnerCta();
 }
 
@@ -884,7 +887,59 @@ export function selectAndStartSession(ref, phaseKey, db) {
 }
 
 /** Save or update a workout from the training form data */
-export function saveWorkout(db) {
+/** Volumen (kg × reps) de la lista de ejercicios de un entreno guardado. */
+function workoutVolume(w) {
+  let vol = 0;
+  for (const e of w.exercises || [])
+    for (const s of e.sets || [])
+      vol += (parseFloat(s.kg) || 0) * (parseInt(s.reps) || 0);
+  return vol;
+}
+
+/**
+ * Lo que la sesión acaba de producir, leído de la grid — que sigue siendo la
+ * fuente de verdad. Alimenta la pantalla de cierre del runner; no guarda nada.
+ */
+export function buildSessionSummary(db) {
+  const sess = resolveSession(db, $trainSession.value);
+  if (!sess) return null;
+
+  let volume = 0, setsDone = 0, setsTotal = 0;
+  const prs = [];
+  sess.exercises.forEach((ex, i) => {
+    const mode = ex.mode || (ex.type === 'hiit' || ex.type === 'density' ? 'result' : 'sets');
+    if (mode !== 'sets') return;
+    let maxKg = 0;
+    for (let s = 0; s < (ex.sets || 0); s++) {
+      setsTotal++;
+      const kg = parseFloat($exerciseList.querySelector(`[data-ex="${i}"][data-set="${s}"][data-field="kg"]`)?.value) || 0;
+      const reps = parseInt($exerciseList.querySelector(`[data-ex="${i}"][data-set="${s}"][data-field="reps"]`)?.value) || 0;
+      if ($exerciseList.querySelector(`.set-label[data-ex="${i}"][data-set="${s}"]`)?.classList.contains('set-done')) setsDone++;
+      volume += kg * reps;
+      if (kg > maxKg) maxKg = kg;
+    }
+    if (maxKg > 0) {
+      const prevPR = getExercisePR(db, ex.name, editingId);
+      if (maxKg > prevPR) prs.push({ exercise: ex.name, kg: maxKg, prevKg: prevPR });
+    }
+  });
+
+  // Comparación contra la última vez que se hizo ESTA sesión, no contra el
+  // último entreno: comparar una de piernas con una de empuje no dice nada.
+  const prev = (db.workouts || [])
+    .filter(w => w.session === sess.name && w.id !== editingId)
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
+  const prevVol = prev ? workoutVolume(prev) : 0;
+
+  return {
+    session: sess.name,
+    setsDone, setsTotal, volume, prs,
+    volumeDelta: prevVol > 0 && volume > 0 ? Math.round((volume / prevVol - 1) * 100) : null,
+    volumePrevDate: prev ? prev.date.slice(5).replace('-', '/') : '',
+  };
+}
+
+export function saveWorkout(db, { fromRunner = false } = {}) {
   const date = $trainDate.value;
   const notes = $trainNotes.value;
   const sess = resolveSession(db, $trainSession.value);
@@ -954,7 +1009,9 @@ export function saveWorkout(db) {
   saveDB(db);
   if (sess.customId) touchCustomSession(db, sess.customId);
 
-  if (prs.length > 0) {
+  // Viniendo del runner los récords ya se han enseñado en la pantalla de cierre:
+  // repetirlos en un overlay suelto después de guardar sobra.
+  if (prs.length > 0 && !fromRunner) {
     $prList.innerHTML = prs.map(p =>
       `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,85,255,.06);border-radius:var(--radius);margin-bottom:6px">
         <div style="font-size:.75rem;font-weight:700;color:var(--accent);flex:1">${esc(p.exercise)}</div>
@@ -1018,30 +1075,25 @@ export function initTraining(db, { onCancelEdit }) {
     e.target.classList.remove('prefilled');
     scheduleDraft();
   }, true);
-  // Auto-mark set done when both kg+reps filled (no prefill case)
-  $exerciseList.addEventListener('blur', (e) => {
-    const inp = e.target;
-    if (!inp.matches('input[data-field]')) return;
-    if (inp.classList.contains('prefilled')) return;
-    const ex = inp.dataset.ex, set = inp.dataset.set;
-    const kg = $exerciseList.querySelector(`[data-ex="${ex}"][data-set="${set}"][data-field="kg"]`);
-    const reps = $exerciseList.querySelector(`[data-ex="${ex}"][data-set="${set}"][data-field="reps"]`);
-    if (kg?.value && reps?.value) {
-      const label = $exerciseList.querySelector(`.set-label[data-ex="${ex}"][data-set="${set}"]`);
-      if (label && !label.classList.contains('set-done')) {
-        _markSetDone(label);
-      }
-    }
-  }, true);
-  // Tap on set label to toggle done (essential for prefill case)
+  // Marcar una serie es SIEMPRE un acto explícito: el CTA del runner o el tap en
+  // la etiqueta. Antes también se auto-marcaba al salir del input, así que había
+  // dos mecanismos con reglas distintas (uno ignoraba el prefill, el otro no) y
+  // un roce con la mano sudada podía desmarcar sin dejar rastro.
   $exerciseList.addEventListener('click', (e) => {
     const label = e.target.closest('.set-label');
     if (!label) return;
     if (label.classList.contains('set-done')) {
       _unmarkSetDone(label);
-    } else {
-      _markSetDone(label);
+      scheduleDraft();
+      // Desmarcar borra trabajo hecho: tiene que poder deshacerse.
+      const setNo = (parseInt(label.dataset.set) || 0) + 1;
+      toast(`Serie ${setNo} desmarcada`, 'info', {
+        action: 'Deshacer',
+        onAction: () => { _markSetDone(label); scheduleDraft(); },
+      });
+      return;
     }
+    _markSetDone(label);
     scheduleDraft();
   });
   $trainNotes.addEventListener('input', scheduleDraft);
