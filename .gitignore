@@ -13,3 +13,5 @@ evals/out/
 # Prototipo de diseño: referencia medios de .eval/ (evaluación local,
 # incluidos los de Gym visual). Publicarlo dejaría una página rota.
 sesion-fuerza-prototype.html
+
+dist/
