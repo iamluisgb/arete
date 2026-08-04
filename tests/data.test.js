@@ -88,7 +88,7 @@ describe('migrateDB', () => {
     const db = { schemaVersion: 1, program: 'test', workouts: [{ id: 1, exercises: [] }], bodyLogs: [] };
     migrateDB(db);
     expect(db.workouts[0].program).toBe('test');
-    expect(db.schemaVersion).toBe(5);
+    expect(db.schemaVersion).toBe(6);
   });
 
   it('ensures settings object exists after migration', () => {
@@ -106,37 +106,50 @@ describe('migrateDB', () => {
   });
 
   it('does not re-run migrations on current schema', () => {
-    const db = { schemaVersion: 5, workouts: [{ id: 1, exercises: [] }], bodyLogs: [] };
+    const db = { schemaVersion: 6, workouts: [{ id: 1, exercises: [] }], bodyLogs: [] };
     migrateDB(db);
     expect(db.workouts[0].program).toBeUndefined(); // not touched
-    expect(db.schemaVersion).toBe(5);
+    expect(db.schemaVersion).toBe(6);
   });
 
   it('adds race5k to settings in v2→v3 migration', () => {
     const db = { schemaVersion: 2, workouts: [], bodyLogs: [], settings: { height: 175, age: 32 } };
     migrateDB(db);
     expect(db.settings.race5k).toBe(0);
-    expect(db.schemaVersion).toBe(5);
+    expect(db.schemaVersion).toBe(6);
   });
 
   it('adds maxHR to settings in v3→v4 migration', () => {
     const db = { schemaVersion: 3, workouts: [], bodyLogs: [], settings: { height: 175, age: 30, race5k: 0 } };
     migrateDB(db);
     expect(db.settings.maxHR).toBe(190); // 220 - 30
-    expect(db.schemaVersion).toBe(5);
+    expect(db.schemaVersion).toBe(6);
   });
 
   it('crea customSessions en la migración v4→v5', () => {
     const db = { schemaVersion: 4, workouts: [], bodyLogs: [], settings: { maxHR: 190 } };
     migrateDB(db);
     expect(Array.isArray(db.customSessions)).toBe(true);
-    expect(db.schemaVersion).toBe(5);
+    expect(db.schemaVersion).toBe(6);
   });
 
   it('defaults maxHR to 0 when no age set', () => {
     const db = { schemaVersion: 3, workouts: [], bodyLogs: [], settings: { height: 175, race5k: 0 } };
     migrateDB(db);
     expect(db.settings.maxHR).toBe(0);
+  });
+
+  it('crea domainTests en la migración v5→v6', () => {
+    const db = { schemaVersion: 5, workouts: [], bodyLogs: [], customSessions: [] };
+    migrateDB(db);
+    expect(Array.isArray(db.domainTests)).toBe(true);
+  });
+
+  it('una db de v1 llega a v6 con todo lo que el perfil necesita', () => {
+    const db = { schemaVersion: 1, workouts: [], bodyLogs: [] };
+    migrateDB(db);
+    expect(Array.isArray(db.domainTests)).toBe(true);
+    expect(db.schemaVersion).toBe(6);
   });
 });
 

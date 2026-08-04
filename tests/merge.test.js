@@ -56,6 +56,21 @@ describe('mergeDB', () => {
     expect(result.bodyLogs).toHaveLength(2);
   });
 
+  // Sin esto, medirte un test en el móvil y sincronizar desde el portátil lo
+  // borraba: el perfil se quedaba sin la mitad de los dominios.
+  it('merges domainTests from both sides', () => {
+    const local = makeDB({ domainTests: [{ id: 20, metric: 'ake', value: 12, date: '2026-08-01' }] });
+    const remote = makeDB({ domainTests: [{ id: 21, metric: 'run400', value: 62, date: '2026-08-02' }] });
+    const result = mergeDB(local, remote);
+    expect(result.domainTests.map(t => t.id).sort()).toEqual([20, 21]);
+  });
+
+  it('un test borrado en un dispositivo no vuelve al sincronizar', () => {
+    const local = makeDB({ domainTests: [], deletedIds: [20] });
+    const remote = makeDB({ domainTests: [{ id: 20, metric: 'ake', value: 12, date: '2026-08-01' }] });
+    expect(mergeDB(local, remote).domainTests).toEqual([]);
+  });
+
   it('handles missing deletedIds arrays', () => {
     const local = { workouts: [{ id: 1 }], bodyLogs: [] };
     const remote = { workouts: [{ id: 2 }], bodyLogs: [] };

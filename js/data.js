@@ -20,9 +20,9 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const CURRENT_SCHEMA = 5;
+const CURRENT_SCHEMA = 6;
 
-const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
+const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, domainTests: [], settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
 
 /** Schema migrations — each takes a db object and mutates it in place */
 const migrations = [
@@ -52,6 +52,11 @@ const migrations = [
   // v4 → v5: sesiones sueltas (las que propone Quirón fuera del plan)
   (db) => {
     if (!Array.isArray(db.customSessions)) db.customSessions = [];
+  },
+  // v5 → v6: tests de los 7 dominios. Solo los que hay que medir a mano: la
+  // fuerza, las dominadas y el 5K se derivan de lo ya registrado.
+  (db) => {
+    if (!Array.isArray(db.domainTests)) db.domainTests = [];
   },
 ];
 
@@ -218,6 +223,7 @@ export function pruneDeletedIds(db) {
     ...(db.workouts || []).map(w => w.id),
     ...(db.bodyLogs || []).map(b => b.id),
     ...(db.runningLogs || []).map(r => r.id),
+    ...(db.domainTests || []).map(t => t.id),
   ]);
   // Keep only IDs that are still referenced or recent (last 200)
   const recent = db.deletedIds.slice(-200);

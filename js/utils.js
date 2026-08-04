@@ -77,5 +77,6 @@ export function mergeDB(local, remote) {
   merged.customPrograms = mergeById(safeArr(local.customPrograms), safeArr(remote.customPrograms), [], '_customId');
   merged.customSessions = mergeById(safeArr(local.customSessions), safeArr(remote.customSessions), allDeleted);
   merged.runningLogs = mergeById(safeArr(local.runningLogs), safeArr(remote.runningLogs), allDeleted);
+  merged.domainTests = mergeById(safeArr(local.domainTests), safeArr(remote.domainTests), allDeleted);
   return merged;
 }
