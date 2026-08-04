@@ -83,6 +83,55 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   return L.join('\n');
 }
 
+// ── Presupuesto de contexto por turno ───────────────────────────────────────
+// Traído de bookreader (ADR-007/ADR-010 de su DECISIONS.md). Allí el problema era
+// el libro entero en cada turno; aquí es el mismo patrón con otra ropa: cada turno
+// de Quirón añade a la conversación un bloque `data` con el volcado de las
+// herramientas (histórico de un ejercicio, carreras, sesiones…), y la conversación
+// entera se reenviaba en el turno siguiente. A los diez turnos se está pagando —y
+// diluyendo la atención del modelo con— diez volcados, nueve de ellos de preguntas
+// que ya nadie está haciendo.
+//
+// Dos reglas, las mismas que allí:
+//   1. Los `data` viejos NO se reenvían. Son volcados que el modelo puede volver a
+//      pedir con las tools si los necesita; el snapshot, que sí es estado actual, se
+//      reconstruye entero en cada turno.
+//   2. Ventana de historial: solo los últimos N mensajes. La conversación completa
+//      se sigue guardando y viendo en el panel; lo que se recorta es lo que viaja.
+
+export const HISTORY_MSGS = 8;      // mensajes verbatim que se reenvían
+export const TOKEN_GUARD = 60000;   // por encima de esto, preguntar antes de enviar
+
+/** Estimación barata de tokens (~4 chars/token), igual que en bookreader. */
+export function estimateTokens(s) {
+  return Math.round((s || '').length / 4);
+}
+
+/**
+ * Recorta la conversación a lo que se manda al modelo este turno.
+ * @param {Array} convo mensajes {role:'user'|'assistant'|'data', content}
+ * @param {number} maxMsgs tamaño de la ventana
+ */
+export function windowConversation(convo, { maxMsgs = HISTORY_MSGS } = {}) {
+  let lastUser = -1;
+  for (let i = convo.length - 1; i >= 0; i--) {
+    if (convo[i].role === 'user') { lastUser = i; break; }
+  }
+  // `data` solo del turno en curso (los posteriores a la última pregunta).
+  const fresh = convo.filter((m, i) => m.role !== 'data' || i > lastUser);
+  return fresh.slice(-maxMsgs);
+}
+
+/**
+ * Traduce a mensajes de la API. Los `data` viajan como `user` con prefijo, porque
+ * nan solo admite `system` en el índice 0.
+ */
+export function toApiMessages(msgs) {
+  return msgs.map(m => m.role === 'data'
+    ? { role: 'user', content: '[DATOS DEL HISTÓRICO — generados por la app, no por el atleta]\n' + m.content }
+    : { role: m.role, content: m.content });
+}
+
 /**
  * Datos del INFORME (Fase 5b): agregados de un periodo para que Quirón produzca el
  * formato RESUMEN. Añade lo que el snapshot no trae con marco temporal: tonelaje del

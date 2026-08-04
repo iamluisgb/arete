@@ -5,7 +5,7 @@
 // La conversación vive en localStorage 'areteQuiron', fuera de la db sincronizada.
 
 import * as LLM from '../ai/llm.js';
-import { buildSnapshot, buildReport } from '../ai/context.js';
+import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
 import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import {
@@ -215,11 +215,18 @@ async function send(db, text, opts = {}) {
   try {
     const snapshot = buildSnapshot(db, progContext(db));
     const system = buildSystemMessage(snapshot);
-    // 'data' viaja como user con prefijo (nan solo admite system en el índice 0)
-    const toApi = (m) => m.role === 'data'
-      ? { role: 'user', content: '[DATOS DEL HISTÓRICO — generados por la app, no por el atleta]\n' + m.content }
-      : { role: m.role, content: m.content };
-    const history = convo.map(toApi);
+    // Solo viaja la ventana reciente, y sin los volcados de herramientas de turnos
+    // anteriores: el modelo puede volver a pedirlos si los necesita (ver context.js).
+    const history = toApiMessages(windowConversation(convo));
+
+    const est = estimateTokens(system.content) + history.reduce((n, m) => n + estimateTokens(m.content), 0);
+    if (est > TOKEN_GUARD &&
+        !confirm(`El contexto de este turno es grande (~${Math.round(est / 1000)}k tokens): puede ser lento o caro. ¿Envío igualmente?`)) {
+      bubble.remove();
+      while (convo.length && convo[convo.length - 1].role !== 'assistant') convo.pop();
+      saveConvo();
+      return;
+    }
 
     // 1) Recolección + propuestas: el modelo pide herramientas de lectura si el
     //    snapshot no basta, y puede proponer escrituras (propose_program) que NO se
@@ -256,7 +263,7 @@ async function send(db, text, opts = {}) {
     }
     if (gathered.length) {
       convo.push({ role: 'data', content: gathered.join('\n\n') });
-      history.push(toApi(convo[convo.length - 1]));
+      history.push(...toApiMessages([convo[convo.length - 1]]));
     }
 
     // 2a) Si el modelo pidió crear/editar un plan o registrar un entreno: la app lo
@@ -888,9 +895,22 @@ function initSettingsUI() {
     els.setStatus.className = 'drive-status';
     els.setTest.disabled = true;
     try {
-      await LLM.testConnection({ baseUrl: els.setBaseUrl.value, key: els.setKey.value, model: els.setModel.value });
-      els.setStatus.textContent = '✓ Conexión correcta';
-      els.setStatus.className = 'drive-status drive-success';
+      const text = await LLM.probeModel({ kind: 'text', baseUrl: els.setBaseUrl.value, key: els.setKey.value, model: els.setModel.value });
+      // El slot de visión se prueba aparte y con una llamada multimodal: es la única
+      // forma de saber si ese id existe y "ve", en vez de descubrirlo el día que el
+      // atleta le hace una foto a su entreno.
+      let visionNote = '';
+      const visionModel = els.setVisionModel.value.trim() || (LLM.PROVIDERS.find(p => p.baseUrl === els.setBaseUrl.value.trim())?.id === 'nan' ? 'qwen3.6' : '');
+      if (visionModel) {
+        try {
+          await LLM.probeModel({ kind: 'vision', baseUrl: els.setBaseUrl.value, key: els.setKey.value, model: visionModel });
+          visionNote = ` · visión ✓ (${visionModel})`;
+        } catch (e) {
+          visionNote = ` · visión ✗ (${visionModel}): ${e.message}`;
+        }
+      }
+      els.setStatus.textContent = `✓ Conexión correcta (${text.ms} ms)${visionNote}`;
+      els.setStatus.className = visionNote.includes('✗') ? 'drive-status' : 'drive-status drive-success';
     } catch (e) {
       els.setStatus.textContent = e.message;
       els.setStatus.className = 'drive-status drive-error';

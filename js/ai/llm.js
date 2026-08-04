@@ -3,7 +3,6 @@
 // La key vive solo en el navegador (localStorage).
 //
 // Particularidades heredadas (verificadas en bookreader):
-// - nan rechaza peticiones concurrentes a la misma key → se serializan TODAS las llamadas.
 // - nan/DeepSeek solo emiten tool_calls fiables SIN streaming → chatTools/chatToolsLoop no streamean.
 // - Reintentos con backoff ante 429/5xx transitorios, honrando Retry-After.
 
@@ -15,11 +14,18 @@ const MAX_TOKENS = 4096;
 
 // Presets para prefijar base URL + modelos sugeridos en la UI. El usuario puede
 // escribir su propia base URL y su propio modelo (proveedor "custom" implícito).
+// `concurrent` (opcional): el proveedor tolera peticiones simultáneas con la misma
+// key. Se declara SOLO donde está verificado; sin declarar → se serializa, que es lo
+// único seguro ante un BYOK desconocido. En nan lo midió bookreader (12/12 simultáneas
+// correctas en dos medidas independientes, 2026-08-01 y 2026-08-02).
+// Los ids de OpenRouter vienen corregidos de bookreader: los que había aquí
+// (`claude-3.7-sonnet`, `gemini-2.0-flash-001`) ya no existen en su catálogo, así que
+// el preset ofrecía modelos muertos.
 export const PROVIDERS = [
-  { id: 'nan',        name: 'nan',        baseUrl: 'https://api.nan.builders/v1',    models: ['deepseek-v4-flash', 'mimo-v2.5', 'qwen3.6', 'gemma4'] },
-  { id: 'openai',     name: 'OpenAI',     baseUrl: 'https://api.openai.com/v1',      models: ['gpt-4o', 'gpt-4o-mini', 'o4-mini'] },
-  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1',   models: ['deepseek/deepseek-chat', 'anthropic/claude-3.7-sonnet', 'google/gemini-2.0-flash-001'] },
-  { id: 'groq',       name: 'Groq',       baseUrl: 'https://api.groq.com/openai/v1', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] },
+  { id: 'nan',        name: 'nan',        baseUrl: 'https://api.nan.builders/v1',    models: ['deepseek-v4-flash', 'mimo-v2.5', 'qwen3.6', 'gemma4'], concurrent: true },
+  { id: 'openai',     name: 'OpenAI',     baseUrl: 'https://api.openai.com/v1',      models: ['gpt-4o', 'gpt-4o-mini', 'o4-mini'], concurrent: true },
+  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1',   models: ['google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite', 'deepseek/deepseek-chat-v3.1', 'anthropic/claude-haiku-4.5'], concurrent: true },
+  { id: 'groq',       name: 'Groq',       baseUrl: 'https://api.groq.com/openai/v1', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'], concurrent: true },
 ];
 
 // Ajustes en localStorage, con claves propias (fuera de la db sincronizada a Drive).
@@ -53,18 +59,52 @@ export function getVisionModel() {
 }
 export function hasVision() { return getVisionModel().length > 0; }
 
-// nan rechaza peticiones concurrentes a la misma key, así que serializamos
-// TODAS las llamadas: cada una espera a que termine la anterior.
-let lastCall = Promise.resolve();
-function serialize(task) {
-  const p = lastCall.then(task, task);
-  lastCall = p.then(() => {}, () => {});
-  return p;
+// ---- Cola de llamadas: prioridad + serialización solo donde hace falta -------
+// Antes se serializaban TODAS las llamadas con una cadena de promesas, por un límite
+// de nan que ya no existe. Dos problemas, los mismos que arregló bookreader:
+//   1. Era el límite de UN proveedor aplicado a todos.
+//   2. Peor: el chat quedaba detrás de lo que estuviera generándose en ese momento
+//      (un informe, un plan). El usuario pregunta y espera a que termine otra cosa.
+// Ahora hay dos carriles. Lo interactivo (chat) adelanta a lo de fondo. No hay
+// preempción: una llamada en vuelo se termina.
+const INTERACTIVE = 0, BACKGROUND = 1;
+const waiting = [[], []];
+let running = 0;
+
+function maxConcurrent() {
+  const p = currentProvider();
+  return p && p.concurrent ? 4 : 1;
 }
 
-export function chatStream(opts)    { return serialize(() => _chatStream(opts)); }
-export function chatToolsLoop(opts) { return serialize(() => _chatToolsLoop(opts)); }
-export function chatVision(opts)    { return serialize(() => _chatVision(opts)); }
+function pump() {
+  while (running < maxConcurrent()) {
+    const next = waiting[INTERACTIVE].shift() || waiting[BACKGROUND].shift();
+    if (!next) return;
+    running++;
+    Promise.resolve()
+      .then(next.task)
+      .then(next.resolve, next.reject)
+      .finally(() => { running--; pump(); });
+  }
+}
+
+// Por defecto todo es interactivo: si alguien añade una ruta nueva y se olvida de
+// marcarla, el fallo es que va rápida — no que el usuario se queda esperando.
+function enqueue(task, background) {
+  return new Promise((resolve, reject) => {
+    waiting[background ? BACKGROUND : INTERACTIVE].push({ task, resolve, reject });
+    pump();
+  });
+}
+
+/** Estado de la cola (tests y diagnóstico). */
+export function queueState() {
+  return { running, interactive: waiting[INTERACTIVE].length, background: waiting[BACKGROUND].length };
+}
+
+export function chatStream(opts)    { return enqueue(() => _chatStream(opts), opts?.background); }
+export function chatToolsLoop(opts) { return enqueue(() => _chatToolsLoop(opts), opts?.background); }
+export function chatVision(opts)    { return enqueue(() => _chatVision(opts), opts?.background); }
 
 // ---- Reintentos con backoff en errores transitorios --------------------------
 
@@ -127,7 +167,7 @@ function apiErrMsg(bodyText) {
 
 // Streamea una respuesta de chat. onToken(text) por cada fragmento visible.
 // Devuelve el texto completo. signal permite abortar.
-async function _chatStream({ messages, onToken, onDone, signal, maxTokens = MAX_TOKENS, model }) {
+async function _chatStream({ messages, onToken, onReasoning, onDone, signal, maxTokens = MAX_TOKENS, model }) {
   const key = getKey().trim();
   if (!key) throw new Error('Falta la API key. Configúrala en Ajustes → Quirón.');
 
@@ -170,6 +210,8 @@ async function _chatStream({ messages, onToken, onDone, signal, maxTokens = MAX_
         const choice = json.choices?.[0] || {};
         if (choice.finish_reason) finishReason = choice.finish_reason;
         const delta = choice.delta || {};
+        // Modelos de razonamiento: el pensamiento viaja aparte y NO es la respuesta.
+        if (delta.reasoning_content && onReasoning) onReasoning(delta.reasoning_content);
         if (delta.content) {
           full += delta.content;
           if (onToken) onToken(delta.content);
@@ -252,31 +294,58 @@ async function _chatVision({ image, prompt, maxTokens = 2048, signal }) {
   return (await res.json()).choices?.[0]?.message?.content || '';
 }
 
-// Prueba de conexión para Ajustes: una completion mínima sin streaming.
-// Lanza con mensaje legible si algo falla.
-export async function testConnection({ baseUrl, key, model, signal } = {}) {
+// ---- Probar un slot de modelo ----------------------------------------------
+// Hay DOS slots (texto y visión) y los dos son texto libre: un id mal escrito no se
+// nota al guardar, se nota mucho después y en otro sitio. `hasVision()` solo mira que
+// la cadena no esté vacía, así que un typo deja la ingesta por captura "activada" y
+// fallando justo cuando el atleta le hace la foto a su entreno. Esto —traído de
+// bookreader— convierte ese fallo diferido en una respuesta inmediata: se prueba cada
+// slot con una llamada mínima DEL TIPO QUE LE CORRESPONDE.
+//
+// Usa los valores del FORMULARIO (aún sin guardar): se prueba antes de comprometerse.
+
+// PNG de 1×1 transparente: la imagen más pequeña posible para comprobar que el modelo
+// acepta contenido multimodal. Da igual qué conteste; lo que se prueba es que no
+// rechace la forma de la petición.
+const PIXEL_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+/** kind: 'text' | 'vision'. Devuelve { ok, ms }; lanza con un mensaje legible. */
+export async function probeModel({ kind = 'text', model, baseUrl, key, signal } = {}) {
   const b = (baseUrl != null ? baseUrl : getBaseUrl()).trim().replace(/\/+$/, '');
   const k = (key != null ? key : getKey()).trim();
-  const m = (model != null ? model : getModel()).trim();
+  const m = String(model != null ? model : (kind === 'vision' ? getVisionModel() : getModel())).trim();
   if (!b) throw new Error('Falta la Base URL.');
   if (!k) throw new Error('Falta la API key.');
-  if (!m) throw new Error('Falta el modelo.');
+  if (!m) throw new Error('Falta el id del modelo.');
+
+  const t0 = Date.now();
+  const content = kind === 'vision'
+    ? [{ type: 'text', text: 'ok?' }, { type: 'image_url', image_url: { url: PIXEL_PNG } }]
+    : 'ok?';
   let res;
   try {
     res = await fetch(`${b}/chat/completions`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${k}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: m, messages: [{ role: 'user', content: 'ping' }], stream: false, max_tokens: 5 }),
+      body: JSON.stringify({ model: m, messages: [{ role: 'user', content }], stream: false, max_tokens: 5 }),
       signal,
     });
   } catch (e) {
     if (e.name === 'AbortError') throw e;
+    // "Failed to fetch" no le dice nada a nadie; casi siempre es CORS o la URL mal.
     throw new Error('No se pudo conectar (red o CORS). Comprueba la Base URL.');
   }
   if (res.status === 401 || res.status === 403) throw new Error('API key inválida o sin permisos.');
+  if (res.status === 404) throw new Error(`El proveedor no reconoce el modelo "${m}" (404).`);
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`El proveedor respondió ${res.status}. ${apiErrMsg(body)}`);
   }
+  return { ok: true, ms: Date.now() - t0 };
+}
+
+/** Prueba del slot de texto. Se mantiene por nombre: es lo que llama la UI. */
+export async function testConnection(opts = {}) {
+  await probeModel({ ...opts, kind: 'text' });
   return true;
 }

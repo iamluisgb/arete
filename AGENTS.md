@@ -44,6 +44,37 @@ Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y 
 - `https://luisgonzalezbernal.com/arete/` — GitHub Pages, sigue vivo sirviendo la raíz del repo
   desde `main` (todo el repo, sin lista blanca). Los `canonical`/`og:url` aún apuntan aquí.
 
+## Quirón (el agente)
+
+Chat con el atleta sobre sus propios datos. Dos capas de contexto, como el agente de
+bookreader: un **snapshot** del estado actual siempre presente
+([`js/ai/context.js`](js/ai/context.js)) y **herramientas** de lectura para excavar en el
+histórico bajo demanda ([`js/ai/tools.js`](js/ai/tools.js)). Un turno = fase de recolección
+con tools (no-streaming, el modelo contesta "LISTO") + respuesta final streameada.
+
+Prácticas que sostienen esto, y por qué:
+
+- **Presupuesto de contexto por turno.** Solo viajan los últimos `HISTORY_MSGS` mensajes, y
+  los volcados de herramientas (`role: 'data'`) de turnos anteriores **no se reenvían** — el
+  modelo puede volver a pedirlos. Sin esto la conversación crece sin techo: se paga cada
+  volcado viejo en cada turno posterior y se diluye la atención del modelo. Por encima de
+  `TOKEN_GUARD` se pregunta antes de enviar.
+- **Cola de dos carriles** en [`js/ai/llm.js`](js/ai/llm.js): lo interactivo adelanta a lo de
+  fondo (`background: true`), y la concurrencia real depende del proveedor — solo se declara
+  `concurrent` donde está verificado; ante un BYOK desconocido se serializa. Hoy **nada** está
+  marcado como `background`; el carril existe para que la primera tarea larga que se añada no
+  deje el chat esperando detrás.
+- **Probar cada slot de modelo con una llamada de su tipo** (`probeModel`): el slot de visión
+  se prueba con una imagen de 1×1. Un id mal escrito, si no, deja la feature "activada" y
+  fallando el día que el atleta le hace la foto a su entreno.
+- **Reintentos con backoff** honrando `Retry-After`, y "Continuar" cuando el proveedor corta
+  por longitud (`finish_reason: 'length'`).
+- **Los prompts que rutean viven en `tools.js`, no en la UI** (`GATHER_INSTRUCTION`), para que
+  los evals prueben exactamente el prompt que corre en la app.
+- **Evals con datos reales**: `node evals/run.mjs`. Fixture en `evals/fixtures/` (gitignorado:
+  el repo es público). Cubre el ruteo de escritura, que es donde equivocarse no es un error de
+  formato sino escribir en el sitio que no toca.
+
 ## Google Drive
 
 Copia de seguridad y sync automático contra la carpeta `appDataFolder` del usuario.
