@@ -5,7 +5,7 @@ import { formatPace, parseRunDuration, formatRunDuration, getPaceZones, getHRZon
 import { today, mergeDB, esc, trapFocus } from './utils.js';
 import { DEBOUNCE_BACKUP_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
 import { initTimer } from './ui/timer.js';
-import { initNav, switchTab, switchStrTab, updatePhaseUI, updatePhaseDisplay, refreshActiveSection, restoreLastTab } from './ui/nav.js';
+import { initNav, switchTab, switchStrTab, switchTrainMode, updatePhaseUI, updatePhaseDisplay, refreshActiveSection, restoreLastTab } from './ui/nav.js';
 import { initTraining, populateSessions, startEdit, cancelEdit, requestStartSession, getLiveDraft } from './ui/training.js';
 import { isRunnerOpen } from './ui/set-runner.js';
 import { initCalendar } from './ui/calendar.js';
@@ -16,6 +16,7 @@ import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
 import { renderDashboard } from './ui/dashboard.js';
+import { initProfile } from './ui/profile.js';
 import { initQuiron } from './ui/quiron.js';
 
 const db = loadDB();
@@ -214,14 +215,14 @@ async function init() {
   populateSessions(db);
 
   // Dashboard CTAs
-  document.getElementById('dashStartBtn')?.addEventListener('click', () => {
-    const btn = document.querySelector('nav button[data-sec="secStrength"]');
-    if (btn) { switchTab(btn, db); }
-  });
-  document.getElementById('dashStartRunBtn')?.addEventListener('click', () => {
-    const btn = document.querySelector('nav button[data-sec="secRunning"]');
-    if (btn) { switchTab(btn, db); }
-  });
+  const goEntrenar = (mode) => {
+    const btn = document.querySelector('nav button[data-sec="secTrain"]');
+    if (!btn) return;
+    switchTrainMode(mode, db);
+    switchTab(btn, db);
+  };
+  document.getElementById('dashStartBtn')?.addEventListener('click', () => goEntrenar('str'));
+  document.getElementById('dashStartRunBtn')?.addEventListener('click', () => goEntrenar('run'));
   document.getElementById('appVersion').textContent = `Areté v${APP_VERSION}`;
   bindEvents();
 
@@ -279,14 +280,15 @@ function bindEvents() {
   initCalendar(db);
   initHistory(db, {
     onEdit: (workout) => {
-      const strengthBtn = document.querySelector('nav button[data-sec="secStrength"]');
-      switchTab(strengthBtn, db);
+      const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
+      if (trainBtn) switchTab(trainBtn, db);
       switchStrTab('strTrain', db);
       startEdit(workout, db);
     }
   });
   initBody(db);
   initRunning(db);
+  initProfile(db);
   // Quirón puede crear/editar planes: al aplicar o deshacer, refrescar la UI que
   // depende del programa activo (selector, fase, sesiones, sección visible, lista custom).
   initQuiron(db, {
@@ -305,10 +307,10 @@ function bindEvents() {
     // Empezar una sesión propuesta: misma puerta que el botón del Plan (avisa si
     // hay un entreno a medias) y salto a Fuerza → Actividad.
     onStartSession: (ref) => {
-      const strengthBtn = document.querySelector('nav button[data-sec="secStrength"]');
+      const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
       requestStartSession(db, ref, null, {
         onStarted: () => {
-          if (strengthBtn) switchTab(strengthBtn, db);
+          if (trainBtn) switchTab(trainBtn, db);
           switchStrTab('strTrain', db);
         },
       });

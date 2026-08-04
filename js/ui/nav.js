@@ -10,6 +10,7 @@ import { populateSessions, exTargetText, requestStartSession } from './training.
 import { listCustomSessions, deleteCustomSession, sessionRef } from '../sessions.js';
 import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
 import { renderDashboard } from './dashboard.js';
+import { renderProfile } from './profile.js';
 import { esc } from '../utils.js';
 
 /** Update the phase name in the context bar */
@@ -33,20 +34,51 @@ export function switchTab(btn, db) {
   document.getElementById(btn.dataset.sec).classList.add('active');
   localStorage.setItem('areteLastTab', btn.dataset.sec);
 
-  const activeStrPanel = document.querySelector('.str-panel.active')?.id;
-
   if (btn.dataset.sec === 'secDashboard') renderDashboard(db);
-  if (btn.dataset.sec === 'secStrength') {
-    if (activeStrPanel === 'strHistory') { renderCalendar(db); renderHistory(db); }
-    if (activeStrPanel === 'strProgress') initProgress(db);
-  }
+  if (btn.dataset.sec === 'secTrain') renderTrainMode(db);
+  if (btn.dataset.sec === 'secProfile') renderProfile(db);
   if (btn.dataset.sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
   if (btn.dataset.sec === 'secSettings') render1RMs(db);
-  if (btn.dataset.sec === 'secRunning') refreshRunning(db);
 }
 
-/** Switch strength sub-tab */
+// ── Entrenar: fuerza y carrera bajo la misma pestaña ─────
+//
+// Eran dos de las cinco ranuras de la nav para la misma intención —"entrenar
+// hoy"— con dos sub-navs idénticas en paralelo. Ahora son un modo dentro de una
+// sola sección, y la ranura liberada la ocupa el Perfil.
+
+const MODE_KEY = 'areteTrainMode';
+
+export function getTrainMode() {
+  return localStorage.getItem(MODE_KEY) === 'run' ? 'run' : 'str';
+}
+
+/** Pinta el modo activo y refresca el panel que toca. */
+function renderTrainMode(db) {
+  const mode = getTrainMode();
+  document.querySelectorAll('.train-mode-btn').forEach(b => {
+    const on = b.dataset.mode === mode;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  document.getElementById('secStrength')?.classList.toggle('active', mode === 'str');
+  document.getElementById('secRunning')?.classList.toggle('active', mode === 'run');
+
+  if (mode === 'run') { refreshRunning(db); return; }
+  const panel = document.querySelector('.str-panel.active')?.id;
+  if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }
+  if (panel === 'strProgress') initProgress(db);
+}
+
+export function switchTrainMode(mode, db) {
+  localStorage.setItem(MODE_KEY, mode === 'run' ? 'run' : 'str');
+  renderTrainMode(db);
+}
+
+/** Switch strength sub-tab. Fuerza y carrera comparten pestaña: entrar por aquí
+ *  implica que el modo es fuerza (lo usan "Iniciar sesión" y Quirón). */
 export function switchStrTab(tabName, db) {
+  if (getTrainMode() !== 'str') switchTrainMode('str', db);
   document.querySelectorAll('.str-tab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.str-panel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.str-tab[data-str="${tabName}"]`)?.classList.add('active');
@@ -222,6 +254,9 @@ export function initNav(db) {
   document.querySelectorAll('.str-tab[data-str]').forEach(btn => {
     btn.addEventListener('click', () => switchStrTab(btn.dataset.str, db));
   });
+  document.querySelectorAll('.train-mode-btn[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => switchTrainMode(btn.dataset.mode, db));
+  });
   document.getElementById('phaseContext').addEventListener('click', () => {
     renderPhaseModal(db);
     openPhaseModal();
@@ -234,8 +269,21 @@ export function initNav(db) {
   document.querySelector('#phaseModal .btn-outline').addEventListener('click', () => closePhaseModal());
 }
 
+/**
+ * Las pestañas guardadas de la nav vieja ya no existen. Sin esto, quien tuviera
+ * la app abierta en Fuerza o Running la reabría en una sección fantasma y se
+ * quedaba en blanco. `secStrength`/`secRunning` pasan a ser el modo de Entrenar.
+ */
+export function migrateLastTab() {
+  const viejo = localStorage.getItem('areteLastTab');
+  if (viejo !== 'secStrength' && viejo !== 'secRunning') return;
+  localStorage.setItem('areteLastTab', 'secTrain');
+  localStorage.setItem(MODE_KEY, viejo === 'secRunning' ? 'run' : 'str');
+}
+
 /** Restore last active tab after all UI modules are initialized */
 export function restoreLastTab(db) {
+  migrateLastTab();
   const lastTab = localStorage.getItem('areteLastTab');
   if (lastTab && lastTab !== 'secDashboard') {
     const savedBtn = document.querySelector(`nav button[data-sec="${lastTab}"]`);
@@ -251,12 +299,8 @@ export function restoreLastTab(db) {
 export function refreshActiveSection(db) {
   const sec = document.querySelector('.section.active')?.id;
   if (sec === 'secDashboard') renderDashboard(db);
-  if (sec === 'secStrength') {
-    const panel = document.querySelector('.str-panel.active')?.id;
-    if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }
-    if (panel === 'strProgress') initProgress(db);
-  }
+  if (sec === 'secTrain') renderTrainMode(db);
+  if (sec === 'secProfile') renderProfile(db);
   if (sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
   if (sec === 'secSettings') render1RMs(db);
-  if (sec === 'secRunning') refreshRunning(db);
 }

@@ -113,7 +113,12 @@
     <div class="dash-activity-scroll" id="dashActivityList"></div>
   </section>
 </div>
-<div class="section" id="secStrength" aria-label="Fuerza">
+<div class="section" id="secTrain" aria-label="Entrenar">
+  <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
+    <button class="train-mode-btn active" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined">fitness_center</span>Fuerza</button>
+    <button class="train-mode-btn" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined">directions_run</span>Carrera</button>
+  </div>
+<div class="train-panel active" id="secStrength" aria-label="Fuerza">
   <div class="context-bar">
     <div class="phase-context" id="programContext">
       <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
@@ -188,6 +193,130 @@
     </div>
     <div id="strPlanContent"></div>
   </div>
+</div>
+<div class="train-panel" id="secRunning" aria-label="Carrera">
+  <div class="run-ctx-bar">
+    <div class="phase-context" id="runProgramContext">
+      <span id="runProgramName">—</span>
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+    </div>
+    <div class="phase-context" id="runWeekContext">
+      <span id="runWeekName">—</span>
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+    </div>
+  </div>
+  <div class="run-subnav" id="runSubnav">
+    <button class="run-tab active" data-run="runActivity">Actividad</button>
+    <button class="run-tab" data-run="runHistory">Historial</button>
+    <button class="run-tab" data-run="runProgress">Progreso</button>
+    <button class="run-tab" data-run="runPlan">Plan</button>
+  </div>
+
+  <!-- TAB 1: Actividad -->
+  <div class="run-panel active" id="runActivity">
+    <!-- Objetivo semanal -->
+    <div class="run-goal-card" id="runGoalCard">
+      <div class="run-goal-header">
+        <span class="run-goal-title">Objetivo semanal</span>
+        <button class="run-goal-settings" id="runGoalSettingsBtn" aria-label="Configurar objetivo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </button>
+      </div>
+      <div class="run-goal-body" id="runGoalBody">
+        <div class="run-goal-ring" id="runGoalRing">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface2)" stroke-width="8"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" id="runGoalArc" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="run-goal-ring-text">
+            <div class="run-goal-current" id="runGoalCurrent">0</div>
+            <div class="run-goal-unit" id="runGoalUnit">km</div>
+          </div>
+        </div>
+        <div class="run-goal-info">
+          <div class="run-goal-target" id="runGoalTarget">Objetivo: sin definir</div>
+          <div class="run-goal-sessions" id="runGoalSessions">0 sesiones esta semana</div>
+          <div id="runPlanPills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Records personales -->
+    <div class="run-prs-card" id="runPrsCard">
+      <div class="sec-title sec-title-accent">Records personales</div>
+      <div class="run-prs-grid" id="runPrsGrid">
+        <div class="run-pr-item"><div class="run-pr-dist">1 km</div><div class="run-pr-value" data-pr="1">--:--</div></div>
+        <div class="run-pr-item"><div class="run-pr-dist">5 km</div><div class="run-pr-value" data-pr="5">--:--</div></div>
+        <div class="run-pr-item"><div class="run-pr-dist">10 km</div><div class="run-pr-value" data-pr="10">--:--</div></div>
+        <div class="run-pr-item"><div class="run-pr-dist">21.1 km</div><div class="run-pr-value" data-pr="21.1">--:--</div></div>
+      </div>
+    </div>
+
+    <!-- Próxima sesión del plan -->
+    <div id="runNextSession"></div>
+
+    <!-- Botón principal de inicio (contextual) -->
+    <button class="run-start-btn" id="runStartBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+      Iniciar carrera
+    </button>
+    <div class="run-secondary-actions">
+      <button class="run-secondary-btn" id="runFreeRunBtn">
+        <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
+        Carrera libre
+      </button>
+      <span class="run-secondary-sep"></span>
+      <button class="run-secondary-btn" id="runManualBtn">
+        <span class="material-symbols-outlined" style="font-size:18px">edit_note</span>
+        Registro manual
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 2: Historial -->
+  <div class="run-panel" id="runHistory">
+    <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente">&#9654;</button></div>
+    <div id="runCalendarPanel"></div>
+    <div class="mb history-filter-wrap"><label>Filtrar por tipo</label><select id="runHistoryFilter"><option value="">Todas</option>
+      <option value="intervalos">Intervalos</option><option value="rodaje">Rodaje</option><option value="tempo">Tempo</option>
+      <option value="fartlek">Fartlek</option><option value="cuestas">Cuestas</option><option value="competicion">Competición</option><option value="libre">Libre</option>
+    </select></div>
+    <div id="runHistoryList"></div>
+  </div>
+
+  <!-- TAB 3: Progreso -->
+  <div class="run-panel" id="runProgress">
+    <div class="sec-title sec-title-accent">Km semanales</div>
+    <div id="runWeeklyChart" class="run-chart"></div>
+    <div class="sec-title sec-title-accent sec-title-mt">Evolucion del ritmo</div>
+    <div id="runPaceChart" class="run-chart"></div>
+    <div class="sec-title sec-title-accent sec-title-mt">Resumen</div>
+    <div id="runStatsPanel"></div>
+  </div>
+
+  <!-- TAB 4: Plan (programas estructurados) -->
+  <div class="run-panel" id="runPlan">
+    <div class="run-context-bar" id="runContextBar">
+      <div class="row mb">
+        <div><label>Semana</label><select id="runWeekSelect"></select></div>
+        <div style="display:none"><label>Sesión</label><select id="runSessionSelect"></select></div>
+      </div>
+    </div>
+    <div id="runSegments"></div>
+  </div>
+</div>
+</div>
+<div class="section" id="secProfile" aria-label="Perfil">
+  <div class="prof-head">
+    <div class="prof-level" id="profLevel">—</div>
+    <div class="prof-level-name" id="profLevelName">Sin medir</div>
+    <div class="prof-limited" id="profLimited"></div>
+  </div>
+  <div class="radar-wrap"><svg id="profRadar" viewBox="0 0 300 300" role="img" aria-labelledby="profRadarTitle"><title id="profRadarTitle">Radar de los 7 dominios</title></svg></div>
+  <div class="prof-next" id="profNext"></div>
+  <div class="sec-title sec-title-accent">7 dominios</div>
+  <div id="profDomains"></div>
+  <div class="prof-note" id="profNote"></div>
 </div>
 <div class="section" id="secBody" aria-label="Cuerpo">
   <div class="mb2"><label>Fecha registro</label><input type="date" id="bodyDate"></div>
@@ -413,117 +542,6 @@
     <div class="pr-subtitle">Has superado tu récord personal</div>
     <div id="prList"></div>
     <button class="btn pr-confirm-btn">¡Vamos! 💪</button>
-  </div>
-</div>
-<div class="section" id="secRunning" aria-label="Running">
-  <div class="run-ctx-bar">
-    <div class="phase-context" id="runProgramContext">
-      <span id="runProgramName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-    <div class="phase-context" id="runWeekContext">
-      <span id="runWeekName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-  </div>
-  <div class="run-subnav" id="runSubnav">
-    <button class="run-tab active" data-run="runActivity">Actividad</button>
-    <button class="run-tab" data-run="runHistory">Historial</button>
-    <button class="run-tab" data-run="runProgress">Progreso</button>
-    <button class="run-tab" data-run="runPlan">Plan</button>
-  </div>
-
-  <!-- TAB 1: Actividad -->
-  <div class="run-panel active" id="runActivity">
-    <!-- Objetivo semanal -->
-    <div class="run-goal-card" id="runGoalCard">
-      <div class="run-goal-header">
-        <span class="run-goal-title">Objetivo semanal</span>
-        <button class="run-goal-settings" id="runGoalSettingsBtn" aria-label="Configurar objetivo">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        </button>
-      </div>
-      <div class="run-goal-body" id="runGoalBody">
-        <div class="run-goal-ring" id="runGoalRing">
-          <svg viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface2)" stroke-width="8"/>
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" id="runGoalArc" transform="rotate(-90 60 60)"/>
-          </svg>
-          <div class="run-goal-ring-text">
-            <div class="run-goal-current" id="runGoalCurrent">0</div>
-            <div class="run-goal-unit" id="runGoalUnit">km</div>
-          </div>
-        </div>
-        <div class="run-goal-info">
-          <div class="run-goal-target" id="runGoalTarget">Objetivo: sin definir</div>
-          <div class="run-goal-sessions" id="runGoalSessions">0 sesiones esta semana</div>
-          <div id="runPlanPills"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Records personales -->
-    <div class="run-prs-card" id="runPrsCard">
-      <div class="sec-title sec-title-accent">Records personales</div>
-      <div class="run-prs-grid" id="runPrsGrid">
-        <div class="run-pr-item"><div class="run-pr-dist">1 km</div><div class="run-pr-value" data-pr="1">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">5 km</div><div class="run-pr-value" data-pr="5">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">10 km</div><div class="run-pr-value" data-pr="10">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">21.1 km</div><div class="run-pr-value" data-pr="21.1">--:--</div></div>
-      </div>
-    </div>
-
-    <!-- Próxima sesión del plan -->
-    <div id="runNextSession"></div>
-
-    <!-- Botón principal de inicio (contextual) -->
-    <button class="run-start-btn" id="runStartBtn">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-      Iniciar carrera
-    </button>
-    <div class="run-secondary-actions">
-      <button class="run-secondary-btn" id="runFreeRunBtn">
-        <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
-        Carrera libre
-      </button>
-      <span class="run-secondary-sep"></span>
-      <button class="run-secondary-btn" id="runManualBtn">
-        <span class="material-symbols-outlined" style="font-size:18px">edit_note</span>
-        Registro manual
-      </button>
-    </div>
-  </div>
-
-  <!-- TAB 2: Historial -->
-  <div class="run-panel" id="runHistory">
-    <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente">&#9654;</button></div>
-    <div id="runCalendarPanel"></div>
-    <div class="mb history-filter-wrap"><label>Filtrar por tipo</label><select id="runHistoryFilter"><option value="">Todas</option>
-      <option value="intervalos">Intervalos</option><option value="rodaje">Rodaje</option><option value="tempo">Tempo</option>
-      <option value="fartlek">Fartlek</option><option value="cuestas">Cuestas</option><option value="competicion">Competición</option><option value="libre">Libre</option>
-    </select></div>
-    <div id="runHistoryList"></div>
-  </div>
-
-  <!-- TAB 3: Progreso -->
-  <div class="run-panel" id="runProgress">
-    <div class="sec-title sec-title-accent">Km semanales</div>
-    <div id="runWeeklyChart" class="run-chart"></div>
-    <div class="sec-title sec-title-accent sec-title-mt">Evolucion del ritmo</div>
-    <div id="runPaceChart" class="run-chart"></div>
-    <div class="sec-title sec-title-accent sec-title-mt">Resumen</div>
-    <div id="runStatsPanel"></div>
-  </div>
-
-  <!-- TAB 4: Plan (programas estructurados) -->
-  <div class="run-panel" id="runPlan">
-    <div class="run-context-bar" id="runContextBar">
-      <div class="row mb">
-        <div><label>Semana</label><select id="runWeekSelect"></select></div>
-        <div style="display:none"><label>Sesión</label><select id="runSessionSelect"></select></div>
-      </div>
-    </div>
-    <div id="runSegments"></div>
   </div>
 </div>
 
@@ -780,9 +798,9 @@
 </div>
 </main>
 <nav aria-label="Navegacion principal">
-  <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></button>
-  <button data-sec="secStrength"><span class="material-symbols-outlined">fitness_center</span><span>Fuerza</span></button>
-  <button data-sec="secRunning"><span class="material-symbols-outlined">directions_run</span><span>Running</span></button>
+  <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">today</span><span>Hoy</span></button>
+  <button data-sec="secTrain"><span class="material-symbols-outlined">exercise</span><span>Entrenar</span></button>
+  <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span>Perfil</span></button>
   <button data-sec="secBody"><span class="material-symbols-outlined">monitor_weight</span><span>Cuerpo</span></button>
   <button data-sec="secSettings"><span class="material-symbols-outlined">tune</span><span>Más</span></button>
 </nav>
