@@ -51,7 +51,7 @@ export function renderProgressChart(db) {
   if (_chartCache.name === name && _chartCache.count === wCount && _chartCache.w === availW) return;
   _chartCache = { name, count: wCount, w: availW };
   if (!name) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text2);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;
@@ -75,7 +75,7 @@ export function renderProgressChart(db) {
     });
 
   if (points.length === 0) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio.<br><span style="font-size:.75rem">Necesitas al menos 2 sesiones registradas.</span></p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text2);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio.<br><span style="font-size:.75rem">Necesitas al menos 2 sesiones registradas.</span></p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;
@@ -114,7 +114,7 @@ export function renderProgressChart(db) {
   for (let i = 0; i <= ySteps; i++) {
     const v = minV + (range / ySteps) * i;
     const y = pad.t + cH - ((i / ySteps) * cH);
-    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--text3)" font-size="${fsAxis}" font-weight="500">${Math.round(v)}</text>`;
+    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--text2)" font-size="${fsAxis}" font-weight="500">${Math.round(v)}</text>`;
     yLabels += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
   }
 
@@ -128,7 +128,7 @@ export function renderProgressChart(db) {
         Math.round(k * (points.length - 1) / (maxX - 1))))];
   showX.forEach(i => {
     const d = points[i].date.slice(5).replace('-', '/');
-    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--text3)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
+    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--text2)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
   });
 
   const accentColor = hasKg ? 'var(--accent)' : 'var(--teal)';
@@ -160,7 +160,7 @@ export function renderProgressChart(db) {
     { label: 'Progreso', value: (diff >= 0 ? '+' : '') + diff + metricUnit, color: diff >= 0 ? 'var(--green)' : 'var(--red)' },
     { label: 'Cambio', value: (diff >= 0 ? '+' : '') + diffPct + '%', color: diff >= 0 ? 'var(--green)' : 'var(--red)' },
     { label: 'Sesiones', value: totalSessions, color: 'var(--text2)' }
-  ].map(s => `<div style="flex:1;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:10px 8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.6rem;color:var(--text3);font-weight:600;text-transform:uppercase;margin-top:2px">${s.label}</div></div>`).join('');
+  ].map(s => `<div style="flex:1;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:10px 8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.6rem;color:var(--text2);font-weight:600;text-transform:uppercase;margin-top:2px">${s.label}</div></div>`).join('');
 
   // History list
   document.getElementById('progressHistory').innerHTML = `<div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:8px">Historial de ${esc(name)}</div>` +
@@ -168,10 +168,10 @@ export function renderProgressChart(db) {
       const isPR = p[metric] === pr;
       const mainVal = hasKg ? `${p.maxKg} kg` : `${p.maxReps} reps`;
       const subVal = hasKg
-        ? `<div style="font-size:.65rem;color:var(--text3)">${p.maxReps} reps</div><div style="font-size:.65rem;color:var(--text3)">${p.totalVol > 1000 ? (p.totalVol / 1000).toFixed(1) + 't' : p.totalVol + 'kg'} vol</div>`
+        ? `<div style="font-size:.65rem;color:var(--text2)">${p.maxReps} reps</div><div style="font-size:.65rem;color:var(--text2)">${p.totalVol > 1000 ? (p.totalVol / 1000).toFixed(1) + 't' : p.totalVol + 'kg'} vol</div>`
         : '';
       return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border)">
-        <div style="font-size:.7rem;color:var(--text3);min-width:55px">${p.date.slice(5).replace('-', '/')}</div>
+        <div style="font-size:.7rem;color:var(--text2);min-width:55px">${p.date.slice(5).replace('-', '/')}</div>
         <div style="font-size:.82rem;font-weight:700;color:var(--text);flex:1">${mainVal}</div>
         ${subVal}
         ${isPR ? '<div style="font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700">PR</div>' : ''}

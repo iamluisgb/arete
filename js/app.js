@@ -515,6 +515,8 @@ document.addEventListener('keydown', e => {
 function showUpdateBanner(worker) {
   const banner = document.createElement('div');
   banner.className = 'update-banner';
+  banner.setAttribute('role', 'status');
+  banner.setAttribute('aria-live', 'polite');
   banner.innerHTML = 'Nueva versión disponible <button>Actualizar</button>';
   banner.querySelector('button').addEventListener('click', () => {
     worker.postMessage('skipWaiting');

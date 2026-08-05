@@ -74,6 +74,6 @@ function renderRecords(db, prog) {
     const sub = r.maxKg > 0
       ? `Mejor peso (${formatDate(r.kgDate)})`
       : (r.resDate ? `Mejor resultado (${formatDate(r.resDate)})` : '');
-    return `<div class="calc-result"><div class="cr-label">${esc(name)}<span style="font-size:.6rem;color:var(--text3);margin-left:6px">${r.count}×</span></div><div class="cr-value">${esc(val)}</div>${sub ? `<div class="cr-sub">${sub}</div>` : ''}</div>`;
+    return `<div class="calc-result"><div class="cr-label">${esc(name)}<span style="font-size:.6rem;color:var(--text2);margin-left:6px">${r.count}×</span></div><div class="cr-value">${esc(val)}</div>${sub ? `<div class="cr-sub">${sub}</div>` : ''}</div>`;
   }).join('');
 }

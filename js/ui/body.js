@@ -20,7 +20,7 @@ function clearBodyEditState() {
 export function renderBodyForm(db) {
   const last = db.bodyLogs.length ? db.bodyLogs[db.bodyLogs.length - 1] : {};
   $bodyMeasures.innerHTML = getBodyMeasures().map(m =>
-    `<div class="measure-row"><label>${m.label}</label><input type="number" id="bm_${m.id}" step="0.1" placeholder="${last[m.id] || '—'}"></div>`
+    `<div class="measure-row"><label>${m.label}</label><input type="number" id="bm_${m.id}" step="0.1" placeholder="${last[m.id] || '—'}" autocomplete="off" inputmode="decimal"></div>`
   ).join('');
 }
 
@@ -177,10 +177,10 @@ export function calcProportions(db) {
   const usedIds = ['muneca', 'biceps', 'pecho', 'hombros', 'cintura', 'pantorrilla', 'muslo', 'rodilla'];
   const usedDates = new Set(usedIds.filter(id => last[id]).map(id => last._dates[id]));
   const dateWarning = usedDates.size > 1
-    ? `<p style="color:var(--text3);font-size:.68rem;text-align:center;margin-bottom:8px">Datos de ${usedDates.size} fechas distintas — registra todas las medidas el mismo día para mayor precisión</p>`
+    ? `<p style="color:var(--text2);font-size:.68rem;text-align:center;margin-bottom:8px">Datos de ${usedDates.size} fechas distintas — registra todas las medidas el mismo día para mayor precisión</p>`
     : '';
   $proportionsPanel.innerHTML = dateWarning + ps.map(p => {
-    if (!p.has) return `<div class="proportion-card"><div class="p-label">${p.label}</div><div class="p-value" style="color:var(--text3);font-size:.8rem">Faltan medidas</div></div>`;
+    if (!p.has) return `<div class="proportion-card"><div class="p-label">${p.label}</div><div class="p-value" style="color:var(--text2);font-size:.8rem">Faltan medidas</div></div>`;
     const pct = Math.min((p.current / p.target) * 100, 120);
     const color = pct >= 95 && pct <= 105 ? 'var(--green)' : pct < 95 ? 'var(--accent)' : 'var(--teal)';
     return `<div class="proportion-card"><div class="p-label">${p.label}</div><div class="p-value" style="color:${color}">${p.current.toFixed(1)}cm <span style="font-size:.68rem;color:var(--text2)">/ ${p.tl}</span></div><div class="p-bar"><div class="p-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div></div>`;

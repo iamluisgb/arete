@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v122';
+const CACHE_NAME = 'arete-v123';
 const ASSETS = [
   './',
   './app.html',
@@ -159,6 +159,7 @@ const ASSETS = [
   './js/ui/nav.js',
   './js/domains.js',
   './js/platform.js',
+  './js/leaflet-loader.js',
   './js/ui/run-import.js',
   './js/ui/profile.js',
   './js/ui/domain-test.js',
@@ -204,8 +205,18 @@ self.addEventListener('fetch', event => {
   const url = event.request.url;
   if (!url.startsWith('http')) return;
 
-  // Never cache Google API / auth requests
-  if (url.includes('accounts.google.com') || url.includes('googleapis.com')) {
+  // Nunca cachear auth ni las APIs de Google (Drive lleva datos del usuario y
+  // los tokens caducan).
+  //
+  // Ojo con el filtro: durante un tiempo fue `googleapis.com` a secas, y eso se
+  // llevaba por delante a `fonts.googleapis.com`, que es de donde sale el
+  // @font-face de Material Symbols. Sin conexión no había hoja de fuentes, y
+  // como los iconos son ligaduras, la app se llenaba de "fitness_center" y
+  // "directions_run" escritos en texto. Las fuentes SÍ se cachean.
+  const isGoogleAuthOrApi = url.includes('accounts.google.com') ||
+    url.includes('www.googleapis.com') ||
+    url.includes('oauth2.googleapis.com');
+  if (isGoogleAuthOrApi) {
     event.respondWith(fetch(event.request));
     return;
   }

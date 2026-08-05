@@ -10,6 +10,7 @@ import { HRMonitor } from './hr-monitor.js';
 import { canTrackRuns } from '../platform.js';
 import { computeProfile, ROMAN as ROMAN_LEVEL } from '../domains.js';
 import { parseActivity, findDuplicate, readFile, ImportError } from './run-import.js';
+import { ensureLeaflet } from '../leaflet-loader.js';
 import { renderRunHistory as _renderRunHistory } from './running-history.js';
 import { openShareEditor } from './share-editor.js';
 import { renderRunProgress as _renderRunProgress } from './running-progress.js';
@@ -1280,8 +1281,8 @@ function autoTransitionPhase(data) {
 
 // ── Maps ─────────────────────────────────────────────────
 
-function initLiveMap() {
-  if (typeof L === 'undefined') return;
+async function initLiveMap() {
+  if (!await ensureLeaflet()) return;
 
   // Clear old map
   if (liveMap) { liveMap.remove(); liveMap = null; }
@@ -1323,9 +1324,9 @@ function initLiveMap() {
   }
 }
 
-function renderSummaryMap(coords) {
+async function renderSummaryMap(coords) {
   const container = document.getElementById('runSummaryMap');
-  if (typeof L === 'undefined' || !coords || coords.length < 2) {
+  if (!coords || coords.length < 2 || !await ensureLeaflet()) {
     container.innerHTML = '<div class="empty-state" style="padding:20px">Sin ruta GPS</div>';
     return;
   }
@@ -1349,8 +1350,8 @@ function renderSummaryMap(coords) {
   summaryMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
 }
 
-function renderDetailMap(container, coords) {
-  if (typeof L === 'undefined' || !coords || coords.length < 2) {
+async function renderDetailMap(container, coords) {
+  if (!coords || coords.length < 2 || !await ensureLeaflet()) {
     container.innerHTML = '';
     container.style.display = 'none';
     return;
@@ -1446,8 +1447,8 @@ function renderHRGraph(container, timeSeries, db) {
   svg += `<polyline points="${points.join(' ')}" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linejoin="round"/>`;
 
   // Y-axis labels
-  svg += `<text x="4" y="12" font-size="9" fill="var(--text3)">${maxHR}</text>`;
-  svg += `<text x="4" y="${h - 4}" font-size="9" fill="var(--text3)">${minHR}</text>`;
+  svg += `<text x="4" y="12" font-size="9" fill="var(--text2)">${maxHR}</text>`;
+  svg += `<text x="4" y="${h - 4}" font-size="9" fill="var(--text2)">${minHR}</text>`;
 
   svg += '</svg>';
   container.innerHTML = `<div class="run-detail-hr-title">Frecuencia cardiaca</div>${svg}`;

@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<!-- Leaflet se carga bajo demanda desde js/leaflet-loader.js: solo hace falta en los tres mapas de running. -->
 <meta name="description" content="Tracker de entrenamiento: fuerza, running, test periódicos y dashboard de rendimiento. Todo en tu navegador.">
 <link rel="canonical" href="https://luisgonzalezbernal.com/arete/app.html">
 <meta property="og:title" content="Areté — Mi Entreno">
@@ -49,8 +49,8 @@
   </script>
 </head>
 <body>
-<div class="offline-banner" id="offlineBanner">Sin conexión — los datos se guardan localmente</div>
-<header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="sync-indicator" id="syncIndicator"></div></header>
+<div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">Sin conexión — los datos se guardan localmente</div>
+<header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite"></div></header>
 <main><div class="section active" id="secDashboard" aria-label="Dashboard">
   <section class="dash-greeting">
     <p class="dash-greeting-label">ARETÉ</p>
@@ -146,17 +146,17 @@
         <button class="timer-btn" data-dur="180">3:00</button>
         <button class="timer-btn timer-custom-btn" id="timerCustomBtn" aria-label="Tiempo personalizado" title="Tiempo personalizado">✏️</button>
       </div>
-      <div class="timer-display" id="timerDisplay">2:00</div>
-      <input type="text" class="timer-custom-input" id="timerCustomInput" placeholder="m:ss" maxlength="5" inputmode="numeric">
+      <div class="timer-display" id="timerDisplay" role="timer" aria-live="off">2:00</div>
+      <input type="text" class="timer-custom-input" id="timerCustomInput" placeholder="m:ss" maxlength="5" inputmode="numeric" autocomplete="off">
       <button class="timer-start" id="timerStartBtn" aria-label="Iniciar temporizador" title="Iniciar temporizador">▶</button>
       <button class="timer-reset" id="timerResetBtn" aria-label="Reiniciar temporizador" title="Reiniciar temporizador">↩️</button>
     </div>
-    <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer" title="Parar timer">⏹</button></div>
+    <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime" role="timer" aria-live="off"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer" title="Parar timer">⏹</button></div>
     <div id="prefillBanner">
       <div id="prefillText"></div>
       <button class="prefill-clear">✕ Empezar de cero</button>
     </div>
-    <div class="row mb"><div><label>Fecha</label><input type="date" id="trainDate"></div><div><label>Sesión</label><select id="trainSession"></select></div></div>
+    <div class="row mb"><div><label>Fecha</label><input type="date" id="trainDate" autocomplete="off"></div><div><label>Sesión</label><select id="trainSession"></select></div></div>
     <div id="sessionOverview"></div>
     <div class="ex-dots" id="exerciseDots"></div>
     <div id="exerciseList"></div>
@@ -332,7 +332,7 @@
   <div class="prof-note" id="profNote"></div>
 </div>
 <div class="section" id="secBody" aria-label="Cuerpo">
-  <div class="mb2"><label>Fecha registro</label><input type="date" id="bodyDate"></div>
+  <div class="mb2"><label>Fecha registro</label><input type="date" id="bodyDate" autocomplete="off"></div>
   <div class="sec-title sec-title-accent">Medidas (cm / kg)</div>
   <div id="bodyEditBanner" style="display:none">
     <div id="bodyEditText"></div>
@@ -349,14 +349,15 @@
        una rejilla las filas son compartidas y los huecos se propagan. -->
   <div class="body-col2">
     <div class="sec-title sec-title-accent">Proporciones Divinas</div><div id="proportionsPanel"></div>
-    <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32"></div></div>
+    <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></div></div>
     <div class="sec-title sec-title-accent">Calorías Estimadas</div>
     <div id="caloriesPanel"></div>
     <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
   </div>
 </div>
 <div class="section" id="secSettings" aria-label="Ajustes">
-  <div class="sec-title sec-title-accent">Apariencia</div>
+  <section class="settings-group" aria-labelledby="setGrpLook">
+    <h2 class="settings-group-title" id="setGrpLook">Apariencia y tema</h2>
   <div class="settings-card">
     <div class="sc-row">
       <div class="sc-row-content"><div class="sc-row-label">Tema</div></div>
@@ -368,7 +369,11 @@
     </div>
   </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt" id="rmTitle">Records personales</div>
+  </section>
+
+  <section class="settings-group" aria-labelledby="setGrpTrain">
+    <h2 class="settings-group-title" id="setGrpTrain">Entrenamiento</h2>
+  <div class="sec-title sec-title-accent" id="rmTitle">Records personales</div>
   <div id="rmPanel"></div>
 
   <div class="sec-title sec-title-accent sec-title-mt">Zonas de carrera</div>
@@ -378,7 +383,7 @@
         <label style="margin-bottom:0">Mejor marca 5K</label>
         <div class="input-hint">Introduce tu tiempo para personalizar las zonas de pace</div>
       </div>
-      <input type="text" id="settingsRace5k" class="sc-input-sm" placeholder="mm:ss" inputmode="numeric">
+      <input type="text" id="settingsRace5k" class="sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
     </div>
     <div class="zones-preview" id="settingsZonesPreview"></div>
   </div>
@@ -390,7 +395,7 @@
         <label style="margin-bottom:0">FC maxima</label>
         <div class="input-hint">Dejar en 0 para estimar desde tu edad (220 - edad)</div>
       </div>
-      <input type="number" id="settingsMaxHR" class="sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric">
+      <input type="number" id="settingsMaxHR" class="sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
     </div>
     <div class="zones-preview" id="settingsHRZonesPreview"></div>
   </div>
@@ -409,7 +414,11 @@
   </div>
   <a href="blog/crear-plan.html" class="create-plan-link">¿No tienes un plan? Aprende a crear uno</a>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Quirón (IA)</div>
+  </section>
+
+  <section class="settings-group" aria-labelledby="setGrpCoach">
+    <h2 class="settings-group-title" id="setGrpCoach">Coach y sincronización</h2>
+  <div class="sec-title sec-title-accent">Quirón (IA)</div>
   <div class="settings-card">
     <div class="sc-row" style="flex-direction:column;align-items:stretch;gap:10px">
       <div>
@@ -442,7 +451,7 @@
         <div class="input-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</div>
       </div>
       <button class="btn btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
-      <div id="quironAiStatus" class="drive-status"></div>
+      <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
     </div>
   </div>
 
@@ -455,7 +464,7 @@
       </div>
       <button class="toggle-btn" id="autoSyncBtn"></button>
     </div>
-    <div id="driveStatus" class="drive-status"></div>
+    <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
     <button class="sc-row sc-row-action" id="driveBackupBtn">
       <span class="sc-row-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -479,7 +488,11 @@
     </button>
   </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Datos</div>
+  </section>
+
+  <section class="settings-group" aria-labelledby="setGrpApp">
+    <h2 class="settings-group-title" id="setGrpApp">Aplicación</h2>
+  <div class="sec-title sec-title-accent">Datos</div>
   <div class="settings-card">
     <button class="sc-row sc-row-action" id="exportBtn">
       <span class="sc-row-icon">
@@ -507,6 +520,8 @@
       <span class="sc-row-chevron">›</span>
     </button>
   </div>
+
+  </section>
 
   <div id="appVersion" style="text-align:center;padding:24px 0 8px;font-size:.7rem;color:var(--text3);font-weight:500"></div>
 </div>
@@ -570,11 +585,11 @@
   <div class="run-type-grid" id="runTypeGrid"></div>
   <div class="run-type-extra" id="runTypeExtra" style="display:none">
     <label>Distancia objetivo (km)</label>
-    <input type="number" id="runTypeTargetDist" min="0.1" step="0.1" placeholder="ej: 10">
+    <input type="number" id="runTypeTargetDist" min="0.1" step="0.1" placeholder="ej: 10" autocomplete="off" inputmode="decimal">
   </div>
   <div class="run-type-extra" id="runTypeTempoExtra" style="display:none">
     <label>Ritmo objetivo (min:seg /km)</label>
-    <input type="text" id="runTypeTargetPace" inputmode="numeric" placeholder="ej: 5:30">
+    <input type="text" id="runTypeTargetPace" inputmode="numeric" placeholder="ej: 5:30" autocomplete="off">
   </div>
   <button class="btn btn-outline run-type-hr-btn" id="runTypeHrBtn" style="margin-top:8px;width:100%;display:none">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -692,7 +707,7 @@
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runManualModalTitle" id="runManualModal"><div class="modal">
   <h3 id="runManualModalTitle">Registro manual</h3>
   <div class="row mb">
-    <div><label>Fecha</label><input type="date" id="runDate"></div>
+    <div><label>Fecha</label><input type="date" id="runDate" autocomplete="off"></div>
     <div><label>Tipo</label><select id="runType">
       <option value="rodaje">Rodaje</option>
       <option value="intervalos">Intervalos</option>
@@ -704,8 +719,8 @@
     </select></div>
   </div>
   <div class="row mb">
-    <div><label>Distancia (km)</label><input type="number" id="runDistance" step="0.1" min="0" placeholder="0.0" inputmode="decimal"></div>
-    <div><label>Duración (mm:ss)</label><input type="text" id="runDuration" placeholder="32:15" inputmode="numeric"></div>
+    <div><label>Distancia (km)</label><input type="number" id="runDistance" step="0.1" min="0" placeholder="0.0" inputmode="decimal" autocomplete="off"></div>
+    <div><label>Duración (mm:ss)</label><input type="text" id="runDuration" placeholder="32:15" inputmode="numeric" autocomplete="off"></div>
   </div>
   <div class="run-pace-display" id="runPaceDisplay"></div>
   <div class="run-manual-splits" id="runManualSplits">
@@ -714,9 +729,9 @@
     <button class="btn-sm btn-outline" id="runAddSplitBtn">+ Anadir split</button>
   </div>
   <div class="row mb">
-    <div><label>FC media (bpm)</label><input type="number" id="runHr" min="0" max="250" placeholder="—" inputmode="numeric"></div>
-    <div><label>Desnivel (m)</label><input type="number" id="runElevation" min="0" placeholder="—" inputmode="numeric"></div>
-    <div><label>Cadencia (ppm)</label><input type="number" id="runCadence" min="0" max="300" placeholder="—" inputmode="numeric"></div>
+    <div><label>FC media (bpm)</label><input type="number" id="runHr" min="0" max="250" placeholder="—" inputmode="numeric" autocomplete="off"></div>
+    <div><label>Desnivel (m)</label><input type="number" id="runElevation" min="0" placeholder="—" inputmode="numeric" autocomplete="off"></div>
+    <div><label>Cadencia (ppm)</label><input type="number" id="runCadence" min="0" max="300" placeholder="—" inputmode="numeric" autocomplete="off"></div>
   </div>
   <div class="mb"><label>Notas</label><textarea id="runNotes" placeholder="Sensaciones, terreno, ajustes..."></textarea></div>
   <div id="runEditBanner" style="display:none">
@@ -738,7 +753,7 @@
       <option value="km">Kilometros</option>
       <option value="sessions">Sesiones</option>
     </select></div>
-    <div><label>Meta</label><input type="number" id="runGoalValue" min="1" max="500" placeholder="25" inputmode="numeric"></div>
+    <div><label>Meta</label><input type="number" id="runGoalValue" min="1" max="500" placeholder="25" inputmode="numeric" autocomplete="off"></div>
   </div>
   <div style="display:flex;gap:8px">
     <button class="btn" id="runGoalSaveBtn" style="flex:1">Guardar</button>
@@ -891,7 +906,6 @@
     <button class="btn onboarding-btn" id="onboardingBtn">Siguiente</button>
   </div>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

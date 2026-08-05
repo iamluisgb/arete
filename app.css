@@ -1,6 +1,10 @@
-:root{--bg:#f4f2f0;--surface:#fff;--surface2:#ebe8e5;--surface-high:#f0eeeb;--surface-glass:rgba(255,255,255,.75);--border:rgba(92,68,64,.08);--ghost-border:rgba(0,0,0,.06);--text:#1c1b1b;--text2:rgba(93,63,59,.78);--text3:rgba(93,63,59,.62);--accent:#d4372c;--accent2:#ff5545;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.12);--green:#16a34a;--red:#dc2626;--blue:#d4372c;--teal:#0891b2;--color-running:#0891b2;--radius:16px;--radius-lg:24px;--font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;/* La app se lee con el móvil en el suelo, sudado y entre series: el suelo de la
+:root{--bg:#f4f2f0;--surface:#fff;--surface2:#ebe8e5;--surface-high:#f0eeeb;--surface-glass:rgba(255,255,255,.75);--border:rgba(92,68,64,.08);--ghost-border:rgba(0,0,0,.06);--text:#1c1b1b;--text2:rgba(93,63,59,.80);--text3:rgba(93,63,59,.64);--accent:#d4372c;--accent2:#ff5545;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.12);--green:#16a34a;--red:#dc2626;--blue:#d4372c;--teal:#0891b2;--color-running:#0891b2;--radius:16px;--radius-lg:24px;--font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;/* La app se lee con el móvil en el suelo, sudado y entre series: el suelo de la
    escala es 11px y el tamaño de cuerpo 14px. --text3 es para iconografía y
-   separadores; cualquier texto que haya que leer va en --text2 o --text. */
+   separadores; cualquier texto que haya que leer va en --text2 o --text.
+   Contraste medido sobre los tres fondos claros (bg, surface, surface2):
+   --text2 ≥ 4,5:1 (AA de texto) y --text3 ≥ 3,0:1 (AA de elementos no
+   textuales, 1.4.11). Con .78 y .62, --text2 se quedaba en 4,46:1 sobre
+   surface2 — fallaba por tres centésimas justo en las tarjetas. */
 --fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;--fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;
 /* Geometría de la shell. Todo lo que dependa del ancho del contenido o de la
    altura/anchura de la navegación va por estas tres variables: el ancho estaba
@@ -1356,10 +1360,11 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 
 /* ── Ajustes: ocho grupos independientes, dos columnas ──── */
 @media(min-width:1024px){
+/* Las cuatro categorías fluyen en dos columnas sin partirse por la mitad. */
 #secSettings.active{columns:2;column-gap:var(--sp-8)}
-#secSettings>*{break-inside:avoid}
-#secSettings>.sec-title{break-after:avoid}
-#secSettings>.settings-card,#secSettings>.drive-sync-toggle{margin-bottom:var(--sp-5)}
+#secSettings>.settings-group{break-inside:avoid;margin-bottom:var(--sp-6)}
+.settings-group .sec-title{break-after:avoid}
+#secSettings .settings-card,#secSettings .drive-sync-toggle{break-inside:avoid}
 }
 
 /* ── Cuerpo ─────────────────────────────────────────────── */
@@ -1458,9 +1463,11 @@ select{cursor:pointer}
 .ex-dots{gap:0}
 
 /* Campos cortos de Ajustes. Estaban en un style inline de 80px: con la escala
-   de escritorio el placeholder "mm:ss" ya no cabía. */
-.sc-input-sm{width:80px;flex:none;text-align:center}
-@media(min-width:1024px){.sc-input-sm{width:96px}}
+   de escritorio el placeholder "mm:ss" ya no cabía.
+   Va con el elemento delante a propósito: `input[type="text"]{width:100%}` es
+   (0,1,1) por el selector de atributo y le gana a una clase suelta. */
+input.sc-input-sm{width:92px;flex:none;text-align:center}
+@media(min-width:1024px){input.sc-input-sm{width:96px}}
 
 /* El calendario no crece con la columna: las celdas de día se vuelven círculos
    enormes y el mes deja de leerse como una rejilla. */
@@ -1470,3 +1477,22 @@ select{cursor:pointer}
 @media(min-width:1024px){
 #calendarPanel,#runCalendarPanel{max-width:none}
 }
+
+/* Estado vacío con salida: un texto que dice "no hay nada" y no ofrece la
+   acción que lo llena deja al usuario en un callejón. */
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)}
+.empty-state .btn{width:auto;margin-top:var(--sp-2)}
+.empty-state-sub{font-size:var(--fs-base);color:var(--text2)}
+
+/* ── Ajustes: dos niveles ─────────────────────────────────
+   Eran ocho bloques al mismo nivel jerárquico, sin relación visible entre
+   ellos, en una columna de 2.300px. Agrupados en cuatro categorías (apariencia,
+   entrenamiento, coach y sincronización, aplicación) el usuario sabe dónde está
+   sin desplegar nada: las categorías se ven, no se abren. Un acordeón aquí
+   costaría un clic por grupo y escondería el estado, que es lo contrario de lo
+   que se busca en una pantalla de ajustes. */
+.settings-group{margin-bottom:var(--sp-8)}
+.settings-group:last-of-type{margin-bottom:var(--sp-4)}
+.settings-group-title{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;margin-bottom:var(--sp-3);color:var(--text)}
+/* Lo destructivo, al final y separado de lo demás. */
+.settings-card-danger{margin-top:var(--sp-6)}

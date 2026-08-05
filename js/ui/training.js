@@ -451,7 +451,7 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
     const cK = vK ? ' prefilled' : '';
     const cR = vR ? ' prefilled' : '';
     const activeClass = s === 0 ? ' active-set' : '';
-    sh += `<button type="button" class="set-label${activeClass}" data-ex="${i}" data-set="${s}">S${s + 1}</button><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${pK || '—'}" value="${vK}" step="0.5" aria-label="Peso serie ${s + 1} de ${esc(ex.name)}"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${pR || ex.reps}" value="${vR}" inputmode="numeric" aria-label="Reps serie ${s + 1} de ${esc(ex.name)}">`;
+    sh += `<button type="button" class="set-label${activeClass}" data-ex="${i}" data-set="${s}">S${s + 1}</button><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${pK || '—'}" value="${vK}" step="0.5" aria-label="Peso serie ${s + 1} de ${esc(ex.name)}" autocomplete="off" inputmode="decimal"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${pR || ex.reps}" value="${vR}" inputmode="numeric" aria-label="Reps serie ${s + 1} de ${esc(ex.name)}" autocomplete="off">`;
   }
   sh += '</div>';
   let pi = '';
@@ -490,13 +490,13 @@ function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {
       <div class="round-list">${exList}</div>
       <button class="ex-timer-btn hiit-start" data-ex-timer="${i}" data-timer-mode="result">▶ Iniciar HIIT</button>
       <div class="ex-timer-zone" data-ex="${i}"></div>
-      <div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo total" value="${pv}"></div>
+      <div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo total" value="${pv}" autocomplete="off"></div>
       ${hiitPi}</div>`;
   }
 
   const isTimed = exType === 'hiit' || exType === 'density';
   const timer = isTimed ? timerBtnHtml(i, 'result') : '';
-  return `<div class="ex-card"><div class="ex-name">${esc(ex.name)}</div>${timer}<div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}"></div>${pi}</div>`;
+  return `<div class="ex-card"><div class="ex-name">${esc(ex.name)}</div>${timer}<div style="margin-top:8px"><label>Resultado</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="Tiempo / reps totales" value="${pv}" autocomplete="off"></div>${pi}</div>`;
 }
 
 function renderIntervalCard(ex, i, prevEx, shouldPrefill) {
@@ -508,7 +508,7 @@ function renderIntervalCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-name">${esc(ex.name)}</div>
     <div class="ex-mode-info">${ex.duration} · ${ex.on} on / ${ex.off} off</div>
     ${timerBtnHtml(i, 'interval')}
-    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 30" inputmode="numeric" value="${pv}"></div>
+    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 30" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -524,7 +524,7 @@ function renderTabataCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-mode-info">8 rondas · 20s on / 10s off</div>
     ${grid}
     ${timerBtnHtml(i, 'tabata')}
-    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 64" inputmode="numeric" value="${pv}"></div>
+    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 64" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -543,7 +543,7 @@ function renderRoundsCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-mode-info">${countLabel}${restLabel}</div>
     <div class="round-list">${exList}</div>
     ${timerBtnHtml(i, 'rounds')}
-    <div><label>Rondas completadas</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 4" inputmode="numeric" value="${pv}"></div>
+    <div><label>Rondas completadas</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 4" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -576,7 +576,7 @@ function renderWorkoutCard(ex, i, prevEx, shouldPrefill, db) {
     <div class="workout-totals"><div class="workout-totals-title">Total</div><div class="round-list">${totalHtml}</div></div>
     ${roundsHtml}
     ${timerBtnHtml(i, 'workout')}
-    <div style="margin-top:8px"><label>Tiempo total</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 18:32" value="${pv}"></div>
+    <div style="margin-top:8px"><label>Tiempo total</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 18:32" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -590,7 +590,7 @@ function renderLadderCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-name">${esc(ex.name)}</div>
     <div class="ex-mode-info">${ex.duration} · ${exNames}</div>
     ${ex.desc ? `<div class="ex-mode-desc">${ex.desc}</div>` : ''}
-    <div><label>Peldaño máximo</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 5" inputmode="numeric" value="${pv}"></div>
+    <div><label>Peldaño máximo</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 5" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -605,7 +605,7 @@ function renderPyramidCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-name">${esc(ex.name)}</div>
     <div class="ex-mode-info">${ex.duration} · ${exNames}${stepInfo ? ' · ' + stepInfo : ''}</div>
     ${ex.desc ? `<div class="ex-mode-desc">${ex.desc}</div>` : ''}
-    <div><label>Nivel máximo</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 8" inputmode="numeric" value="${pv}"></div>
+    <div><label>Nivel máximo</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 8" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -618,7 +618,7 @@ function renderAmrapCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-name">${esc(ex.name)}</div>
     <div class="ex-mode-info">${ex.duration}</div>
     ${timerBtnHtml(i, 'amrap')}
-    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 45" inputmode="numeric" value="${pv}"></div>
+    <div><label>Reps totales</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 45" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -633,7 +633,7 @@ function renderEmomCard(ex, i, prevEx, shouldPrefill) {
     <div class="ex-mode-info">${ex.duration || ''}${exList ? ' · ' + exList : ''}</div>
     ${ex.desc ? `<div class="ex-mode-desc">${ex.desc}</div>` : ''}
     ${timerBtnHtml(i, 'emom')}
-    <div><label>Rondas completadas</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 10" inputmode="numeric" value="${pv}"></div>
+    <div><label>Rondas completadas</label><input type="text" class="${cp}" data-ex="${i}" data-set="0" data-field="reps" placeholder="ej: 10" inputmode="numeric" value="${pv}" autocomplete="off"></div>
     ${pi}</div>`;
 }
 
@@ -650,12 +650,12 @@ function renderSupersetCard(ex, i, prevEx, shouldPrefill) {
       const cpReps = pvReps ? ' prefilled' : '';
       return `<div style="display:flex;align-items:center;gap:6px;font-size:.8rem">
         <span style="color:var(--text2);font-weight:600;min-width:60px;font-size:.7rem">${esc(subEx.name)}</span>
-        <input type="number" class="mini-input${cpKg}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="kg" step="0.5" placeholder="kg" inputmode="decimal" value="${pvKg}" style="width:55px">
+        <input type="number" class="mini-input${cpKg}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="kg" step="0.5" placeholder="kg" inputmode="decimal" value="${pvKg}" style="width:55px" autocomplete="off">
         <span style="color:var(--text3)">x</span>
-        <input type="text" class="mini-input${cpReps}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="reps" placeholder="${subEx.reps || '—'}" inputmode="numeric" value="${pvReps}" style="width:45px">
+        <input type="text" class="mini-input${cpReps}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="reps" placeholder="${subEx.reps || '—'}" inputmode="numeric" value="${pvReps}" style="width:45px" autocomplete="off">
       </div>`;
     }).join('');
-    setsHtml.push(`<div style="margin-bottom:8px"><div style="font-size:.65rem;color:var(--text3);font-weight:600;margin-bottom:4px">Serie ${s + 1}</div>${setRows}</div>`);
+    setsHtml.push(`<div style="margin-bottom:8px"><div style="font-size:.65rem;color:var(--text2);font-weight:600;margin-bottom:4px">Serie ${s + 1}</div>${setRows}</div>`);
   }
   return `<div class="ex-card">
     <div class="ex-mode-badge superset">Superserie</div>

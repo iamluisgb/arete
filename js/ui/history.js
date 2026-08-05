@@ -73,7 +73,23 @@ export function renderHistory(db, dateFilter) {
 
   const list = document.getElementById('historyList');
   if (items.length === 0) {
-    list.innerHTML = '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:40px 0">Sin registros aún.<br><span style="font-size:.72rem;color:var(--text3)">Completa tu primera sesión en la pestaña Entreno.</span></p>';
+    // Un estado vacío sin salida es un callejón: si el filtro no es el culpable,
+    // lo que hace falta es la acción que lo llena.
+    // "Filtrado" es que haya entrenos y ninguno pase, no que haya un filtro
+    // puesto: el de plan viene con el programa activo por defecto, así que
+    // mirar los filtros daría "ningún entreno con este filtro" a un usuario
+    // nuevo que no ha filtrado nada.
+    const filtered = db.workouts.length > 0;
+    list.innerHTML = filtered
+      ? `<div class="empty-state">
+           <p>Ningún entreno con este filtro.</p>
+           <button class="btn btn-outline btn-sm" data-empty-action="clear-filters">Quitar filtros</button>
+         </div>`
+      : `<div class="empty-state">
+           <p><b>Aún no has registrado ningún entreno.</b></p>
+           <p class="empty-state-sub">Los que completes aparecerán aquí, con sus series y sus PRs.</p>
+           <button class="btn btn-sm" data-empty-action="train">Empezar una sesión</button>
+         </div>`;
     return;
   }
 
@@ -174,6 +190,19 @@ export function initHistory(db, { onEdit }) {
   document.getElementById('historyProgFilter')?.addEventListener('change', () => { _planFilterTouched = true; renderCalendar(db); renderHistory(db); });
   document.getElementById('historyList').addEventListener('click', (e) => {
     if (e.target.closest('.load-more-btn')) { loadMore(); return; }
+    const emptyAction = e.target.closest('[data-empty-action]')?.dataset.emptyAction;
+    if (emptyAction === 'train') {
+      document.querySelector('.str-tab[data-str="strTrain"]')?.click();
+      return;
+    }
+    if (emptyAction === 'clear-filters') {
+      document.getElementById('historyFilter').value = '';
+      const $plan = document.getElementById('historyProgFilter');
+      if ($plan) { $plan.value = ''; _planFilterTouched = true; }
+      renderCalendar(db);
+      renderHistory(db);
+      return;
+    }
     const item = e.target.closest('.history-item[data-id]');
     if (item) showDetail(parseInt(item.dataset.id), db);
   });

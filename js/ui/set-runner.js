@@ -134,9 +134,9 @@ function ensureSheet() {
       <div class="sr-illus"></div>
       <div class="sr-name"></div>
       <div class="sr-load">
-        <label><input class="sr-in sr-kg" type="number" step="0.5" inputmode="decimal" aria-label="Peso en kilos"><span>kg</span></label>
+        <label><input class="sr-in sr-kg" type="number" step="0.5" inputmode="decimal" aria-label="Peso en kilos" autocomplete="off"><span>kg</span></label>
         <span class="sr-x">×</span>
-        <label><input class="sr-in sr-reps" type="text" inputmode="numeric" aria-label="Repeticiones"><span>reps</span></label>
+        <label><input class="sr-in sr-reps" type="text" inputmode="numeric" aria-label="Repeticiones" autocomplete="off"><span>reps</span></label>
       </div>
       <div class="sr-prev"></div>
     </div>
@@ -157,9 +157,9 @@ function ensureSheet() {
       </div>
       <div class="sr-did">
         <div class="sr-did-who"><div class="sr-did-k">Acabas de hacer</div><div class="sr-did-v"></div></div>
-        <input class="sr-did-in sr-did-kg" type="number" step="0.5" inputmode="decimal" aria-label="Corregir peso">
+        <input class="sr-did-in sr-did-kg" type="number" step="0.5" inputmode="decimal" aria-label="Corregir peso" autocomplete="off">
         <span class="sr-did-x">×</span>
-        <input class="sr-did-in sr-did-reps" type="text" inputmode="numeric" aria-label="Corregir repeticiones">
+        <input class="sr-did-in sr-did-reps" type="text" inputmode="numeric" aria-label="Corregir repeticiones" autocomplete="off">
       </div>
       <div class="sr-tip"></div>
       <div class="sr-next"></div>
