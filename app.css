@@ -1787,8 +1787,12 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
    accent-text es #ff5545 y el blanco encima da 3,16:1 — falla el AA de texto.
    Con action-primary (#d4372c) da 4,79:1. Es el mismo arreglo que ya llevaba el
    .btn del sistema; este botón se creaba desde JS y se quedó fuera. */
-.start-runner-btn{display:block;width:100%;background:var(--color-action-primary);color:var(--color-action-primary-fg);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:15px;border-radius:var(--radius-lg);cursor:pointer;min-height:52px;margin-bottom:var(--sp-3);box-shadow:var(--shadow-action);-webkit-tap-highlight-color:transparent}
-.start-runner-btn:active{transform:scale(.985);opacity:.9}
+/* Secundario, no primario. En el estado de registro la acción que cierra el
+   trabajo es guardar: el modo guiado es una forma de recorrer la sesión, no el
+   final de nada. Tenerlo en rojo gastaba la única primaria de la vista (§9.1)
+   en la puerta de entrada y dejaba "Guardar sesión" pareciendo inerte. */
+.start-runner-btn{display:block;width:100%;background:var(--color-surface-2);color:var(--color-text-primary);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:500;padding:15px;border-radius:var(--radius-lg);cursor:pointer;min-height:52px;margin-bottom:var(--sp-3);-webkit-tap-highlight-color:transparent}
+.start-runner-btn:active{background:var(--color-surface-3);opacity:.85}
 body.session-focus header,body.session-focus nav,
 body.session-focus #secTrain>.page-head,body.session-focus .subnav{display:none}
 body.session-focus{padding-bottom:0;overflow:hidden}
@@ -2068,7 +2072,15 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    temporizador de descanso no necesita una superficie propia para existir, y
    dársela era lo que lo convertía en el elemento más pesado de la pantalla. */
 #strTrain.active:has(#exerciseList > *)>.timer-bar{background:none;
-  backdrop-filter:none;-webkit-backdrop-filter:none;padding-inline:0}
+  backdrop-filter:none;-webkit-backdrop-filter:none;padding-inline:0;
+  /* Y no se estira. La tira ocupaba la columna entera y .timer-display lleva
+     flex:1, así que el número se centraba en 466px de vacío: los presets
+     acababan en un sitio y su propio display aparecía 240px más allá, con el
+     play en el borde opuesto. Un grupo de controles partido por dentro. Ancho
+     de contenido y anclada al mismo borde derecho que los botones. */
+  width:fit-content;margin-left:auto}
+#strTrain.active:has(#exerciseList > *)>.timer-bar .timer-display{flex:0 0 auto;
+  min-width:4.5ch;padding-inline:var(--sp-2)}
 /* Las tarjetas de ejercicio: auto-fill, no un ancho fijo. 400px de mínimo es
    donde una fila `S1 · kg · reps` deja de tener sentido si se aprieta más — y
    el máximo sigue siendo --measure-panel por tarjeta, que es lo que impide que
