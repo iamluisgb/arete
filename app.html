@@ -324,7 +324,14 @@
   </div>
 </div>
 </div>
-<div class="section" id="secProfile" aria-label="Perfil">
+<!-- PERFIL — migrada. Los 7 dominios y el nivel, que es el del dominio más bajo. -->
+<div class="section" id="secProfile" data-ds aria-label="Perfil">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Perfil</h2>
+      <p class="page-sub">Tu nivel es el del dominio más bajo, no la media</p>
+    </div>
+  </div>
   <div class="prof-head">
     <div class="prof-level" id="profLevel">—</div>
     <div class="prof-level-name" id="profLevelName">Sin medir</div>
@@ -332,7 +339,7 @@
   </div>
   <div class="radar-wrap"><svg id="profRadar" viewBox="0 0 300 300" role="img" aria-labelledby="profRadarTitle"><title id="profRadarTitle">Radar de los 7 dominios</title></svg></div>
   <div class="prof-next" id="profNext"></div>
-  <div class="sec-title sec-title-accent">7 dominios</div>
+  <h3 class="group-title prof-domains-title">7 dominios</h3>
   <div id="profDomains"></div>
   <div class="prof-note" id="profNote"></div>
 </div>
@@ -381,186 +388,194 @@
     <div id="bodyHistory"></div>
   </section>
 </div>
-<div class="section" id="secSettings" aria-label="Ajustes">
-  <section class="settings-group" aria-labelledby="setGrpLook">
-    <h2 class="settings-group-title" id="setGrpLook">Apariencia y tema</h2>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div class="sc-row-content"><div class="sc-row-label">Tema</div></div>
-      <div class="theme-options" id="themeOptions">
-        <button class="theme-opt" data-theme="auto">Auto</button>
-        <button class="theme-opt" data-theme="light">Claro</button>
-        <button class="theme-opt" data-theme="dark">Oscuro</button>
-      </div>
+<!-- AJUSTES — migrada. Cuatro categorías, y dentro de cada una paneles con filas
+     de anatomía idéntica: icono opcional · nombre · descripción · control a la
+     derecha. Antes había filas con la etiqueta como <label>, otras con <div>, el
+     control unas veces dentro del contenido y otras fuera, y tres estilos de
+     título de bloque. Ver DESIGN_SYSTEM.md §5.7. -->
+<div class="section" id="secSettings" data-ds aria-label="Ajustes">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Ajustes</h2>
+      <p class="page-sub" id="appVersion"></p>
     </div>
   </div>
 
+  <section class="settings-group" aria-labelledby="setGrpLook">
+    <h3 class="group-title" id="setGrpLook">Apariencia</h3>
+    <div class="panel panel--rows">
+      <div class="listrow listrow--control">
+        <div class="listrow-main"><div class="listrow-name">Tema</div></div>
+        <div class="listrow-control theme-options" id="themeOptions" role="group" aria-label="Tema">
+          <button class="theme-opt" type="button" data-theme="auto">Auto</button>
+          <button class="theme-opt" type="button" data-theme="light">Claro</button>
+          <button class="theme-opt" type="button" data-theme="dark">Oscuro</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpTrain">
-    <h2 class="settings-group-title" id="setGrpTrain">Entrenamiento</h2>
-  <div class="sec-title sec-title-accent" id="rmTitle">Records personales</div>
-  <div id="rmPanel"></div>
+    <h3 class="group-title" id="setGrpTrain">Entrenamiento</h3>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Zonas de carrera</div>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div style="flex:1">
-        <label style="margin-bottom:0">Mejor marca 5K</label>
-        <div class="input-hint">Introduce tu tiempo para personalizar las zonas de pace</div>
-      </div>
-      <input type="text" id="settingsRace5k" class="sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
+    <div class="panel">
+      <h4 class="panel-title" id="rmTitle">Records personales</h4>
+      <div id="rmPanel"></div>
     </div>
-    <div class="zones-preview" id="settingsZonesPreview"></div>
-  </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Frecuencia cardiaca</div>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div style="flex:1">
-        <label style="margin-bottom:0">FC maxima</label>
-        <div class="input-hint">Dejar en 0 para estimar desde tu edad (220 - edad)</div>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Zonas de carrera</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <label class="listrow-name" for="settingsRace5k">Mejor marca 5K</label>
+          <div class="listrow-desc">Introduce tu tiempo para personalizar las zonas de ritmo</div>
+        </div>
+        <input type="text" id="settingsRace5k" class="listrow-control sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
       </div>
-      <input type="number" id="settingsMaxHR" class="sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
+      <div class="zones-preview" id="settingsZonesPreview"></div>
     </div>
-    <div class="zones-preview" id="settingsHRZonesPreview"></div>
-  </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Mis Planes</div>
-  <div class="settings-card">
-    <div id="customProgramsList"></div>
-    <button class="sc-row sc-row-action" id="importProgramBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      </span>
-      <span>Importar plan (.json)</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <input type="file" id="importProgramFile" accept=".json" style="display:none">
-  </div>
-  <a href="blog/crear-plan.html" class="create-plan-link">¿No tienes un plan? Aprende a crear uno</a>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Frecuencia cardiaca</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <label class="listrow-name" for="settingsMaxHR">FC máxima</label>
+          <div class="listrow-desc">Dejar en 0 para estimarla desde tu edad (220 − edad)</div>
+        </div>
+        <input type="number" id="settingsMaxHR" class="listrow-control sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="zones-preview" id="settingsHRZonesPreview"></div>
+    </div>
 
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Mis planes</h4>
+      <div id="customProgramsList"></div>
+      <button class="listrow listrow--action" type="button" id="importProgramBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <span class="listrow-main">Importar plan (.json)</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <input type="file" id="importProgramFile" accept=".json" hidden>
+      <p class="panel-note"><a href="blog/crear-plan.html">¿No tienes un plan? Aprende a crear uno</a></p>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpCoach">
-    <h2 class="settings-group-title" id="setGrpCoach">Coach y sincronización</h2>
-  <div class="sec-title sec-title-accent">Quirón (IA)</div>
-  <div class="settings-card">
-    <div class="sc-row" style="flex-direction:column;align-items:stretch;gap:10px">
-      <div>
-        <label>Proveedor</label>
-        <select id="quironProvider">
-          <option value="nan">nan</option>
-          <option value="openai">OpenAI</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="groq">Groq</option>
-          <option value="custom">Personalizado</option>
-        </select>
-      </div>
-      <div>
-        <label>Base URL</label>
-        <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
-      </div>
-      <div>
-        <label>API key</label>
-        <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
-        <div class="input-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</div>
-      </div>
-      <div>
-        <label>Modelo</label>
-        <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <datalist id="quironModelList"></datalist>
-      </div>
-      <div>
-        <label>Modelo de visión (opcional)</label>
-        <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <div class="input-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</div>
-      </div>
-      <button class="btn btn--lg btn--block btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
-      <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
-    </div>
-  </div>
+    <h3 class="group-title" id="setGrpCoach">Coach y sincronización</h3>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Google Drive</div>
-  <div class="settings-card">
-    <div class="sc-row sc-row-toggle">
-      <div class="sc-row-content">
-        <div class="sc-row-label">Sincronización automática</div>
-        <div class="sc-row-desc" id="autoSyncDesc">Desactivada</div>
+    <div class="panel">
+      <h4 class="panel-title">Quirón (IA)</h4>
+      <div class="form">
+        <label class="field"><span class="field-label">Proveedor</span>
+          <select id="quironProvider">
+            <option value="nan">nan</option>
+            <option value="openai">OpenAI</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="groq">Groq</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </label>
+        <label class="field"><span class="field-label">Base URL</span>
+          <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </label>
+        <label class="field"><span class="field-label">API key</span>
+          <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
+          <span class="field-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</span>
+        </label>
+        <label class="field"><span class="field-label">Modelo</span>
+          <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <datalist id="quironModelList"></datalist>
+        </label>
+        <label class="field"><span class="field-label">Modelo de visión (opcional)</span>
+          <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="field-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</span>
+        </label>
+        <button class="btn btn--secondary" type="button" id="quironTestBtn">Probar conexión</button>
+        <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
       </div>
-      <button class="toggle-btn" id="autoSyncBtn"></button>
     </div>
-    <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
-    <button class="sc-row sc-row-action" id="driveBackupBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      </span>
-      <span>Subir copia de seguridad</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="driveRestoreBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </span>
-      <span>Restaurar desde Drive</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="driveRevisionsBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      </span>
-      <span>Recuperar versión anterior</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
 
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Google Drive</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <div class="listrow-name" id="autoSyncLabel">Sincronización automática</div>
+          <div class="listrow-desc" id="autoSyncDesc">Desactivada</div>
+        </div>
+        <button class="toggle-btn listrow-control" type="button" id="autoSyncBtn" role="switch" aria-checked="false" aria-labelledby="autoSyncLabel"></button>
+      </div>
+      <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
+      <button class="listrow listrow--action" type="button" id="driveBackupBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </span>
+        <span class="listrow-main">Subir copia de seguridad</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="driveRestoreBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </span>
+        <span class="listrow-main">Restaurar desde Drive</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="driveRevisionsBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </span>
+        <span class="listrow-main">Recuperar versión anterior</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpApp">
-    <h2 class="settings-group-title" id="setGrpApp">Aplicación</h2>
-  <div class="sec-title sec-title-accent">Datos</div>
-  <div class="settings-card">
-    <button class="sc-row sc-row-action" id="exportBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      </span>
-      <span>Exportar JSON</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="importBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-      </span>
-      <span>Importar JSON</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <input type="file" id="importFile" accept=".json">
-  </div>
+    <h3 class="group-title" id="setGrpApp">Aplicación</h3>
 
-  <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
-  <div class="settings-card kbd-only">
-    <button class="sc-row sc-row-action" id="shortcutsBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
-      </span>
-      <span>Atajos de teclado</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Datos</h4>
+      <button class="listrow listrow--action" type="button" id="exportBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span class="listrow-main">Exportar JSON</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="importBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+        </span>
+        <span class="listrow-main">Importar JSON</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <input type="file" id="importFile" accept=".json" hidden>
+    </div>
 
-  <div class="settings-card settings-card-danger">
-    <button class="sc-row sc-row-action sc-row-danger">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </span>
-      <span>Borrar todos los datos</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
+    <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
+    <div class="panel panel--rows kbd-only">
+      <button class="listrow listrow--action" type="button" id="shortcutsBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+        </span>
+        <span class="listrow-main">Atajos de teclado</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
 
+    <!-- Lo destructivo, al final, separado y sin relleno rojo: el rojo de la
+         acción primaria no se presta a lo que borra tus datos. -->
+    <div class="panel panel--rows settings-card-danger">
+      <button class="listrow listrow--action listrow--danger" type="button" id="clearDataBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </span>
+        <span class="listrow-main">Borrar todos los datos</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
   </section>
-
-  <div id="appVersion" style="text-align:center;padding:24px 0 8px;font-size:.7rem;color:var(--text3);font-weight:500"></div>
 </div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Seleccionar Programa</h3>
   <div id="programOptions"></div>

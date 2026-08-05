@@ -18,7 +18,7 @@ let domain = null, db = null, onDone = null, releaseFocus = null;
 function ensureSheet() {
   if (sheet?.isConnected) return sheet;
   sheet = document.createElement('div');
-  sheet.className = 'dtest';
+  sheet.className = 'sheet dtest';
   sheet.id = 'domainTest';
   sheet.setAttribute('role', 'dialog');
   sheet.setAttribute('aria-modal', 'true');
@@ -39,36 +39,40 @@ function previo(metricKey) {
 function renderForm() {
   const hoy = today();
   sheet.innerHTML = `
-    <div class="dtest-sheet">
-      <div class="dtest-top">
-        <span class="dtest-icon material-symbols-outlined" style="color:${domain.color}">${domain.icon}</span>
-        <span class="dtest-title">${esc(domain.name)}</span>
-        <button class="dtest-close" type="button" data-close aria-label="Cerrar">✕</button>
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <span class="dtest-icon material-symbols-outlined" style="color:${domain.color}" aria-hidden="true">${domain.icon}</span>
+        <h3 class="sheet-title">${esc(domain.name)}</h3>
+        <button class="btn btn--ghost btn--icon" type="button" data-close aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
       </div>
-      <div class="dtest-proto">
-        <div class="dtest-proto-label">Protocolo</div>
-        <p>${esc(domain.protocol)}</p>
+      <div class="sheet-body">
+        <div class="panel dtest-proto">
+          <div class="panel-title">Protocolo</div>
+          <p class="dtest-proto-text">${esc(domain.protocol)}</p>
+        </div>
+        <div class="form">
+          ${domain.metrics.map(m => {
+            const p = previo(m.key);
+            return `<label class="field">
+              <span class="field-label">${esc(m.label)}</span>
+              <span class="dtest-field-input">
+                <input type="number" step="0.1" inputmode="decimal" data-metric="${esc(m.key)}"
+                       aria-label="${esc(m.label)} en ${esc(m.unit)}">
+                <span class="dtest-field-unit">${esc(m.unit)}</span>
+              </span>
+              <span class="field-hint">${p ? `Antes: ${esc(formatMetric({ ...m, value: parseFloat(p.value) }))} · ${esc(p.date)}` : 'Sin medida previa'}</span>
+            </label>`;
+          }).join('')}
+          <label class="field">
+            <span class="field-label">Fecha</span>
+            <input type="date" id="dtestDate" value="${hoy}" max="${hoy}">
+          </label>
+        </div>
       </div>
-      <div class="dtest-fields">
-        ${domain.metrics.map(m => {
-          const p = previo(m.key);
-          return `<label class="dtest-field">
-            <span class="dtest-field-name">${esc(m.label)}</span>
-            <span class="dtest-field-input">
-              <input type="number" step="0.1" inputmode="decimal" data-metric="${esc(m.key)}"
-                     aria-label="${esc(m.label)} en ${esc(m.unit)}">
-              <span class="dtest-field-unit">${esc(m.unit)}</span>
-            </span>
-            <span class="dtest-field-prev">${p ? `Antes: ${esc(formatMetric({ ...m, value: parseFloat(p.value) }))} · ${esc(p.date)}` : 'Sin medida previa'}</span>
-          </label>`;
-        }).join('')}
-        <label class="dtest-field dtest-field-date">
-          <span class="dtest-field-name">Fecha</span>
-          <span class="dtest-field-input"><input type="date" id="dtestDate" value="${hoy}" max="${hoy}"></span>
-        </label>
+      <div class="sheet-foot">
+        <button class="btn btn--ghost" type="button" data-close>Cancelar</button>
+        <button class="btn btn--block" type="button" data-save>Guardar medida</button>
       </div>
-      <button class="btn btn--lg btn--block dtest-save" type="button" data-save>Guardar medida</button>
-      <button class="dtest-sub" type="button" data-close>Cancelar</button>
     </div>`;
   sheet.querySelector('input[data-metric]')?.focus();
 }
@@ -84,22 +88,26 @@ function renderResult(guardados, antes) {
   const bajo = antes > 0 && d.level < antes;
 
   sheet.innerHTML = `
-    <div class="dtest-sheet dtest-result">
-      <div class="dtest-res-lvl" style="color:${domain.color}">${ROMAN[d.level]}</div>
-      <div class="dtest-res-name">${esc(domain.name)} · ${esc(LEVEL_NAMES[d.level])}</div>
-      ${subio ? `<div class="dtest-res-delta up">Has subido de ${ROMAN[antes]} a ${ROMAN[d.level]}</div>` : ''}
-      ${bajo ? `<div class="dtest-res-delta down">Baja de ${ROMAN[antes]} a ${ROMAN[d.level]}. Es un dato, no un juicio.</div>` : ''}
-      <div class="dtest-res-metrics">
-        ${guardados.map(g => `<div class="dtest-res-metric">
-          <span>${esc(g.label)}</span><b>${esc(formatMetric(g))}</b><span class="dtest-res-mlvl">${ROMAN[g.level]}</span>
-        </div>`).join('')}
+    <div class="sheet-panel">
+      <div class="sheet-body dtest-result">
+        <div class="dtest-res-lvl" style="color:${domain.color}">${ROMAN[d.level]}</div>
+        <div class="dtest-res-name">${esc(domain.name)} · ${esc(LEVEL_NAMES[d.level])}</div>
+        ${subio ? `<div class="dtest-res-delta up">Has subido de ${ROMAN[antes]} a ${ROMAN[d.level]}</div>` : ''}
+        ${bajo ? `<div class="dtest-res-delta down">Baja de ${ROMAN[antes]} a ${ROMAN[d.level]}. Es un dato, no un juicio.</div>` : ''}
+        <div class="dtest-res-metrics">
+          ${guardados.map(g => `<div class="listrow dtest-res-metric">
+            <span class="listrow-name">${esc(g.label)}</span><b class="listrow-value">${esc(formatMetric(g))}</b><span class="dtest-res-mlvl">${ROMAN[g.level]}</span>
+          </div>`).join('')}
+        </div>
+        ${d.weakest && d.metrics.length > 1
+          ? `<div class="dtest-res-note">El dominio lo define <b>${esc(d.weakest.label)}</b>, que es tu métrica más baja.</div>` : ''}
+        ${profile.limitedBy?.id === d.id
+          ? '<div class="dtest-res-note">Es tu dominio limitante: es lo que más te sube el nivel global.</div>' : ''}
+        ${domain.retest ? `<div class="dtest-res-next">Repítelo en ${Math.round(domain.retest / 7)} semanas</div>` : ''}
       </div>
-      ${d.weakest && d.metrics.length > 1
-        ? `<div class="dtest-res-note">El dominio lo define <b>${esc(d.weakest.label)}</b>, que es tu métrica más baja.</div>` : ''}
-      ${profile.limitedBy?.id === d.id
-        ? '<div class="dtest-res-note">Es tu dominio limitante: es lo que más te sube el nivel global.</div>' : ''}
-      ${domain.retest ? `<div class="dtest-res-next">Repítelo en ${Math.round(domain.retest / 7)} semanas</div>` : ''}
-      <button class="btn btn--lg btn--block dtest-save" type="button" data-close>Hecho</button>
+      <div class="sheet-foot">
+        <button class="btn btn--block" type="button" data-close>Hecho</button>
+      </div>
     </div>`;
 }
 

@@ -98,7 +98,7 @@ function renderHead(profile) {
   $levelName.textContent = profile.level ? LEVEL_NAMES[profile.level] : 'Sin medir';
 
   if (!profile.measured) {
-    $limited.innerHTML = 'Mide un dominio y el radar empieza a dibujarse.';
+    $limited.textContent = 'Mide un dominio y el radar empieza a dibujarse.';
     return;
   }
   const lim = profile.limitedBy;
@@ -124,14 +124,14 @@ function renderNext(profile) {
     ? `Hace ${d.oldest} días`
     : RAZON[n.reason];
   $next.innerHTML = `
-    <div class="prof-next-card">
-      <div class="prof-next-label">Siguiente test</div>
+    <div class="panel prof-next-card">
+      <div class="panel-title">Siguiente test</div>
       <div class="prof-next-row">
         <div>
           <div class="prof-next-name">${esc(d.name)}</div>
           <div class="prof-next-why">${esc(detalle)}</div>
         </div>
-        <button class="btn btn--lg btn--block prof-next-btn" data-test="${esc(d.id)}">Medir</button>
+        <button type="button" class="btn prof-next-btn" data-test="${esc(d.id)}">Medir</button>
       </div>
     </div>`;
 }
@@ -143,10 +143,10 @@ function metricRow(m) {
   const origen = m.source === 'derived' ? 'De tus entrenos'
     : m.source === 'test' ? (m.days != null ? `Hace ${m.days} d` : 'Medido')
     : 'Sin medir';
-  return `<div class="prof-metric${cls}">
-    <span class="prof-metric-name">${esc(m.label)}</span>
-    <span class="prof-metric-src">${esc(origen)}</span>
-    <span class="prof-metric-val">${esc(formatMetric(m))}</span>
+  return `<div class="listrow prof-metric${cls}">
+    <span class="listrow-name prof-metric-name">${esc(m.label)}</span>
+    <span class="badge prof-metric-src">${esc(origen)}</span>
+    <span class="listrow-value prof-metric-val">${esc(formatMetric(m))}</span>
     <span class="prof-metric-lvl">${ROMAN[m.level]}</span>
   </div>`;
 }
@@ -157,9 +157,11 @@ function domainRow(d, profile) {
   const pct = (d.level / 5) * 100;
 
   const chips = [];
-  if (esLimite) chips.push('<span class="prof-chip prof-chip-lim">Tu limitante</span>');
-  if (d.stale) chips.push('<span class="prof-chip prof-chip-stale">Caducado</span>');
-  if (d.level === 0) chips.push('<span class="prof-chip prof-chip-none">Sin medir</span>');
+  // El rojo aquí SÍ significa algo: el dominio que te está limitando es la
+  // única cosa accionable de esta pantalla. Caducado y sin medir son neutros.
+  if (esLimite) chips.push('<span class="badge badge--accent">Tu limitante</span>');
+  if (d.stale) chips.push('<span class="badge">Caducado</span>');
+  if (d.level === 0) chips.push('<span class="badge">Sin medir</span>');
 
   return `<div class="prof-domain${abierto ? ' open' : ''}" data-domain="${esc(d.id)}">
     <button class="prof-domain-head" aria-expanded="${abierto}">
@@ -177,7 +179,7 @@ function domainRow(d, profile) {
         ? `<div class="prof-domain-rule">El dominio vale su métrica más baja: <b>${esc(d.weakest.label)}</b>.</div>`
         : ''}
       ${d.protocol ? `<div class="prof-domain-proto">${esc(d.protocol)}</div>` : ''}
-      ${d.protocol ? `<button class="btn btn--lg btn--block btn-outline btn-sm" data-test="${esc(d.id)}">${d.level ? 'Volver a medir' : 'Medir ahora'}</button>` : ''}
+      ${d.protocol ? `<button type="button" class="btn btn--secondary btn--sm" data-test="${esc(d.id)}">${d.level ? 'Volver a medir' : 'Medir ahora'}</button>` : ''}
     </div>
   </div>`;
 }
@@ -198,7 +200,7 @@ export function renderProfile(db) {
   // se queda vacío sin que se entienda por qué. Decirlo, con la salida a mano.
   const sinPeso = bodyweight(db) == null;
   $note.innerHTML = `
-    ${sinPeso ? '<div class="prof-warn">Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.</div>' : ''}
+    ${sinPeso ? '<div class="banner banner--neutral"><span class="material-symbols-outlined" aria-hidden="true">info</span><span class="banner-text">Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.</span></div>' : ''}
     <div class="prof-calib">${esc(CALIBRATION_NOTE)}</div>`;
 }
 

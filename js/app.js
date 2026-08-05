@@ -76,6 +76,9 @@ function updateSyncUI() {
     btn.classList.remove('active');
     desc.textContent = 'Desactivada';
   }
+  // El toggle es un role="switch": su estado tiene que estar en aria-checked, no
+  // solo en una clase de CSS que el lector de pantalla no ve.
+  btn.setAttribute('aria-checked', String(isAutoSync()));
 }
 
 function renderCustomProgramsList() {
@@ -89,9 +92,9 @@ function renderCustomProgramsList() {
     const name = esc(p._meta?.name || 'Sin nombre');
     const desc = esc(p._meta?.desc || '');
     return `<div class="custom-prog-item">
-      <div style="flex:1"><div class="custom-prog-name">${name}</div>${desc ? `<div class="custom-prog-desc">${desc}</div>` : ''}</div>
+      <div class="listrow-main"><div class="custom-prog-name">${name}</div>${desc ? `<div class="custom-prog-desc">${desc}</div>` : ''}</div>
       <span class="custom-prog-badge">Custom</span>
-      <button class="custom-prog-del" data-prog-id="${esc(p._customId)}">Eliminar</button>
+      <button type="button" class="custom-prog-del" data-prog-id="${esc(p._customId)}">Eliminar</button>
     </div>`;
   }).join('');
 }
@@ -106,9 +109,9 @@ function renderProgramSelector() {
   const options = document.getElementById('programOptions');
   options.innerHTML = progList.map(p => {
     const isCustom = !isBuiltinProgram(p.id);
-    const badge = isCustom ? '<span class="custom-prog-badge" style="margin-left:6px">Custom</span>' : '';
+    const badge = isCustom ? ' <span class="custom-prog-badge">Custom</span>' : '';
     return `<div class="prog-modal-item${p.id === active ? ' active' : ''}" data-prog="${esc(p.id)}">
-      <div style="flex:1"><div class="prog-modal-name">${esc(p.name)}${badge}</div><div class="prog-modal-desc">${esc(p.desc)}</div></div>
+      <div class="listrow-main"><div class="prog-modal-name">${esc(p.name)}${badge}</div><div class="prog-modal-desc">${esc(p.desc)}</div></div>
     </div>`;
   }).join('');
 }
@@ -229,7 +232,7 @@ async function init() {
   });
   document.getElementById('dashStartBtn')?.addEventListener('click', () => goEntrenar('str'));
   document.getElementById('dashStartRunBtn')?.addEventListener('click', () => goEntrenar('run'));
-  document.getElementById('appVersion').textContent = `Areté v${APP_VERSION}`;
+  document.getElementById('appVersion').textContent = `Versión ${APP_VERSION}`;
   bindEvents();
 
   // Sync indicator
@@ -437,7 +440,7 @@ function bindEvents() {
   document.getElementById('exportBtn').addEventListener('click', () => exportData(db));
   document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
   document.getElementById('importFile').addEventListener('change', (e) => importData(e, db));
-  document.querySelector('#secSettings .sc-row-danger').addEventListener('click', () => clearAllData());
+  document.getElementById('clearDataBtn').addEventListener('click', () => clearAllData());
 }
 
 init();
