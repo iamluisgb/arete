@@ -51,89 +51,136 @@
 <body>
 <div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">Sin conexión — los datos se guardan localmente</div>
 <header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite"></div></header>
-<main><div class="section active" id="secDashboard" aria-label="Dashboard">
+<!-- HOY — migrada. Lo primero que se ve al abrir la app: el saludo, tu nivel, la
+     semana y la acción de hoy. El bento de anillos se queda porque es identidad;
+     lo que cambia es que ya no hay dos acciones primarias compitiendo. -->
+<main><div class="section active" id="secDashboard" data-ds aria-label="Hoy">
   <section class="dash-greeting">
-    <p class="dash-greeting-label">ARETÉ</p>
-    <h2 class="dash-greeting-title" id="dashGreeting">Hola, Guerrero</h2>
+    <p class="dash-greeting-label">Areté</p>
+    <h2 class="dash-greeting-title" id="dashGreeting">Hola</h2>
     <p class="dash-greeting-quote" id="dashQuote"></p>
   </section>
   <button class="dash-level" id="dashLevel" type="button"></button>
-  <section class="dash-bento">
+  <h3 class="group-title dash-week-title">Esta semana</h3>
+  <section class="dash-bento" aria-label="Resumen de la semana">
     <div class="dash-card" id="dashVolume">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">fitness_center</span> Volumen Semanal</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Volumen</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashVolumeRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-strength)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashVolumeRing"/>
         </svg>
         <div class="dash-ring-value" id="dashVolumeValue">0 kg</div>
       </div>
     </div>
     <div class="dash-card" id="dashSessions">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">fitness_center</span> Sesiones</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Sesiones</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashSessionsRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-strength)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashSessionsRing"/>
         </svg>
         <div class="dash-ring-value" id="dashSessionsValue">0</div>
       </div>
     </div>
     <div class="dash-card" id="dashRunKm">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">directions_run</span> Km Semanales</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Kilómetros</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunKmRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunKmRing"/>
         </svg>
         <div class="dash-ring-value" id="dashRunKmValue">0 km</div>
       </div>
     </div>
     <div class="dash-card" id="dashRunSessions">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">directions_run</span> Carreras</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Carreras</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunSessionsRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunSessionsRing"/>
         </svg>
         <div class="dash-ring-value" id="dashRunSessionsValue">0</div>
       </div>
     </div>
     <div class="dash-card dash-card-wide" id="dashStreak">
-      <div class="dash-card-label">Racha Actual</div>
+      <div class="dash-card-label">Racha actual</div>
       <div class="dash-streak-value" id="dashStreakValue">0 días</div>
       <div class="dash-streak-sub" id="dashStreakSub">Empieza hoy</div>
     </div>
   </section>
+  <!-- Una sola acción primaria. Las dos hacen exactamente lo mismo que antes;
+       lo que cambia es que dejan de gritar igual de fuerte. La carrera conserva
+       su color de dominio en el icono, que es donde el color informa sin
+       convertirse en un segundo acento a pantalla completa. -->
   <div class="dash-cta-group">
-    <button class="btn dash-cta" id="dashStartBtn"><span class="material-symbols-outlined" style="font-size:20px">fitness_center</span> Fuerza</button>
-    <button class="btn dash-cta dash-cta-run" id="dashStartRunBtn"><span class="material-symbols-outlined" style="font-size:20px">directions_run</span> Running</button>
+    <button class="btn btn--lg dash-cta" type="button" id="dashStartBtn"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Fuerza</button>
+    <button class="btn btn--lg btn--secondary dash-cta dash-cta-run" type="button" id="dashStartRunBtn"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Running</button>
   </div>
   <section class="dash-activity" id="dashActivity">
-    <h3 class="dash-section-title">Actividad Reciente</h3>
+    <h3 class="group-title">Actividad reciente</h3>
     <div class="dash-activity-scroll" id="dashActivityList"></div>
   </section>
 </div>
-<div class="section" id="secTrain" aria-label="Entrenar">
-  <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
-    <button class="train-mode-btn active" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined">fitness_center</span>Fuerza</button>
-    <button class="train-mode-btn" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined">directions_run</span>Carrera</button>
+<!-- ENTRENAR — migrada, y con ella la reorganización de navegación aprobada
+     (DESIGN_SYSTEM.md §7.2). Antes había TRES barras apiladas antes de que
+     apareciera un solo dato: el segmentado Fuerza/Carrera, la barra de contexto
+     con los chips de programa y fase, y las cuatro pestañas. ~180px verticales
+     de navegación consecutiva, y la barra de contexto ni siquiera era
+     navegación: era ESTADO disfrazado de barra.
+
+     Ahora: el contexto sube a la cabecera y deja de ser sticky; el modo y las
+     cuatro pestañas viven en una sola navegación secundaria, que en escritorio
+     es una columna lateral y en móvil dos segmentados. -->
+<div class="section" id="secTrain" data-ds aria-label="Entrenar">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Entrenar</h2>
+      <p class="page-sub" id="trainSub">Fuerza</p>
+    </div>
+    <!-- El contexto: dónde estás, no a dónde vas. Chips, porque se pulsan para
+         cambiar de programa, de fase o de semana. -->
+    <div class="page-head-ctx" id="strCtx">
+      <button class="chip" type="button" id="programContext">
+        <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+      <button class="chip" type="button" id="phaseContext">
+        <span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+    </div>
+    <div class="page-head-ctx" id="runCtx" hidden>
+      <button class="chip" type="button" id="runProgramContext">
+        <span id="runProgramName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+      <button class="chip" type="button" id="runWeekContext">
+        <span id="runWeekName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+    </div>
   </div>
+
+  <!-- Navegación secundaria. Un solo bloque: el modo arriba y sus destinos
+       debajo. En ≥1024 es la columna izquierda de la pantalla y el cromo
+       vertical antes del primer dato pasa a cero. -->
+  <div class="subnav" id="trainSubnav">
+    <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
+      <button class="train-mode-btn active" type="button" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>Fuerza</button>
+      <button class="train-mode-btn" type="button" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span>Carrera</button>
+    </div>
+    <div class="str-subnav subnav-tabs" role="tablist" aria-label="Secciones de fuerza">
+      <button class="str-tab active" type="button" role="tab" aria-selected="true" data-str="strTrain">Actividad</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strHistory">Historial</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strProgress">Progreso</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strPlan">Plan</button>
+    </div>
+    <div class="run-subnav subnav-tabs" id="runSubnav" role="tablist" aria-label="Secciones de carrera" hidden>
+      <button class="run-tab active" type="button" role="tab" aria-selected="true" data-run="runActivity">Actividad</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runHistory">Historial</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runProgress">Progreso</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runPlan">Plan</button>
+    </div>
+  </div>
+
 <div class="train-panel active" id="secStrength" aria-label="Fuerza">
-  <div class="context-bar">
-    <div class="phase-context" id="programContext">
-      <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-    <div class="phase-context" id="phaseContext">
-      <span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-  </div>
-  <div class="str-subnav">
-    <button class="str-tab active" data-str="strTrain">Actividad</button>
-    <button class="str-tab" data-str="strHistory">Historial</button>
-    <button class="str-tab" data-str="strProgress">Progreso</button>
-    <button class="str-tab" data-str="strPlan">Plan</button>
-  </div>
   <div class="str-panel active" id="strTrain">
     <div class="timer-bar mode-countdown active" id="timerBar">
       <div class="timer-mode-toggle">
@@ -168,7 +215,7 @@
       <div class="save-bar-notes-body" id="notesBody" hidden>
         <textarea id="trainNotes" placeholder="Sensaciones, fatiga, ajustes..."></textarea>
       </div>
-      <button class="btn" id="saveWorkoutBtn">Guardar sesión</button>
+      <button class="btn btn--block" type="button" id="saveWorkoutBtn">Guardar sesión</button>
     </div>
   </div>
   <div class="str-panel" id="strHistory">
@@ -201,22 +248,6 @@
   </div>
 </div>
 <div class="train-panel" id="secRunning" aria-label="Carrera">
-  <div class="run-ctx-bar">
-    <div class="phase-context" id="runProgramContext">
-      <span id="runProgramName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-    <div class="phase-context" id="runWeekContext">
-      <span id="runWeekName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-  </div>
-  <div class="run-subnav" id="runSubnav">
-    <button class="run-tab active" data-run="runActivity">Actividad</button>
-    <button class="run-tab" data-run="runHistory">Historial</button>
-    <button class="run-tab" data-run="runProgress">Progreso</button>
-    <button class="run-tab" data-run="runPlan">Plan</button>
-  </div>
 
   <!-- TAB 1: Actividad -->
   <div class="run-panel active" id="runActivity">
@@ -231,8 +262,8 @@
       <div class="run-goal-body" id="runGoalBody">
         <div class="run-goal-ring" id="runGoalRing">
           <svg viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface2)" stroke-width="8"/>
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" id="runGoalArc" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-surface-2)" stroke-width="8"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent-text)" stroke-width="8" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" id="runGoalArc" transform="rotate(-90 60 60)"/>
           </svg>
           <div class="run-goal-ring-text">
             <div class="run-goal-current" id="runGoalCurrent">0</div>
@@ -249,12 +280,12 @@
 
     <!-- Records personales -->
     <div class="run-prs-card" id="runPrsCard">
-      <div class="sec-title sec-title-accent">Records personales</div>
-      <div class="run-prs-grid" id="runPrsGrid">
-        <div class="run-pr-item"><div class="run-pr-dist">1 km</div><div class="run-pr-value" data-pr="1">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">5 km</div><div class="run-pr-value" data-pr="5">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">10 km</div><div class="run-pr-value" data-pr="10">--:--</div></div>
-        <div class="run-pr-item"><div class="run-pr-dist">21.1 km</div><div class="run-pr-value" data-pr="21.1">--:--</div></div>
+      <h4 class="panel-title">Records personales</h4>
+      <div class="tiles run-prs-grid" id="runPrsGrid">
+        <div class="tile run-pr-item"><div class="tile-label run-pr-dist">1 km</div><div class="tile-value run-pr-value" data-pr="1">--:--</div></div>
+        <div class="tile run-pr-item"><div class="tile-label run-pr-dist">5 km</div><div class="tile-value run-pr-value" data-pr="5">--:--</div></div>
+        <div class="tile run-pr-item"><div class="tile-label run-pr-dist">10 km</div><div class="tile-value run-pr-value" data-pr="10">--:--</div></div>
+        <div class="tile run-pr-item"><div class="tile-label run-pr-dist">21.1 km</div><div class="tile-value run-pr-value" data-pr="21.1">--:--</div></div>
       </div>
     </div>
 
@@ -263,13 +294,13 @@
 
     <!-- Añadir carrera: importar del reloj es la vía principal. El tracker GPS
          solo aparece donde el sistema operativo deja medirlo de verdad. -->
-    <button class="run-start-btn" id="runImportBtn">
+    <button class="btn btn--lg btn--block run-start-btn" type="button" id="runImportBtn">
       <span class="material-symbols-outlined">download</span>
       Importar del reloj
     </button>
     <input type="file" id="runImportFile" accept=".gpx,.tcx,.xml,application/gpx+xml" hidden>
     <div class="run-secondary-actions">
-      <button class="run-secondary-btn" id="runManualBtn">
+      <button class="btn btn--ghost run-secondary-btn" type="button" id="runManualBtn">
         <span class="material-symbols-outlined" style="font-size:18px">edit_note</span>
         Registro manual
       </button>
@@ -277,12 +308,12 @@
 
     <!-- Solo con GPS fiable (app nativa): en el navegador se oculta -->
     <div id="runGpsActions" hidden>
-      <button class="run-start-btn" id="runStartBtn">
+      <button class="btn btn--lg btn--block run-start-btn" type="button" id="runStartBtn">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
         Iniciar carrera
       </button>
       <div class="run-secondary-actions">
-        <button class="run-secondary-btn" id="runFreeRunBtn">
+        <button class="btn btn--ghost run-secondary-btn" type="button" id="runFreeRunBtn">
           <span class="material-symbols-outlined" style="font-size:18px">sprint</span>
           Carrera libre
         </button>
@@ -324,7 +355,14 @@
   </div>
 </div>
 </div>
-<div class="section" id="secProfile" aria-label="Perfil">
+<!-- PERFIL — migrada. Los 7 dominios y el nivel, que es el del dominio más bajo. -->
+<div class="section" id="secProfile" data-ds aria-label="Perfil">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Perfil</h2>
+      <p class="page-sub">Tu nivel es el del dominio más bajo, no la media</p>
+    </div>
+  </div>
   <div class="prof-head">
     <div class="prof-level" id="profLevel">—</div>
     <div class="prof-level-name" id="profLevelName">Sin medir</div>
@@ -332,218 +370,243 @@
   </div>
   <div class="radar-wrap"><svg id="profRadar" viewBox="0 0 300 300" role="img" aria-labelledby="profRadarTitle"><title id="profRadarTitle">Radar de los 7 dominios</title></svg></div>
   <div class="prof-next" id="profNext"></div>
-  <div class="sec-title sec-title-accent">7 dominios</div>
+  <h3 class="group-title prof-domains-title">7 dominios</h3>
   <div id="profDomains"></div>
   <div class="prof-note" id="profNote"></div>
 </div>
-<div class="section" id="secBody" aria-label="Cuerpo">
-  <div class="mb2"><label>Fecha registro</label><input type="date" id="bodyDate" autocomplete="off"></div>
-  <div class="sec-title sec-title-accent">Medidas (cm / kg)</div>
-  <div id="bodyEditBanner" style="display:none">
-    <div id="bodyEditText"></div>
-    <button class="prefill-clear body-edit-cancel">✕ Cancelar</button>
+<!-- CUERPO — primera pantalla migrada al design system (data-ds).
+     La pantalla por defecto es de LECTURA: estado, proporciones, calorías,
+     historial. La CAPTURA (fecha + once medidas) sale del plano y pasa a una
+     hoja invocada, #bodySheet, al final del documento. Antes convivían en el
+     mismo plano visual once campos vacíos y cuatro paneles de resultado, y no
+     había forma de saber de un vistazo si la pantalla te estaba preguntando
+     algo o contándote algo. Ver DESIGN_SYSTEM.md §8. -->
+<div class="section" id="secBody" data-ds aria-label="Cuerpo">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Cuerpo</h2>
+      <p class="page-sub" id="bodyLastLog"></p>
+    </div>
+    <!-- La única acción primaria de la vista: el presupuesto del acento. -->
+    <button class="btn" id="bodyLogBtn" type="button"><span class="material-symbols-outlined" aria-hidden="true">straighten</span>Registrar medidas</button>
   </div>
-  <div id="bodyMeasures"></div>
-  <div style="display:flex;gap:8px">
-    <button class="btn mb2" style="flex:1">Guardar medidas</button>
-    <button class="btn btn-danger mb2" id="bodyDeleteBtn" style="display:none">Borrar</button>
-  </div>
-  <!-- body-col2: en escritorio esta mitad pasa entera a la segunda columna
-       (app.css, §Cuerpo). Va envuelta, y no marcada elemento a elemento, para
-       que su flujo vertical sea independiente del de la columna izquierda: en
-       una rejilla las filas son compartidas y los huecos se propagan. -->
-  <div class="body-col2">
-    <div class="sec-title sec-title-accent">Proporciones Divinas</div><div id="proportionsPanel"></div>
-    <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></div></div>
-    <div class="sec-title sec-title-accent">Calorías Estimadas</div>
+
+  <section class="panel body-now" aria-labelledby="bodyNowTitle">
+    <h3 class="panel-title" id="bodyNowTitle">Estado actual</h3>
+    <div class="tiles" id="bodyNowPanel"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="bodyPropTitle">
+    <h3 class="panel-title" id="bodyPropTitle">Proporciones divinas</h3>
+    <div id="proportionsPanel"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="bodyCalTitle">
+    <h3 class="panel-title" id="bodyCalTitle">Calorías estimadas</h3>
     <div id="caloriesPanel"></div>
-  </div>
-  <!-- El historial sale de la segunda columna: es una tabla, y una tabla vale
-       más cuantas más columnas se vean a la vez. -->
-  <div class="body-hist-full">
-    <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
-  </div>
+    <!-- Altura y edad no son medidas que se registren: son los dos parámetros
+         del cálculo. Van dentro del panel que alimentan, no en la captura. -->
+    <div class="body-calc-args">
+      <label class="field"><span class="field-label">Altura (cm)</span><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></label>
+      <label class="field"><span class="field-label">Edad</span><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <!-- El historial va a ancho completo: es una tabla, y una tabla vale más
+       cuantas más columnas se vean a la vez. -->
+  <section class="panel panel--flush body-hist-full" aria-labelledby="bodyHistTitle">
+    <h3 class="panel-title" id="bodyHistTitle">Historial corporal</h3>
+    <div id="bodyHistory"></div>
+  </section>
 </div>
-<div class="section" id="secSettings" aria-label="Ajustes">
-  <section class="settings-group" aria-labelledby="setGrpLook">
-    <h2 class="settings-group-title" id="setGrpLook">Apariencia y tema</h2>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div class="sc-row-content"><div class="sc-row-label">Tema</div></div>
-      <div class="theme-options" id="themeOptions">
-        <button class="theme-opt" data-theme="auto">Auto</button>
-        <button class="theme-opt" data-theme="light">Claro</button>
-        <button class="theme-opt" data-theme="dark">Oscuro</button>
-      </div>
+<!-- AJUSTES — migrada. Cuatro categorías, y dentro de cada una paneles con filas
+     de anatomía idéntica: icono opcional · nombre · descripción · control a la
+     derecha. Antes había filas con la etiqueta como <label>, otras con <div>, el
+     control unas veces dentro del contenido y otras fuera, y tres estilos de
+     título de bloque. Ver DESIGN_SYSTEM.md §5.7. -->
+<div class="section" id="secSettings" data-ds aria-label="Ajustes">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Ajustes</h2>
+      <p class="page-sub" id="appVersion"></p>
     </div>
   </div>
 
+  <section class="settings-group" aria-labelledby="setGrpLook">
+    <h3 class="group-title" id="setGrpLook">Apariencia</h3>
+    <div class="panel panel--rows">
+      <div class="listrow listrow--control">
+        <div class="listrow-main"><div class="listrow-name">Tema</div></div>
+        <div class="listrow-control theme-options" id="themeOptions" role="group" aria-label="Tema">
+          <button class="theme-opt" type="button" data-theme="auto">Auto</button>
+          <button class="theme-opt" type="button" data-theme="light">Claro</button>
+          <button class="theme-opt" type="button" data-theme="dark">Oscuro</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpTrain">
-    <h2 class="settings-group-title" id="setGrpTrain">Entrenamiento</h2>
-  <div class="sec-title sec-title-accent" id="rmTitle">Records personales</div>
-  <div id="rmPanel"></div>
+    <h3 class="group-title" id="setGrpTrain">Entrenamiento</h3>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Zonas de carrera</div>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div style="flex:1">
-        <label style="margin-bottom:0">Mejor marca 5K</label>
-        <div class="input-hint">Introduce tu tiempo para personalizar las zonas de pace</div>
-      </div>
-      <input type="text" id="settingsRace5k" class="sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
+    <div class="panel">
+      <h4 class="panel-title" id="rmTitle">Records personales</h4>
+      <div id="rmPanel"></div>
     </div>
-    <div class="zones-preview" id="settingsZonesPreview"></div>
-  </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Frecuencia cardiaca</div>
-  <div class="settings-card">
-    <div class="sc-row">
-      <div style="flex:1">
-        <label style="margin-bottom:0">FC maxima</label>
-        <div class="input-hint">Dejar en 0 para estimar desde tu edad (220 - edad)</div>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Zonas de carrera</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <label class="listrow-name" for="settingsRace5k">Mejor marca 5K</label>
+          <div class="listrow-desc">Introduce tu tiempo para personalizar las zonas de ritmo</div>
+        </div>
+        <input type="text" id="settingsRace5k" class="listrow-control sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
       </div>
-      <input type="number" id="settingsMaxHR" class="sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
+      <div class="zones-preview" id="settingsZonesPreview"></div>
     </div>
-    <div class="zones-preview" id="settingsHRZonesPreview"></div>
-  </div>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Mis Planes</div>
-  <div class="settings-card">
-    <div id="customProgramsList"></div>
-    <button class="sc-row sc-row-action" id="importProgramBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      </span>
-      <span>Importar plan (.json)</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <input type="file" id="importProgramFile" accept=".json" style="display:none">
-  </div>
-  <a href="blog/crear-plan.html" class="create-plan-link">¿No tienes un plan? Aprende a crear uno</a>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Frecuencia cardiaca</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <label class="listrow-name" for="settingsMaxHR">FC máxima</label>
+          <div class="listrow-desc">Dejar en 0 para estimarla desde tu edad (220 − edad)</div>
+        </div>
+        <input type="number" id="settingsMaxHR" class="listrow-control sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="zones-preview" id="settingsHRZonesPreview"></div>
+    </div>
 
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Mis planes</h4>
+      <div id="customProgramsList"></div>
+      <button class="listrow listrow--action" type="button" id="importProgramBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <span class="listrow-main">Importar plan (.json)</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <input type="file" id="importProgramFile" accept=".json" hidden>
+      <p class="panel-note"><a href="blog/crear-plan.html">¿No tienes un plan? Aprende a crear uno</a></p>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpCoach">
-    <h2 class="settings-group-title" id="setGrpCoach">Coach y sincronización</h2>
-  <div class="sec-title sec-title-accent">Quirón (IA)</div>
-  <div class="settings-card">
-    <div class="sc-row" style="flex-direction:column;align-items:stretch;gap:10px">
-      <div>
-        <label>Proveedor</label>
-        <select id="quironProvider">
-          <option value="nan">nan</option>
-          <option value="openai">OpenAI</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="groq">Groq</option>
-          <option value="custom">Personalizado</option>
-        </select>
-      </div>
-      <div>
-        <label>Base URL</label>
-        <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
-      </div>
-      <div>
-        <label>API key</label>
-        <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
-        <div class="input-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</div>
-      </div>
-      <div>
-        <label>Modelo</label>
-        <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <datalist id="quironModelList"></datalist>
-      </div>
-      <div>
-        <label>Modelo de visión (opcional)</label>
-        <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <div class="input-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</div>
-      </div>
-      <button class="btn btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
-      <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
-    </div>
-  </div>
+    <h3 class="group-title" id="setGrpCoach">Coach y sincronización</h3>
 
-  <div class="sec-title sec-title-accent sec-title-mt">Google Drive</div>
-  <div class="settings-card">
-    <div class="sc-row sc-row-toggle">
-      <div class="sc-row-content">
-        <div class="sc-row-label">Sincronización automática</div>
-        <div class="sc-row-desc" id="autoSyncDesc">Desactivada</div>
+    <div class="panel">
+      <h4 class="panel-title">Quirón (IA)</h4>
+      <div class="form">
+        <label class="field"><span class="field-label">Proveedor</span>
+          <select id="quironProvider">
+            <option value="nan">nan</option>
+            <option value="openai">OpenAI</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="groq">Groq</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </label>
+        <label class="field"><span class="field-label">Base URL</span>
+          <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </label>
+        <label class="field"><span class="field-label">API key</span>
+          <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
+          <span class="field-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</span>
+        </label>
+        <label class="field"><span class="field-label">Modelo</span>
+          <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <datalist id="quironModelList"></datalist>
+        </label>
+        <label class="field"><span class="field-label">Modelo de visión (opcional)</span>
+          <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="field-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</span>
+        </label>
+        <button class="btn btn--secondary" type="button" id="quironTestBtn">Probar conexión</button>
+        <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
       </div>
-      <button class="toggle-btn" id="autoSyncBtn"></button>
     </div>
-    <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
-    <button class="sc-row sc-row-action" id="driveBackupBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      </span>
-      <span>Subir copia de seguridad</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="driveRestoreBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </span>
-      <span>Restaurar desde Drive</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="driveRevisionsBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      </span>
-      <span>Recuperar versión anterior</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
 
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Google Drive</h4>
+      <div class="listrow listrow--control">
+        <div class="listrow-main">
+          <div class="listrow-name" id="autoSyncLabel">Sincronización automática</div>
+          <div class="listrow-desc" id="autoSyncDesc">Desactivada</div>
+        </div>
+        <button class="toggle-btn listrow-control" type="button" id="autoSyncBtn" role="switch" aria-checked="false" aria-labelledby="autoSyncLabel"></button>
+      </div>
+      <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
+      <button class="listrow listrow--action" type="button" id="driveBackupBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </span>
+        <span class="listrow-main">Subir copia de seguridad</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="driveRestoreBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </span>
+        <span class="listrow-main">Restaurar desde Drive</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="driveRevisionsBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </span>
+        <span class="listrow-main">Recuperar versión anterior</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpApp">
-    <h2 class="settings-group-title" id="setGrpApp">Aplicación</h2>
-  <div class="sec-title sec-title-accent">Datos</div>
-  <div class="settings-card">
-    <button class="sc-row sc-row-action" id="exportBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      </span>
-      <span>Exportar JSON</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <button class="sc-row sc-row-action" id="importBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-      </span>
-      <span>Importar JSON</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-    <input type="file" id="importFile" accept=".json">
-  </div>
+    <h3 class="group-title" id="setGrpApp">Aplicación</h3>
 
-  <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
-  <div class="settings-card kbd-only">
-    <button class="sc-row sc-row-action" id="shortcutsBtn">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
-      </span>
-      <span>Atajos de teclado</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
+    <div class="panel panel--rows">
+      <h4 class="panel-title">Datos</h4>
+      <button class="listrow listrow--action" type="button" id="exportBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span class="listrow-main">Exportar JSON</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <button class="listrow listrow--action" type="button" id="importBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+        </span>
+        <span class="listrow-main">Importar JSON</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <input type="file" id="importFile" accept=".json" hidden>
+    </div>
 
-  <div class="settings-card settings-card-danger">
-    <button class="sc-row sc-row-action sc-row-danger">
-      <span class="sc-row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      </span>
-      <span>Borrar todos los datos</span>
-      <span class="sc-row-chevron">›</span>
-    </button>
-  </div>
+    <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
+    <div class="panel panel--rows kbd-only">
+      <button class="listrow listrow--action" type="button" id="shortcutsBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+        </span>
+        <span class="listrow-main">Atajos de teclado</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
 
+    <!-- Lo destructivo, al final, separado y sin relleno rojo: el rojo de la
+         acción primaria no se presta a lo que borra tus datos. -->
+    <div class="panel panel--rows settings-card-danger">
+      <button class="listrow listrow--action listrow--danger" type="button" id="clearDataBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </span>
+        <span class="listrow-main">Borrar todos los datos</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+    </div>
   </section>
-
-  <div id="appVersion" style="text-align:center;padding:24px 0 8px;font-size:.7rem;color:var(--text3);font-weight:500"></div>
 </div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Seleccionar Programa</h3>
   <div id="programOptions"></div>
@@ -851,12 +914,18 @@
   </div>
 </div>
 </main>
-<nav aria-label="Navegacion principal">
+<nav id="mainNav" aria-label="Navegacion principal">
+  <button id="railToggle" type="button" aria-expanded="true" aria-controls="mainNav" aria-label="Plegar la navegación" title="Plegar la navegación (N)"><span class="material-symbols-outlined">left_panel_close</span><span>Plegar</span></button>
   <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">today</span><span>Hoy</span></button>
   <button data-sec="secTrain"><span class="material-symbols-outlined">exercise</span><span>Entrenar</span></button>
   <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span>Perfil</span></button>
   <button data-sec="secBody"><span class="material-symbols-outlined">monitor_weight</span><span>Cuerpo</span></button>
   <button data-sec="secSettings"><span class="material-symbols-outlined">tune</span><span>Más</span></button>
+  <!-- Quirón. Va detrás de un separador porque es de otra naturaleza: los cinco
+       de arriba son pantallas con tus datos, éste es una conversación. No lleva
+       data-sec — no es una .section, es un panel — y por eso lo abre quiron.js
+       en vez de switchTab. -->
+  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg><span>Quirón</span></button>
 </nav>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="revisionsModalTitle" id="revisionsModal"><div class="modal" style="max-height:80vh;overflow-y:auto">
   <h3 id="revisionsModalTitle">Versiones anteriores en Drive</h3>
@@ -871,7 +940,6 @@
   </div>
   <button class="btn btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
-<button id="quironFab" aria-label="Quirón, tu coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg></button>
 <div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
   <div class="quiron-header">
     <div class="quiron-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg> QUIRÓN <span class="quiron-sub">tu coach</span></div>
@@ -900,6 +968,32 @@
   <div id="quironHistoryList"></div>
   <button class="btn btn-outline" id="quironHistoryClose">Cerrar</button>
 </div></div>
+<!-- Captura de medidas. Hoja inferior en el móvil, diálogo centrado a partir de
+     640 (mismo componente, .sheet). Vive fuera de #secBody a propósito: la
+     sección se oculta con display:none al cambiar de pestaña, y una hoja que
+     desaparece porque su sección se apagó es un error esperando a pasar. -->
+<div class="sheet" id="bodySheet" role="dialog" aria-modal="true" aria-labelledby="bodySheetTitle">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h3 class="sheet-title" id="bodySheetTitle">Registrar medidas</h3>
+      <button class="btn btn--ghost btn--icon" id="bodySheetClose" type="button" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+    </div>
+    <div class="sheet-body">
+      <div class="banner" id="bodyEditBanner" hidden>
+        <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        <span class="banner-text" id="bodyEditText"></span>
+        <button class="btn btn--ghost btn--sm body-edit-cancel" type="button">Cancelar edición</button>
+      </div>
+      <label class="field"><span class="field-label">Fecha del registro</span><input type="date" id="bodyDate" autocomplete="off"></label>
+      <p class="field-hint body-measures-hint">Centímetros, salvo peso (kg) y grasa (%). Basta con una.</p>
+      <div id="bodyMeasures" class="measure-grid"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn--danger" id="bodyDeleteBtn" type="button" hidden>Borrar</button>
+      <button class="btn btn--block" id="bodySaveBtn" type="button">Guardar medidas</button>
+    </div>
+  </div>
+</div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div class="onboarding-overlay" id="onboarding">
   <div class="onboarding-card">

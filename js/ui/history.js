@@ -20,7 +20,7 @@ function renderItem(w) {
   const summary = w.exercises.filter(e => e.sets.some(s => s.kg)).map(e => `${esc(e.name)}: ${e.sets.map(s => `${esc(s.kg) || '—'}×${esc(s.reps) || '—'}`).join(', ')}`).join(' · ');
   const hs = w.exercises.filter(e => !e.sets.some(s => s.kg) && e.sets[0]?.reps).map(e => `${esc(e.name)}: ${esc(e.sets[0].reps)}`).join(' · ');
   const hasPR = w.prs && w.prs.length > 0;
-  const prBadge = hasPR ? '<span style="font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px">🏆 PR</span>' : '';
+  const prBadge = hasPR ? '<span style="font-size:.55rem;background:var(--color-accent-text);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px">🏆 PR</span>' : '';
   const plan = `<span class="hi-plan">${esc(planName(w.program))}</span>`;
   // Una suelta no pertenece a la fase en la que estaba el atleta ese día: decirlo
   // sería inventar una relación con su plan que no existe.

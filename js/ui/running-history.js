@@ -51,7 +51,7 @@ export function renderRunHistory(db, $historyFilter, $historyList, dateFilter) {
           <div class="run-hist-content">
             <div class="run-hist-top">
               <span class="run-hist-date">${formatDate(log.date)}</span>
-              <span class="run-hist-type">${esc(typeLabel)}</span>
+              <span class="badge run-hist-type">${esc(typeLabel)}</span>
               ${planName(log.program) ? `<span class="hi-plan">${esc(planName(log.program))}</span>` : ''}
             </div>
             ${log.session ? `<div class="run-hist-session">${esc(log.session)}</div>` : ''}

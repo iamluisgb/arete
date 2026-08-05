@@ -37,12 +37,12 @@ export function render1RMs(db) {
   });
   const p = document.getElementById('rmPanel'), k = Object.keys(lifts);
   if (!k.length) {
-    p.innerHTML = '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:20px 0">Registra entrenamientos para ver 1RM</p>';
+    p.innerHTML = '<p class="panel-note">Registra entrenamientos para ver tus 1RM estimados.</p>';
     return;
   }
-  p.innerHTML = k.map(n =>
-    `<div class="calc-result"><div class="cr-label">${esc(n)}</div><div class="cr-value">${lifts[n].rm.toFixed(1)} kg</div><div class="cr-sub">Basado en ${lifts[n].kg}kg × ${lifts[n].reps} (${formatDate(lifts[n].date)})</div></div>`
-  ).join('');
+  p.innerHTML = `<div class="tiles">${k.map(n =>
+    `<div class="tile"><div class="tile-label">${esc(n)}</div><div class="tile-value">${lifts[n].rm.toFixed(1)}<span class="tile-unit">kg</span></div><div class="tile-delta tile-delta--flat">${lifts[n].kg}kg × ${lifts[n].reps} · ${formatDate(lifts[n].date)}</div></div>`
+  ).join('')}</div>`;
 }
 
 function renderRecords(db, prog) {
@@ -64,16 +64,16 @@ function renderRecords(db, prog) {
   const p = document.getElementById('rmPanel');
   const entries = Object.entries(records).sort((a, b) => b[1].count - a[1].count);
   if (!entries.length) {
-    p.innerHTML = '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:20px 0">Registra entrenamientos para ver records</p>';
+    p.innerHTML = '<p class="panel-note">Registra entrenamientos para ver tus récords.</p>';
     return;
   }
-  p.innerHTML = entries.map(([name, r]) => {
+  p.innerHTML = `<div class="tiles">${entries.map(([name, r]) => {
     const val = r.maxKg > 0
       ? `${r.maxKg} kg`
       : (r.bestResult || '—');
     const sub = r.maxKg > 0
-      ? `Mejor peso (${formatDate(r.kgDate)})`
-      : (r.resDate ? `Mejor resultado (${formatDate(r.resDate)})` : '');
-    return `<div class="calc-result"><div class="cr-label">${esc(name)}<span style="font-size:.6rem;color:var(--text2);margin-left:6px">${r.count}×</span></div><div class="cr-value">${esc(val)}</div>${sub ? `<div class="cr-sub">${sub}</div>` : ''}</div>`;
-  }).join('');
+      ? `Mejor peso · ${formatDate(r.kgDate)}`
+      : (r.resDate ? `Mejor resultado · ${formatDate(r.resDate)}` : '');
+    return `<div class="tile"><div class="tile-label">${esc(name)} · ${r.count}×</div><div class="tile-value">${esc(val)}</div>${sub ? `<div class="tile-delta tile-delta--flat">${sub}</div>` : ''}</div>`;
+  }).join('')}</div>`;
 }

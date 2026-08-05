@@ -186,7 +186,7 @@ export function initRunning(db) {
     if ($hrMetric) {
       $hrMetric.style.display = '';
       $hrValue.textContent = data.hr;
-      $hrValue.style.color = ZONE_COLORS[data.zone] || 'var(--text)';
+      $hrValue.style.color = ZONE_COLORS[data.zone] || 'var(--color-text-primary)';
       // Show zone + time in zone as label
       const zoneElapsed = data.zoneEnteredAt > 0 ? Math.floor((Date.now() - data.zoneEnteredAt) / 1000) : 0;
       const zLabel = document.getElementById('runLiveHrLabel');
@@ -218,7 +218,7 @@ export function initRunning(db) {
       $typeHrBtn.classList.remove('hr-connected');
       $typeHrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Conectar pulsometro';
       if ($hrMetric && $hrValue.textContent !== '--') {
-        $hrValue.style.color = 'var(--red)';
+        $hrValue.style.color = 'var(--color-state-danger)';
       }
     }
   };
@@ -244,9 +244,10 @@ export function initRunning(db) {
   // Sub-nav tabs
   document.querySelectorAll('.run-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.run-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.run-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
       document.querySelectorAll('.run-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.run).classList.add('active');
 
       if (btn.dataset.run === 'runHistory') renderRunHistory(db);
@@ -572,7 +573,7 @@ function restoreRun(snap, db) {
   const meta = RUN_TYPE_META[activeRunType];
   if (meta && activeRunType !== 'libre') {
     $typeBadge.textContent = meta.label;
-    $typeBadge.style.background = meta.zone ? ZONE_COLORS[meta.zone] : 'var(--accent)';
+    $typeBadge.style.background = meta.zone ? ZONE_COLORS[meta.zone] : 'var(--color-accent-text)';
     $typeBadge.classList.add('visible');
   } else {
     $typeBadge.classList.remove('visible');
@@ -681,7 +682,7 @@ function startGpsRun(db) {
   const meta = RUN_TYPE_META[activeRunType];
   if (meta && activeRunType !== 'libre') {
     $typeBadge.textContent = meta.label;
-    $typeBadge.style.background = meta.zone ? ZONE_COLORS[meta.zone] : 'var(--accent)';
+    $typeBadge.style.background = meta.zone ? ZONE_COLORS[meta.zone] : 'var(--color-accent-text)';
     $typeBadge.classList.add('visible');
   } else {
     $typeBadge.classList.remove('visible');
@@ -702,7 +703,7 @@ function startGpsRun(db) {
     activeRunType = segModeToRunType(activeSegments[0]);
     // Update badge for first segment
     $typeBadge.textContent = activeSegments[0].name;
-    $typeBadge.style.background = ZONE_COLORS[activeSegments[0].zone] || 'var(--accent)';
+    $typeBadge.style.background = ZONE_COLORS[activeSegments[0].zone] || 'var(--color-accent-text)';
     $typeBadge.classList.add('visible');
     if (activeSegments[0].mode === 'run-intervals') initIntervalState();
   } else if (activeRunType === 'intervalos') {
@@ -920,7 +921,7 @@ function onSplitComplete(split) {
     _splitHrSum = 0;
     _splitHrCount = 0;
   }
-  const hrStr = split.hrAvg ? ` <span style="color:var(--red)">♥${split.hrAvg}</span>` : '';
+  const hrStr = split.hrAvg ? ` <span style="color:var(--color-state-danger)">♥${split.hrAvg}</span>` : '';
   const el = document.createElement('div');
   el.className = 'run-live-split';
   el.innerHTML = `<span class="run-live-split-km">Km ${split.km}</span><span class="run-live-split-pace">${formatPace(split.pace)} /km${hrStr}</span>`;
@@ -1144,7 +1145,7 @@ function advanceSegment(data) {
 
   activeRunType = segModeToRunType(nextSeg);
   $typeBadge.textContent = nextSeg.name;
-  $typeBadge.style.background = ZONE_COLORS[nextSeg.zone] || 'var(--accent)';
+  $typeBadge.style.background = ZONE_COLORS[nextSeg.zone] || 'var(--color-accent-text)';
 
   if (nextSeg.mode === 'run-intervals') {
     intervalState = {
@@ -1444,12 +1445,12 @@ function renderHRGraph(container, timeSeries, db) {
   });
 
   // Gradient fill under the line
-  svg += `<polyline points="${points.join(' ')},${(pad + (timeSeries.length - 1) * step).toFixed(1)},${h} ${pad},${h}" fill="var(--red)" opacity="0.15" stroke="none"/>`;
-  svg += `<polyline points="${points.join(' ')}" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linejoin="round"/>`;
+  svg += `<polyline points="${points.join(' ')},${(pad + (timeSeries.length - 1) * step).toFixed(1)},${h} ${pad},${h}" fill="var(--color-state-danger)" opacity="0.15" stroke="none"/>`;
+  svg += `<polyline points="${points.join(' ')}" fill="none" stroke="var(--color-state-danger)" stroke-width="1.5" stroke-linejoin="round"/>`;
 
   // Y-axis labels
-  svg += `<text x="4" y="12" font-size="9" fill="var(--text2)">${maxHR}</text>`;
-  svg += `<text x="4" y="${h - 4}" font-size="9" fill="var(--text2)">${minHR}</text>`;
+  svg += `<text x="4" y="12" font-size="9" fill="var(--color-text-secondary)">${maxHR}</text>`;
+  svg += `<text x="4" y="${h - 4}" font-size="9" fill="var(--color-text-secondary)">${minHR}</text>`;
 
   svg += '</svg>';
   container.innerHTML = `<div class="run-detail-hr-title">Frecuencia cardiaca</div>${svg}`;
@@ -1903,7 +1904,7 @@ function renderGoalWidget(db) {
   $goalSessions.textContent = `${weekLogs.length} sesiones esta semana`;
 
   // Color based on progress
-  const color = pct >= 1 ? '#34c759' : 'var(--accent)';
+  const color = pct >= 1 ? '#34c759' : 'var(--color-accent-text)';
   $goalArc.setAttribute('stroke', color);
 
   // Plan session pills

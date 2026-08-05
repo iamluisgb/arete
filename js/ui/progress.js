@@ -80,7 +80,7 @@ export function renderProgressChart(db) {
   if (_chartCache.name === name && _chartCache.count === wCount && _chartCache.w === availW) return;
   _chartCache = { name, count: wCount, w: availW };
   if (!name) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text2);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--color-text-secondary);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;
@@ -104,7 +104,7 @@ export function renderProgressChart(db) {
     });
 
   if (points.length === 0) {
-    document.getElementById('progressChart').innerHTML = '<p style="color:var(--text2);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio.<br><span style="font-size:.75rem">Necesitas al menos 2 sesiones registradas.</span></p>';
+    document.getElementById('progressChart').innerHTML = '<p style="color:var(--color-text-secondary);text-align:center;padding:60px 0;font-size:.85rem">Sin datos para este ejercicio.<br><span style="font-size:.75rem">Necesitas al menos 2 sesiones registradas.</span></p>';
     document.getElementById('progressStats').innerHTML = '';
     document.getElementById('progressHistory').innerHTML = '';
     return;
@@ -143,8 +143,8 @@ export function renderProgressChart(db) {
   for (let i = 0; i <= ySteps; i++) {
     const v = minV + (range / ySteps) * i;
     const y = pad.t + cH - ((i / ySteps) * cH);
-    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--text2)" font-size="${fsAxis}" font-weight="500">${Math.round(v)}</text>`;
-    yLabels += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--color-text-secondary)" font-size="${fsAxis}" font-weight="500">${Math.round(v)}</text>`;
+    yLabels += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="var(--color-border-subtle)" stroke-width="0.5"/>`;
   }
 
   let xLabels = '';
@@ -157,10 +157,10 @@ export function renderProgressChart(db) {
         Math.round(k * (points.length - 1) / (maxX - 1))))];
   showX.forEach(i => {
     const d = points[i].date.slice(5).replace('-', '/');
-    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--text2)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
+    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--color-text-secondary)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
   });
 
-  const accentColor = hasKg ? 'var(--accent)' : 'var(--teal)';
+  const accentColor = hasKg ? 'var(--color-accent-text)' : 'var(--color-state-info)';
   const dots = coords.map((c, i) => {
     const isLast = i === coords.length - 1;
     return `<circle cx="${c.x}" cy="${c.y}" r="${isLast ? 4.5 : 3}" fill="${accentColor}" opacity="${isLast ? 1 : 0.6}"/>`;
@@ -172,7 +172,7 @@ export function renderProgressChart(db) {
     <path d="${area}" fill="url(#areaGrad)"/>
     <path d="${path}" fill="none" stroke="${accentColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${dots}
-    <text x="${pad.l}" y="12" fill="var(--text2)" font-size="${fsTitle}" font-weight="600">${metricLabel}</text>
+    <text x="${pad.l}" y="12" fill="var(--color-text-secondary)" font-size="${fsTitle}" font-weight="600">${metricLabel}</text>
   </svg>`;
 
   document.getElementById('progressChart').innerHTML = svg;
@@ -186,10 +186,10 @@ export function renderProgressChart(db) {
 
   document.getElementById('progressStats').innerHTML = [
     { label: 'PR', value: pr + metricUnit, color: accentColor },
-    { label: 'Progreso', value: (diff >= 0 ? '+' : '') + diff + metricUnit, color: diff >= 0 ? 'var(--green)' : 'var(--red)' },
-    { label: 'Cambio', value: (diff >= 0 ? '+' : '') + diffPct + '%', color: diff >= 0 ? 'var(--green)' : 'var(--red)' },
-    { label: 'Sesiones', value: totalSessions, color: 'var(--text2)' }
-  ].map(s => `<div style="flex:1;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:10px 8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.6rem;color:var(--text2);font-weight:600;text-transform:uppercase;margin-top:2px">${s.label}</div></div>`).join('');
+    { label: 'Progreso', value: (diff >= 0 ? '+' : '') + diff + metricUnit, color: diff >= 0 ? 'var(--color-state-success)' : 'var(--color-state-danger)' },
+    { label: 'Cambio', value: (diff >= 0 ? '+' : '') + diffPct + '%', color: diff >= 0 ? 'var(--color-state-success)' : 'var(--color-state-danger)' },
+    { label: 'Sesiones', value: totalSessions, color: 'var(--color-text-secondary)' }
+  ].map(s => `<div style="flex:1;background:var(--color-surface-1);border:.5px solid var(--color-border-subtle);border-radius:var(--radius-lg);padding:10px 8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.6rem;color:var(--color-text-secondary);font-weight:600;text-transform:uppercase;margin-top:2px">${s.label}</div></div>`).join('');
 
   // Historial: es una tabla —fecha, peso, reps, volumen— y en escritorio se lee
   // como tal, con cabecera y los números alineados a la derecha. Como lista de

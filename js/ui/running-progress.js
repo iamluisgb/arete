@@ -84,8 +84,8 @@ function renderPaceChart(logs, $paceChart) {
 
   $paceChart.innerHTML = `
     <svg class="run-pace-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <polyline points="${polyline}" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2" fill="var(--accent)" vector-effect="non-scaling-stroke"/>`).join('')}
+      <polyline points="${polyline}" fill="none" stroke="var(--color-accent-text)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2" fill="var(--color-accent-text)" vector-effect="non-scaling-stroke"/>`).join('')}
     </svg>
     <div class="run-pace-labels">
       <span>${formatPace(maxPace)} /km</span>
@@ -109,12 +109,12 @@ function renderStats(logs, $statsPanel) {
   const bestPace = withPace.length ? Math.min(...withPace.map(l => l.pace)) : 0;
 
   $statsPanel.innerHTML = `
-    <div class="run-stats-grid">
-      <div class="run-stat-card"><div class="run-stat-value">${totalKm.toFixed(1)}</div><div class="run-stat-label">Km totales</div></div>
-      <div class="run-stat-card"><div class="run-stat-value">${monthKm.toFixed(1)}</div><div class="run-stat-label">Km este mes</div></div>
-      <div class="run-stat-card"><div class="run-stat-value">${formatPace(avgPace)}</div><div class="run-stat-label">Ritmo medio</div></div>
-      <div class="run-stat-card"><div class="run-stat-value">${formatPace(bestPace)}</div><div class="run-stat-label">Mejor ritmo</div></div>
-      <div class="run-stat-card"><div class="run-stat-value">${logs.length}</div><div class="run-stat-label">Sesiones totales</div></div>
-      <div class="run-stat-card"><div class="run-stat-value">${monthLogs.length}</div><div class="run-stat-label">Sesiones este mes</div></div>
+    <div class="tiles run-stats-grid">
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Km totales</div><div class="tile-value run-stat-value">${totalKm.toFixed(1)}</div></div>
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Km este mes</div><div class="tile-value run-stat-value">${monthKm.toFixed(1)}</div></div>
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Ritmo medio</div><div class="tile-value run-stat-value">${formatPace(avgPace)}</div></div>
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Mejor ritmo</div><div class="tile-value run-stat-value">${formatPace(bestPace)}</div></div>
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Sesiones totales</div><div class="tile-value run-stat-value">${logs.length}</div></div>
+      <div class="tile run-stat-card"><div class="tile-label run-stat-label">Sesiones este mes</div><div class="tile-value run-stat-value">${monthLogs.length}</div></div>
     </div>`;
 }

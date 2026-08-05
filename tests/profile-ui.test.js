@@ -46,7 +46,7 @@ describe('radar', () => {
     const { profile } = await cargar();
     profile.renderProfile(freshDB());
     const svg = document.getElementById('profRadar');
-    expect(svg.querySelectorAll('polygon[fill="var(--accent-glow)"]')).toHaveLength(0);
+    expect(svg.querySelectorAll('polygon[fill="var(--color-accent-glow)"]')).toHaveLength(0);
     expect(svg.querySelectorAll('line')).toHaveLength(7);
     expect(svg.querySelectorAll('text')).toHaveLength(7);
   });
@@ -63,7 +63,7 @@ describe('radar', () => {
       ],
     });
     profile.renderProfile(db);
-    const poly = document.querySelector('#profRadar polygon[fill="var(--accent-glow)"]');
+    const poly = document.querySelector('#profRadar polygon[fill="var(--color-accent-glow)"]');
     expect(poly.getAttribute('points').split(' ')).toHaveLength(3);
     // y solo hay un punto por dominio medido
     expect(document.querySelectorAll('#profRadar circle')).toHaveLength(3);

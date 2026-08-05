@@ -3,7 +3,7 @@ import { ROMAN } from '../constants.js';
 import { getPrograms, getAllPhases } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { renderHistory } from './history.js';
-import { renderBodyForm, renderBodyHistory, calcProportions, calcCalories } from './body.js';
+import { renderBodyForm, renderBody } from './body.js';
 import { render1RMs } from './settings.js';
 import { initProgress } from './progress.js';
 import { populateSessions, exTargetText, requestStartSession } from './training.js';
@@ -26,7 +26,10 @@ export function updatePhaseDisplay(db) {
 
 /** Switch active section and render its content */
 export function switchTab(btn, db) {
-  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+  // nav-dimmed es el atenuado que pone Quirón mientras manda: si se navega a
+  // otro destino con el panel abierto, la pestaña que se enciende no puede
+  // quedarse a media luz.
+  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active', 'nav-dimmed'); b.removeAttribute('aria-current'); });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
   try { navigator.vibrate?.(10); } catch {}
@@ -37,7 +40,7 @@ export function switchTab(btn, db) {
   if (btn.dataset.sec === 'secDashboard') renderDashboard(db);
   if (btn.dataset.sec === 'secTrain') renderTrainMode(db);
   if (btn.dataset.sec === 'secProfile') renderProfile(db);
-  if (btn.dataset.sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
+  if (btn.dataset.sec === 'secBody') { renderBodyForm(db); renderBody(db); }
   if (btn.dataset.sec === 'secSettings') render1RMs(db);
 }
 
@@ -64,6 +67,18 @@ function renderTrainMode(db) {
   document.getElementById('secStrength')?.classList.toggle('active', mode === 'str');
   document.getElementById('secRunning')?.classList.toggle('active', mode === 'run');
 
+  // El contexto y las pestañas del modo viven ahora en la cabecera y en la
+  // navegación secundaria, fuera de los paneles: hay que enseñarlos y esconderlos
+  // a mano. Antes se ocultaban solos porque estaban dentro del panel, que es
+  // justo lo que los convertía en tres barras apiladas.
+  const enFuerza = mode === 'str';
+  document.getElementById('strCtx')?.toggleAttribute('hidden', !enFuerza);
+  document.getElementById('runCtx')?.toggleAttribute('hidden', enFuerza);
+  document.querySelector('.str-subnav')?.toggleAttribute('hidden', !enFuerza);
+  document.getElementById('runSubnav')?.toggleAttribute('hidden', enFuerza);
+  const sub = document.getElementById('trainSub');
+  if (sub) sub.textContent = enFuerza ? 'Fuerza' : 'Carrera';
+
   if (mode === 'run') { refreshRunning(db); return; }
   const panel = document.querySelector('.str-panel.active')?.id;
   if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }
@@ -79,9 +94,11 @@ export function switchTrainMode(mode, db) {
  *  implica que el modo es fuerza (lo usan "Iniciar sesión" y Quirón). */
 export function switchStrTab(tabName, db) {
   if (getTrainMode() !== 'str') switchTrainMode('str', db);
-  document.querySelectorAll('.str-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.str-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
   document.querySelectorAll('.str-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`.str-tab[data-str="${tabName}"]`)?.classList.add('active');
+  const tab = document.querySelector(`.str-tab[data-str="${tabName}"]`);
+  tab?.classList.add('active');
+  tab?.setAttribute('aria-selected', 'true');
   document.getElementById(tabName)?.classList.add('active');
   localStorage.setItem('areteLastStrTab', tabName);
   // Render content
@@ -127,7 +144,7 @@ function renderCustomSessions(db) {
         ).join('')}</div>
         <div class="str-plan-custom-actions">
           <button class="btn btn-outline btn-sm" data-del-session="${esc(s.id)}">Borrar</button>
-          <button class="btn str-plan-start-btn" data-start-session="${esc(sessionRef(s.id))}">Iniciar sesión</button>
+          <button class="btn btn--block str-plan-start-btn" data-start-session="${esc(sessionRef(s.id))}">Iniciar sesión</button>
         </div>
       </div>`).join('')}
       ${sessions.length > CUSTOM_VISIBLE ? `<button class="str-plan-custom-more" data-toggle-more>${expanded ? 'Ver menos' : `Ver todas (${sessions.length})`}</button>` : ''}
@@ -199,7 +216,7 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
         <div class="str-plan-ex-list">${exercises.map(ex =>
           `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
         ).join('')}</div>
-        <button class="btn str-plan-start-btn" data-plan-session="${esc(name)}" data-plan-phase="${phaseKey}">Iniciar sesión</button>
+        <button class="btn btn--block str-plan-start-btn" data-plan-session="${esc(name)}" data-plan-phase="${phaseKey}">Iniciar sesión</button>
       </div>`;
     }).join('')}`;
 
@@ -301,6 +318,6 @@ export function refreshActiveSection(db) {
   if (sec === 'secDashboard') renderDashboard(db);
   if (sec === 'secTrain') renderTrainMode(db);
   if (sec === 'secProfile') renderProfile(db);
-  if (sec === 'secBody') { renderBodyForm(db); renderBodyHistory(db); calcProportions(db); calcCalories(db); }
+  if (sec === 'secBody') { renderBodyForm(db); renderBody(db); }
   if (sec === 'secSettings') render1RMs(db);
 }

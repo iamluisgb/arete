@@ -345,7 +345,7 @@ function renderSessionOverview(db, sess, exercises) {
       }).join('')}</div>
       ${lastDate ? `<div class="so-last">Última vez: ${lastDate}</div>` : ''}
       ${draftInfo}
-      <button class="btn so-start">${btnText}</button>
+      <button class="btn btn--block so-start">${btnText}</button>
     </div>`;
 
   $sessionOverview.querySelector('.so-start').addEventListener('click', () => {
@@ -649,13 +649,13 @@ function renderSupersetCard(ex, i, prevEx, shouldPrefill) {
       const cpKg = pvKg ? ' prefilled' : '';
       const cpReps = pvReps ? ' prefilled' : '';
       return `<div style="display:flex;align-items:center;gap:6px;font-size:.8rem">
-        <span style="color:var(--text2);font-weight:600;min-width:60px;font-size:.7rem">${esc(subEx.name)}</span>
+        <span style="color:var(--color-text-secondary);font-weight:600;min-width:60px;font-size:.7rem">${esc(subEx.name)}</span>
         <input type="number" class="mini-input${cpKg}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="kg" step="0.5" placeholder="kg" inputmode="decimal" value="${pvKg}" style="width:55px" autocomplete="off">
-        <span style="color:var(--text3)">x</span>
+        <span style="color:var(--color-text-tertiary)">x</span>
         <input type="text" class="mini-input${cpReps}" data-ex="${i}" data-set="${s * exercises.length + subIdx}" data-field="reps" placeholder="${subEx.reps || '—'}" inputmode="numeric" value="${pvReps}" style="width:45px" autocomplete="off">
       </div>`;
     }).join('');
-    setsHtml.push(`<div style="margin-bottom:8px"><div style="font-size:.65rem;color:var(--text2);font-weight:600;margin-bottom:4px">Serie ${s + 1}</div>${setRows}</div>`);
+    setsHtml.push(`<div style="margin-bottom:8px"><div style="font-size:.65rem;color:var(--color-text-secondary);font-weight:600;margin-bottom:4px">Serie ${s + 1}</div>${setRows}</div>`);
   }
   return `<div class="ex-card">
     <div class="ex-mode-badge superset">Superserie</div>
@@ -1016,10 +1016,10 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
   // repetirlos en un overlay suelto después de guardar sobra.
   if (prs.length > 0 && !fromRunner) {
     $prList.innerHTML = prs.map(p =>
-      `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,85,255,.06);border-radius:var(--radius);margin-bottom:6px">
-        <div style="font-size:.75rem;font-weight:700;color:var(--accent);flex:1">${esc(p.exercise)}</div>
-        <div style="font-size:.7rem;color:var(--text3);text-decoration:line-through">${p.prevKg > 0 ? p.prevKg + 'kg' : '—'}</div>
-        <div style="font-size:.85rem;font-weight:800;color:var(--green)">${p.kg}kg</div>
+      `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,85,255,.06);border-radius:var(--radius-lg);margin-bottom:6px">
+        <div style="font-size:.75rem;font-weight:700;color:var(--color-accent-text);flex:1">${esc(p.exercise)}</div>
+        <div style="font-size:.7rem;color:var(--color-text-tertiary);text-decoration:line-through">${p.prevKg > 0 ? p.prevKg + 'kg' : '—'}</div>
+        <div style="font-size:.85rem;font-weight:800;color:var(--color-state-success)">${p.kg}kg</div>
       </div>`
     ).join('');
     $prCelebration.style.display = 'flex';
