@@ -182,6 +182,16 @@
 
 <div class="train-panel active" id="secStrength" aria-label="Fuerza">
   <div class="str-panel active" id="strTrain">
+    <!-- El orden del DOM es el orden de lectura y el de tabulación, y por eso
+         cambia aquí: manda QUÉ SESIÓN es (fecha y sesión), luego de dónde vienen
+         los datos cargados, y solo después la herramienta de descanso. El
+         cronómetro abría la pantalla siendo el elemento más prominente de una
+         vista en la que todavía no has empezado a entrenar. -->
+    <div class="row mb"><div><label>Fecha</label><input type="date" id="trainDate" autocomplete="off"></div><div><label>Sesión</label><select id="trainSession"></select></div></div>
+    <div id="prefillBanner">
+      <div id="prefillText"></div>
+      <button class="prefill-clear">✕ Empezar de cero</button>
+    </div>
     <div class="timer-bar mode-countdown active" id="timerBar">
       <div class="timer-mode-toggle">
         <button class="timer-mode active" data-mode="countdown">Descanso</button>
@@ -199,11 +209,6 @@
       <button class="timer-reset" id="timerResetBtn" aria-label="Reiniciar temporizador" title="Reiniciar temporizador">↩️</button>
     </div>
     <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime" role="timer" aria-live="off"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer" title="Parar timer">⏹</button></div>
-    <div id="prefillBanner">
-      <div id="prefillText"></div>
-      <button class="prefill-clear">✕ Empezar de cero</button>
-    </div>
-    <div class="row mb"><div><label>Fecha</label><input type="date" id="trainDate" autocomplete="off"></div><div><label>Sesión</label><select id="trainSession"></select></div></div>
     <div id="sessionOverview"></div>
     <div class="ex-dots" id="exerciseDots"></div>
     <div id="exerciseList"></div>
@@ -215,7 +220,7 @@
       <div class="save-bar-notes-body" id="notesBody" hidden>
         <textarea id="trainNotes" placeholder="Sensaciones, fatiga, ajustes..."></textarea>
       </div>
-      <button class="btn btn--block" type="button" id="saveWorkoutBtn">Guardar sesión</button>
+      <button class="btn btn--secondary btn--block" type="button" id="saveWorkoutBtn">Guardar sesión</button>
     </div>
   </div>
   <div class="str-panel" id="strHistory">
