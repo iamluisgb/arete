@@ -1,6 +1,6 @@
 # Auditoría de escritorio — Areté
 
-> **Estado: aplicado.** Todo el bloque de CSS (Q1–Q16) y los arreglos de JS J1, J2, J3, J7 y J10 están en `main`. Lo que queda abierto y por qué, en [§8](#8-qué-queda-abierto).
+> **Estado: aplicado.** Q1–Q16 y J1–J11 están en `main`. Lo que queda abierto —y lo que resultó no hacer falta— en [§8](#8-qué-queda-abierto).
 
 > Agosto 2026 · sobre `main` de `projects/arete` (rev. `7df3ff9`).
 > Complementa a [`auditoria-ux-2026-08.md`](auditoria-ux-2026-08.md), que audita el eje móvil. Aquí no se repiten sus hallazgos: el eje de este documento es **qué pasa cuando Areté se abre en un monitor**.
@@ -448,12 +448,20 @@ Aplicado en este pase: **Q1–Q16** (todo el bloque de CSS) y **J1, J2, J3, J7, 
 
 Pendiente, por orden de valor:
 
-| # | Qué | Por qué se dejó |
+| # | Qué | Estado |
 | --- | --- | --- |
-| **J4** | Maestro-detalle real en Historial: el día seleccionado pinta en el panel, no en un modal | El CSS ya pone calendario y lista lado a lado, que era el 80% del valor. Cerrar el modal requiere reescribir `history.js` + `calendar.js`. |
-| **J5** | Progreso: `<select>` de ejercicio → lista lateral navegable | Igual: la rejilla ya separa selector de gráfica; convertir el select en lista es trabajo de `progress.js`. |
-| **J6** | Atajos de teclado (`1`–`5`, `/`, `?`, `Espacio` en el runner) | `Escape` sí está (J1). El resto necesita guardas para no dispararse al escribir en un campo, y una hoja de ayuda o no se descubren. |
-| **J8/J9** | Historial corporal y de ejercicio como tabla | Cambia el render, no el layout. |
-| **J11** | "Toca" → "Pulsa" | Barrido de copy, transversal. |
+| **J4** | Maestro-detalle en Historial | **hecho** — el detalle se acopla a la derecha en ≥1024 y deja de ser modal (`aria-modal="false"`, para que el foco no quede encerrado en un panel que no lo es). La fila abierta se marca. |
+| **J5** | Progreso: `<select>` → lista lateral | **hecho** — el `<select>` sigue siendo la fuente de verdad y se oculta en ≥1024; la lista lo refleja y le delega el cambio. |
+| **J6** | Atajos de teclado | **hecho** — `1`–`5`, `/`, `Espacio` en el runner, `←`/`→` en el calendario, `?` para la hoja. Solo con `pointer:fine`, nunca con el foco en un campo ni con un diálogo abierto, y con una fila en Ajustes porque un atajo que no se descubre no existe. |
+| **J8** | Historial corporal como tabla | **hecho** — a ancho completo bajo las dos columnas, con sombras de scroll donde queda tabla por ver. |
+| **J9** | Historial de ejercicio como tabla | **hecho** — cabecera y números tabulares alineados a la derecha. |
+| **J11** | Vocabulario táctil | **hecho** — solo había un literal real ("Toca el engranaje"). "Toca repetirlo" y "¿Qué toca hoy?" no son vocabulario de dedo. |
+
+Queda fuera de este documento, y sigue abierto:
+
+- **La copia de la PWA en `arete-android/www` es del 28 de julio** y no tiene el radar de los 7 dominios, ni running reinterpretado, ni nada de escritorio. `npm run sync` copia lo que haya en `www/`, así que el problema se repetirá: lo que hace falta es traerlo desde el `HEAD` de la PWA, como hace `build-pages.mjs` con `dist/`.
+- **La tabla de umbrales femenina** (`mejoras_arete.md` #7). Necesita datos normativos, no código.
+- **El parser de `.FIT`.** Garmin exporta eso por defecto y hoy se rechaza pidiendo GPX, justo en la vía de entrada principal.
+- **`saveDB` serializa la base entera en cada escritura**, síncrono y en el hilo de UI, una vez por serie.
 
 Y un hallazgo que sigue vivo de la auditoría de móvil y que este pase **empeora ligeramente**: al agrandar el radar y las gráficas, `--text3` (~2,0:1 de contraste) gana superficie. Conviene cerrarlo antes de dar por buena la fase de escritorio.

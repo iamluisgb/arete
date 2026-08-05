@@ -20,7 +20,14 @@ function chartWidth() {
 export function initProgress(db) {
   _chartCache = { name: null, count: 0, w: 0 };
   if (!_bound) {
-    document.getElementById('progressExercise').addEventListener('change', () => renderProgressChart(db));
+    const $sel = document.getElementById('progressExercise');
+    $sel.addEventListener('change', () => { markExerciseActive($sel.value); renderProgressChart(db); });
+    document.getElementById('progressExList')?.addEventListener('click', e => {
+      const btn = e.target.closest('.progress-ex');
+      if (!btn) return;
+      $sel.value = btn.dataset.ex;
+      $sel.dispatchEvent(new Event('change'));
+    });
     // Al cambiar el ancho (rotar, redimensionar la ventana, entrar en el
     // breakpoint de dos columnas) hay que rehacer el viewBox, no reescalarlo.
     if (typeof ResizeObserver !== 'undefined') {
@@ -40,7 +47,29 @@ export function initProgress(db) {
   const prev = sel.value;
   sel.innerHTML = sorted.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
   if (prev && sorted.includes(prev)) sel.value = prev;
+  renderExerciseList(sorted, sel.value);
   renderProgressChart(db);
+}
+
+/**
+ * La misma lista de ejercicios que el <select>, pero visible entera. El select
+ * sigue siendo la fuente de verdad: aquí solo se refleja y se le delega el
+ * cambio, así que nada más del módulo tiene que enterarse.
+ */
+function renderExerciseList(names, active) {
+  const $list = document.getElementById('progressExList');
+  if (!$list) return;
+  $list.innerHTML = names.map(n => `
+    <button type="button" class="progress-ex${n === active ? ' active' : ''}"
+            role="option" aria-selected="${n === active}" data-ex="${esc(n)}">${esc(n)}</button>`).join('');
+}
+
+function markExerciseActive(name) {
+  document.querySelectorAll('#progressExList .progress-ex').forEach(b => {
+    const on = b.dataset.ex === name;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', String(on));
+  });
 }
 
 /** Render SVG chart + stats + history for the selected exercise */
@@ -162,19 +191,27 @@ export function renderProgressChart(db) {
     { label: 'Sesiones', value: totalSessions, color: 'var(--text2)' }
   ].map(s => `<div style="flex:1;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:10px 8px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:${s.color}">${s.value}</div><div style="font-size:.6rem;color:var(--text2);font-weight:600;text-transform:uppercase;margin-top:2px">${s.label}</div></div>`).join('');
 
-  // History list
-  document.getElementById('progressHistory').innerHTML = `<div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:8px">Historial de ${esc(name)}</div>` +
-    points.slice().reverse().map(p => {
-      const isPR = p[metric] === pr;
-      const mainVal = hasKg ? `${p.maxKg} kg` : `${p.maxReps} reps`;
-      const subVal = hasKg
-        ? `<div style="font-size:.65rem;color:var(--text2)">${p.maxReps} reps</div><div style="font-size:.65rem;color:var(--text2)">${p.totalVol > 1000 ? (p.totalVol / 1000).toFixed(1) + 't' : p.totalVol + 'kg'} vol</div>`
-        : '';
-      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border)">
-        <div style="font-size:.7rem;color:var(--text2);min-width:55px">${p.date.slice(5).replace('-', '/')}</div>
-        <div style="font-size:.82rem;font-weight:700;color:var(--text);flex:1">${mainVal}</div>
-        ${subVal}
-        ${isPR ? '<div style="font-size:.55rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700">PR</div>' : ''}
-      </div>`;
-    }).join('');
+  // Historial: es una tabla —fecha, peso, reps, volumen— y en escritorio se lee
+  // como tal, con cabecera y los números alineados a la derecha. Como lista de
+  // pares etiqueta-valor obligaba a releer qué era cada número en cada fila.
+  const filas = points.slice().reverse().map(p => {
+    const isPR = p[metric] === pr;
+    const vol = p.totalVol > 1000 ? (p.totalVol / 1000).toFixed(1) + 't' : Math.round(p.totalVol) + 'kg';
+    return `<tr${isPR ? ' class="is-pr"' : ''}>
+      <td class="ph-date">${p.date.slice(5).replace('-', '/')}</td>
+      <td class="ph-num"><b>${hasKg ? p.maxKg + ' kg' : p.maxReps + ' reps'}</b>${isPR ? ' <span class="ph-pr">PR</span>' : ''}</td>
+      ${hasKg ? `<td class="ph-num">${p.maxReps}</td><td class="ph-num">${vol}</td>` : ''}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('progressHistory').innerHTML = `
+    <table class="progress-history">
+      <caption>Historial de ${esc(name)}</caption>
+      <thead><tr>
+        <th scope="col">Fecha</th>
+        <th scope="col" class="ph-num">${hasKg ? 'Peso máx' : 'Reps máx'}</th>
+        ${hasKg ? '<th scope="col" class="ph-num">Reps</th><th scope="col" class="ph-num">Volumen</th>' : ''}
+      </tr></thead>
+      <tbody>${filas}</tbody>
+    </table>`;
 }

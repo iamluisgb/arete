@@ -1,6 +1,6 @@
 import { saveDB, markDeleted } from '../data.js';
 import { getBodyMeasures } from '../programs.js';
-import { formatDate, safeNum, confirmDanger } from '../utils.js';
+import { formatDate, safeNum, confirmDanger, esc } from '../utils.js';
 import { DEFAULT_HEIGHT, DEFAULT_AGE } from '../constants.js';
 import { toast } from './toast.js';
 
@@ -98,7 +98,7 @@ export function initBody(db) {
   $bodyHistory.addEventListener('click', (e) => {
     const btn = e.target.closest('.hi-edit-btn');
     if (!btn) return;
-    const item = btn.closest('.history-item[data-body-id]');
+    const item = btn.closest('[data-body-id]');
     if (item) startBodyEdit(parseInt(item.dataset.bodyId), db);
   });
   $bodyEditBanner.addEventListener('click', (e) => {
@@ -141,12 +141,34 @@ export function deleteBodyLog(db) {
 /** Render the last 10 body measurement logs */
 export function renderBodyHistory(db) {
   const logs = [...db.bodyLogs].reverse().slice(0, 10);
-  $bodyHistory.innerHTML = logs.length === 0
-    ? '<p style="color:var(--text2);font-size:.8rem;text-align:center;padding:20px 0">Sin registros</p>'
-    : logs.map(l => {
-      const vals = getBodyMeasures().filter(m => l[m.id]).map(m => `${m.label}: ${l[m.id]}`).join(' · ');
-      return `<div class="history-item" data-body-id="${l.id}"><div class="hi-date">${formatDate(l.date)}</div><div class="hi-summary">${vals}</div><button class="hi-edit-btn">Editar</button></div>`;
-    }).join('');
+  if (logs.length === 0) {
+    $bodyHistory.innerHTML = `<div class="empty-state">
+        <p><b>Sin registros todavía.</b></p>
+        <p class="empty-state-sub">Guarda tus primeras medidas y aquí verás cómo evolucionan.</p>
+      </div>`;
+    return;
+  }
+
+  // Tabla, no lista de pares etiqueta-valor: esta pantalla existe para ver la
+  // evolución, y una evolución se lee comparando columnas. Solo se muestran las
+  // medidas que alguien ha registrado alguna vez — con las once fijas, la mitad
+  // de la tabla serían guiones.
+  const cols = getBodyMeasures().filter(m => logs.some(l => l[m.id] != null));
+  const head = cols.map(m => `<th scope="col" class="bh-num">${esc(m.label)}</th>`).join('');
+  const filas = logs.map(l => `
+    <tr data-body-id="${l.id}">
+      <th scope="row" class="bh-date">${formatDate(l.date)}</th>
+      ${cols.map(m => `<td class="bh-num">${l[m.id] != null ? l[m.id] : '—'}</td>`).join('')}
+      <td class="bh-action"><button type="button" class="hi-edit-btn">Editar</button></td>
+    </tr>`).join('');
+
+  $bodyHistory.innerHTML = `<div class="table-scroll">
+      <table class="body-history">
+        <caption class="sr-only">Historial de medidas corporales</caption>
+        <thead><tr><th scope="col">Fecha</th>${head}<th scope="col"><span class="sr-only">Acciones</span></th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
 }
 
 function getLatestBodyData(db) {

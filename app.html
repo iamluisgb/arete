@@ -180,8 +180,13 @@
   </div>
   <div class="str-panel" id="strProgress">
     <div class="progress-select-wrap">
-      <label class="progress-label">Ejercicio</label>
+      <label class="progress-label" for="progressExercise">Ejercicio</label>
       <select id="progressExercise"></select>
+      <!-- En escritorio el <select> se sustituye por esta lista: con sitio de
+           sobra, esconder los ejercicios detrás de un desplegable obliga a
+           abrirlo para saber cuáles hay. El <select> sigue siendo la fuente de
+           verdad y quien manda en el render. -->
+      <div class="progress-ex-list" id="progressExList" role="listbox" aria-label="Ejercicios"></div>
     </div>
     <div id="progressChart"></div>
     <div id="progressStats"></div>
@@ -352,6 +357,10 @@
     <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></div></div>
     <div class="sec-title sec-title-accent">Calorías Estimadas</div>
     <div id="caloriesPanel"></div>
+  </div>
+  <!-- El historial sale de la segunda columna: es una tabla, y una tabla vale
+       más cuantas más columnas se vean a la vez. -->
+  <div class="body-hist-full">
     <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
   </div>
 </div>
@@ -509,6 +518,17 @@
       <span class="sc-row-chevron">›</span>
     </button>
     <input type="file" id="importFile" accept=".json">
+  </div>
+
+  <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
+  <div class="settings-card kbd-only">
+    <button class="sc-row sc-row-action" id="shortcutsBtn">
+      <span class="sc-row-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      </span>
+      <span>Atajos de teclado</span>
+      <span class="sc-row-chevron">›</span>
+    </button>
   </div>
 
   <div class="settings-card settings-card-danger">

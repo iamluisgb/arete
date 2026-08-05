@@ -149,8 +149,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .history-item .hi-session{font-size:var(--fs-base);color:var(--text2);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--text);margin-top:6px;line-height:1.4}
 .history-item .hi-plan{font-size:.6rem;color:var(--text2);background:var(--surface2,rgba(128,128,128,.12));padding:1px 6px;border-radius:6px;font-weight:600;white-space:nowrap}
-.history-item .hi-edit-btn{background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;margin-top:var(--sp-2);transition:opacity .2s}
-.history-item .hi-edit-btn:active{opacity:.7}
+.hi-edit-btn{background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;margin-top:var(--sp-2);transition:opacity .2s}
+.hi-edit-btn:active{opacity:.7}
 .load-more-btn{display:block;width:100%;background:var(--surface2);border:none;color:var(--text2);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;border-radius:var(--radius);cursor:pointer;margin-top:var(--sp-1);transition:background .2s}.load-more-btn:active{background:var(--border)}
 .measure-row{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)}
 .measure-row label{flex:1;margin:0;font-size:var(--fs-base);font-weight:500}
@@ -1352,10 +1352,16 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 @media(min-width:1024px){
 #strProgress.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:var(--sp-4) var(--sp-6);align-items:start}
 .progress-select-wrap{grid-column:1}
-#progressHistory{grid-column:1}
+/* La tabla del historial se va a la columna ancha: cuantas más columnas se
+   vean, más vale. */
+#progressHistory{grid-column:2}
 #progressChart,#progressStats{grid-column:2}
 #progressChart{grid-row:1}
 #progressStats{grid-row:2}
+#progressHistory{grid-row:3}
+/* La lista de ejercicios ocupa el alto de las tres, y así no arrastra a la
+   columna derecha cuando hay muchos. */
+.progress-select-wrap{grid-row:1/span 3}
 }
 
 /* ── Ajustes: ocho grupos independientes, dos columnas ──── */
@@ -1374,6 +1380,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 #secBody.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 var(--sp-8);align-items:start}
 #secBody>*{grid-column:1}
 #secBody>.body-col2{grid-column:2;grid-row:1/span 99}
+#secBody>.body-hist-full{grid-column:1/-1;grid-row:100}
 }
 
 /* ── Formularios: un campo por línea, sin estirar ───────── */
@@ -1496,3 +1503,105 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .settings-group-title{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;margin-bottom:var(--sp-3);color:var(--text)}
 /* Lo destructivo, al final y separado de lo demás. */
 .settings-card-danger{margin-top:var(--sp-6)}
+
+/* ── Historial en escritorio: panel, no modal (J4) ────────
+   Tapar el 100% de un monitor de 1500px para enseñar el detalle de una sesión
+   —cuando el calendario y la lista están justo detrás y siguen siendo útiles—
+   es el antipatrón clásico. A partir de 1024 el detalle se acopla a la derecha
+   y el maestro sigue vivo: se puede recorrer la lista con el detalle abierto.
+   Deja de ser un diálogo modal, y `showDetail` lo dice en el aria-modal para
+   que el foco no quede encerrado en él. */
+@media(min-width:1024px){
+.detail-modal,.run-detail-modal{
+  background:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  justify-content:flex-end;align-items:stretch;
+  /* El scrim deja de existir, así que el overlay no puede comerse los clics
+     de lo que hay debajo: solo el panel los recibe. */
+  pointer-events:none;
+}
+.detail-modal .modal,.run-detail-modal .modal{
+  pointer-events:auto;
+  max-width:420px!important;width:420px;
+  max-height:none!important;height:100dvh;
+  margin:0!important;border-radius:0!important;
+  box-shadow:-12px 0 40px rgba(0,0,0,.12);
+  animation:slideInRight .22s ease-out;
+  /* Sitio para la barra de acciones, que se acopla al pie del panel. */
+  padding-bottom:76px;
+}
+:root.dark .detail-modal .modal,:root.dark .run-detail-modal .modal{box-shadow:-12px 0 40px rgba(0,0,0,.5)}
+.detail-btn-bar{
+  left:auto;right:0;transform:none;
+  width:420px;max-width:420px;
+  border-radius:0;
+  box-shadow:none;border-top:.5px solid var(--border);
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+}
+/* Cuatro acciones en 420px: el icono de compartir sobra cuando la etiqueta ya
+   lo dice, y con la escala de escritorio "Compartir" se recortaba. */
+.detail-btn-bar .btn{padding:10px 6px;font-size:var(--fs-sm);gap:4px}
+.detail-btn-bar .detail-share-btn .material-symbols-outlined{display:none}
+}
+@keyframes slideInRight{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.detail-modal .modal,.run-detail-modal .modal{animation:none}}
+
+/* La fila cuyo detalle está abierto en el panel. */
+.history-item.selected,.run-history-card.selected{background:var(--surface-high,var(--surface2));outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ── Tablas de historial (J8, J9) ─────────────────────────
+   Fecha, peso, reps, volumen son columnas. Como lista de pares etiqueta-valor
+   había que releer qué era cada número en cada fila; en tabla la cabecera lo
+   dice una vez y los números se comparan en vertical. */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;
+  /* Sombras que solo aparecen del lado por el que queda tabla por ver. Con
+     background-attachment local las dos primeras capas viajan con el scroll y
+     tapan a las otras dos cuando ya no hay nada más hacia ese lado. */
+  background:
+    linear-gradient(to right, var(--bg) 30%, transparent) left / 28px 100% no-repeat,
+    linear-gradient(to left, var(--bg) 30%, transparent) right / 28px 100% no-repeat,
+    radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.10), transparent) left / 12px 100% no-repeat,
+    radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.10), transparent) right / 12px 100% no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+.progress-history,.body-history{width:100%;border-collapse:collapse;font-size:var(--fs-base)}
+.progress-history caption{text-align:left;font-size:var(--fs-sm);font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding-bottom:var(--sp-2)}
+.progress-history th,.body-history th{font-size:var(--fs-xs);font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.progress-history td,.body-history td{padding:8px;border-bottom:.5px solid var(--border);white-space:nowrap}
+.progress-history tbody tr:last-child td,.body-history tbody tr:last-child td{border-bottom:none}
+/* Los números, a la derecha y con cifras de ancho fijo: así se comparan de un
+   vistazo en vez de leerse uno a uno. */
+.ph-num,.bh-num{text-align:right;font-variant-numeric:tabular-nums}
+/* Con el elemento delante: `.progress-history th` es (0,1,1) y le ganaba a la
+   clase suelta, así que las cabeceras quedaban a la izquierda de sus números. */
+.progress-history th.ph-num,.body-history th.bh-num{text-align:right}
+.ph-date,.bh-date{color:var(--text2);font-weight:500}
+.body-history .bh-date{text-align:left;font-size:var(--fs-base);text-transform:none;letter-spacing:0;color:var(--text2);border-bottom:.5px solid var(--border);padding:8px}
+.ph-pr{font-size:var(--fs-2xs);background:var(--accent);color:#fff;padding:1px 6px;border-radius:6px;font-weight:700;vertical-align:1px}
+.progress-history tr.is-pr td{background:var(--accent-glow)}
+.bh-action{text-align:right}
+.bh-action .hi-edit-btn{margin-top:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ── Progreso: lista de ejercicios en vez de desplegable (J5) ── */
+.progress-ex-list{display:none}
+@media(min-width:1024px){
+.progress-select-wrap .progress-label,.progress-select-wrap select{display:none}
+.progress-ex-list{display:flex;flex-direction:column;gap:2px}
+.progress-ex{background:none;border:none;border-radius:10px;padding:9px 12px;text-align:left;font-family:var(--font);font-size:var(--fs-md);font-weight:600;color:var(--text2);cursor:pointer;transition:background .15s,color .15s}
+.progress-ex.active{background:var(--accent);color:#fff}
+}
+@media(hover:hover) and (pointer:fine){
+.progress-ex:hover:not(.active){background:var(--surface2);color:var(--text)}
+}
+
+/* ── Atajos de teclado (J6) ───────────────────────────────
+   Un atajo que no se descubre no existe: de ahí la hoja con `?` y la fila en
+   Ajustes, que solo aparece donde hay teclado físico. */
+.kbd-only{display:none}
+@media(pointer:fine){.kbd-only{display:block}}
+.shortcut-list{display:flex;flex-direction:column;gap:2px;margin:var(--sp-3) 0 var(--sp-4)}
+.shortcut-row{display:flex;align-items:center;gap:var(--sp-3);padding:8px 0;border-bottom:.5px solid var(--border)}
+.shortcut-row:last-child{border-bottom:none}
+.shortcut-row dt{flex:0 0 96px}
+.shortcut-row dd{flex:1;font-size:var(--fs-md);color:var(--text2)}
+.shortcut-list kbd{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-sm);font-weight:600;background:var(--surface2);color:var(--text);border-radius:6px;padding:3px 8px;white-space:nowrap}

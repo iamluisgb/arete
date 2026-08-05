@@ -18,6 +18,7 @@ import { initRunning } from './ui/running.js';
 import { renderDashboard } from './ui/dashboard.js';
 import { initProfile } from './ui/profile.js';
 import { initQuiron } from './ui/quiron.js';
+import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
@@ -293,6 +294,8 @@ function bindEvents() {
   initBody(db);
   initRunning(db);
   initProfile(db);
+  initShortcuts(db, { switchTab });
+  document.getElementById('shortcutsBtn')?.addEventListener('click', toggleShortcutSheet);
   // Quirón puede crear/editar planes: al aplicar o deshacer, refrescar la UI que
   // depende del programa activo (selector, fase, sesiones, sección visible, lista custom).
   initQuiron(db, {

@@ -10,6 +10,7 @@ import { HRMonitor } from './hr-monitor.js';
 import { canTrackRuns } from '../platform.js';
 import { computeProfile, ROMAN as ROMAN_LEVEL } from '../domains.js';
 import { parseActivity, findDuplicate, readFile, ImportError } from './run-import.js';
+import { setDialogModality } from './history.js';
 import { ensureLeaflet } from '../leaflet-loader.js';
 import { renderRunHistory as _renderRunHistory } from './running-history.js';
 import { openShareEditor } from './share-editor.js';
@@ -1839,6 +1840,7 @@ export async function openRunDetail(id, db) {
   document.getElementById('runDetailNotes').textContent = log.notes || '';
   document.getElementById('runDetailNotes').style.display = log.notes ? '' : 'none';
 
+  setDialogModality(modal);
   modal.classList.add('open');
 }
 
@@ -1875,7 +1877,7 @@ function saveGoal(db) {
 function renderGoalWidget(db) {
   const goal = db.runningGoal || {};
   if (!goal.enabled || !goal.target) {
-    $goalTarget.textContent = 'Toca el engranaje para definir tu objetivo';
+    $goalTarget.textContent = 'Define tu objetivo desde el engranaje';
     $goalCurrent.textContent = '—';
     $goalUnit.textContent = '';
     $goalSessions.textContent = '';

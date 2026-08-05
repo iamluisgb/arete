@@ -118,6 +118,27 @@ function loadMore() {
   }
 }
 
+/** Marca en la lista cuál es la sesión que está abierta en el panel. Sin esto
+ *  el maestro-detalle no se lee como tal: el detalle aparece al lado sin decir
+ *  de cuál de las veinte filas ha salido. */
+function markSelected(id) {
+  document.querySelectorAll('#historyList .history-item').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.id) === id);
+  });
+}
+
+/**
+ * En escritorio el detalle es un panel acoplado, no un diálogo modal: el
+ * calendario y la lista siguen a la vista y siguen siendo utilizables. Decirlo
+ * en `aria-modal` no es cosmética — el trap de foco de `app.js` se aplica por
+ * ese atributo, y encerrar el foco en un panel no modal deja al usuario sin
+ * poder volver a la lista con el teclado.
+ */
+export function setDialogModality(el) {
+  const acoplado = matchMedia('(min-width:1024px)').matches;
+  el.setAttribute('aria-modal', acoplado ? 'false' : 'true');
+}
+
 /** Open the workout detail modal for a given workout ID */
 export function showDetail(id, db) {
   detailWorkoutId = id;
@@ -164,7 +185,10 @@ export function showDetail(id, db) {
 
   document.querySelectorAll('.card-brand,.card-url').forEach(el => el.style.fontSize = fs(.68));
 
-  document.getElementById('detailModal').classList.add('open');
+  const modal = document.getElementById('detailModal');
+  setDialogModality(modal);
+  modal.classList.add('open');
+  markSelected(id);
   const bb = document.getElementById('detailBtnBar'); bb.style.display = 'flex';
   const dbtn = document.getElementById('deleteBtn');
   dbtn.dataset.confirm = 'false'; dbtn.textContent = 'Borrar'; dbtn.style.width = '70px';
@@ -178,6 +202,7 @@ export function shareCard(db) {
 export function closeDetailModal() {
   document.getElementById('detailModal').classList.remove('open');
   document.getElementById('detailBtnBar').style.display = 'none';
+  markSelected(null);
 }
 
 export function getDetailWorkout(db) {
