@@ -1903,8 +1903,12 @@ function renderGoalWidget(db) {
   $goalTarget.textContent = `Objetivo: ${goal.target} ${isKm ? 'km' : 'sesiones'}`;
   $goalSessions.textContent = `${weekLogs.length} sesiones esta semana`;
 
-  // Color based on progress
-  const color = pct >= 1 ? '#34c759' : 'var(--color-accent-text)';
+  // El arco es el DOMINIO, no el acento de marca. En la pantalla de carrera, un
+  // arco rojo dice "fuerza": --color-domain-running (cian) es el token que
+  // existe justamente para esto (§3.2). Y el verde de "objetivo cumplido" era
+  // un #34c759 escrito a mano — el único literal de color que quedaba vivo
+  // fuera de :root, y encima en JS, donde no lo ve ninguna auditoría del CSS.
+  const color = pct >= 1 ? 'var(--color-state-success)' : 'var(--color-domain-running)';
   $goalArc.setAttribute('stroke', color);
 
   // Plan session pills

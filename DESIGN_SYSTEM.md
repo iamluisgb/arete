@@ -480,7 +480,7 @@ scroll que solo aparecen del lado por el que queda tabla por ver.
 Un solo `<nav>` con cinco destinos. Por debajo de 1024 es la barra inferior; por encima, el rail
 lateral. El HTML no cambia entre los dos.
 
-**El rail se pliega** (§7.3): 232px expandido, 64px en modo icono. En modo icono la etiqueta pasa a
+**El rail se pliega** (§7.3b): 232px expandido, 64px en modo icono. En modo icono la etiqueta pasa a
 un clip de lector de pantalla y el nombre del destino pasa a `title`; sin eso, el rail plegado son
 cinco pictogramas a adivinar. El estado se recuerda en `localStorage` y el atajo es `N`.
 
@@ -608,7 +608,83 @@ el modo como **estado persistente**: `areteTrainMode` se guarda, y `switchStrTab
 fuerza porque es lo que necesitan "Iniciar sesión" y Quirón al programar una sesión. Con ocho
 destinos, "llévame a entrenar fuerza" deja de tener un sitio al que llevarte.
 
-### 7.3 El rail plegable — *implementado*
+### 7.3 Qué manda en Entrenar · Actividad — *implementado*
+
+La §7.2 arregló la **navegación** de Entrenar y dio por buena la pantalla. No lo estaba: quitar
+tres barras dejó una rejilla de tres carriles que **repartían** el ancho en vez de jerarquizarlo,
+y ninguno tenía con qué llenarlo. Un carril de navegación de 280px vacío desde "Plan" hacia
+abajo, una columna central que se cortaba tras Fecha/Sesión, y una tarjeta de sesión de 560
+flotando junto a 500 de nada. Llenar el ancho no es usarlo, y repartirlo en tres huecos es peor
+que tener uno.
+
+**Actividad tiene dos estados y no comparten jerarquía. Esta es la decisión:**
+
+| | **Antes de empezar** | **Durante el registro** |
+| --- | --- | --- |
+| Manda | **La sesión de hoy** | **La lista de ejercicios** |
+| La pregunta | ¿entreno esto o cambio de sesión? | ¿qué levanto y cuánto levanté la última vez? |
+| Forma | Una columna centrada de `--measure-panel` | Rejilla `auto-fill` de tarjetas |
+| Se ve | Fecha · Sesión · tarjeta de sesión · **una** acción | tira de contexto · rejilla · dos acciones |
+| **No** se ve | el cronómetro, los puntos, los campos, guardar | — |
+
+**Antes de empezar no aparece nada más.** Ni el cronómetro de descanso, ni los campos, ni el
+botón de guardar. La pantalla hace **una** pregunta y ofrece **una** salida ("Empezar entreno").
+No se reparte en columnas porque no hay dos cosas que poner: una sola columna centrada es una
+composición; dos columnas de las que una está vacía es un hueco.
+
+**Durante el registro, la densidad la dan las tarjetas de ejercicio, no los carriles.** Pasan a
+una rejilla `repeat(auto-fill,minmax(400px,1fr))` con tope de `--measure-panel` por tarjeta: a
+1440 son dos por fila y la sesión entera cabe casi sin scroll. Es la §2.1 —el escritorio gana
+densidad, no tamaño— aplicada donde más se notaba: la tarjeta no crece, crece su número por fila.
+El resto (fecha, sesión, de dónde vienen los datos, el descanso) es una **tira de contexto** de
+bloques a ancho completo encima, no una columna propia.
+
+**Dónde vive el cronómetro de descanso, y por qué no donde estaba.** Un temporizador de descanso
+solo sirve mientras entrenas. Estaba abriendo la pantalla: tarjeta de cristal propia, arriba del
+todo, con el play en el rojo de la marca — el elemento más pesado de una vista en la que todavía
+no has empezado. Ahora entra **después** de fecha, sesión y del aviso de precarga, en el DOM y por
+tanto también en tabulación, y **deja de ser una tarjeta**: es una fila de controles sobre el
+lienzo, sin fondo ni cristal.
+
+> **Lo que no se hizo, y por qué.** El encargo pedía sacarlo del todo y dejarlo solo dentro del
+> runner. El runner ya tiene su propio descanso por serie (`restForExercise`), así que la idea es
+> buena — pero `#timerBar` es el descanso **manual**, el de quien registra a mano sin entrar al
+> runner, tiene tests propios (`training-timers.test.js`) y borrarlo es cambiar comportamiento,
+> no presentación. Se ha degradado, no eliminado. Si algún día se decide que registrar a mano sin
+> runner no es un caso a sostener, esto se borra en una línea.
+
+**Aritmética que descartó la primera versión.** El crono iba a sentarse al lado de los dos campos,
+en la misma línea. No cabe: su contenido irreducible son ~535px (modo + tres presets + display +
+play) y junto a un formulario de 520 pide 1.087 en una columna que a 1440 son 915. Con menos, se
+comía el `<select>` de Sesión. Va en su propia línea.
+
+**El presupuesto del acento, de nueve usos a uno.** En una sola pantalla había: banner rojo sobre
+rosa, botón primario, punto de paginación, círculo de serie en curso (×5), catorce campos de
+fondo rosado, "Guardar sesión" en rojo, el verde de "Anterior", y el logo. Queda **"Empezar
+sesión"**. Lo demás se dice con superficie, peso y tipografía:
+
+| Qué | Era | Es | Por qué |
+| --- | --- | --- | --- |
+| "Guardar sesión" | relleno rojo a ancho completo | `--secondary`, ancho automático | La primaria es "Empezar sesión" |
+| Play del descanso | disco rojo; rojo de estado al correr | superficie 2 → tinta sólida al correr | Arrancar un descanso no es la acción primaria de nada |
+| Serie en curso (`S1`) | anillo y texto rojos | tinta, 15,39:1 / 14,42:1 | "Aquí vas" no es una acción |
+| Campos precargados | fondo `--color-accent-wash` | cifra en secundario + trazo discontinuo | "Es una propuesta", no "hay un error" |
+| "Anterior: 100×5" | verde de éxito | tinta | Lo que hiciste no es ni bueno ni malo: es contra lo que comparas |
+| Banner de precarga | rojo sobre rosa con borde | superficie 2, texto secundario | Es información neutra, no una alerta |
+
+**Los puntos de paginación no se dibujan en escritorio.** Son un *scroll spy* de una lista
+vertical. Con las tarjetas en rejilla de dos columnas el recorrido deja de ser lineal y un
+indicador lineal no puede decir dónde estás; además flotaban arriba a la derecha sin nada a lo que
+anclarse. En móvil, donde la lista sí es una columna, siguen.
+
+**La composición se ata a la rejilla.** `#secTrain.active` no fijaba `align-content`, así que las
+filas se estiraban y el arranque de cada columna dejaba de coincidir por unos pocos píxeles — que
+es exactamente lo que hace que una pantalla se lea descuidada sin que sepas por qué. Con
+`align-content:start`, el segmentado Fuerza/Carrera y el primer campo arrancan los dos en la misma
+`y`, medido en el navegador y no a ojo. Y la columna de navegación secundaria baja de 200 a 168px:
+son cuatro palabras cortas, no un tercio de la pantalla.
+
+### 7.3b El rail plegable — *implementado*
 
 Es sistema, no arquitectura de pantalla, así que se aplica ya. 232px expandido, 64px en modo icono,
 estado en `localStorage`, atajo `N`, transición sujeta a `prefers-reduced-motion` y `title` en cada
@@ -622,6 +698,11 @@ Dos decisiones dentro de la decisión:
 - **El atajo es una letra, no un corchete.** `[` y `]` son lo convencional, pero en el teclado
   español piden AltGr y dejan de ser un atajo. `N`, de navegación, está libre y se teclea.
 - **El botón va arriba del rail, no abajo**, porque el pie del rail es de Quirón.
+- **Y es un control, no un destino.** Empezó siendo el primer ítem de la lista, con la misma caja,
+  el mismo alto y la misma etiqueta que "Hoy" o "Entrenar": competía con los destinos por la
+  mirada antes de que empezara la navegación de verdad. Es un cuadrado de 44 alineado al borde del
+  rail, con la etiqueta solo para el lector de pantalla y el nombre en `title`. Se lee como el asa
+  del panel, que es lo que es.
 
 ---
 
@@ -707,6 +788,57 @@ frente a los del inventario de partida:
 | `.btn--block` | (implícito en los 66 botones) | **9** |
 | Reglas en la hoja | 1.281 | 1.349, repartidas en 6 capas |
 
+### 9.2b El barrido: el mismo fallo en seis pantallas más
+
+El fallo de Entrenar era de **clase**, no de vista. Barridas las otras ocho a 1440 buscando lo
+mismo, esto es lo que había y lo que se hizo:
+
+| Pantalla | Qué se encontró | Qué se hizo |
+| --- | --- | --- |
+| **Hoy** | El numeral del nivel y la racha, en rojo, competían con el botón Fuerza y con los arcos de dominio. "0 días" en rojo lee como un error y es un hecho neutro | Ambos a tinta. Queda un relleno rojo: Fuerza |
+| **Perfil** | 120px de blanco entre "7 dominios" y su propia lista: el título colgaba de la fila de `.prof-head`, mucho más alta. El numeral del nivel era el rojo más grande y contradecía el §9.1 ("el rojo se reserva para tu limitante") | Título alineado al final de su fila; numeral a tinta |
+| **Cuerpo** | Nada. Tiles que llenan la fila, dos columnas equilibradas, una sola acción roja | Sin cambios |
+| **Más / Ajustes** | `#rmPanel` montaba una rejilla de tres columnas de cuando contenía cinco `.calc-result`; hoy contiene **un** `.tiles`, que caía en el primer tercio: cinco 1RM apilados en 164px dentro de un panel de 510 | Regla borrada. `.tiles` ya es `auto-fill` |
+| **Historial** | Seis fechas rojas apiladas, una por tarjeta — el dato más repetido de la lista en color de marca. Y el contador de sesiones. "Editar" seguía siendo un relleno rojo | Todo a tinta; "Editar" a superficie 2 |
+| **Progreso** | El ejercicio elegido era un **relleno rojo a ancho de columna**: el objeto más pesado de la pantalla, y es una selección de lista, no una acción. Dos carriles de navegación (168 + 300) antes del primer dato | Fondo y peso, como manda el §5.8. Selector a 200 |
+| **Plan** | Seis tarjetas de 915px apiladas, cada una rematada por un "Iniciar sesión" rojo a ancho completo | Rejilla `auto-fill`; botones secundarios y de ancho automático |
+| **Carrera** | El arco del objetivo semanal en rojo — en la pantalla de carrera, un arco rojo dice "fuerza". "Importar del reloj", un relleno rojo de 520 alineado a la izquierda bajo dos paneles de 915 | `--color-domain-running`; botón de ancho automático |
+| **Quirón** | El panel tapaba el rail entero, contra lo que dice el §7.1. El estado vacío, anclado contra el borde de abajo con 640px de nada encima | Ver §9.2c; estado vacío centrado |
+
+Dos hallazgos que no eran de composición y se arreglaron de paso, porque son del sistema:
+
+- **`.start-runner-btn` se rellenaba con `--color-accent-text`.** En oscuro eso es `#ff5545`, y el
+  blanco encima da **3,16:1**: falla el AA de texto. Es exactamente el fallo que el §3.3 dice haber
+  corregido — pero lo corrigió en `.btn`, y este botón se crea desde JS y se quedó fuera. Con
+  `--color-action-primary` da **4,79:1**.
+- **`'#34c759'` escrito a mano en `running.js`**, para el arco del objetivo cumplido. Era el último
+  literal de color vivo fuera de `:root`, escondido en JS donde no lo ve ninguna auditoría del CSS.
+  La cifra de "cero colores literales" del §9.2 solo era cierta contando `app.css`.
+
+### 9.2c Las capas se comieron dos decisiones, y una se veía
+
+Organizar la hoja en `@layer` (§4.4) invirtió silenciosamente reglas que estaban bien escritas.
+**Una regla dentro de una capa baja pierde contra una de capa alta aunque tenga más
+especificidad**, y eso es justo lo que pasó:
+
+- **`.quiron-panel{left:var(--rail-w)}` vivía en `sistema`**, y `.quiron-panel{inset:0}` vive en
+  `pantallas`. Ganaba `inset:0`. El §7.1 lleva desde entonces describiendo un comportamiento que el
+  código no tenía: el chat tapaba el rail entero, y con él la marca de destino activo que el propio
+  §7.1 explica. **Arreglado** moviéndola a `escritorio`, que es donde el §4.4 dice que va todo lo
+  que vive dentro de un `min-width`. El `!important` que hay dos líneas más abajo en `.nav-quiron`
+  es el mismo fallo, ya parcheado con un martillo en vez de con una mudanza.
+
+- **El bloque de `:root.dark` que abre `@layer tokens` está medio muerto**, y esto **no** se ha
+  tocado. `tokens` es la capa más baja, así que sus quince reglas pierden contra cualquier
+  competidora. Medido en el navegador: `:root.dark nav{background}`, `header{background}`,
+  `body{-webkit-font-smoothing}` y `.timer-start{color}` **no se aplican** (gana la capa `base` o
+  `pantallas`); `nav{box-shadow}` y el `color-scheme:dark` de los campos **sí**, porque nadie
+  compite. Borrarlo entero rompería el `color-scheme`; subirlo de capa cambiaría el fondo del rail
+  y de la cabecera en oscuro. Además sus valores son literales (`rgba(19,19,19,.6)`), que es otra
+  violación de la regla de oro. Es un nudo que hay que deshacer regla a regla, verificando cada
+  superficie —incluidas las tarjetas de compartir y las burbujas del chat, que no se instancian
+  solas—, y no cabía en un pase de composición. **Queda anotado con el diagnóstico hecho.**
+
 ### 9.3 La deuda que sigue viva
 
 - **Los `style=""` que quedan en las plantillas de `js/` pasan un color de dato**, no maquetan: el
@@ -722,6 +854,15 @@ frente a los del inventario de partida:
   `ASSETS`) y la lista `PUBLIC` de `build-pages.mjs` a cambio de peticiones extra en el arranque de
   una PWA que se instala. Con las capas, el argumento para dividirlo —"no encuentro nada"— ya no se
   sostiene.
+- **El bloque `:root.dark` de `@layer tokens`**, diagnosticado en el §9.2c y sin tocar: quince
+  reglas de las que la mayoría no se aplican, con valores literales, en la capa equivocada.
+- **El hueco vertical de las columnas que acaban antes que su vecina** (Hoy, Historial, Progreso).
+  Una columna de lista es más alta que una columna de bloques y eso no es un fallo de composición:
+  es una columna que termina. Se ha dejado a propósito. Si algún día molesta, la respuesta no es
+  estirar el contenido sino decidir qué más merece estar ahí — y hoy no hay nada.
+- **El selector de ejercicio de Progreso sigue siendo un segundo carril lateral.** Convertirlo en
+  una fila de chips llenaría el ancho, pero no escala: con treinta ejercicios en el histórico son
+  cuatro líneas de cromo antes del primer dato. Se ha estrechado a 200px y se ha dejado lateral.
 - **Lo anotado en `mejoras_arete.md`** que es lógica y no presentación: el parser de `.FIT`, la
   tabla de umbrales femenina y `saveDB` serializando la base entera en cada escritura.
 

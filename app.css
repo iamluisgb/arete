@@ -583,9 +583,6 @@ select{cursor:pointer}
 .nav-quiron{position:relative}
 .nav-dimmed{opacity:.55}
 @media(min-width:1024px){
-/* El panel arranca donde acaba el rail: el chat no es un modal que tape la
-   navegación, es una superficie más de la app. */
-.quiron-panel{left:var(--rail-w)}
 /* Quirón, al pie del rail y separado del resto por un filete: los cinco de
    arriba son pantallas con tus datos; éste es una conversación. */
 .nav-quiron{margin-top:auto;border-top:.5px solid var(--color-border-subtle);
@@ -768,14 +765,17 @@ nav button .material-symbols-outlined{font-size:24px}
 .save-bar{margin-top:var(--sp-3)}
 .save-bar-notes-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .save-bar-notes-label{font-size:var(--fs-xs);color:var(--color-text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.save-bar-notes-toggle{background:none;border:none;color:var(--color-accent-text);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:4px 0 4px 16px;cursor:pointer;min-height:44px}
+.save-bar-notes-toggle{background:none;border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:4px 0 4px 16px;cursor:pointer;min-height:44px;text-decoration:underline;text-underline-offset:3px}
 .save-bar-notes-body{margin-bottom:8px}
 .save-bar-notes-body textarea{min-height:72px;resize:vertical;width:100%}
-#saveWorkoutBtn{position:sticky;bottom:max(var(--nav-h),env(safe-area-inset-bottom,0px) + var(--nav-h));z-index:var(--z-sticky-action);box-shadow:var(--shadow-action)}
+/* Guardar es secundario y la sombra deja de ir teñida de acento: la primaria de
+   la vista de registro es "Empezar sesión", y dos rellenos rojos a ancho
+   completo en la misma pantalla es exactamente lo que prohíbe el §2.3. */
+#saveWorkoutBtn{position:sticky;bottom:max(var(--nav-h),env(safe-area-inset-bottom,0px) + var(--nav-h));z-index:var(--z-sticky-action);box-shadow:var(--shadow-2)}
 .ex-dots{display:none;justify-content:center;gap:6px;padding:4px 0 8px;position:sticky;top:82px;z-index:var(--z-sticky-dots);background:var(--color-surface-0)}
 .ex-dots.visible{display:flex}
 .ex-dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-subtle);transition:background var(--dur-base),transform var(--dur-base);cursor:pointer}
-.ex-dot.active{background:var(--color-accent-text);transform:scale(1.3)}
+.ex-dot.active{background:var(--color-text-primary);transform:scale(1.3)}
 .session-overview-card{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:16px;margin-bottom:var(--sp-3)}
 .so-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)}
 .so-name{font-size:var(--fs-xl);font-weight:700}
@@ -820,11 +820,19 @@ nav button .material-symbols-outlined{font-size:24px}
 .ex-card .set-label{font-size:var(--fs-sm);color:var(--color-text-secondary);text-align:center;font-weight:600;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid var(--color-border-subtle);background:var(--color-surface-1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background var(--dur-fast),color var(--dur-fast),border-color var(--dur-fast),transform var(--dur-fast);padding:0;font-family:var(--font)}
 .ex-card .set-label:active{transform:scale(.92)}
 .ex-card .set-label.set-done{background:var(--color-success-wash);border-color:var(--color-state-success);color:var(--color-state-success)}
-.ex-card .set-label.active-set{border-color:var(--color-accent-text);background:var(--color-accent-glow);color:var(--color-accent-text)}
+/* La serie en curso se marca con TINTA, no con el rojo de marca. Había un
+   círculo rojo por ejercicio —cinco por sesión— gritando lo mismo que el botón
+   primario de la vista, y "aquí vas" no es una acción. Anillo y texto en
+   --color-text-primary: 15,39:1 en claro y 14,42:1 en oscuro sobre la tarjeta,
+   muy por encima del 3,0 que pide 1.4.11 para un indicador no textual. */
+.ex-card .set-label.active-set{border-color:var(--color-text-primary);background:var(--color-surface-2);color:var(--color-text-primary);font-weight:700}
 .ex-card input{padding:12px 8px;font-size:var(--fs-xl);text-align:center;border-radius:var(--radius-sm);min-height:44px}
 .ex-card .sets-header{font-size:var(--fs-xs);color:var(--color-text-secondary);text-align:center;text-transform:uppercase;letter-spacing:.5px;padding-bottom:2px;font-weight:600}
 .ex-card .prev-data{font-size:var(--fs-sm);color:var(--color-text-secondary);margin-top:10px;padding-top:8px;font-weight:500}
-.ex-card .prev-data span{color:var(--color-state-success);font-weight:600}
+/* "Anterior: 100×5 · 100×5" iba en verde. El verde es estado, y lo que hiciste
+   la última vez no es ni bueno ni malo: es el dato contra el que comparas. En
+   tinta, con la etiqueta en secundario, se lee la comparación sin teñirla. */
+.ex-card .prev-data span{color:var(--color-text-primary);font-weight:600}
 .prev-badge{display:inline-flex;align-items:center;font-size:var(--fs-2xs);font-weight:700;color:var(--color-text-secondary);background:var(--color-surface-2);border-radius:var(--radius-md);padding:2px 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 .prev-badge--record{color:var(--cat-amber);background:var(--cat-amber-wash)}
 .timer-bar{z-index:var(--z-sticky-timer);background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:var(--radius-lg);padding:10px 16px;display:none;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-4)}
@@ -838,13 +846,21 @@ nav button .material-symbols-outlined{font-size:24px}
 .timer-display.done{color:var(--color-state-success);animation:pulse var(--dur-slower) ease-in-out 3}
 .timer-btn{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:10px 16px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base),color var(--dur-base);min-height:44px}
 .timer-btn:active{background:var(--color-surface-3)}
-.timer-btn.active-dur{background:var(--color-accent-wash-strong);color:var(--color-accent-text)}
+/* El preset elegido se marca con superficie y peso, no en rojo: el descanso es
+   una herramienta de la vista, no su acción principal (§2.3). */
+.timer-btn.active-dur{background:var(--color-surface-3);color:var(--color-text-primary);font-weight:700}
 .timer-custom-btn{font-size:var(--fs-base);padding:7px 10px}
-.timer-custom-input{display:none;width:70px;background:var(--color-surface-1);border:1.5px solid var(--color-accent-text);color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-2xl);font-weight:700;text-align:center;padding:4px 6px;border-radius:var(--radius-md);font-variant-numeric:tabular-nums;outline:none}
+.timer-custom-input{display:none;width:70px;background:var(--color-surface-1);border:1.5px solid var(--color-text-primary);color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-2xl);font-weight:700;text-align:center;padding:4px 6px;border-radius:var(--radius-md);font-variant-numeric:tabular-nums;outline:none}
 .timer-custom-input.visible{display:block}
-.timer-start{width:44px;height:44px;border-radius:50%;background:var(--color-accent-text);border:none;color:var(--color-on-fill);font-size:var(--fs-xl);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-instant);flex-shrink:0}
+/* El play del descanso deja de ser un disco rojo. Era el rojo más grande y más
+   arriba de Entrenar compitiendo con la acción primaria de la vista, y arrancar
+   un descanso no es la acción primaria de nada. En reposo es superficie 2 con
+   la tinta del texto (15,39:1 en claro, 14,42:1 en oscuro); corriendo se
+   invierte a tinta sólida, que es la señal más fuerte disponible sin gastar
+   acento — y el glifo ya cambia de ▶ a ⏹. */
+.timer-start{width:44px;height:44px;border-radius:50%;background:var(--color-surface-2);border:none;color:var(--color-text-primary);font-size:var(--fs-xl);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-instant),background var(--dur-fast),color var(--dur-fast);flex-shrink:0}
 .timer-start:active{transform:scale(.9)}
-.timer-start.running{background:var(--color-state-danger)}
+.timer-start.running{background:var(--color-text-primary);color:var(--color-text-inverse)}
 .timer-reset{width:44px;height:44px;border-radius:50%;background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-size:var(--fs-xl);display:none;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-instant);flex-shrink:0}
 .timer-reset:active{transform:scale(.9)}
 .timer-bar.mode-stopwatch .timer-presets{display:none}
@@ -860,7 +876,7 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-header .cal-title{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em}
 .cal-header .cal-count{font-size:var(--fs-xs);color:var(--color-text-secondary);text-align:right;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-.cal-header .cal-count span{display:block;font-size:var(--fs-2xl);font-weight:700;color:var(--color-accent-text);letter-spacing:-.02em}
+.cal-header .cal-count span{display:block;font-size:var(--fs-2xl);font-weight:700;color:var(--color-text-primary);letter-spacing:-.02em}
 .cal-nav{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);justify-content:center}
 .cal-nav button{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:8px 18px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base)}
 .cal-nav button:active{background:var(--color-surface-3)}
@@ -874,11 +890,19 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-grid .cal-day.empty{color:transparent}
 .history-item{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:14px;margin-bottom:var(--sp-2);cursor:pointer;transition:transform var(--dur-instant)}
 .history-item:active{transform:scale(.98)}
-.history-item .hi-date{font-size:var(--fs-base);color:var(--color-accent-text);font-weight:700}
+/* Una fecha no es un acento. Eran seis rojos apilados en la primera pantalla de
+   Historial —uno por tarjeta— por poner en color de marca el dato más repetido
+   de la lista. En tinta y en negrita sigue siendo lo primero que se lee de cada
+   tarjeta, que es para lo que estaba el color. */
+.history-item .hi-date{font-size:var(--fs-base);color:var(--color-text-primary);font-weight:700}
 .history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--color-text-primary);margin-top:6px;line-height:1.4}
 .history-item .hi-plan{font-size:.6rem;color:var(--color-text-secondary);background:var(--color-surface-2);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;white-space:nowrap}
-.hi-edit-btn{background:var(--color-accent-text);color:var(--color-on-fill);border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-2);transition:opacity var(--dur-base)}
+/* Editar una fila nunca es la acción primaria de una vista: no es a lo que has
+   venido (§8). Era el mismo argumento que ya se aplicó en el historial corporal
+   con un override local; se aplica de una vez en el componente y el override de
+   Cuerpo pasa a ser redundante en vez de la única excepción. */
+.hi-edit-btn{background:var(--color-surface-2);color:var(--color-text-primary);border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-2);transition:background var(--dur-base)}
 .hi-edit-btn:active{opacity:.7}
 .load-more-btn{display:block;width:100%;background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-1);transition:background var(--dur-base)}
 .load-more-btn:active{background:var(--color-border-subtle)}
@@ -985,8 +1009,19 @@ nav button svg{width:22px;height:22px;flex-shrink:0}
    prefers-reduced-motion, igual que el resto de la hoja. */
 nav{transition:width var(--dur-base) var(--ease-standard)}
 body{transition:padding-left var(--dur-base) var(--ease-standard)}
-/* Arriba, no abajo: el pie del rail es de Quirón. */
-#railToggle{display:flex;justify-content:center;margin-bottom:var(--sp-2);color:var(--color-text-tertiary)}
+/* Arriba, no abajo: el pie del rail es de Quirón.
+   Y es un CONTROL, no un destino: era el primer ítem de la lista, con la misma
+   caja, el mismo alto y la misma etiqueta que "Hoy" o "Entrenar", así que
+   competía con ellos por la mirada antes de que empezara la navegación de
+   verdad. Ahora es un cuadrado de 44 alineado al borde del rail, con la
+   etiqueta solo para el lector de pantalla y el nombre en `title` (lo escribe
+   rail.js con el atajo). Se lee como el asa del panel, que es lo que es. */
+#railToggle{display:flex;align-items:center;justify-content:center;
+  align-self:flex-end;width:44px;height:44px;flex:0 0 auto;padding:0;
+  margin-bottom:var(--sp-4);color:var(--color-text-tertiary)}
+#railToggle>span:not(.material-symbols-outlined){position:absolute;width:1px;
+  height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+:root.rail-collapsed #railToggle{align-self:center}
 #railToggle .material-symbols-outlined{transition:transform var(--dur-base) var(--ease-standard)}
 :root.rail-collapsed #railToggle .material-symbols-outlined{transform:rotate(180deg)}
 /* Modo icono: se va la etiqueta, el icono se centra y el objetivo sigue
@@ -1003,8 +1038,14 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 .toast-container{bottom:var(--sp-6)}
 }
 /* Static inline styles extracted from HTML */
-#prefillBanner{display:none;background:var(--color-accent-wash);border:.5px solid var(--color-accent-soft);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:var(--sp-3);align-items:center;justify-content:space-between;gap:var(--sp-2)}
-#prefillText{font-size:var(--fs-md);color:var(--color-accent-text);font-weight:600}
+/* "Cargada tu última Sesión B (07/06)" es INFORMACIÓN NEUTRA, y llevaba el
+   lenguaje visual de una alerta: rojo sobre rosa, con borde teñido. Nada ha
+   salido mal — la app está diciendo de dónde vienen las cifras que ves. Pasa a
+   superficie 2 con texto secundario (4,68:1 sobre surface2 en claro, 5,76:1 en
+   oscuro): se lee, no interrumpe, y devuelve el rojo a la única acción que lo
+   merece en esta vista. */
+#prefillBanner{display:none;background:var(--color-surface-2);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:var(--sp-3);align-items:center;justify-content:space-between;gap:var(--sp-2)}
+#prefillText{font-size:var(--fs-md);color:var(--color-text-secondary);font-weight:600}
 .prefill-clear{background:none;border:none;color:var(--color-text-secondary);font-size:var(--fs-base);font-weight:600;cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);white-space:nowrap}
 /* #bodyEditBanner ya no tiene reglas propias: es un .banner del sistema (§3.10)
    y se oculta con el atributo `hidden`, no con un display:none escrito a mano. */
@@ -1233,9 +1274,18 @@ body.hiit-focus .ex-mode-info{display:none}
 .toast-restore-actions button{border:none;border-radius:var(--radius-md);padding:8px 18px;font-family:var(--font);font-size:var(--fs-md);font-weight:700;cursor:pointer}
 .toast-restore-yes{background:var(--color-state-success);color:var(--color-on-fill)}
 .toast-restore-no{background:var(--color-surface-1);color:var(--color-text-secondary)}
-/* Prefilled inputs */
-input.prefilled{background:var(--color-accent-wash);border:.5px dashed var(--color-accent-soft)}
-input.prefilled:focus{background:var(--color-surface-1);border:none}
+/* ── Campos precargados ───────────────────────────────────
+   Eran catorce rectángulos rosados por sesión: el fondo teñido de acento
+   repetido campo a campo convertía el rojo de marca en textura y hacía que una
+   sesión sin empezar pareciera un formulario con errores.
+   Lo que hay que decir es "esto es una propuesta, todavía no lo has
+   confirmado", y eso se dice con la TIPOGRAFÍA (cifra en secundario en vez de
+   en tinta) y con el trazo discontinuo, no con color. Al escribir encima, JS ya
+   quita la clase y la cifra pasa a tinta: el cambio de peso visual es la
+   confirmación. El discontinuo va en --color-text-tertiary (3,36:1 en claro,
+   4,85:1 en oscuro sobre el lienzo), por encima del 3,0 de 1.4.11. */
+input.prefilled{background:var(--color-surface-2);border:1px dashed var(--color-text-tertiary);color:var(--color-text-secondary)}
+input.prefilled:focus{background:var(--color-surface-1);border:1px solid transparent;color:var(--color-text-primary)}
 /* Custom programs list */
 /* Los planes importados son filas del sistema con un badge y una acción de
    borrado en terciario: en rojo, cada plan traía su propia acción destructiva
@@ -1582,8 +1632,12 @@ input.prefilled:focus{background:var(--color-surface-1);border:none}
 .dash-ring-fill{transition:stroke-dashoffset var(--dur-slow) var(--ease-standard)}
 .dash-ring-value{position:absolute;font:var(--type-body-strong);font-weight:800;
   font-variant-numeric:tabular-nums;color:var(--color-text-primary);text-align:center}
+/* La racha en tinta. "0 días" en rojo lee como un error, y no lo es: es un
+   hecho neutro que la propia tarjeta remata con "Empieza hoy". Las cifras
+   destacadas en rojo eran, literalmente, uno de los usos que el §2.3 señala
+   como la causa de que el acento dejara de acentuar. */
 .dash-streak-value{font:var(--type-metric);letter-spacing:var(--track-metric);
-  font-variant-numeric:tabular-nums;color:var(--color-accent-text)}
+  font-variant-numeric:tabular-nums;color:var(--color-text-primary)}
 .dash-streak-sub{font:var(--type-caption);color:var(--color-text-secondary)}
 /* UNA acción primaria. Antes eran dos rellenos saturados —rojo y cian— con la
    misma sombra tintada y el mismo peso: la pantalla no decía qué hacer, decía
@@ -1729,8 +1783,16 @@ input.prefilled:focus{background:var(--color-surface-1);border:none}
 .ex-pict img:only-child{animation:none;opacity:1}
 .ex-card .ex-name{display:flex;align-items:center;gap:8px}
 /* ══ Runner de sesión ════════════════════════════════════ */
-.start-runner-btn{display:block;width:100%;background:var(--color-accent-text);color:var(--color-on-fill);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:15px;border-radius:var(--radius-lg);cursor:pointer;min-height:52px;margin-bottom:var(--sp-3);box-shadow:var(--shadow-action);-webkit-tap-highlight-color:transparent}
-.start-runner-btn:active{transform:scale(.985);opacity:.9}
+/* --color-action-primary y no --color-accent-text: es un RELLENO. En oscuro,
+   accent-text es #ff5545 y el blanco encima da 3,16:1 — falla el AA de texto.
+   Con action-primary (#d4372c) da 4,79:1. Es el mismo arreglo que ya llevaba el
+   .btn del sistema; este botón se creaba desde JS y se quedó fuera. */
+/* Secundario, no primario. En el estado de registro la acción que cierra el
+   trabajo es guardar: el modo guiado es una forma de recorrer la sesión, no el
+   final de nada. Tenerlo en rojo gastaba la única primaria de la vista (§9.1)
+   en la puerta de entrada y dejaba "Guardar sesión" pareciendo inerte. */
+.start-runner-btn{display:block;width:100%;background:var(--color-surface-2);color:var(--color-text-primary);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:500;padding:15px;border-radius:var(--radius-lg);cursor:pointer;min-height:52px;margin-bottom:var(--sp-3);-webkit-tap-highlight-color:transparent}
+.start-runner-btn:active{background:var(--color-surface-3);opacity:.85}
 body.session-focus header,body.session-focus nav,
 body.session-focus #secTrain>.page-head,body.session-focus .subnav{display:none}
 body.session-focus{padding-bottom:0;overflow:hidden}
@@ -1831,8 +1893,13 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    Migrada. El nivel grande es la única cifra en acento de la pantalla: es el
    dato que resume el producto entero. */
 .prof-head{text-align:center;margin-bottom:var(--sp-2)}
+/* El §9.1 ya decía que en Perfil "el rojo se reserva para tu limitante", pero el
+   numeral del nivel seguía siendo rojo y era el rojo más grande de la pantalla:
+   competía con el badge TU LIMITANTE, con la línea del radar, con la etiqueta
+   del dominio limitante y con "Medir". En tinta, el nivel sigue siendo el dato
+   que domina —lo dice su tamaño— y el rojo vuelve a significar una sola cosa. */
 .prof-level{font:var(--type-display);font-size:var(--fs-4xl);letter-spacing:var(--track-display);
-  line-height:1;color:var(--color-accent-text);font-variant-numeric:tabular-nums}
+  line-height:1;color:var(--color-text-primary);font-variant-numeric:tabular-nums}
 .prof-level-name{font:var(--type-label);letter-spacing:var(--track-label);
   text-transform:uppercase;color:var(--color-text-secondary);margin-top:var(--sp-1)}
 .prof-limited{font:var(--type-body);color:var(--color-text-secondary);margin-top:var(--sp-3)}
@@ -1916,8 +1983,14 @@ body.session-focus{padding-bottom:0;overflow:hidden}
   padding:var(--pad-card);cursor:pointer;text-align:left;font-family:var(--font);
   color:var(--color-text-primary);min-height:64px;transition:background var(--dur-fast)}
 .dash-level:active{opacity:.85}
+/* El número de nivel en tinta y no en rojo, por dos razones. La primera es el
+   presupuesto: en Hoy competía con el botón Fuerza, con la racha y con los
+   arcos de dominio. La segunda es que unos numerales romanos estrechos en rojo
+   pegados al borde izquierdo de una tarjeta se leen como una barra de acento
+   lateral, que es justo lo que el sistema prohíbe (§2.4) — aunque aquí sean
+   contenido y no decoración. El rojo del perfil se reserva para el limitante. */
 .dash-level-num{flex-shrink:0;font:var(--type-metric-lg);letter-spacing:var(--track-metric-lg);
-  font-variant-numeric:tabular-nums;color:var(--color-accent-text);min-width:44px;text-align:center}
+  font-variant-numeric:tabular-nums;color:var(--color-text-primary);min-width:44px;text-align:center}
 .dash-level-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .dash-level-txt b{font:var(--type-body-strong);font-weight:700}
 .dash-level-txt span{font:var(--type-caption);color:var(--color-text-secondary)}
@@ -1947,27 +2020,131 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .radar-wrap{grid-area:3/1}
 .prof-next{grid-area:4/1}
 .prof-domains-title{grid-area:2/2;margin-top:0}
+/* La lista arrancaba en la fila 3 —la del radar— y quedaba a 120px por debajo
+   de su propio título, con un hueco en blanco entre los dos que no separaba
+   nada: la fila 2 la marca la altura de .prof-head, que es mucho más alta que
+   un título. Empieza donde acaba su título y se estira hasta abajo. */
 #profDomains{grid-area:3/2/span 2}
+.prof-domains-title{align-self:end}
 .prof-note{grid-area:5/2}
 /* width:100% explícito: con margin-inline:auto un grid item deja de estirarse y
    se queda en su ancho de contenido — el radar volvía a 340px. */
 .radar-wrap{width:100%;max-width:520px;padding:0 var(--sp-5)}
 }
-/* ── Entrenar/Fuerza · Actividad ────────────────────────── */
+/* ── Entrenar/Fuerza · Actividad ──────────────────────────
+   LA JERARQUÍA DE ESTA PANTALLA, escrita (§7.4 del documento).
+
+   Actividad tiene dos estados y no comparten jerarquía:
+
+   ANTES de empezar manda LA SESIÓN DE HOY. Lo único que hay que decidir es si
+   entrenas eso o cambias de sesión, así que la pantalla es una columna: los dos
+   campos que la eligen y la tarjeta que la describe, con una sola acción.
+   Nada más. La versión anterior repartía el ancho en tres carriles y ninguno
+   tenía con qué llenarlo.
+
+   DURANTE el registro manda LA LISTA DE EJERCICIOS. Deja de ser una columna de
+   560px junto a 500 de nada y pasa a ser una rejilla que crece EN NÚMERO por
+   fila (§2.1): a 1440 son dos tarjetas por fila y la sesión entera cabe casi sin
+   scroll, que es justo lo que un monitor puede dar y un móvil no. El resto
+   —fecha, sesión, de dónde vienen los datos, el descanso— es una tira de
+   contexto de una línea encima, no una columna propia.
+
+   El cronómetro de descanso no aparece hasta aquí (setFormVisible), y aquí es
+   un control de la tira, no una tarjeta de cristal arriba del todo. */
 @media(min-width:1024px){
-#strTrain.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:var(--sp-3) var(--sp-6);align-items:start}
-.timer-bar,#miniTimer,#prefillBanner,#strTrain>.row,#sessionOverview{grid-column:1}
-.ex-dots,#startRunnerBtn,#exerciseList,#strTrain>.save-bar{grid-column:2}
-/* Las filas de serie no se ensanchan: separar la etiqueta S1 de sus campos
-   rompe la asociación igual que pasaba en Cuerpo. */
-#exerciseList,#startRunnerBtn,#strTrain>.save-bar,.ex-dots{max-width:var(--measure-panel)}
-.ex-dots{position:static;background:none;padding-top:0}
-/* Sin sesión en curso la columna de la derecha está vacía, y una tarjeta de
-   sesión flotando junto a 500px de nada es justo el hueco que había que quitar.
-   Con :has() la rejilla se colapsa a una columna cuando no hay ejercicios que
-   poner al lado — sin JS y sin una clase que alguien tenga que acordarse de
-   quitar. */
-#strTrain.active:not(:has(#exerciseList > *)){grid-template-columns:minmax(0,var(--measure-panel))}
+#strTrain.active{display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--gap-stack);align-items:start;justify-items:stretch}
+/* Estado A — vista previa. Una sola columna, CENTRADA. Alineada a la izquierda
+   dejaba ~370px de hueco a su derecha que no era aire: era un carril vacío. */
+#strTrain.active:not(:has(#exerciseList > *)){justify-items:center}
+#strTrain.active:not(:has(#exerciseList > *))>*{width:100%;max-width:var(--measure-panel)}
+/* Estado B — registro. Una sola columna de BLOQUES a ancho completo; la
+   densidad no la da repartir el ancho en carriles, la da la rejilla de
+   ejercicios. El intento de sentar el crono al lado de los dos campos no
+   sobrevive a la aritmética: la tira del descanso mide ~535px de contenido
+   irreducible (modo + tres presets + display + play) y junto a un formulario de
+   520 pide 1.087 en una columna que a 1440 son 915. Se le daba menos y se
+   comía el <select> de Sesión. Va en su propia línea, alineada a la derecha,
+   que es donde una herramienta no compite con lo que estás decidiendo. */
+#strTrain.active:has(#exerciseList > *)>.row{max-width:var(--measure-form)}
+/* Y deja de ser una TARJETA. Sin fondo ni cristal es lo que siempre fue: una
+   fila de controles —modo, presets, display, play— sobre el lienzo. Un
+   temporizador de descanso no necesita una superficie propia para existir, y
+   dársela era lo que lo convertía en el elemento más pesado de la pantalla. */
+#strTrain.active:has(#exerciseList > *)>.timer-bar{background:none;
+  backdrop-filter:none;-webkit-backdrop-filter:none;padding-inline:0;
+  /* Y no se estira. La tira ocupaba la columna entera y .timer-display lleva
+     flex:1, así que el número se centraba en 466px de vacío: los presets
+     acababan en un sitio y su propio display aparecía 240px más allá, con el
+     play en el borde opuesto. Un grupo de controles partido por dentro. Ancho
+     de contenido y anclada al mismo borde derecho que los botones. */
+  width:fit-content;margin-left:auto}
+#strTrain.active:has(#exerciseList > *)>.timer-bar .timer-display{flex:0 0 auto;
+  min-width:4.5ch;padding-inline:var(--sp-2)}
+/* Las tarjetas de ejercicio: auto-fill, no un ancho fijo. 400px de mínimo es
+   donde una fila `S1 · kg · reps` deja de tener sentido si se aprieta más — y
+   el máximo sigue siendo --measure-panel por tarjeta, que es lo que impide que
+   la etiqueta de serie se separe de sus campos (§2.1). */
+#exerciseList{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
+  gap:var(--gap-stack);align-items:start}
+#exerciseList>*{margin-bottom:0;max-width:var(--measure-panel)}
+/* Los dos botones de la vista se alinean al MISMO borde, arriba y abajo de la
+   rejilla, y dejan de ser vallas de ancho completo (§5.1): "Empezar sesión" es
+   la primaria y "Guardar sesión" su secundaria al terminar. */
+#startRunnerBtn{width:auto;min-width:240px;justify-self:end;margin-bottom:0}
+#strTrain>.save-bar{justify-self:end;max-width:var(--measure-form)}
+#strTrain>.save-bar #saveWorkoutBtn{width:auto;min-width:240px;margin-left:auto;display:block}
+/* Los cinco puntos son un SCROLL SPY de una lista vertical. Con las tarjetas en
+   rejilla de dos columnas el recorrido deja de ser lineal y el indicador deja
+   de poder decir dónde estás; además flotaba arriba a la derecha sin nada a lo
+   que anclarse. En escritorio no informa de nada, así que no se dibuja. */
+.ex-dots{display:none}
+.ex-dots.visible{display:none}
+}
+/* ── Quirón ───────────────────────────────────────────────
+   Dos cosas, y la primera es una decisión del sistema que se había perdido sin
+   que se notara.
+
+   El §7.1 dice, y el CSS decía, que el panel arranca donde acaba el rail: "el
+   chat no es un modal que tape la navegación, es una superficie más de la app".
+   Pero la regla vivía en la capa `sistema` y `.quiron-panel{inset:0}` vive en
+   `pantallas`, que gana por capa aunque tenga menos especificidad. El
+   `left:var(--rail-w)` llevaba muerto desde que la hoja se organizó en capas, y
+   el panel tapaba el rail entero. Aquí, en `escritorio`, gana — que además es
+   donde el §4.4 dice que va todo lo que vive dentro de un min-width.
+
+   Y el estado vacío estaba anclado abajo, con 640px de nada por encima, porque
+   .quiron-msgs se quedaba con todo el espacio libre del flex. Un estado vacío
+   se centra en su superficie: es lo único que hay en ella. */
+@media(min-width:1024px){
+.quiron-panel{left:var(--rail-w)}
+}
+/* Con el setup a la vista, .quiron-msgs (flex:1) se quedaba con TODO el espacio
+   libre y empujaba el estado vacío contra el borde de abajo. Sin sitio que
+   repartir, sus márgenes automáticos no podían centrarlo. */
+.quiron-panel:has(.quiron-setup:not([hidden])) .quiron-msgs{flex:0 0 auto}
+.quiron-setup{margin-block:auto}
+/* ── Entrenar/Carrera · Actividad ─────────────────────────
+   "Importar del reloj" era un relleno rojo de 520px alineado a la izquierda
+   debajo de dos paneles de 915: ni acompañaba al contenido ni era un botón,
+   era el resto de un ancho completo de móvil. Ancho automático y centrado con
+   lo que hay debajo, que es su alternativa ("Registro manual"). */
+@media(min-width:1024px){
+.run-start-btn{width:auto;min-width:260px;margin-inline:auto}
+}
+/* ── Entrenar/Fuerza · Plan ───────────────────────────────
+   Mismo fallo que Actividad y misma cura. Las seis sesiones del plan eran seis
+   tarjetas de 915px apiladas, cada una rematada por un "Iniciar sesión" rojo a
+   ancho completo: seis vallas del color de la marca en una pantalla cuyo
+   trabajo es enseñarte el plan, no arrancarlo. Las tarjetas pasan a rejilla
+   —crecen en número por fila, no de tamaño— y el botón deja de ser primario y
+   de ocupar el ancho: es la acción de una tarjeta, no la de la vista. */
+@media(min-width:1024px){
+#strPlanContent{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
+  gap:var(--gap-stack);align-items:start}
+#strPlanContent>.str-plan-session{margin-bottom:0;max-width:var(--measure-panel)}
+.str-plan-header,.str-plan-desc{grid-column:1/-1}
+.str-plan-start-btn.btn--block{width:auto;min-width:200px;margin-left:auto;display:block}
 }
 /* ── Entrenar/Fuerza · Historial: calendario y lista a la vez ── */
 @media(min-width:1024px){
@@ -1980,7 +2157,13 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 }
 /* ── Entrenar/Fuerza · Progreso ─────────────────────────── */
 @media(min-width:1024px){
-#strProgress.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:var(--sp-4) var(--sp-6);align-items:start}
+/* 200 y no 300. Progreso es la única pantalla con DOS carriles de navegación
+   —los destinos de Entrenar y el selector de ejercicio— antes del primer dato:
+   a 300 sumaban 468px de cromo lateral y la tabla, que es donde de verdad se
+   compara, empezaba pasada la mitad de la pantalla. La lista sigue siendo
+   lateral y no una fila de chips porque escala: con treinta ejercicios en el
+   histórico, una fila que envuelve son cuatro líneas de cromo. */
+#strProgress.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:var(--sp-4) var(--gap-section);align-items:start}
 .progress-select-wrap{grid-column:1}
 /* La tabla del historial se va a la columna ancha: cuantas más columnas se
    vean, más vale. */
@@ -2009,7 +2192,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    el punto de 8px dibujado dentro de un área de 24. */
 .ex-dot{width:24px;height:24px;border-radius:50%;background:none;border:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-base)}
 .ex-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--color-border-subtle);transition:background var(--dur-base),transform var(--dur-base)}
-.ex-dot.active::after{background:var(--color-accent-text);transform:scale(1.3)}
+.ex-dot.active::after{background:var(--color-text-primary);transform:scale(1.3)}
 .ex-dots{gap:0}
 /* Campos cortos de Ajustes. Estaban en un style inline de 80px: con la escala
    de escritorio el placeholder "mm:ss" ya no cabía.
@@ -2179,8 +2362,16 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    dice en qué sección estás, y un segundo rojo diciendo lo mismo un nivel más
    abajo deja de informar. */
 @media(min-width:1024px){
-#secTrain.active{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);
-  gap:var(--gap-stack) var(--gap-section);align-items:start}
+/* 168 y no 200: la columna es una NAVEGACIÓN de cuatro palabras cortas, no un
+   tercio de la pantalla. A 200 se leía como un panel que se hubiera quedado sin
+   contenido; a 168 se lee como lo que es, y los 32px devueltos van a la rejilla
+   de ejercicios, que sí sabe qué hacer con ellos.
+   `align-content:start` y no `align-items:start` a secas: sin él, las dos filas
+   de la rejilla se estiraban y el arranque de cada columna dejaba de coincidir
+   por unos pocos píxeles — que es lo que hace que una pantalla se lea
+   descuidada sin que sepas por qué. */
+#secTrain.active{display:grid;grid-template-columns:minmax(0,168px) minmax(0,1fr);
+  gap:var(--gap-stack) var(--gap-section);align-items:start;align-content:start}
 #secTrain>.page-head{grid-column:1/-1}
 #secTrain>.subnav{grid-column:1;margin-bottom:0}
 #secTrain>.train-panel{grid-column:2;min-width:0}
@@ -2205,16 +2396,14 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #strTrain>.row,#runTrain .row{max-width:var(--measure-form)}
 .progress-select-wrap select,.history-filter-wrap select,.str-plan-select{max-width:var(--measure-form)}
 }
-/* Los 1RM de Ajustes: cinco filas de 76px que caben en un bloque. Cuerpo ya no
-   necesita esta regla — .measure-grid y .tiles se recolocan solos con
-   auto-fill, sin un media query por breakpoint. */
-@media(min-width:1024px){
-#rmPanel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2)}
-#rmPanel .calc-result{margin-bottom:0}
-}
-@media(min-width:1440px){
-#rmPanel{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
+/* Los 1RM de Ajustes: la regla que había aquí era de cuando #rmPanel contenía
+   cinco .calc-result sueltos. Hoy contiene UN .tiles, y una rejilla de tres
+   columnas alrededor de un solo hijo lo metía en el primer tercio: los cinco
+   1RM se apilaban en una columna de 164px dentro de un panel de 510, con dos
+   tercios en blanco al lado. Es el mismo hueco por reparto que Entrenar, en
+   pequeño y por una regla que se quedó vieja.
+   Se borra: .tiles ya es auto-fill y crece en número por fila (§5.6), que es
+   exactamente lo que esta regla intentaba hacer a mano y por breakpoint. */
 @media(min-width:1024px){input.sc-input-sm{width:96px}}
 /* El calendario no crece con la columna: las celdas de día se vuelven círculos
    enormes y el mes deja de leerse como una rejilla. */
@@ -2228,7 +2417,12 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .progress-select-wrap .progress-label,.progress-select-wrap select{display:none}
 .progress-ex-list{display:flex;flex-direction:column;gap:2px}
 .progress-ex{background:none;border:none;border-radius:var(--radius-md);padding:9px 12px;text-align:left;font-family:var(--font);font-size:var(--fs-md);font-weight:600;color:var(--color-text-secondary);cursor:pointer;transition:background var(--dur-fast),color var(--dur-fast)}
-.progress-ex.active{background:var(--color-accent-text);color:var(--color-on-fill)}
+/* El ejercicio elegido era un relleno rojo a ancho de columna: el objeto más
+   pesado de Progreso, y no es una acción — es una selección de lista. El §5.8
+   ya lo dice para el segmentado ("fondo y peso, nunca una banda de acento") y
+   aquí se aplicaba lo contrario, además con el rojo que la gráfica, el PR y la
+   fila destacada ya estaban usando. Fondo y peso, como sus vecinos. */
+.progress-ex.active{background:var(--color-surface-2);color:var(--color-text-primary);font-weight:700}
 }
 
 }

@@ -433,8 +433,12 @@ function _renderRunnerCta() {
     btn.addEventListener('click', () => openRunner());
     $exerciseList.insertAdjacentElement('beforebegin', btn);
   }
+  // "Modo guiado", no "Empezar sesión": la vista previa ya tiene un "Empezar
+  // entreno" y encadenar dos botones con casi el mismo texto no dice que hagan
+  // cosas distintas. Cargar la sesión y recorrerla serie a serie no son el
+  // mismo verbo, y el runner es lo segundo.
   const done = $exerciseList.querySelectorAll('.set-label.set-done').length;
-  btn.textContent = done ? 'Continuar sesión' : 'Empezar sesión';
+  btn.textContent = done ? 'Seguir en modo guiado' : 'Modo guiado';
 }
 
 function timerBtnHtml(i, mode) {
