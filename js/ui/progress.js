@@ -2,13 +2,32 @@ import { getActiveProgram } from '../programs.js';
 import { esc } from '../utils.js';
 
 let _bound = false;
-let _chartCache = { name: null, count: 0 };
+let _chartCache = { name: null, count: 0, w: 0 };
+
+/**
+ * Ancho del viewBox del SVG. Las etiquetas y los trazos de la gráfica están en
+ * unidades de usuario (font-size="9", stroke-width="2.5"), así que el viewBox
+ * tiene que seguir al ancho real del contenedor o el navegador los escala con
+ * él: con el viewBox fijo en 340, un contenedor de 800px renderizaba esas
+ * etiquetas a 21px con trazos de 6px. Midiendo, la escala es siempre ~1.
+ */
+function chartWidth() {
+  const w = Math.round(document.getElementById('progressChart')?.clientWidth || 0);
+  return w > 0 ? Math.max(340, w) : 340;
+}
 
 /** Initialize progress section: populate exercise select and render chart */
 export function initProgress(db) {
-  _chartCache = { name: null, count: 0 };
+  _chartCache = { name: null, count: 0, w: 0 };
   if (!_bound) {
     document.getElementById('progressExercise').addEventListener('change', () => renderProgressChart(db));
+    // Al cambiar el ancho (rotar, redimensionar la ventana, entrar en el
+    // breakpoint de dos columnas) hay que rehacer el viewBox, no reescalarlo.
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => {
+        if (Math.abs(chartWidth() - _chartCache.w) > 8) renderProgressChart(db);
+      }).observe(document.getElementById('progressChart'));
+    }
     _bound = true;
   }
   const sel = document.getElementById('progressExercise');
@@ -28,8 +47,9 @@ export function initProgress(db) {
 export function renderProgressChart(db) {
   const name = document.getElementById('progressExercise').value;
   const wCount = db.workouts.length;
-  if (_chartCache.name === name && _chartCache.count === wCount) return;
-  _chartCache = { name, count: wCount };
+  const availW = chartWidth();
+  if (_chartCache.name === name && _chartCache.count === wCount && _chartCache.w === availW) return;
+  _chartCache = { name, count: wCount, w: availW };
   if (!name) {
     document.getElementById('progressChart').innerHTML = '<p style="color:var(--text3);text-align:center;padding:60px 0;font-size:.85rem">Selecciona un ejercicio para ver tu progreso.</p>';
     document.getElementById('progressStats').innerHTML = '';
@@ -67,7 +87,10 @@ export function renderProgressChart(db) {
   const metricLabel = hasKg ? 'Peso máx (kg)' : 'Max reps';
   const metricUnit = hasKg ? 'kg' : 'reps';
 
-  const W = 340, H = 180, pad = { t: 20, r: 16, b: 30, l: 40 };
+  const W = availW, H = W >= 560 ? 220 : 180, pad = { t: 20, r: 16, b: 30, l: 40 };
+  // Con el viewBox siguiendo al ancho real ya no hay escalado, así que los
+  // cuerpos de 9-10px son literales: en una gráfica ancha se quedan cortos.
+  const fsAxis = W >= 560 ? 12 : 9, fsTitle = W >= 560 ? 13 : 10;
   const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
   const vals = points.map(p => p[metric]);
   const minV = Math.min(...vals), maxV = Math.max(...vals);
@@ -91,15 +114,21 @@ export function renderProgressChart(db) {
   for (let i = 0; i <= ySteps; i++) {
     const v = minV + (range / ySteps) * i;
     const y = pad.t + cH - ((i / ySteps) * cH);
-    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--text3)" font-size="9" font-weight="500">${Math.round(v)}</text>`;
+    yLabels += `<text x="${pad.l - 8}" y="${y + 3}" text-anchor="end" fill="var(--text3)" font-size="${fsAxis}" font-weight="500">${Math.round(v)}</text>`;
     yLabels += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
   }
 
   let xLabels = '';
-  const showX = points.length <= 6 ? points.map((_, i) => i) : [0, Math.floor(points.length / 2), points.length - 1];
+  // Cuántas fechas caben sin solaparse depende del ancho real, no de un número
+  // fijo: una etiqueta dd/mm pide ~64px.
+  const maxX = Math.max(3, Math.floor(cW / 64));
+  const showX = points.length <= maxX
+    ? points.map((_, i) => i)
+    : [...new Set(Array.from({ length: maxX }, (_, k) =>
+        Math.round(k * (points.length - 1) / (maxX - 1))))];
   showX.forEach(i => {
     const d = points[i].date.slice(5).replace('-', '/');
-    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--text3)" font-size="9" font-weight="500">${d}</text>`;
+    xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--text3)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
   });
 
   const accentColor = hasKg ? 'var(--accent)' : 'var(--teal)';
@@ -114,7 +143,7 @@ export function renderProgressChart(db) {
     <path d="${area}" fill="url(#areaGrad)"/>
     <path d="${path}" fill="none" stroke="${accentColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${dots}
-    <text x="${pad.l}" y="12" fill="var(--text2)" font-size="10" font-weight="600">${metricLabel}</text>
+    <text x="${pad.l}" y="12" fill="var(--text2)" font-size="${fsTitle}" font-weight="600">${metricLabel}</text>
   </svg>`;
 
   document.getElementById('progressChart').innerHTML = svg;

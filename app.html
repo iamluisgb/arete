@@ -144,14 +144,14 @@
         <button class="timer-btn" data-dur="60">1:00</button>
         <button class="timer-btn active-dur" data-dur="120">2:00</button>
         <button class="timer-btn" data-dur="180">3:00</button>
-        <button class="timer-btn timer-custom-btn" id="timerCustomBtn" aria-label="Tiempo personalizado">✏️</button>
+        <button class="timer-btn timer-custom-btn" id="timerCustomBtn" aria-label="Tiempo personalizado" title="Tiempo personalizado">✏️</button>
       </div>
       <div class="timer-display" id="timerDisplay">2:00</div>
       <input type="text" class="timer-custom-input" id="timerCustomInput" placeholder="m:ss" maxlength="5" inputmode="numeric">
-      <button class="timer-start" id="timerStartBtn" aria-label="Iniciar temporizador">▶</button>
-      <button class="timer-reset" id="timerResetBtn" aria-label="Reiniciar temporizador">↩️</button>
+      <button class="timer-start" id="timerStartBtn" aria-label="Iniciar temporizador" title="Iniciar temporizador">▶</button>
+      <button class="timer-reset" id="timerResetBtn" aria-label="Reiniciar temporizador" title="Reiniciar temporizador">↩️</button>
     </div>
-    <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer">⏹</button></div>
+    <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer" title="Parar timer">⏹</button></div>
     <div id="prefillBanner">
       <div id="prefillText"></div>
       <button class="prefill-clear">✕ Empezar de cero</button>
@@ -172,7 +172,7 @@
     </div>
   </div>
   <div class="str-panel" id="strHistory">
-    <div class="cal-nav"><button aria-label="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente">▶</button></div>
+    <div class="cal-nav"><button aria-label="Mes anterior" title="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">▶</button></div>
     <div id="calendarPanel"></div>
     <div class="mb history-filter-wrap"><label>Plan</label><select id="historyProgFilter"><option value="">Todos los planes</option></select></div>
     <div class="mb history-filter-wrap"><label>Filtrar por sesión</label><select id="historyFilter"><option value="">Todas</option></select></div>
@@ -288,7 +288,7 @@
 
   <!-- TAB 2: Historial -->
   <div class="run-panel" id="runHistory">
-    <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente">&#9654;</button></div>
+    <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior" title="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">&#9654;</button></div>
     <div id="runCalendarPanel"></div>
     <div class="mb history-filter-wrap"><label>Filtrar por tipo</label><select id="runHistoryFilter"><option value="">Todas</option>
       <option value="intervalos">Intervalos</option><option value="rodaje">Rodaje</option><option value="tempo">Tempo</option>
@@ -343,11 +343,17 @@
     <button class="btn mb2" style="flex:1">Guardar medidas</button>
     <button class="btn btn-danger mb2" id="bodyDeleteBtn" style="display:none">Borrar</button>
   </div>
-  <div class="sec-title sec-title-accent">Proporciones Divinas</div><div id="proportionsPanel"></div>
-  <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32"></div></div>
-  <div class="sec-title sec-title-accent">Calorías Estimadas</div>
-  <div id="caloriesPanel"></div>
-  <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
+  <!-- body-col2: en escritorio esta mitad pasa entera a la segunda columna
+       (app.css, §Cuerpo). Va envuelta, y no marcada elemento a elemento, para
+       que su flujo vertical sea independiente del de la columna izquierda: en
+       una rejilla las filas son compartidas y los huecos se propagan. -->
+  <div class="body-col2">
+    <div class="sec-title sec-title-accent">Proporciones Divinas</div><div id="proportionsPanel"></div>
+    <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32"></div></div>
+    <div class="sec-title sec-title-accent">Calorías Estimadas</div>
+    <div id="caloriesPanel"></div>
+    <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
+  </div>
 </div>
 <div class="section" id="secSettings" aria-label="Ajustes">
   <div class="sec-title sec-title-accent">Apariencia</div>
@@ -372,7 +378,7 @@
         <label style="margin-bottom:0">Mejor marca 5K</label>
         <div class="input-hint">Introduce tu tiempo para personalizar las zonas de pace</div>
       </div>
-      <input type="text" id="settingsRace5k" placeholder="mm:ss" inputmode="numeric" style="width:80px;text-align:center;flex:none">
+      <input type="text" id="settingsRace5k" class="sc-input-sm" placeholder="mm:ss" inputmode="numeric">
     </div>
     <div class="zones-preview" id="settingsZonesPreview"></div>
   </div>
@@ -384,7 +390,7 @@
         <label style="margin-bottom:0">FC maxima</label>
         <div class="input-hint">Dejar en 0 para estimar desde tu edad (220 - edad)</div>
       </div>
-      <input type="number" id="settingsMaxHR" placeholder="190" min="100" max="230" inputmode="numeric" style="width:80px;text-align:center;flex:none">
+      <input type="number" id="settingsMaxHR" class="sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric">
     </div>
     <div class="zones-preview" id="settingsHRZonesPreview"></div>
   </div>
@@ -837,7 +843,7 @@
     <button class="quiron-hbtn" id="quironReportBtn" aria-label="Informe" title="Informe semanal / mensual"><span class="material-symbols-outlined">summarize</span></button>
     <button class="quiron-hbtn" id="quironHistoryBtn" aria-label="Conversaciones anteriores" title="Conversaciones anteriores"><span class="material-symbols-outlined">history</span></button>
     <button class="quiron-hbtn" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span></button>
-    <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
+    <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined">close</span></button>
   </div>
   <div class="quiron-msgs" id="quironMsgs"></div>
   <div class="quiron-setup" id="quironSetup" hidden>

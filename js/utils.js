@@ -35,22 +35,47 @@ export function today() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-/** Trap focus inside a modal element. Returns a cleanup function. */
+/**
+ * Trap focus inside a modal element. Returns a cleanup function.
+ *
+ * El listener va en `document`, no en `el`: montado sobre el propio overlay
+ * solo encierra el foco si el foco ya estaba dentro, y si arranca fuera —que es
+ * lo que pasaba con el .set-runner— el Tab se lo lleva a la pantalla de detrás
+ * sin que el handler llegue a ejecutarse.
+ */
 export function trapFocus(el) {
   const focusable = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const nodesIn = () => [...el.querySelectorAll(focusable)]
+    .filter(n => !n.disabled && n.getClientRects().length > 0);
   function handler(e) {
     if (e.key !== 'Tab') return;
-    const nodes = [...el.querySelectorAll(focusable)].filter(n => !n.disabled && n.offsetParent !== null);
+    const nodes = nodesIn();
     if (nodes.length === 0) return;
     const first = nodes[0], last = nodes[nodes.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    if (!el.contains(document.activeElement)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
   }
-  el.addEventListener('keydown', handler);
-  // Focus the first focusable element
-  const first = el.querySelector(focusable);
-  if (first) requestAnimationFrame(() => first.focus());
-  return () => el.removeEventListener('keydown', handler);
+  document.addEventListener('keydown', handler, true);
+  // El foco entra en el diálogo al abrirlo, o el primer Tab se va fuera. Entra
+  // en el contenedor, no en el primer campo: enfocar un input abre el teclado
+  // virtual en el móvil, y el .set-runner empieza por el peso.
+  const prev = document.activeElement;
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+  requestAnimationFrame(() => {
+    if (!el.contains(document.activeElement)) el.focus({ preventScroll: true });
+  });
+  return () => {
+    document.removeEventListener('keydown', handler, true);
+    // Devolver el foco a donde estaba: si no, queda en el <body> y el siguiente
+    // Tab reinicia el recorrido desde el principio de la página.
+    if (prev?.isConnected && el.contains(document.activeElement)) prev.focus();
+  };
 }
 
 const safeArr = v => Array.isArray(v) ? v : [];

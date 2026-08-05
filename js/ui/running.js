@@ -1499,17 +1499,17 @@ function initImport(db) {
 
   // El tracker solo donde el sistema operativo deja medir de verdad.
   if ($gps) $gps.hidden = !canTrackRuns();
+  // Con ratón el fichero está en el disco y se puede arrastrar; se dice.
+  const canDrop = matchMedia('(pointer:fine)').matches;
   if ($hint) {
     $hint.textContent = canTrackRuns()
       ? 'Exporta el GPX desde Garmin Connect o Strava, o mide desde aquí.'
-      : 'Exporta la actividad en GPX desde Garmin Connect o Strava. Se lee también TCX.';
+      : canDrop
+        ? 'Exporta la actividad en GPX desde Garmin Connect o Strava y suéltala aquí. Se lee también TCX.'
+        : 'Exporta la actividad en GPX desde Garmin Connect o Strava. Se lee también TCX.';
   }
 
-  $btn.addEventListener('click', () => $file.click());
-  $file.addEventListener('change', async () => {
-    const file = $file.files?.[0];
-    $file.value = '';                       // permite reimportar el mismo fichero
-    if (!file) return;
+  async function importOne(file) {
     try {
       const act = parseActivity(await readFile(file), file.name);
       const dup = findDuplicate(db, act);
@@ -1518,7 +1518,49 @@ function initImport(db) {
     } catch (e) {
       toast(e instanceof ImportError ? e.message : 'No se pudo importar el fichero', 'error');
     }
+  }
+
+  $btn.addEventListener('click', () => $file.click());
+  $file.addEventListener('change', async () => {
+    const file = $file.files?.[0];
+    $file.value = '';                       // permite reimportar el mismo fichero
+    if (file) await importOne(file);
   });
+
+  // Arrastrar y soltar. En un PC la acción principal de esta pantalla es
+  // importar —el GPX vive en el disco y exportar desde Garmin Connect o Strava
+  // es un flujo de escritorio— y hasta ahora la única affordance era un
+  // <input type="file"> disfrazado de botón.
+  const $drop = document.getElementById('runTrain');
+  if ($drop && canDrop && !$drop.dataset.dropBound) {
+    $drop.dataset.dropBound = '1';
+    // Solo ficheros: los arrastres internos (reordenar ejercicios) no cuentan.
+    const hasFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+    let depth = 0;
+    const clear = () => { depth = 0; $drop.classList.remove('is-dropping'); };
+    $drop.addEventListener('dragenter', e => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      if (++depth === 1) $drop.classList.add('is-dropping');
+    });
+    $drop.addEventListener('dragover', e => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    $drop.addEventListener('dragleave', () => { if (--depth <= 0) clear(); });
+    $drop.addEventListener('drop', async e => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      clear();
+      for (const f of e.dataTransfer.files) await importOne(f);
+    });
+    // Soltar fuera de la zona navegaría fuera de la app y se perdería lo que
+    // hubiera sin guardar.
+    for (const ev of ['dragover', 'drop']) {
+      window.addEventListener(ev, e => { if (hasFiles(e) && !$drop.contains(e.target)) e.preventDefault(); });
+    }
+  }
 }
 
 function saveImportedRun(db, act) {

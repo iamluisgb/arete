@@ -235,7 +235,10 @@ function _setupExDots(count) {
   if (!$dots) return;
   if (count < 3) { $dots.classList.remove('visible'); return; }
   $dots.innerHTML = Array.from({ length: count }, (_, i) =>
-    `<span class="ex-dot" data-dot="${i}"></span>`
+    // <button>, no <span>: es navegación entre ejercicios y tiene que existir
+    // para el teclado y ser un objetivo de clic de verdad (el punto sigue
+    // midiendo 8px, el área de pulsación 24).
+    `<button type="button" class="ex-dot" data-dot="${i}" aria-label="Ir al ejercicio ${i + 1}"></button>`
   ).join('');
   $dots.classList.add('visible');
 

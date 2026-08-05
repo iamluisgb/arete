@@ -457,24 +457,60 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── Global focus trap for modals ─────────────────────────
+// ── Foco y Escape en diálogos ────────────────────────────
+// El trap anterior solo observaba los .modal-overlay presentes al cargar, así
+// que los overlays creados en runtime —el .set-runner, que sí declara
+// aria-modal— nunca lo recibían: con el runner abierto, un Tab llevaba el foco
+// a los botones de la pantalla de detrás. Ahora se observa el árbol entero y el
+// criterio es el rol, no la clase: cualquier [role=dialog][aria-modal=true] que
+// se vuelva visible queda encerrado, incluidos los que aún no existen.
+const DIALOG_SEL = '[role="dialog"][aria-modal="true"]';
 const _focusTraps = new Map();
-const _modalObserver = new MutationObserver(mutations => {
-  for (const m of mutations) {
-    if (m.type !== 'attributes' || m.attributeName !== 'class') continue;
-    const el = m.target;
-    if (!el.classList.contains('modal-overlay')) continue;
-    if (el.classList.contains('open')) {
-      if (!_focusTraps.has(el)) _focusTraps.set(el, trapFocus(el));
-    } else {
-      const cleanup = _focusTraps.get(el);
-      if (cleanup) { cleanup(); _focusTraps.delete(el); }
-    }
+
+// position:fixed deja offsetParent a null, así que la visibilidad se mide con
+// los rects: cubre display:none, visibility:hidden y el runner sin .up.
+const isDialogVisible = el => el.getClientRects().length > 0 &&
+  getComputedStyle(el).visibility !== 'hidden';
+
+function syncDialogTraps() {
+  for (const el of document.querySelectorAll(DIALOG_SEL)) {
+    const open = isDialogVisible(el);
+    if (open && !_focusTraps.has(el)) _focusTraps.set(el, trapFocus(el));
+    else if (!open && _focusTraps.has(el)) { _focusTraps.get(el)(); _focusTraps.delete(el); }
+  }
+  for (const [el, cleanup] of _focusTraps) {
+    if (!el.isConnected) { cleanup(); _focusTraps.delete(el); }
+  }
+}
+
+// Coalescido a un frame: observar el árbol entero significa recibir también
+// cada repintado de listas y cada clase que toca el timer.
+let _syncPending = false;
+const _dialogObserver = new MutationObserver(() => {
+  if (_syncPending) return;
+  _syncPending = true;
+  requestAnimationFrame(() => { _syncPending = false; syncDialogTraps(); });
+});
+_dialogObserver.observe(document.body, {
+  childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'],
+});
+syncDialogTraps();
+
+// Escape cierra el diálogo de encima. Un único handler en document en lugar de
+// uno por overlay montado sobre un nodo que puede no tener nunca el foco.
+// No se duplica la lógica de cierre de cada modal: se dispara su propia ruta —
+// primero el clic en el fondo, que es como se cierran hoy, y si ese modal no la
+// tiene, su botón de cerrar. Así el detailModal sigue escondiendo su btn-bar.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.defaultPrevented) return;
+  const open = [...document.querySelectorAll('.modal-overlay.open')].filter(isDialogVisible);
+  const el = open[open.length - 1];
+  if (!el) return;
+  el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  if (el.classList.contains('open')) {
+    el.querySelector('[data-close], .modal-close, [id$="CloseBtn"]')?.click();
   }
 });
-document.querySelectorAll('.modal-overlay').forEach(el =>
-  _modalObserver.observe(el, { attributes: true, attributeFilter: ['class'] })
-);
 
 function showUpdateBanner(worker) {
   const banner = document.createElement('div');
