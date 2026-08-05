@@ -653,8 +653,8 @@ function renderRunCard(db, p, msg) {
     ${r.notes ? `<div class="q-prop-summary">${esc(r.notes)}</div>` : ''}
     <div class="q-prop-detail"><div class="q-prop-line">${esc(bits.join(' · ')) || '—'}</div></div>
     <div class="q-prop-actions">
-      <button class="btn btn--lg btn--block btn-outline btn-sm q-prop-discard">Descartar</button>
-      <button class="btn btn--lg btn--block btn-sm q-prop-apply"></button>
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Carrera registrada — ${r.date} · verla en Running → Historial`,
     () => applyRun(db, r), (t) => undoRun(db, t));
@@ -682,8 +682,8 @@ function renderWorkoutCard(db, p, msg) {
     ${w.notes ? `<div class="q-prop-summary">${esc(w.notes)}</div>` : ''}
     <div class="q-prop-detail">${detail}</div>
     <div class="q-prop-actions">
-      <button class="btn btn--lg btn--block btn-outline btn-sm q-prop-discard">Descartar</button>
-      <button class="btn btn--lg btn--block btn-sm q-prop-apply"></button>
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date} · verlo en Fuerza → Historial`,
     () => applyWorkout(db, w), (t) => undoWorkout(db, t));
@@ -718,9 +718,9 @@ function renderSessionCard(db, p, msg) {
     <button class="q-prop-toggle" type="button">Ver sesión</button>
     <div class="q-prop-detail" hidden>${detail}</div>
     <div class="q-prop-actions q-prop-actions-3">
-      <button class="btn btn--lg btn--block btn-outline btn-sm q-prop-discard">Descartar</button>
-      <button class="btn btn--lg btn--block btn-outline btn-sm q-prop-save">Guardar para luego</button>
-      <button class="btn btn--lg btn--block btn-sm q-prop-start">Empezar ahora</button>
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-outline btn-sm q-prop-save">Guardar para luego</button>
+      <button class="btn btn-sm q-prop-start">Empezar ahora</button>
     </div>`;
 
   card.querySelector('.q-prop-toggle').addEventListener('click', (e) => {
@@ -826,8 +826,8 @@ function renderProposalCard(db, p, msg) {
     <button class="q-prop-toggle" type="button">Ver plan</button>
     <div class="q-prop-detail" hidden>${detail}</div>
     <div class="q-prop-actions">
-      <button class="btn btn--lg btn--block btn-outline btn-sm q-prop-discard">Descartar</button>
-      <button class="btn btn--lg btn--block btn-sm q-prop-apply"></button>
+      <button class="btn btn-outline btn-sm q-prop-discard">Descartar</button>
+      <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
 
   card.querySelector('.q-prop-toggle').addEventListener('click', (e) => {

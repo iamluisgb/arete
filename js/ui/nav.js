@@ -123,7 +123,7 @@ function renderCustomSessions(db) {
     $el.innerHTML = `<div class="str-plan-custom">
       <div class="str-plan-custom-head"><span class="str-plan-custom-title">Tus sesiones</span></div>
       <div class="str-plan-custom-empty">Aún no tienes ninguna. Pídele a Quirón una sesión para hoy y aparecerá aquí.
-        <button class="btn btn--lg btn--block btn-outline btn-sm" data-ask-quiron="Prepárame una sesión para hoy">Pedir una sesión</button>
+        <button class="btn btn-outline btn-sm" data-ask-quiron="Prepárame una sesión para hoy">Pedir una sesión</button>
       </div>
     </div>`;
   } else {
@@ -143,8 +143,8 @@ function renderCustomSessions(db) {
           `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
         ).join('')}</div>
         <div class="str-plan-custom-actions">
-          <button class="btn btn--lg btn--block btn-outline btn-sm" data-del-session="${esc(s.id)}">Borrar</button>
-          <button class="btn btn--lg btn--block str-plan-start-btn" data-start-session="${esc(sessionRef(s.id))}">Iniciar sesión</button>
+          <button class="btn btn-outline btn-sm" data-del-session="${esc(s.id)}">Borrar</button>
+          <button class="btn btn--block str-plan-start-btn" data-start-session="${esc(sessionRef(s.id))}">Iniciar sesión</button>
         </div>
       </div>`).join('')}
       ${sessions.length > CUSTOM_VISIBLE ? `<button class="str-plan-custom-more" data-toggle-more>${expanded ? 'Ver menos' : `Ver todas (${sessions.length})`}</button>` : ''}
@@ -216,7 +216,7 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
         <div class="str-plan-ex-list">${exercises.map(ex =>
           `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
         ).join('')}</div>
-        <button class="btn btn--lg btn--block str-plan-start-btn" data-plan-session="${esc(name)}" data-plan-phase="${phaseKey}">Iniciar sesión</button>
+        <button class="btn btn--block str-plan-start-btn" data-plan-session="${esc(name)}" data-plan-phase="${phaseKey}">Iniciar sesión</button>
       </div>`;
     }).join('')}`;
 

@@ -51,7 +51,7 @@ function hoja() {
       <dl class="shortcut-list">
         ${ATAJOS.map(a => `<div class="shortcut-row"><dt><kbd>${a.tecla}</kbd></dt><dd>${a.que}</dd></div>`).join('')}
       </dl>
-      <button class="btn btn--lg btn--block btn-outline" data-close>Cerrar</button>
+      <button class="btn btn-outline" data-close>Cerrar</button>
     </div>`;
   el.addEventListener('click', e => {
     if (e.target === el || e.target.closest('[data-close]')) el.classList.remove('open');

@@ -52,23 +52,23 @@ function renderRadar(profile) {
   for (let l = 1; l <= 5; l++) {
     const pts = [];
     for (let i = 0; i < N; i++) pts.push(vertex(i, (l / 5) * R).join(','));
-    h += `<polygon points="${pts.join(' ')}" fill="none" stroke="var(--ghost-border)" stroke-width="1"/>`;
+    h += `<polygon points="${pts.join(' ')}" fill="none" stroke="var(--color-border-ghost)" stroke-width="1"/>`;
   }
   ds.forEach((d, i) => {
     const [x, y] = vertex(i, R);
     const sinMedir = d.level === 0;
-    h += `<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="var(--ghost-border)" `
+    h += `<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="var(--color-border-ghost)" `
       + `stroke-width="${sinMedir ? 1.5 : 0.5}"${sinMedir ? ' stroke-dasharray="3 4"' : ''}/>`;
   });
 
   const medidos = ds.map((d, i) => ({ d, i })).filter(({ d }) => d.level > 0);
   if (medidos.length >= 3) {
     const pts = medidos.map(({ d, i }) => vertex(i, (d.level / 5) * R).join(','));
-    h += `<polygon points="${pts.join(' ')}" fill="var(--accent-glow)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+    h += `<polygon points="${pts.join(' ')}" fill="var(--color-accent-glow)" stroke="var(--color-accent-text)" stroke-width="2" stroke-linejoin="round"/>`;
   } else if (medidos.length === 2) {
     // Con dos puntos no hay polígono: una línea entre ellos es lo honesto.
     const [a, b] = medidos.map(({ d, i }) => vertex(i, (d.level / 5) * R));
-    h += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--accent)" stroke-width="2"/>`;
+    h += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--color-accent-text)" stroke-width="2"/>`;
   }
 
   medidos.forEach(({ d, i }) => {
@@ -82,7 +82,7 @@ function renderRadar(profile) {
     const cos = Math.cos(START + i * STEP);
     const anchor = cos > 0.15 ? 'start' : cos < -0.15 ? 'end' : 'middle';
     const esLimite = profile.limitedBy?.id === d.id;
-    const color = esLimite ? 'var(--accent)' : d.level === 0 ? 'var(--text3)' : 'var(--text2)';
+    const color = esLimite ? 'var(--color-accent-text)' : d.level === 0 ? 'var(--color-text-tertiary)' : 'var(--color-text-secondary)';
     h += `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" `
       + `fill="${color}" font-size="10.5" font-weight="${esLimite ? '800' : '600'}" `
       + `font-family="var(--font)">${esc(d.short)}</text>`;
@@ -170,7 +170,7 @@ function domainRow(d, profile) {
         <span class="prof-domain-name">${esc(d.name)}${chips.join('')}</span>
         <span class="prof-domain-bar"><span class="fill" style="width:${pct}%;background:${d.color}"></span></span>
       </span>
-      <span class="prof-domain-lvl" style="color:${d.level ? d.color : 'var(--text3)'}">${ROMAN[d.level]}</span>
+      <span class="prof-domain-lvl" style="color:${d.level ? d.color : 'var(--color-text-tertiary)'}">${ROMAN[d.level]}</span>
     </button>
     <div class="prof-domain-body">
       <div class="prof-domain-why">${esc(d.why)}</div>

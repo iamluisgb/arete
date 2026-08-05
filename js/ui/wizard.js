@@ -58,18 +58,18 @@ export function createWizard({ container, steps, onFinish, onCancel }) {
 
   const $back = document.createElement('button');
   $back.type = 'button';
-  $back.className = 'btn btn--lg btn--block btn-outline wiz-back';
+  $back.className = 'btn btn-outline wiz-back';
   $back.textContent = 'Atrás';
   $back.addEventListener('click', prev);
 
   const $next = document.createElement('button');
   $next.type = 'button';
-  $next.className = 'btn btn--lg btn--block wiz-next';
+  $next.className = 'btn wiz-next';
   $next.addEventListener('click', next);
 
   const $cancel = document.createElement('button');
   $cancel.type = 'button';
-  $cancel.className = 'btn btn--lg btn--block btn-outline wiz-cancel';
+  $cancel.className = 'btn btn-outline wiz-cancel';
   $cancel.textContent = 'Cancelar';
   $cancel.addEventListener('click', () => { if (onCancel) onCancel(); close(); });
 
