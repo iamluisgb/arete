@@ -879,7 +879,7 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-header .cal-title{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em}
 .cal-header .cal-count{font-size:var(--fs-xs);color:var(--color-text-secondary);text-align:right;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-.cal-header .cal-count span{display:block;font-size:var(--fs-2xl);font-weight:700;color:var(--color-accent-text);letter-spacing:-.02em}
+.cal-header .cal-count span{display:block;font-size:var(--fs-2xl);font-weight:700;color:var(--color-text-primary);letter-spacing:-.02em}
 .cal-nav{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);justify-content:center}
 .cal-nav button{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:8px 18px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base)}
 .cal-nav button:active{background:var(--color-surface-3)}
@@ -893,11 +893,19 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-grid .cal-day.empty{color:transparent}
 .history-item{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:14px;margin-bottom:var(--sp-2);cursor:pointer;transition:transform var(--dur-instant)}
 .history-item:active{transform:scale(.98)}
-.history-item .hi-date{font-size:var(--fs-base);color:var(--color-accent-text);font-weight:700}
+/* Una fecha no es un acento. Eran seis rojos apilados en la primera pantalla de
+   Historial —uno por tarjeta— por poner en color de marca el dato más repetido
+   de la lista. En tinta y en negrita sigue siendo lo primero que se lee de cada
+   tarjeta, que es para lo que estaba el color. */
+.history-item .hi-date{font-size:var(--fs-base);color:var(--color-text-primary);font-weight:700}
 .history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--color-text-primary);margin-top:6px;line-height:1.4}
 .history-item .hi-plan{font-size:.6rem;color:var(--color-text-secondary);background:var(--color-surface-2);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;white-space:nowrap}
-.hi-edit-btn{background:var(--color-accent-text);color:var(--color-on-fill);border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-2);transition:opacity var(--dur-base)}
+/* Editar una fila nunca es la acción primaria de una vista: no es a lo que has
+   venido (§8). Era el mismo argumento que ya se aplicó en el historial corporal
+   con un override local; se aplica de una vez en el componente y el override de
+   Cuerpo pasa a ser redundante en vez de la única excepción. */
+.hi-edit-btn{background:var(--color-surface-2);color:var(--color-text-primary);border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-2);transition:background var(--dur-base)}
 .hi-edit-btn:active{opacity:.7}
 .load-more-btn{display:block;width:100%;background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;border-radius:var(--radius-lg);cursor:pointer;margin-top:var(--sp-1);transition:background var(--dur-base)}
 .load-more-btn:active{background:var(--color-border-subtle)}
@@ -1627,8 +1635,12 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .dash-ring-fill{transition:stroke-dashoffset var(--dur-slow) var(--ease-standard)}
 .dash-ring-value{position:absolute;font:var(--type-body-strong);font-weight:800;
   font-variant-numeric:tabular-nums;color:var(--color-text-primary);text-align:center}
+/* La racha en tinta. "0 días" en rojo lee como un error, y no lo es: es un
+   hecho neutro que la propia tarjeta remata con "Empieza hoy". Las cifras
+   destacadas en rojo eran, literalmente, uno de los usos que el §2.3 señala
+   como la causa de que el acento dejara de acentuar. */
 .dash-streak-value{font:var(--type-metric);letter-spacing:var(--track-metric);
-  font-variant-numeric:tabular-nums;color:var(--color-accent-text)}
+  font-variant-numeric:tabular-nums;color:var(--color-text-primary)}
 .dash-streak-sub{font:var(--type-caption);color:var(--color-text-secondary)}
 /* UNA acción primaria. Antes eran dos rellenos saturados —rojo y cian— con la
    misma sombra tintada y el mismo peso: la pantalla no decía qué hacer, decía
@@ -1880,8 +1892,13 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    Migrada. El nivel grande es la única cifra en acento de la pantalla: es el
    dato que resume el producto entero. */
 .prof-head{text-align:center;margin-bottom:var(--sp-2)}
+/* El §9.1 ya decía que en Perfil "el rojo se reserva para tu limitante", pero el
+   numeral del nivel seguía siendo rojo y era el rojo más grande de la pantalla:
+   competía con el badge TU LIMITANTE, con la línea del radar, con la etiqueta
+   del dominio limitante y con "Medir". En tinta, el nivel sigue siendo el dato
+   que domina —lo dice su tamaño— y el rojo vuelve a significar una sola cosa. */
 .prof-level{font:var(--type-display);font-size:var(--fs-4xl);letter-spacing:var(--track-display);
-  line-height:1;color:var(--color-accent-text);font-variant-numeric:tabular-nums}
+  line-height:1;color:var(--color-text-primary);font-variant-numeric:tabular-nums}
 .prof-level-name{font:var(--type-label);letter-spacing:var(--track-label);
   text-transform:uppercase;color:var(--color-text-secondary);margin-top:var(--sp-1)}
 .prof-limited{font:var(--type-body);color:var(--color-text-secondary);margin-top:var(--sp-3)}
@@ -1965,8 +1982,14 @@ body.session-focus{padding-bottom:0;overflow:hidden}
   padding:var(--pad-card);cursor:pointer;text-align:left;font-family:var(--font);
   color:var(--color-text-primary);min-height:64px;transition:background var(--dur-fast)}
 .dash-level:active{opacity:.85}
+/* El número de nivel en tinta y no en rojo, por dos razones. La primera es el
+   presupuesto: en Hoy competía con el botón Fuerza, con la racha y con los
+   arcos de dominio. La segunda es que unos numerales romanos estrechos en rojo
+   pegados al borde izquierdo de una tarjeta se leen como una barra de acento
+   lateral, que es justo lo que el sistema prohíbe (§2.4) — aunque aquí sean
+   contenido y no decoración. El rojo del perfil se reserva para el limitante. */
 .dash-level-num{flex-shrink:0;font:var(--type-metric-lg);letter-spacing:var(--track-metric-lg);
-  font-variant-numeric:tabular-nums;color:var(--color-accent-text);min-width:44px;text-align:center}
+  font-variant-numeric:tabular-nums;color:var(--color-text-primary);min-width:44px;text-align:center}
 .dash-level-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .dash-level-txt b{font:var(--type-body-strong);font-weight:700}
 .dash-level-txt span{font:var(--type-caption);color:var(--color-text-secondary)}
@@ -1996,7 +2019,12 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .radar-wrap{grid-area:3/1}
 .prof-next{grid-area:4/1}
 .prof-domains-title{grid-area:2/2;margin-top:0}
+/* La lista arrancaba en la fila 3 —la del radar— y quedaba a 120px por debajo
+   de su propio título, con un hueco en blanco entre los dos que no separaba
+   nada: la fila 2 la marca la altura de .prof-head, que es mucho más alta que
+   un título. Empieza donde acaba su título y se estira hasta abajo. */
 #profDomains{grid-area:3/2/span 2}
+.prof-domains-title{align-self:end}
 .prof-note{grid-area:5/2}
 /* width:100% explícito: con margin-inline:auto un grid item deja de estirarse y
    se queda en su ancho de contenido — el radar volvía a 340px. */
@@ -2064,6 +2092,20 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .ex-dots{display:none}
 .ex-dots.visible{display:none}
 }
+/* ── Entrenar/Fuerza · Plan ───────────────────────────────
+   Mismo fallo que Actividad y misma cura. Las seis sesiones del plan eran seis
+   tarjetas de 915px apiladas, cada una rematada por un "Iniciar sesión" rojo a
+   ancho completo: seis vallas del color de la marca en una pantalla cuyo
+   trabajo es enseñarte el plan, no arrancarlo. Las tarjetas pasan a rejilla
+   —crecen en número por fila, no de tamaño— y el botón deja de ser primario y
+   de ocupar el ancho: es la acción de una tarjeta, no la de la vista. */
+@media(min-width:1024px){
+#strPlanContent{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
+  gap:var(--gap-stack);align-items:start}
+#strPlanContent>.str-plan-session{margin-bottom:0;max-width:var(--measure-panel)}
+.str-plan-header,.str-plan-desc{grid-column:1/-1}
+.str-plan-start-btn.btn--block{width:auto;min-width:200px;margin-left:auto;display:block}
+}
 /* ── Entrenar/Fuerza · Historial: calendario y lista a la vez ── */
 @media(min-width:1024px){
 /* La última fila, vacía, absorbe el alto sobrante de la lista, que es mucho más
@@ -2075,7 +2117,13 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 }
 /* ── Entrenar/Fuerza · Progreso ─────────────────────────── */
 @media(min-width:1024px){
-#strProgress.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:var(--sp-4) var(--sp-6);align-items:start}
+/* 200 y no 300. Progreso es la única pantalla con DOS carriles de navegación
+   —los destinos de Entrenar y el selector de ejercicio— antes del primer dato:
+   a 300 sumaban 468px de cromo lateral y la tabla, que es donde de verdad se
+   compara, empezaba pasada la mitad de la pantalla. La lista sigue siendo
+   lateral y no una fila de chips porque escala: con treinta ejercicios en el
+   histórico, una fila que envuelve son cuatro líneas de cromo. */
+#strProgress.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:var(--sp-4) var(--gap-section);align-items:start}
 .progress-select-wrap{grid-column:1}
 /* La tabla del historial se va a la columna ancha: cuantas más columnas se
    vean, más vale. */
@@ -2308,16 +2356,14 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #strTrain>.row,#runTrain .row{max-width:var(--measure-form)}
 .progress-select-wrap select,.history-filter-wrap select,.str-plan-select{max-width:var(--measure-form)}
 }
-/* Los 1RM de Ajustes: cinco filas de 76px que caben en un bloque. Cuerpo ya no
-   necesita esta regla — .measure-grid y .tiles se recolocan solos con
-   auto-fill, sin un media query por breakpoint. */
-@media(min-width:1024px){
-#rmPanel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2)}
-#rmPanel .calc-result{margin-bottom:0}
-}
-@media(min-width:1440px){
-#rmPanel{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
+/* Los 1RM de Ajustes: la regla que había aquí era de cuando #rmPanel contenía
+   cinco .calc-result sueltos. Hoy contiene UN .tiles, y una rejilla de tres
+   columnas alrededor de un solo hijo lo metía en el primer tercio: los cinco
+   1RM se apilaban en una columna de 164px dentro de un panel de 510, con dos
+   tercios en blanco al lado. Es el mismo hueco por reparto que Entrenar, en
+   pequeño y por una regla que se quedó vieja.
+   Se borra: .tiles ya es auto-fill y crece en número por fila (§5.6), que es
+   exactamente lo que esta regla intentaba hacer a mano y por breakpoint. */
 @media(min-width:1024px){input.sc-input-sm{width:96px}}
 /* El calendario no crece con la columna: las celdas de día se vuelven círculos
    enormes y el mes deja de leerse como una rejilla. */
@@ -2331,7 +2377,12 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .progress-select-wrap .progress-label,.progress-select-wrap select{display:none}
 .progress-ex-list{display:flex;flex-direction:column;gap:2px}
 .progress-ex{background:none;border:none;border-radius:var(--radius-md);padding:9px 12px;text-align:left;font-family:var(--font);font-size:var(--fs-md);font-weight:600;color:var(--color-text-secondary);cursor:pointer;transition:background var(--dur-fast),color var(--dur-fast)}
-.progress-ex.active{background:var(--color-accent-text);color:var(--color-on-fill)}
+/* El ejercicio elegido era un relleno rojo a ancho de columna: el objeto más
+   pesado de Progreso, y no es una acción — es una selección de lista. El §5.8
+   ya lo dice para el segmentado ("fondo y peso, nunca una banda de acento") y
+   aquí se aplicaba lo contrario, además con el rojo que la gráfica, el PR y la
+   fila destacada ya estaban usando. Fondo y peso, como sus vecinos. */
+.progress-ex.active{background:var(--color-surface-2);color:var(--color-text-primary);font-weight:700}
 }
 
 }
