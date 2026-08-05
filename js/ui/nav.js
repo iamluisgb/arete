@@ -26,7 +26,10 @@ export function updatePhaseDisplay(db) {
 
 /** Switch active section and render its content */
 export function switchTab(btn, db) {
-  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+  // nav-dimmed es el atenuado que pone Quirón mientras manda: si se navega a
+  // otro destino con el panel abierto, la pestaña que se enciende no puede
+  // quedarse a media luz.
+  document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active', 'nav-dimmed'); b.removeAttribute('aria-current'); });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
   try { navigator.vibrate?.(10); } catch {}
@@ -64,6 +67,18 @@ function renderTrainMode(db) {
   document.getElementById('secStrength')?.classList.toggle('active', mode === 'str');
   document.getElementById('secRunning')?.classList.toggle('active', mode === 'run');
 
+  // El contexto y las pestañas del modo viven ahora en la cabecera y en la
+  // navegación secundaria, fuera de los paneles: hay que enseñarlos y esconderlos
+  // a mano. Antes se ocultaban solos porque estaban dentro del panel, que es
+  // justo lo que los convertía en tres barras apiladas.
+  const enFuerza = mode === 'str';
+  document.getElementById('strCtx')?.toggleAttribute('hidden', !enFuerza);
+  document.getElementById('runCtx')?.toggleAttribute('hidden', enFuerza);
+  document.querySelector('.str-subnav')?.toggleAttribute('hidden', !enFuerza);
+  document.getElementById('runSubnav')?.toggleAttribute('hidden', enFuerza);
+  const sub = document.getElementById('trainSub');
+  if (sub) sub.textContent = enFuerza ? 'Fuerza' : 'Carrera';
+
   if (mode === 'run') { refreshRunning(db); return; }
   const panel = document.querySelector('.str-panel.active')?.id;
   if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }
@@ -79,9 +94,11 @@ export function switchTrainMode(mode, db) {
  *  implica que el modo es fuerza (lo usan "Iniciar sesión" y Quirón). */
 export function switchStrTab(tabName, db) {
   if (getTrainMode() !== 'str') switchTrainMode('str', db);
-  document.querySelectorAll('.str-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.str-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
   document.querySelectorAll('.str-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`.str-tab[data-str="${tabName}"]`)?.classList.add('active');
+  const tab = document.querySelector(`.str-tab[data-str="${tabName}"]`);
+  tab?.classList.add('active');
+  tab?.setAttribute('aria-selected', 'true');
   document.getElementById(tabName)?.classList.add('active');
   localStorage.setItem('areteLastStrTab', tabName);
   // Render content

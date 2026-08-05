@@ -845,15 +845,42 @@ function autoGrow() {
   els.input.style.height = Math.min(els.input.scrollHeight, 120) + 'px';
 }
 
+// Quirón dejó de ser un FAB flotante y es un destino de la navegación: la sexta
+// entrada del rail en escritorio, la sexta pestaña abajo en móvil. Abrirlo lo
+// marca como el destino activo, igual que cualquier otra sección — es lo que
+// significa "tener sitio propio" y no "flotar por encima de todo".
+//
+// Sigue siendo un panel y no una .section porque necesita el alto completo con
+// su barra de entrada anclada abajo, y porque se abre desde otras pantallas
+// ("Pedir una sesión") sin cambiar de pestaña.
+function markNavActive(on) {
+  const btn = document.getElementById('navQuiron');
+  if (!btn) return;
+  if (on) {
+    // La pestaña de la sección se apaga visualmente mientras Quirón manda; su
+    // estado real no se toca, así que cerrar el panel lo devuelve tal cual.
+    document.querySelectorAll('nav button[data-sec].active').forEach(b => b.classList.add('nav-dimmed'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-current', 'page');
+  } else {
+    document.querySelectorAll('nav button.nav-dimmed').forEach(b => b.classList.remove('nav-dimmed'));
+    btn.classList.remove('active');
+    btn.removeAttribute('aria-current');
+  }
+}
+
 function openPanel() {
   els.panel.classList.add('open');
   document.body.classList.add('quiron-open');
+  markNavActive(true);
   showSetupIfNeeded();
   els.msgs.scrollTop = els.msgs.scrollHeight;
 }
 function closePanel() {
   els.panel.classList.remove('open');
   document.body.classList.remove('quiron-open');
+  markNavActive(false);
+  document.getElementById('navQuiron')?.focus();
 }
 
 // ── Ajustes (proveedor / key / modelo) ──────────────────────────────────────
@@ -935,7 +962,7 @@ export function initQuiron(db, opts = {}) {
   if (typeof opts.onProgramsChanged === 'function') onProgramsChanged = opts.onProgramsChanged;
   if (typeof opts.onStartSession === 'function') onStartSession = opts.onStartSession;
   els = {
-    fab: document.getElementById('quironFab'),
+    fab: document.getElementById('navQuiron'),
     panel: document.getElementById('quironPanel'),
     msgs: document.getElementById('quironMsgs'),
     chips: document.getElementById('quironChips'),

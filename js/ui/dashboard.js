@@ -237,7 +237,7 @@ export function renderDashboard(db) {
     const topExercises = item.exercises.slice(0, 2).map(e => esc(e.name)).join(', ');
     const totalSets = item.exercises.reduce((sum, e) => sum + e.sets.length, 0);
     return `<div class="dash-act-card${hasPR ? ' has-pr' : ''}">
-      ${hasPR ? '<div class="dash-act-chip">Récord</div>' : ''}
+      ${hasPR ? '<div class="badge badge--accent dash-act-chip">Récord</div>' : ''}
       <div class="dash-act-name"><span class="material-symbols-outlined dash-act-icon">fitness_center</span>${esc(item.session)}</div>
       <div class="dash-act-detail">${topExercises}</div>
       <div class="dash-act-detail">${totalSets} series</div>

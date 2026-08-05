@@ -244,9 +244,10 @@ export function initRunning(db) {
   // Sub-nav tabs
   document.querySelectorAll('.run-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.run-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.run-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
       document.querySelectorAll('.run-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       document.getElementById(btn.dataset.run).classList.add('active');
 
       if (btn.dataset.run === 'runHistory') renderRunHistory(db);

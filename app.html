@@ -51,89 +51,136 @@
 <body>
 <div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">Sin conexión — los datos se guardan localmente</div>
 <header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite"></div></header>
-<main><div class="section active" id="secDashboard" aria-label="Dashboard">
+<!-- HOY — migrada. Lo primero que se ve al abrir la app: el saludo, tu nivel, la
+     semana y la acción de hoy. El bento de anillos se queda porque es identidad;
+     lo que cambia es que ya no hay dos acciones primarias compitiendo. -->
+<main><div class="section active" id="secDashboard" data-ds aria-label="Hoy">
   <section class="dash-greeting">
-    <p class="dash-greeting-label">ARETÉ</p>
-    <h2 class="dash-greeting-title" id="dashGreeting">Hola, Guerrero</h2>
+    <p class="dash-greeting-label">Areté</p>
+    <h2 class="dash-greeting-title" id="dashGreeting">Hola</h2>
     <p class="dash-greeting-quote" id="dashQuote"></p>
   </section>
   <button class="dash-level" id="dashLevel" type="button"></button>
-  <section class="dash-bento">
+  <h3 class="group-title dash-week-title">Esta semana</h3>
+  <section class="dash-bento" aria-label="Resumen de la semana">
     <div class="dash-card" id="dashVolume">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">fitness_center</span> Volumen Semanal</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Volumen</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashVolumeRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-strength)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashVolumeRing"/>
         </svg>
         <div class="dash-ring-value" id="dashVolumeValue">0 kg</div>
       </div>
     </div>
     <div class="dash-card" id="dashSessions">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">fitness_center</span> Sesiones</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Sesiones</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashSessionsRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-strength)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashSessionsRing"/>
         </svg>
         <div class="dash-ring-value" id="dashSessionsValue">0</div>
       </div>
     </div>
     <div class="dash-card" id="dashRunKm">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">directions_run</span> Km Semanales</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Kilómetros</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunKmRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunKmRing"/>
         </svg>
         <div class="dash-ring-value" id="dashRunKmValue">0 km</div>
       </div>
     </div>
     <div class="dash-card" id="dashRunSessions">
-      <div class="dash-card-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px">directions_run</span> Carreras</div>
+      <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Carreras</div>
       <div class="dash-ring-wrap">
-        <svg class="dash-ring" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="6"/>
-          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunSessionsRing"/>
+        <svg class="dash-ring" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-surface-2)" stroke-width="6"/>
+          <circle class="dash-ring-fill" cx="40" cy="40" r="34" fill="none" stroke="var(--color-domain-running)" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" id="dashRunSessionsRing"/>
         </svg>
         <div class="dash-ring-value" id="dashRunSessionsValue">0</div>
       </div>
     </div>
     <div class="dash-card dash-card-wide" id="dashStreak">
-      <div class="dash-card-label">Racha Actual</div>
+      <div class="dash-card-label">Racha actual</div>
       <div class="dash-streak-value" id="dashStreakValue">0 días</div>
       <div class="dash-streak-sub" id="dashStreakSub">Empieza hoy</div>
     </div>
   </section>
+  <!-- Una sola acción primaria. Las dos hacen exactamente lo mismo que antes;
+       lo que cambia es que dejan de gritar igual de fuerte. La carrera conserva
+       su color de dominio en el icono, que es donde el color informa sin
+       convertirse en un segundo acento a pantalla completa. -->
   <div class="dash-cta-group">
-    <button class="btn btn--lg btn--block dash-cta" id="dashStartBtn"><span class="material-symbols-outlined" style="font-size:20px">fitness_center</span> Fuerza</button>
-    <button class="btn btn--lg btn--block dash-cta dash-cta-run" id="dashStartRunBtn"><span class="material-symbols-outlined" style="font-size:20px">directions_run</span> Running</button>
+    <button class="btn btn--lg dash-cta" type="button" id="dashStartBtn"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Fuerza</button>
+    <button class="btn btn--lg btn--secondary dash-cta dash-cta-run" type="button" id="dashStartRunBtn"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Running</button>
   </div>
   <section class="dash-activity" id="dashActivity">
-    <h3 class="dash-section-title">Actividad Reciente</h3>
+    <h3 class="group-title">Actividad reciente</h3>
     <div class="dash-activity-scroll" id="dashActivityList"></div>
   </section>
 </div>
-<div class="section" id="secTrain" aria-label="Entrenar">
-  <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
-    <button class="train-mode-btn active" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined">fitness_center</span>Fuerza</button>
-    <button class="train-mode-btn" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined">directions_run</span>Carrera</button>
+<!-- ENTRENAR — migrada, y con ella la reorganización de navegación aprobada
+     (DESIGN_SYSTEM.md §7.2). Antes había TRES barras apiladas antes de que
+     apareciera un solo dato: el segmentado Fuerza/Carrera, la barra de contexto
+     con los chips de programa y fase, y las cuatro pestañas. ~180px verticales
+     de navegación consecutiva, y la barra de contexto ni siquiera era
+     navegación: era ESTADO disfrazado de barra.
+
+     Ahora: el contexto sube a la cabecera y deja de ser sticky; el modo y las
+     cuatro pestañas viven en una sola navegación secundaria, que en escritorio
+     es una columna lateral y en móvil dos segmentados. -->
+<div class="section" id="secTrain" data-ds aria-label="Entrenar">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Entrenar</h2>
+      <p class="page-sub" id="trainSub">Fuerza</p>
+    </div>
+    <!-- El contexto: dónde estás, no a dónde vas. Chips, porque se pulsan para
+         cambiar de programa, de fase o de semana. -->
+    <div class="page-head-ctx" id="strCtx">
+      <button class="chip" type="button" id="programContext">
+        <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+      <button class="chip" type="button" id="phaseContext">
+        <span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+    </div>
+    <div class="page-head-ctx" id="runCtx" hidden>
+      <button class="chip" type="button" id="runProgramContext">
+        <span id="runProgramName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+      <button class="chip" type="button" id="runWeekContext">
+        <span id="runWeekName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      </button>
+    </div>
   </div>
+
+  <!-- Navegación secundaria. Un solo bloque: el modo arriba y sus destinos
+       debajo. En ≥1024 es la columna izquierda de la pantalla y el cromo
+       vertical antes del primer dato pasa a cero. -->
+  <div class="subnav" id="trainSubnav">
+    <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
+      <button class="train-mode-btn active" type="button" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>Fuerza</button>
+      <button class="train-mode-btn" type="button" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span>Carrera</button>
+    </div>
+    <div class="str-subnav subnav-tabs" role="tablist" aria-label="Secciones de fuerza">
+      <button class="str-tab active" type="button" role="tab" aria-selected="true" data-str="strTrain">Actividad</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strHistory">Historial</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strProgress">Progreso</button>
+      <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strPlan">Plan</button>
+    </div>
+    <div class="run-subnav subnav-tabs" id="runSubnav" role="tablist" aria-label="Secciones de carrera" hidden>
+      <button class="run-tab active" type="button" role="tab" aria-selected="true" data-run="runActivity">Actividad</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runHistory">Historial</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runProgress">Progreso</button>
+      <button class="run-tab" type="button" role="tab" aria-selected="false" data-run="runPlan">Plan</button>
+    </div>
+  </div>
+
 <div class="train-panel active" id="secStrength" aria-label="Fuerza">
-  <div class="context-bar">
-    <div class="phase-context" id="programContext">
-      <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-    <div class="phase-context" id="phaseContext">
-      <span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-  </div>
-  <div class="str-subnav">
-    <button class="str-tab active" data-str="strTrain">Actividad</button>
-    <button class="str-tab" data-str="strHistory">Historial</button>
-    <button class="str-tab" data-str="strProgress">Progreso</button>
-    <button class="str-tab" data-str="strPlan">Plan</button>
-  </div>
   <div class="str-panel active" id="strTrain">
     <div class="timer-bar mode-countdown active" id="timerBar">
       <div class="timer-mode-toggle">
@@ -201,22 +248,6 @@
   </div>
 </div>
 <div class="train-panel" id="secRunning" aria-label="Carrera">
-  <div class="run-ctx-bar">
-    <div class="phase-context" id="runProgramContext">
-      <span id="runProgramName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-    <div class="phase-context" id="runWeekContext">
-      <span id="runWeekName">—</span>
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-    </div>
-  </div>
-  <div class="run-subnav" id="runSubnav">
-    <button class="run-tab active" data-run="runActivity">Actividad</button>
-    <button class="run-tab" data-run="runHistory">Historial</button>
-    <button class="run-tab" data-run="runProgress">Progreso</button>
-    <button class="run-tab" data-run="runPlan">Plan</button>
-  </div>
 
   <!-- TAB 1: Actividad -->
   <div class="run-panel active" id="runActivity">
@@ -890,6 +921,11 @@
   <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span>Perfil</span></button>
   <button data-sec="secBody"><span class="material-symbols-outlined">monitor_weight</span><span>Cuerpo</span></button>
   <button data-sec="secSettings"><span class="material-symbols-outlined">tune</span><span>Más</span></button>
+  <!-- Quirón. Va detrás de un separador porque es de otra naturaleza: los cinco
+       de arriba son pantallas con tus datos, éste es una conversación. No lleva
+       data-sec — no es una .section, es un panel — y por eso lo abre quiron.js
+       en vez de switchTab. -->
+  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg><span>Quirón</span></button>
 </nav>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="revisionsModalTitle" id="revisionsModal"><div class="modal" style="max-height:80vh;overflow-y:auto">
   <h3 id="revisionsModalTitle">Versiones anteriores en Drive</h3>
@@ -904,7 +940,6 @@
   </div>
   <button class="btn btn--lg btn--block btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
-<button id="quironFab" aria-label="Quirón, tu coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg></button>
 <div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
   <div class="quiron-header">
     <div class="quiron-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg> QUIRÓN <span class="quiron-sub">tu coach</span></div>

@@ -15,7 +15,8 @@ const TECLAS_SECCION = { 1: 'secDashboard', 2: 'secTrain', 3: 'secProfile', 4: '
 
 export const ATAJOS = [
   { tecla: '1 – 5', que: 'Ir a Hoy, Entrenar, Perfil, Cuerpo o Más' },
-  { tecla: '/', que: 'Abrir Quirón y escribir' },
+  { tecla: '6', que: 'Abrir Quirón' },
+  { tecla: '/', que: 'Abrir Quirón con el cursor en el campo' },
   { tecla: 'N', que: 'Plegar y desplegar la navegación lateral' },
   { tecla: 'Espacio', que: 'Serie hecha, con la sesión en curso' },
   { tecla: '← →', que: 'Mes anterior y siguiente en el calendario' },
@@ -107,9 +108,17 @@ export function initShortcuts(db, { switchTab, toggleRail } = {}) {
       return;
     }
 
+    // Quirón es el sexto destino, así que también tiene su número. `/` sigue
+    // siendo el atajo rápido, y además deja el cursor puesto en el campo.
+    if (e.key === '6') {
+      e.preventDefault();
+      document.getElementById('navQuiron')?.click();
+      return;
+    }
+
     if (e.key === '/') {
       e.preventDefault();
-      document.getElementById('quironFab')?.click();
+      document.getElementById('navQuiron')?.click();
       // El panel se abre en el mismo tick; el campo, en el siguiente.
       requestAnimationFrame(() => document.getElementById('quironInput')?.focus());
       return;
