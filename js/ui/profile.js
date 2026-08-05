@@ -131,7 +131,7 @@ function renderNext(profile) {
           <div class="prof-next-name">${esc(d.name)}</div>
           <div class="prof-next-why">${esc(detalle)}</div>
         </div>
-        <button class="btn prof-next-btn" data-test="${esc(d.id)}">Medir</button>
+        <button class="btn btn--lg btn--block prof-next-btn" data-test="${esc(d.id)}">Medir</button>
       </div>
     </div>`;
 }
@@ -177,7 +177,7 @@ function domainRow(d, profile) {
         ? `<div class="prof-domain-rule">El dominio vale su métrica más baja: <b>${esc(d.weakest.label)}</b>.</div>`
         : ''}
       ${d.protocol ? `<div class="prof-domain-proto">${esc(d.protocol)}</div>` : ''}
-      ${d.protocol ? `<button class="btn btn-outline btn-sm" data-test="${esc(d.id)}">${d.level ? 'Volver a medir' : 'Medir ahora'}</button>` : ''}
+      ${d.protocol ? `<button class="btn btn--lg btn--block btn-outline btn-sm" data-test="${esc(d.id)}">${d.level ? 'Volver a medir' : 'Medir ahora'}</button>` : ''}
     </div>
   </div>`;
 }

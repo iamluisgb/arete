@@ -133,7 +133,7 @@ export function loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segment
 
   $segments.innerHTML = buildSegmentBar(segs, db) + renderSegmentCards(segs, db);
 
-  $segments.innerHTML += `<button class="btn run-seg-start-btn" id="runSegStartBtn" style="width:100%;margin-top:8px">Iniciar esta sesión</button>`;
+  $segments.innerHTML += `<button class="btn btn--lg btn--block run-seg-start-btn" id="runSegStartBtn" style="width:100%;margin-top:8px">Iniciar esta sesión</button>`;
   document.getElementById('runSegStartBtn').addEventListener('click', () => {
     const runType = inferRunType(segs);
     const sessionLabel = $sessionSelect.value || '';
@@ -155,7 +155,7 @@ export function renderAllWeekSessions(db, $weekSelect, $segments) {
       <div class="run-plan-session-header">${esc(name)}</div>
       ${buildSegmentBar(segs, db)}
       ${renderSegmentCards(segs, db)}
-      <button class="btn run-seg-start-btn" data-session="${esc(name)}" style="width:100%;margin-top:8px">Iniciar esta sesión</button>
+      <button class="btn btn--lg btn--block run-seg-start-btn" data-session="${esc(name)}" style="width:100%;margin-top:8px">Iniciar esta sesión</button>
     </div>`;
   }).join('');
 

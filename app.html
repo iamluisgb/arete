@@ -106,8 +106,8 @@
     </div>
   </section>
   <div class="dash-cta-group">
-    <button class="btn dash-cta" id="dashStartBtn"><span class="material-symbols-outlined" style="font-size:20px">fitness_center</span> Fuerza</button>
-    <button class="btn dash-cta dash-cta-run" id="dashStartRunBtn"><span class="material-symbols-outlined" style="font-size:20px">directions_run</span> Running</button>
+    <button class="btn btn--lg btn--block dash-cta" id="dashStartBtn"><span class="material-symbols-outlined" style="font-size:20px">fitness_center</span> Fuerza</button>
+    <button class="btn btn--lg btn--block dash-cta dash-cta-run" id="dashStartRunBtn"><span class="material-symbols-outlined" style="font-size:20px">directions_run</span> Running</button>
   </div>
   <section class="dash-activity" id="dashActivity">
     <h3 class="dash-section-title">Actividad Reciente</h3>
@@ -168,7 +168,7 @@
       <div class="save-bar-notes-body" id="notesBody" hidden>
         <textarea id="trainNotes" placeholder="Sensaciones, fatiga, ajustes..."></textarea>
       </div>
-      <button class="btn" id="saveWorkoutBtn">Guardar sesión</button>
+      <button class="btn btn--lg btn--block" id="saveWorkoutBtn">Guardar sesión</button>
     </div>
   </div>
   <div class="str-panel" id="strHistory">
@@ -336,33 +336,50 @@
   <div id="profDomains"></div>
   <div class="prof-note" id="profNote"></div>
 </div>
-<div class="section" id="secBody" aria-label="Cuerpo">
-  <div class="mb2"><label>Fecha registro</label><input type="date" id="bodyDate" autocomplete="off"></div>
-  <div class="sec-title sec-title-accent">Medidas (cm / kg)</div>
-  <div id="bodyEditBanner" style="display:none">
-    <div id="bodyEditText"></div>
-    <button class="prefill-clear body-edit-cancel">✕ Cancelar</button>
+<!-- CUERPO — primera pantalla migrada al design system (data-ds).
+     La pantalla por defecto es de LECTURA: estado, proporciones, calorías,
+     historial. La CAPTURA (fecha + once medidas) sale del plano y pasa a una
+     hoja invocada, #bodySheet, al final del documento. Antes convivían en el
+     mismo plano visual once campos vacíos y cuatro paneles de resultado, y no
+     había forma de saber de un vistazo si la pantalla te estaba preguntando
+     algo o contándote algo. Ver DESIGN_SYSTEM.md §8. -->
+<div class="section" id="secBody" data-ds aria-label="Cuerpo">
+  <div class="page-head">
+    <div class="page-head-txt">
+      <h2 class="page-title">Cuerpo</h2>
+      <p class="page-sub" id="bodyLastLog"></p>
+    </div>
+    <!-- La única acción primaria de la vista: el presupuesto del acento. -->
+    <button class="btn" id="bodyLogBtn" type="button"><span class="material-symbols-outlined" aria-hidden="true">straighten</span>Registrar medidas</button>
   </div>
-  <div id="bodyMeasures"></div>
-  <div style="display:flex;gap:8px">
-    <button class="btn mb2" style="flex:1">Guardar medidas</button>
-    <button class="btn btn-danger mb2" id="bodyDeleteBtn" style="display:none">Borrar</button>
-  </div>
-  <!-- body-col2: en escritorio esta mitad pasa entera a la segunda columna
-       (app.css, §Cuerpo). Va envuelta, y no marcada elemento a elemento, para
-       que su flujo vertical sea independiente del de la columna izquierda: en
-       una rejilla las filas son compartidas y los huecos se propagan. -->
-  <div class="body-col2">
-    <div class="sec-title sec-title-accent">Proporciones Divinas</div><div id="proportionsPanel"></div>
-    <div class="row mb" style="margin-top:var(--sp-5)"><div><label>Altura (cm)</label><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></div><div><label>Edad</label><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></div></div>
-    <div class="sec-title sec-title-accent">Calorías Estimadas</div>
+
+  <section class="panel body-now" aria-labelledby="bodyNowTitle">
+    <h3 class="panel-title" id="bodyNowTitle">Estado actual</h3>
+    <div class="tiles" id="bodyNowPanel"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="bodyPropTitle">
+    <h3 class="panel-title" id="bodyPropTitle">Proporciones divinas</h3>
+    <div id="proportionsPanel"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="bodyCalTitle">
+    <h3 class="panel-title" id="bodyCalTitle">Calorías estimadas</h3>
     <div id="caloriesPanel"></div>
-  </div>
-  <!-- El historial sale de la segunda columna: es una tabla, y una tabla vale
-       más cuantas más columnas se vean a la vez. -->
-  <div class="body-hist-full">
-    <div class="sec-title sec-title-accent sec-title-mt">Historial Corporal</div><div id="bodyHistory"></div>
-  </div>
+    <!-- Altura y edad no son medidas que se registren: son los dos parámetros
+         del cálculo. Van dentro del panel que alimentan, no en la captura. -->
+    <div class="body-calc-args">
+      <label class="field"><span class="field-label">Altura (cm)</span><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></label>
+      <label class="field"><span class="field-label">Edad</span><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <!-- El historial va a ancho completo: es una tabla, y una tabla vale más
+       cuantas más columnas se vean a la vez. -->
+  <section class="panel panel--flush body-hist-full" aria-labelledby="bodyHistTitle">
+    <h3 class="panel-title" id="bodyHistTitle">Historial corporal</h3>
+    <div id="bodyHistory"></div>
+  </section>
 </div>
 <div class="section" id="secSettings" aria-label="Ajustes">
   <section class="settings-group" aria-labelledby="setGrpLook">
@@ -459,7 +476,7 @@
         <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
         <div class="input-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</div>
       </div>
-      <button class="btn btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
+      <button class="btn btn--lg btn--block btn-outline btn-sm" id="quironTestBtn" style="width:100%">Probar conexión</button>
       <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
     </div>
   </div>
@@ -547,19 +564,19 @@
 </div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Seleccionar Programa</h3>
   <div id="programOptions"></div>
-  <button class="btn btn-outline" id="programModalClose">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="programModalClose">Cerrar</button>
 </div></div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="phaseModalTitle" id="phaseModal"><div class="modal"><h3 id="phaseModalTitle">Seleccionar Fase</h3>
   <div id="phaseOptions"></div>
-  <button class="btn btn-outline">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline">Cerrar</button>
 </div></div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Programa de Running</h3>
   <div id="runProgramOptions"></div>
-  <button class="btn btn-outline" id="runProgramModalClose">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="runProgramModalClose">Cerrar</button>
 </div></div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runWeekModalTitle" id="runWeekModal"><div class="modal"><h3 id="runWeekModalTitle">Seleccionar Semana</h3>
   <div id="runWeekOptions"></div>
-  <button class="btn btn-outline" id="runWeekModalClose">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="runWeekModalClose">Cerrar</button>
 </div></div>
 <div class="modal-overlay detail-modal" role="dialog" aria-modal="true" aria-label="Detalle de entrenamiento" id="detailModal"><div class="modal">
   <div id="shareCard">
@@ -584,10 +601,10 @@
   </div>
 </div></div>
 <div class="detail-btn-bar" id="detailBtnBar">
-  <button class="btn btn-outline detail-close-btn">Cerrar</button>
-  <button class="btn detail-edit-btn" id="editBtn">Editar</button>
-  <button class="btn detail-share-btn"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> Compartir</button>
-  <button id="deleteBtn" class="btn">Borrar</button>
+  <button class="btn btn--lg btn--block btn-outline detail-close-btn">Cerrar</button>
+  <button class="btn btn--lg btn--block detail-edit-btn" id="editBtn">Editar</button>
+  <button class="btn btn--lg btn--block detail-share-btn"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> Compartir</button>
+  <button id="deleteBtn" class="btn btn--lg btn--block">Borrar</button>
 </div>
 <div id="prCelebration">
   <div class="pr-card">
@@ -595,7 +612,7 @@
     <div class="pr-title">¡Nuevo PR!</div>
     <div class="pr-subtitle">Has superado tu récord personal</div>
     <div id="prList"></div>
-    <button class="btn pr-confirm-btn">¡Vamos! 💪</button>
+    <button class="btn btn--lg btn--block pr-confirm-btn">¡Vamos! 💪</button>
   </div>
 </div>
 
@@ -611,13 +628,13 @@
     <label>Ritmo objetivo (min:seg /km)</label>
     <input type="text" id="runTypeTargetPace" inputmode="numeric" placeholder="ej: 5:30" autocomplete="off">
   </div>
-  <button class="btn btn-outline run-type-hr-btn" id="runTypeHrBtn" style="margin-top:8px;width:100%;display:none">
+  <button class="btn btn--lg btn--block btn-outline run-type-hr-btn" id="runTypeHrBtn" style="margin-top:8px;width:100%;display:none">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     Conectar pulsometro
   </button>
   <div style="display:flex;gap:8px;margin-top:12px">
-    <button class="btn" id="runTypeStartBtn" style="flex:1">Empezar</button>
-    <button class="btn btn-outline" id="runTypeCancelBtn">Cancelar</button>
+    <button class="btn btn--lg btn--block" id="runTypeStartBtn" style="flex:1">Empezar</button>
+    <button class="btn btn--lg btn--block btn-outline" id="runTypeCancelBtn">Cancelar</button>
   </div>
 </div></div>
 
@@ -715,9 +732,9 @@
       </div>
       <div class="mb"><label>Notas</label><textarea id="runSumNotes" placeholder="Sensaciones, terreno, ajustes..."></textarea></div>
       <div style="display:flex;gap:8px">
-        <button class="btn" id="runSumSaveBtn" style="flex:1">Guardar</button>
-        <button class="btn btn-outline" id="runSumShareBtn" style="flex:1"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> Compartir</button>
-        <button class="btn btn-outline" id="runSumDiscardBtn">Descartar</button>
+        <button class="btn btn--lg btn--block" id="runSumSaveBtn" style="flex:1">Guardar</button>
+        <button class="btn btn--lg btn--block btn-outline" id="runSumShareBtn" style="flex:1"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> Compartir</button>
+        <button class="btn btn--lg btn--block btn-outline" id="runSumDiscardBtn">Descartar</button>
       </div>
     </div>
   </div>
@@ -759,10 +776,10 @@
     <button class="prefill-clear run-edit-cancel">✕ Cancelar</button>
   </div>
   <div style="display:flex;gap:8px">
-    <button class="btn" id="runSaveBtn" style="flex:1">Guardar sesión</button>
-    <button class="btn btn-danger" id="runDeleteBtn" style="display:none">Borrar</button>
+    <button class="btn btn--lg btn--block" id="runSaveBtn" style="flex:1">Guardar sesión</button>
+    <button class="btn btn--lg btn--block btn-danger" id="runDeleteBtn" style="display:none">Borrar</button>
   </div>
-  <button class="btn btn-outline" id="runManualCloseBtn" style="margin-top:8px;width:100%">Cancelar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="runManualCloseBtn" style="margin-top:8px;width:100%">Cancelar</button>
 </div></div>
 
 <!-- Goal settings modal -->
@@ -776,8 +793,8 @@
     <div><label>Meta</label><input type="number" id="runGoalValue" min="1" max="500" placeholder="25" inputmode="numeric" autocomplete="off"></div>
   </div>
   <div style="display:flex;gap:8px">
-    <button class="btn" id="runGoalSaveBtn" style="flex:1">Guardar</button>
-    <button class="btn btn-outline" id="runGoalCloseBtn">Cancelar</button>
+    <button class="btn btn--lg btn--block" id="runGoalSaveBtn" style="flex:1">Guardar</button>
+    <button class="btn btn--lg btn--block btn-outline" id="runGoalCloseBtn">Cancelar</button>
   </div>
 </div></div>
 
@@ -803,10 +820,10 @@
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:12px">
-    <button class="btn btn-outline" id="runDetailCloseBtn" style="flex:1">Cerrar</button>
-    <button class="btn" id="runDetailEditBtn">Editar</button>
-    <button class="btn" id="runDetailShareBtn" aria-label="Compartir carrera"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span></button>
-    <button class="btn btn-danger" id="runDetailDeleteBtn">Borrar</button>
+    <button class="btn btn--lg btn--block btn-outline" id="runDetailCloseBtn" style="flex:1">Cerrar</button>
+    <button class="btn btn--lg btn--block" id="runDetailEditBtn">Editar</button>
+    <button class="btn btn--lg btn--block" id="runDetailShareBtn" aria-label="Compartir carrera"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span></button>
+    <button class="btn btn--lg btn--block btn-danger" id="runDetailDeleteBtn">Borrar</button>
   </div>
 </div></div>
 <!-- Share Editor overlay -->
@@ -838,20 +855,21 @@
     </div>
 
     <div class="se-action-row">
-      <button class="btn se-share-btn" id="seShareBtn">
+      <button class="btn btn--lg btn--block se-share-btn" id="seShareBtn">
         <span class="material-symbols-outlined">share</span> Compartir
       </button>
-      <button class="btn btn-outline se-copy-btn" id="seCopyBtn">
+      <button class="btn btn--lg btn--block btn-outline se-copy-btn" id="seCopyBtn">
         <span class="material-symbols-outlined">content_copy</span>
       </button>
-      <button class="btn btn-outline se-download-btn" id="seDownloadBtn">
+      <button class="btn btn--lg btn--block btn-outline se-download-btn" id="seDownloadBtn">
         <span class="material-symbols-outlined">download</span>
       </button>
     </div>
   </div>
 </div>
 </main>
-<nav aria-label="Navegacion principal">
+<nav id="mainNav" aria-label="Navegacion principal">
+  <button id="railToggle" type="button" aria-expanded="true" aria-controls="mainNav" aria-label="Plegar la navegación" title="Plegar la navegación (N)"><span class="material-symbols-outlined">left_panel_close</span><span>Plegar</span></button>
   <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">today</span><span>Hoy</span></button>
   <button data-sec="secTrain"><span class="material-symbols-outlined">exercise</span><span>Entrenar</span></button>
   <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span>Perfil</span></button>
@@ -865,11 +883,11 @@
     <h4 id="revisionPreviewTitle"></h4>
     <div id="revisionPreviewContent"></div>
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-outline" style="flex:1" id="revisionBackBtn">Volver</button>
-      <button class="btn" style="flex:1" id="revisionRestoreBtn">Restaurar esta versión</button>
+      <button class="btn btn--lg btn--block btn-outline" style="flex:1" id="revisionBackBtn">Volver</button>
+      <button class="btn btn--lg btn--block" style="flex:1" id="revisionRestoreBtn">Restaurar esta versión</button>
     </div>
   </div>
-  <button class="btn btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
 <button id="quironFab" aria-label="Quirón, tu coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg></button>
 <div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
@@ -885,7 +903,7 @@
     <div class="quiron-setup-icon">🏹</div>
     <p><strong>Quirón necesita un proveedor de IA.</strong></p>
     <p>Configura tu API key para hablar con tu coach. Tus datos de entrenamiento no salen de tu dispositivo salvo hacia el proveedor que tú elijas.</p>
-    <button class="btn btn-sm" id="quironGoSettings">Ir a Ajustes</button>
+    <button class="btn btn--lg btn--block btn-sm" id="quironGoSettings">Ir a Ajustes</button>
   </div>
   <div class="quiron-chips" id="quironChips"></div>
   <div class="quiron-inputbar" id="quironInputBar">
@@ -898,8 +916,34 @@
 <div class="modal-overlay quiron-history-modal" role="dialog" aria-modal="true" aria-labelledby="quironHistoryTitle" id="quironHistoryModal"><div class="modal">
   <h3 id="quironHistoryTitle">Conversaciones</h3>
   <div id="quironHistoryList"></div>
-  <button class="btn btn-outline" id="quironHistoryClose">Cerrar</button>
+  <button class="btn btn--lg btn--block btn-outline" id="quironHistoryClose">Cerrar</button>
 </div></div>
+<!-- Captura de medidas. Hoja inferior en el móvil, diálogo centrado a partir de
+     640 (mismo componente, .sheet). Vive fuera de #secBody a propósito: la
+     sección se oculta con display:none al cambiar de pestaña, y una hoja que
+     desaparece porque su sección se apagó es un error esperando a pasar. -->
+<div class="sheet" id="bodySheet" role="dialog" aria-modal="true" aria-labelledby="bodySheetTitle">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h3 class="sheet-title" id="bodySheetTitle">Registrar medidas</h3>
+      <button class="btn btn--ghost btn--icon" id="bodySheetClose" type="button" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+    </div>
+    <div class="sheet-body">
+      <div class="banner" id="bodyEditBanner" hidden>
+        <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        <span class="banner-text" id="bodyEditText"></span>
+        <button class="btn btn--ghost btn--sm body-edit-cancel" type="button">Cancelar edición</button>
+      </div>
+      <label class="field"><span class="field-label">Fecha del registro</span><input type="date" id="bodyDate" autocomplete="off"></label>
+      <p class="field-hint body-measures-hint">Centímetros, salvo peso (kg) y grasa (%). Basta con una.</p>
+      <div id="bodyMeasures" class="measure-grid"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn--danger" id="bodyDeleteBtn" type="button" hidden>Borrar</button>
+      <button class="btn btn--block" id="bodySaveBtn" type="button">Guardar medidas</button>
+    </div>
+  </div>
+</div>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div class="onboarding-overlay" id="onboarding">
   <div class="onboarding-card">
@@ -923,7 +967,7 @@
       <span class="onboarding-dot"></span>
       <span class="onboarding-dot"></span>
     </div>
-    <button class="btn onboarding-btn" id="onboardingBtn">Siguiente</button>
+    <button class="btn btn--lg btn--block onboarding-btn" id="onboardingBtn">Siguiente</button>
   </div>
 </div>
 <script type="module" src="js/app.js"></script>

@@ -210,8 +210,8 @@ export function requestStartSession(db, ref, phaseKey, opts = {}) {
     <h3>Tienes un entreno a medias</h3>
     <p class="draft-guard-text">Empezaste <strong>${esc(draft.name)}</strong> ${ago}. Si empiezas <strong>${esc(target)}</strong> ahora, ese borrador se pierde.</p>
     <div class="draft-guard-actions">
-      <button class="btn" data-act="resume">Seguir con ${esc(draft.name)}</button>
-      <button class="btn btn-outline" data-act="switch">Empezar ${esc(target)}</button>
+      <button class="btn btn--lg btn--block" data-act="resume">Seguir con ${esc(draft.name)}</button>
+      <button class="btn btn--lg btn--block btn-outline" data-act="switch">Empezar ${esc(target)}</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -345,7 +345,7 @@ function renderSessionOverview(db, sess, exercises) {
       }).join('')}</div>
       ${lastDate ? `<div class="so-last">Última vez: ${lastDate}</div>` : ''}
       ${draftInfo}
-      <button class="btn so-start">${btnText}</button>
+      <button class="btn btn--lg btn--block so-start">${btnText}</button>
     </div>`;
 
   $sessionOverview.querySelector('.so-start').addEventListener('click', () => {

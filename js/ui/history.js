@@ -83,12 +83,12 @@ export function renderHistory(db, dateFilter) {
     list.innerHTML = filtered
       ? `<div class="empty-state">
            <p>Ningún entreno con este filtro.</p>
-           <button class="btn btn-outline btn-sm" data-empty-action="clear-filters">Quitar filtros</button>
+           <button class="btn btn--lg btn--block btn-outline btn-sm" data-empty-action="clear-filters">Quitar filtros</button>
          </div>`
       : `<div class="empty-state">
            <p><b>Aún no has registrado ningún entreno.</b></p>
            <p class="empty-state-sub">Los que completes aparecerán aquí, con sus series y sus PRs.</p>
-           <button class="btn btn-sm" data-empty-action="train">Empezar una sesión</button>
+           <button class="btn btn--lg btn--block btn-sm" data-empty-action="train">Empezar una sesión</button>
          </div>`;
     return;
   }

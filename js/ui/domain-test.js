@@ -67,7 +67,7 @@ function renderForm() {
           <span class="dtest-field-input"><input type="date" id="dtestDate" value="${hoy}" max="${hoy}"></span>
         </label>
       </div>
-      <button class="btn dtest-save" type="button" data-save>Guardar medida</button>
+      <button class="btn btn--lg btn--block dtest-save" type="button" data-save>Guardar medida</button>
       <button class="dtest-sub" type="button" data-close>Cancelar</button>
     </div>`;
   sheet.querySelector('input[data-metric]')?.focus();
@@ -99,7 +99,7 @@ function renderResult(guardados, antes) {
       ${profile.limitedBy?.id === d.id
         ? '<div class="dtest-res-note">Es tu dominio limitante: es lo que más te sube el nivel global.</div>' : ''}
       ${domain.retest ? `<div class="dtest-res-next">Repítelo en ${Math.round(domain.retest / 7)} semanas</div>` : ''}
-      <button class="btn dtest-save" type="button" data-close>Hecho</button>
+      <button class="btn btn--lg btn--block dtest-save" type="button" data-close>Hecho</button>
     </div>`;
 }
 
