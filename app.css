@@ -284,6 +284,14 @@ select{cursor:pointer}
    había que releer qué era cada número en cada fila; en tabla la cabecera lo
    dice una vez y los números se comparan en vertical. */
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;
+  /* position:relative no es decoración: dentro de la tabla hay .sr-only, que es
+     position:absolute. Sin un ancestro posicionado, su bloque contenedor es el
+     del documento, así que se colocaba en su posición estática —a ~1.090px, ya
+     dentro de la parte desplazada de la tabla— pero medida contra la página. La
+     página entera se podía arrastrar 255px a la derecha en Cuerpo, sin que nada
+     se viera fuera de sitio. Cualquier contenedor de scroll de esta hoja lleva
+     position:relative por la misma razón. */
+  position:relative;
   /* Sombras que solo aparecen del lado por el que queda tabla por ver. Con
      background-attachment local las dos primeras capas viajan con el scroll y
      tapan a las otras dos cuando ya no hay nada más hacia ese lado. */
@@ -924,7 +932,7 @@ nav button .material-symbols-outlined{font-size:24px}
    abajo en la hoja y es la que sigue mandando en el historial de fuerza, que
    todavía no está migrado. */
 .body-history .hi-edit-btn{background:var(--color-surface-2);color:var(--color-text-primary);
-  font-weight:600;border-radius:var(--radius-md);padding:6px 12px;min-height:36px;margin-top:0}
+  font-weight:600;border-radius:var(--radius-md);padding:6px 12px;min-height:44px;margin-top:0}
 .modal-overlay{position:fixed;inset:0;background:var(--color-scrim);z-index:var(--z-overlay);display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .modal-overlay.open{display:flex}
 .modal{background:var(--color-surface-1);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:8px 20px 24px;width:100%;max-width:500px;max-height:75vh;overflow-y:auto;animation:slideUp var(--dur-slow)}
@@ -1003,9 +1011,19 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 .cal-nav-today{flex:1;text-align:center}
 .history-filter-wrap{margin-top:var(--sp-3)}
 #importFile{display:none}
-.toggle-btn{width:50px;height:30px;border-radius:var(--radius-pill);border:none;background:var(--color-surface-2);position:relative;cursor:pointer;transition:background var(--dur-base)}
-.toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:var(--radius-md);background:var(--color-on-fill);box-shadow:var(--shadow-1);transition:transform var(--dur-base)}
-.toggle-btn.active{background:var(--color-state-success)}
+/* La pastilla mide 50×30, pero el objetivo son 44: el área de toque se estira
+   con padding transparente y la pastilla se dibuja dentro con un ::before. Un
+   interruptor de 30px de alto es el control más pequeño de la app y está en la
+   pantalla que se toca con el móvil en la mano. */
+.toggle-btn{width:50px;height:44px;min-height:44px;border:none;background:none;
+  position:relative;cursor:pointer;padding:0;flex-shrink:0}
+.toggle-btn::before{content:'';position:absolute;top:7px;left:0;width:50px;height:30px;
+  border-radius:var(--radius-pill);background:var(--color-surface-2);
+  transition:background var(--dur-base)}
+.toggle-btn::after{content:'';position:absolute;top:10px;left:3px;width:24px;height:24px;
+  border-radius:var(--radius-md);background:var(--color-on-fill);box-shadow:var(--shadow-1);
+  transition:transform var(--dur-base)}
+.toggle-btn.active::before{background:var(--color-state-success)}
 .toggle-btn.active::after{transform:translateX(20px)}
 .offline-banner{position:fixed;top:0;left:0;right:0;background:var(--color-state-danger);color:var(--color-on-fill);font-family:var(--font);font-size:var(--fs-base);font-weight:600;text-align:center;padding:4px 12px;z-index:var(--z-overlay);transform:translateY(-100%);transition:transform var(--dur-slow) ease}
 .offline-banner.visible{transform:translateY(0)}
@@ -1378,7 +1396,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:none}
 .run-pause-btn{width:64px;height:64px;border-radius:50%;background:var(--color-accent-text);border:none;color:var(--color-on-fill);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-instant);box-shadow:var(--shadow-action)}
 .run-pause-btn:active{transform:scale(.92)}
 .run-pause-btn.paused svg{display:none}
-.run-pause-btn.paused::after{content:'';width:0;height:0;border-style:solid;border-width:14px 0 14px 24px;border-color:transparent transparent transparent #fff;margin-left:4px}
+.run-pause-btn.paused::after{content:'';width:0;height:0;border-style:solid;border-width:14px 0 14px 24px;border-color:transparent transparent transparent var(--color-on-fill);margin-left:4px}
 /* Auto-pause toggle */
 .run-autopause-btn.active{background:var(--color-state-success);color:var(--color-on-fill)}
 /* Timer blink on auto-pause */
@@ -2053,7 +2071,13 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 }
 /* La fila cuyo detalle está abierto en el panel. */
 .history-item.selected,.run-history-card.selected{background:var(--color-surface-3);outline:2px solid var(--color-accent-text);outline-offset:-2px}
-.progress-history,.body-history{width:100%;border-collapse:collapse;font-size:var(--fs-base)}
+/* width:max-content + min-width:100%: una tabla con `width:100%` y celdas
+   `nowrap` resuelve el 100% contra el contenedor de scroll y luego lo desborda
+   con su contenido, y ese desbordamiento se propaga hasta el viewport — la
+   página entera se podía arrastrar 255px a la derecha en Cuerpo. Así la tabla
+   mide lo que mide, el contenedor la desplaza, y nada se escapa. */
+.progress-history,.body-history{width:max-content;min-width:100%;
+  border-collapse:collapse;font-size:var(--fs-base)}
 .progress-history caption{text-align:left;font-size:var(--fs-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;padding-bottom:var(--sp-2)}
 .progress-history th,.body-history th{font-size:var(--fs-xs);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--color-border-subtle);white-space:nowrap}
 .progress-history td,.body-history td{padding:8px;border-bottom:.5px solid var(--color-border-subtle);white-space:nowrap}

@@ -7,9 +7,9 @@ no", sobra.
 La fuente de verdad viva es [`app.css`](app.css): este documento explica lo que hay ahí y lo que
 falta por llevar allí. Cuando los dos discrepen, gana el CSS y este documento está desactualizado.
 
-**Estado:** fase 1 aplicada. Tokens, taxonomía de botones, rail plegable, componentes base y
-**Cuerpo** migrada entera. El resto de pantallas sigue con el CSS viejo, funcionando y sin cambios
-visuales; el plan para migrarlas está en el §9.
+**Estado: terminado.** Las nueve pantallas están migradas, los alias heredados borrados, la hoja
+organizada en capas de cascada y el inventario cerrado: fuera de `:root` no queda ningún color,
+`z-index`, duración ni radio escrito a mano. Lo que sigue es el sistema, no un plan.
 
 ---
 
@@ -30,8 +30,8 @@ Antes de proponer nada hay que contar lo que hay. Estas son las cifras del `app.
 | Clases que contienen "card" | **25** | 1 componente (`.panel`) + los que quedan por migrar |
 | Pesos de fuente | 6 (`300`→`800`) sin roles | **9 roles** que atan tamaño+peso+interlineado+tracking |
 | `letter-spacing` distintos | **16** | atados a los roles |
-| `width:100%` en la hoja | **51** | `.btn` deja de ser uno de ellos |
-| `style=""` inline | **58** en `app.html` + **76** en plantillas JS + **122** `.style.X =` desde JS | Cuerpo: 0 |
+| `width:100%` en la hoja | **51** | `.btn` deja de ser uno de ellos: `.btn--block` se usa **9 veces** |
+| `style=""` inline | **58** en `app.html` + **76** en plantillas JS + **122** `.style.X =` desde JS | los que quedan sirven para pasar un color de dato (el color de un dominio, el de una zona), no para maquetar |
 
 La conclusión que sale sola del inventario: **no había un sistema, había sedimento**. Cada pantalla
 añadió su propio radio, su propio gris y su propio tamaño de botón porque no existía el sitio donde
@@ -161,17 +161,30 @@ llevaba así desde que existe el tema oscuro. Arreglado partiendo el token:
 
 Es exactamente el motivo por el que la acción tiene dos tokens.
 
-### 3.4 Alias heredados
+### 3.4 Los alias heredados, borrados
 
-`--bg`, `--surface`, `--surface2`, `--surface-high`, `--border`, `--ghost-border`, `--text`,
-`--text2`, `--text3`, `--accent`, `--accent2`, `--accent-soft`, `--accent-glow`, `--green`, `--red`,
-`--teal`, `--blue`, `--color-running`, `--radius`.
+Aquí vivieron `--bg`, `--surface`, `--surface2`, `--text`, `--text2`, `--text3`, `--accent`,
+`--green`, `--red`, `--teal`, `--radius` y compañía, apuntando a la capa semántica mientras duraba la
+migración. **Ya no existen**: no queda un solo uso ni en `app.css`, ni en las plantillas de `js/`, ni
+en los SVG inline de `app.html`. Borrarlos era la condición para dar la migración por terminada.
 
-Siguen existiendo como **alias** de los semánticos. Definirlos una sola vez, apuntando a la capa
-semántica, es lo que hace que `:root.dark` solo tenga que redefinir esa capa.
+Si vuelve a aparecer uno de esos nombres es que alguien ha copiado código de un commit viejo.
 
-**Cuándo se borran:** cuando `grep -c 'var(--surface2)' app.css` dé 0, es decir, al terminar la fase
-2. Ninguna pantalla migrada puede usarlos: es parte de la definición de "migrada".
+### 3.4b Las familias de color que no son superficies
+
+Cuatro familias existen aparte del sistema de superficies, y cada una tiene su razón:
+
+- **Categóricos** (`--cat-violet`, `--cat-orange`, `--cat-amber`, `--cat-indigo`). Los modos de
+  ejercicio —EMOM, superserie, escalera, workout— no son estados ni dominios: son categorías **sin
+  orden**. Meterlos en la escala de estado haría que "superserie" pareciera un aviso.
+- **Blackout** (`--color-blackout*`). La pantalla de bloqueo de la carrera es negra de verdad, para
+  que el móvil no gaste batería en el bolsillo. No sigue el tema porque no es una superficie de la
+  app: es la ausencia de una.
+- **Overlay** (`--color-overlay-*`). El editor de compartir es oscuro en los dos temas: encima se
+  previsualiza una imagen, y un lienzo claro falsearía cómo va a quedar.
+- **Share card** (`--share-card-*`). Las dos tarjetas de compartir son una **imagen que se exporta**
+  y se manda por WhatsApp: se dibujan claras siempre, porque la ve alguien que no tiene tu tema
+  puesto. Es la única excepción declarada al sistema de superficies.
 
 ### 3.5 Tipografía
 
@@ -274,14 +287,41 @@ No todo debe ocupar la shell:
 | `--measure-panel` | 560px | Filas etiqueta-valor y filas de serie |
 | `--measure-table` | 100% | Una tabla vale más cuantas más columnas se vean a la vez |
 
-### 4.4 Container queries
+### 4.4 Capas de cascada
+
+`app.css` está organizado en `@layer`, y el orden está declarado una sola vez arriba del fichero:
+
+```css
+@layer tokens, base, sistema, pantallas, escritorio, overrides;
+```
+
+A partir de ahí, **quién gana un empate de especificidad lo decide la capa, no quién está más abajo
+en el fichero**. Eso es lo que permite reordenar sin miedo, y es la razón por la que las capas no
+entraron en la fase 1: una regla dentro de una capa pierde *siempre* contra una sin capa, así que
+meterlas a medias habría invertido la cascada de todo lo que se moviera. Entraron de una vez cuando
+ya no quedaba nada fuera.
+
+| Capa | Qué contiene | Reglas |
+| --- | --- | --- |
+| `tokens` | primitivos, semánticos, escalas. Ningún selector real | 14 bloques |
+| `base` | el reset, los selectores de elemento, cuatro utilidades de layout | 52 |
+| `sistema` | los componentes de §5 | 106 |
+| `pantallas` | lo propio de cada pantalla. **Gana al sistema por definición**: una pantalla ajusta su componente, nunca al revés | 941 |
+| `escritorio` | todo lo que vive dentro de un `min-width`. Gana a lo anterior porque es una decisión tomada con más información, no una excepción | 18 |
+| `overrides` | `prefers-reduced-motion`, estados de puntero, barras de scroll | 15 |
+
+El reparto dice algo por sí solo: **106 reglas de sistema contra 941 de pantalla**. Un design system
+honesto no pretende que todo sea componente reutilizable; pretende que lo que se repite lo sea.
+
+### 4.5 Container queries
 
 Están declaradas como la herramienta correcta para el componente que debe adaptarse a **su
-contenedor** y no al viewport —una tarjeta de sesión en la columna estrecha y a ancho completo son el
-mismo componente— pero en la fase 1 **no ha hecho falta ninguna**: `grid-template-columns:
-repeat(auto-fill, minmax(…, 1fr))` resuelve `MetricTile` y la rejilla de medidas sin consultar nada,
-y es más barato. Se usarán cuando aparezca el primer caso real, que será la tarjeta de sesión de
-Entrenar en la fase 2.
+contenedor** y no al viewport, pero **no ha hecho falta ninguna**: `grid-template-columns:
+repeat(auto-fill, minmax(…, 1fr))` resuelve `MetricTile`, la rejilla de medidas y los récords sin
+consultar nada, y es más barato. La única adaptación al contenedor que sí hizo falta —colapsar la
+rejilla de Actividad cuando no hay sesión en curso— es una consulta sobre el **contenido**, no sobre
+el ancho, y para eso la herramienta es `:has()`. Se usarán container queries cuando aparezca el
+primer caso que de verdad dependa del ancho del contenedor.
 
 ---
 
@@ -342,10 +382,11 @@ Un formulario va dentro de `.form` (o de un contenedor con `max-width:var(--meas
 **Estados:** reposo · `:focus-visible` (anillo `--color-focus-ring`) · error (`.field-error` + el
 mensaje, nunca solo color) · deshabilitado.
 
-### 5.4 Toggle
+### 5.4 Toggle — `.toggle-btn`
 
-Sigue siendo `.toggle-btn` (50×30, pastilla). Pendiente de migrar en la fase 2; su anatomía correcta
-es la de `ListRow`: etiqueta + descripción a la izquierda, control a la derecha.
+Pastilla de 50×30 dentro de un `ListRow --control`: etiqueta + descripción a la izquierda, control a
+la derecha. Es un `role="switch"` y **su estado va en `aria-checked`**, no solo en una clase de CSS
+que el lector de pantalla no ve.
 
 ### 5.5 Card — `.panel`
 
@@ -374,17 +415,33 @@ hasta ahora estaba reescrito en quince sitios con quince nombres (`.sc-row`, `.p
 `.round-item`, `.run-live-split`, `.dtest-res-metric`…). **Cuándo NO usarlo:** cuando hay tres o más
 valores por fila — eso es una `Table`.
 
-### 5.8 Tabs / Segmented
+### 5.8 Segmented / Tabs — `.subnav-tabs`
 
-Sin migrar. Hoy conviven `.str-subnav`/`.str-tab`, `.run-subnav`/`.run-tab` y `.train-mode` con CSS
-casi idéntico y tres nombres. Se unifican en la fase 2, a la vez que la reorganización de Entrenar
-(§7.2), porque la decisión de arquitectura cambia dónde vive cada uno.
+Un único componente donde había tres con CSS casi idéntico y tres nombres (`.str-subnav`,
+`.run-subnav`, `.train-mode`). La pastilla activa se marca con **fondo y peso**; nunca con una banda
+de acento ni con un subrayado de color.
+
+`.subnav` es el bloque de navegación secundaria de una sección: el modo arriba y sus destinos debajo.
+En móvil son dos segmentados apilados; en ≥1024 se convierte en la **columna izquierda** de la
+pantalla, que es lo que quita las tres barras de Entrenar (§7.2).
+
+**Estados:** activo (`.active` + `aria-selected="true"`) · reposo · `:hover` bajo `hover:hover` ·
+`:focus-visible`. **Cuándo NO usarlo:** con más de cinco destinos, o cuando las opciones no sean
+mutuamente excluyentes — eso son `Chip`s de filtro.
 
 ### 5.9 Chip y Badge
 
-Sin migrar. Hoy son `.prof-chip`, `.q-chip`, `.zp-chip`, `.run-plan-pill`, `.dash-act-chip`,
-`.prev-badge`, `.ex-mode-badge` y `.run-hist-type`. La distinción del sistema: **Chip** es
-interactivo (filtra, selecciona); **Badge** no lo es (informa). Hoy están mezclados.
+La distinción, que hasta ahora no existía: un **Chip** es interactivo —filtra, selecciona, se pulsa—
+y por eso mide 44px de alto; un **Badge** informa y no se toca. Estaban mezclados en siete clases
+(`.prof-chip`, `.q-chip`, `.zp-chip`, `.run-plan-pill`, `.dash-act-chip`, `.prev-badge`,
+`.ex-mode-badge`) con la misma pinta y comportamientos distintos.
+
+Variantes de Badge: neutra (por defecto), `--accent`, `--success`, `--warning`, `--info`.
+**Un Badge nunca es rojo salvo que el rojo signifique algo** —tu dominio limitante, un récord—:
+el presupuesto del acento (§2.3) cuenta también las etiquetas.
+
+Los chips de contexto de Entrenar (programa, fase, semana) son Chips: dicen dónde estás y se pulsan
+para cambiarlo.
 
 ### 5.10 Modal / BottomSheet — `.sheet`
 
@@ -475,19 +532,23 @@ del sistema son los tokens.
 
 ## 7. Decisiones de arquitectura
 
-Las dos que cambian la forma de la interfaz. **Escritas y justificadas aquí; implementadas en la fase
-2**, después de que el dueño las valide — mover el FAB y rehacer la navegación de Entrenar toca todas
-las pantallas y no es reversible con un `git revert` limpio si la decisión no es la buena.
+Las dos que cambian la forma de la interfaz. Se escribieron y se justificaron aquí antes de tocar el
+código, se aprobaron, y **están implementadas**.
 
-### 7.1 Dónde vive Quirón — *decidido, pendiente de implementar*
+### 7.1 Dónde vive Quirón — *implementado*
 
-**Recomendación: Quirón es un destino de la navegación, no una acción flotante.**
+**Quirón es un destino de la navegación, no una acción flotante.**
 
-Deja de ser `#quironFab` y pasa a ser una entrada del `<nav>`: la sexta del rail en escritorio,
-separada del resto por un filete porque es de otra naturaleza (una conversación, no una pantalla de
-tus datos); y la sexta pestaña de la barra inferior en móvil. A 375px, seis pestañas dan 62px cada
-una, muy por encima del objetivo táctil de 44. El atajo `/` se mantiene y pasa a estar documentado
-como la forma rápida.
+Ha dejado de ser `#quironFab` y es una entrada del `<nav>`: la sexta del rail en escritorio, al pie y
+separada por un filete porque es de otra naturaleza (una conversación, no una pantalla de tus datos);
+y la sexta pestaña de la barra inferior en móvil, donde a 375px cada una mide 62px, muy por encima
+del objetivo táctil de 44.
+
+Sigue siendo un **panel y no una `.section`**, y eso es deliberado: necesita el alto completo con la
+barra de entrada anclada abajo, y se abre desde otras pantallas ("Pedir una sesión" en el Plan) sin
+cambiar de pestaña. Abrirlo lo marca como destino activo y atenúa la pestaña que lo estaba; cerrarlo
+la devuelve intacta y el foco vuelve a la entrada de Quirón. Atajos: `/` abre con el cursor puesto en
+el campo, y `6` es el número que le toca como sexto destino.
 
 **Por qué.** El FAB es hoy un satélite: en móvil tapa contenido; en escritorio acaba abajo a la
 izquierda flotando sobre el rail, compitiendo con la navegación en vez de pertenecer a ella. Y el
@@ -509,13 +570,13 @@ navegación, es una superficie más de la app.
 hecho ya existe (`/`), pero no resuelve el problema: un atajo que no se ve no le da a Quirón un sitio
 estructural, y en móvil no hay teclado.
 
-### 7.2 Cómo se reorganiza la navegación de Entrenar — *decidido, pendiente de implementar*
+### 7.2 Cómo se reorganiza la navegación de Entrenar — *implementado*
 
-**Recomendación: tres barras apiladas pasan a una, moviendo cada nivel a donde pertenece.**
+**Tres barras apiladas pasan a una, moviendo cada nivel a donde pertenece.**
 
-Hoy, antes de que aparezca un solo dato, Entrenar apila el segmentado Fuerza/Carrera, la
+Antes de que apareciera un solo dato, Entrenar apilaba el segmentado Fuerza/Carrera, la
 `.context-bar` con los chips de programa y fase, y las pestañas
-Actividad/Historial/Progreso/Plan: ~180px verticales de navegación consecutiva. La propuesta:
+Actividad/Historial/Progreso/Plan: ~180px verticales de navegación consecutiva. Lo aplicado:
 
 1. **El contexto sube a la cabecera.** Los chips de programa y fase son **estado**, no navegación:
    dicen dónde estás, no te llevan a ningún sitio. Se van al `SectionHeader` de la sección, en la
@@ -525,9 +586,17 @@ Actividad/Historial/Progreso/Plan: ~180px verticales de navegación consecutiva.
 3. **Las cuatro pestañas pasan a navegación lateral secundaria en ≥1024**, en una columna estrecha
    junto al contenido, agrupadas bajo el modo. En móvil siguen siendo un segmentado, que es lo
    correcto ahí. El cromo vertical antes del primer dato pasa de ~180px a ~0.
-4. Con la columna secundaria puesta, el contenido de Actividad tiene por fin una rejilla de verdad y
-   deja de ser una tarjeta de 530px en un viewport de 2.800: los ~180px que hoy quedan en blanco por
-   encima se convierten en filas de datos.
+4. Con la columna secundaria puesta, el contenido tiene por fin una rejilla de verdad. Y cuando **no**
+   hay sesión en curso, la rejilla de Actividad se colapsa a una columna con `:has()`: una tarjeta de
+   sesión flotando junto a 500px de nada era exactamente el hueco que había que quitar, y esto lo
+   resuelve sin JS y sin una clase que alguien tenga que acordarse de quitar.
+5. En móvil, Entrenar **renuncia a su título de pantalla**. La barra inferior ya dice "Entrenar" a
+   dos centímetros y el subtítulo repetía el modo que está en el segmentado de debajo: eran ~65px de
+   cromo para contar dos veces algo que ya se sabe, justo en la pantalla que no podía permitírselos.
+   En ≥1024 vuelve, porque ahí hay sitio y la cabecera es la que sostiene el contexto.
+
+El destino activo de la navegación secundaria se marca con **fondo y peso, no en rojo**: el rail ya
+dice en qué sección estás, y un segundo rojo diciendo lo mismo un nivel más abajo deja de informar.
 
 **Por qué esta y no otra.** Porque separa por naturaleza: estado a la cabecera, navegación a un solo
 sitio. Las tres barras no eran tres niveles de navegación — eran dos niveles y un indicador de estado
@@ -539,7 +608,7 @@ el modo como **estado persistente**: `areteTrainMode` se guarda, y `switchStrTab
 fuerza porque es lo que necesitan "Iniciar sesión" y Quirón al programar una sesión. Con ocho
 destinos, "llévame a entrenar fuerza" deja de tener un sitio al que llevarte.
 
-### 7.3 El rail plegable — *implementado en esta fase*
+### 7.3 El rail plegable — *implementado*
 
 Es sistema, no arquitectura de pantalla, así que se aplica ya. 232px expandido, 64px en modo icono,
 estado en `localStorage`, atajo `N`, transición sujeta a `prefers-reduced-motion` y `title` en cada
@@ -556,10 +625,10 @@ Dos decisiones dentro de la decisión:
 
 ---
 
-## 8. Cuerpo, la pantalla migrada
+## 8. Cuerpo, la pantalla que estrenó el sistema
 
-La prueba de que el sistema aguanta: `#secBody` tiene formulario, panel de resultado y tabla, los
-tres modos del producto.
+Fue la primera, y la que probó que el sistema aguantaba: `#secBody` tiene formulario, panel de
+resultado y tabla, los tres modos del producto.
 
 **Lo que estaba mal.** La sección apilaba, en una sola columna: campo de fecha, once medidas vacías,
 botón de guardar, proporciones, altura y edad, calorías y el historial. Entrada de datos y lectura de
@@ -600,55 +669,61 @@ preguntando algo o contándote algo.
 
 ---
 
-## 9. Plan de migración
+## 9. La migración, terminada
 
-### 9.1 Orden, esfuerzo y riesgo
+### 9.1 Qué se migró y en qué orden
 
-Ordenado por valor por unidad de riesgo. "Se rompe" es lo peor que puede pasar si sale mal.
+| # | Pantalla | Estado |
+| --- | --- | --- |
+| 0 | **Cuerpo** (`#secBody`) | Hecha. Captura en hoja invocada, pantalla por defecto de lectura, panel "Estado actual", altura y edad reubicadas como parámetros del cálculo |
+| 1 | **Ajustes** (`#secSettings`) | Hecha. Todas las filas con la misma anatomía; iconos que dejan de ser rojos; el toggle es un `role="switch"` con su `aria-checked` |
+| 2 | **Perfil** (`#secProfile`) | Hecha. Métricas a `ListRow`, etiquetas a `Badge`, hoja de test al `.sheet` del sistema. El rojo se reserva para "tu limitante" |
+| 3 | **Hoy** (`#secDashboard`) | Hecha. El bento se queda —es identidad— pero desaparece la segunda acción primaria |
+| 4 | **Quirón** (§7.1) | Hecho. Sexto destino del rail y sexta pestaña en móvil |
+| 5 | **Entrenar** (§7.2) | Hecho. De tres barras a una; navegación secundaria lateral en ≥1024 |
+| 6 | **Historial y Progreso** | Hechos. Tokenizados; el maestro-detalle y las tablas ya estaban bien y no se han tocado |
+| 7 | **Carrera** (`#secRunning`) | Hecha. Récords y estadísticas a `MetricTile`, tarjetas a `Panel`, importar como única acción primaria |
+| 8 | **Carrera en vivo y runner de sesión** | Hechos, **solo tokens**. Cero cambios de forma: son las dos pantallas que se usan sudado y con prisa, y su diseño ya era el correcto |
+| 9 | **Alias, anotaciones y capas** | Hecho. Ver §3.4 y §4.4 |
 
-| # | Pantalla | Esfuerzo | Riesgo | Qué se rompe si sale mal |
-| --- | --- | --- | --- | --- |
-| 0 | **Cuerpo** (`#secBody`) | — | — | **Hecho (fase 1)** |
-| 1 | **Ajustes** (`#secSettings`) | M | **Bajo** | Nada crítico: no hay flujo de entreno. Ya tiene la semilla correcta (`.settings-group`/`.settings-card`); es sustituir `.sc-row` por `ListRow` y unificar la anatomía fila = etiqueta + descripción + control. Es el mejor segundo paso porque valida `ListRow` y `Toggle` sin poder estropear una sesión. |
-| 2 | **Perfil** (`#secProfile`) | M | Bajo | El radar y los siete dominios. Lectura pura; el riesgo es solo visual. Valida `MetricTile`, `ListRow` y `Chip`/`Badge`. |
-| 3 | **Hoy** (`#secDashboard`) | M | Medio | La entrada de la app. `dash-card` → `panel`, `dash-*-value` → `MetricTile`, y los dos CTA pasan a **una** acción primaria (hoy hay dos en rojo y cian, que es exactamente lo que prohíbe el §2.3). Si sale mal, la primera impresión del producto. |
-| 4 | **Quirón: su sitio** (§7.1) | M | Medio | Toca `nav`, `switchTab`, `restoreLastTab`, `migrateLastTab` y los atajos. Si sale mal, un usuario existente abre la app en una sección que ya no existe. **Requiere aprobación previa.** |
-| 5 | **Entrenar: la navegación** (§7.2) | **L** | **Alto** | Tres barras, dos modos, ocho paneles, `areteTrainMode`, `switchStrTab` y las entradas programáticas desde "Iniciar sesión" y desde Quirón. Si sale mal, no se puede empezar un entreno. **Requiere aprobación previa.** Va después del 4 porque la entrada de Quirón cambia dónde aterriza "programa una sesión". |
-| 6 | **Historial y Progreso** | M | Medio | Ya tienen maestro-detalle y tablas: es sobre todo tokenizar y unificar `Tabs`. |
-| 7 | **Carrera** (`#secRunning` y sus cuatro paneles) | **L** | Medio | El bloque más grande de CSS de la hoja (~450 líneas). Sin sorpresas de arquitectura, solo volumen. |
-| 8 | **Carrera en vivo + runner de sesión** | S | **Alto** | Son las dos pantallas que se usan sudado y con prisa. **Solo tokens**, cero cambios de forma. Si sale mal, se pierde una sesión de entreno. Van las últimas a propósito. |
-| 9 | **Borrar los alias heredados** y las anotaciones `btn--lg btn--block` | S | Bajo | Nada, si los ocho anteriores están hechos. Es el cierre: mientras quede un alias, la migración no ha terminado. |
+### 9.2 Lo que queda escrito a mano, y por qué
 
-### 9.2 Deuda que se deja sin tocar, dicha en voz alta
+Fuera de `:root`, el inventario está a cero salvo dos cosas que **deben** quedarse:
 
-- **Fuera de `:root` siguen escritos a mano: 21 radios (130 usos), 18 `z-index` (28 usos), 10
-  duraciones (65 usos), 23 colores hex (87 usos) y 49 `rgba()` (82 usos).** Todos están en pantallas
-  sin migrar y desaparecen con ellas. La cifra es la deuda medida, y sirve para saber si la fase 2
-  avanza.
-- **`--text-sec` se usa 7 veces y no está definida en ninguna parte** (`.run-type-card-desc`,
-  `.run-type-race-label`, `.run-type-elev-label` y compañía). Esos textos heredan el color en vez de
-  ser secundarios. Es un fallo previo, está en las pantallas de carrera y se arregla en el paso 7; no
-  se toca ahora porque cambiaría el aspecto de una pantalla que este pase no migra. Anotado en
-  `mejoras_arete.md`.
-- **El bloque de "contraste del texto funcional de la sesión"** (`app.css`, `.ex-card .sets-header`,
-  `.sr-load span`, `.sr-lbl`, `.sr-did-k`) subía el alfa a `.78` en claro "porque `--text2` fallaba
-  AA". Ya no es cierto: `--text2` da **5,34:1** sobre blanco y el override de `.78` da **5,06:1** —
-  el parche hoy **baja** el contraste en vez de subirlo. Su propio comentario avisa de que había que
-  revisarlo. No se borra en esta fase porque afecta al runner de sesión y al `ex-card`, que son el
-  paso 8 y no se tocan sin necesidad; se borra allí.
-- **No se han introducido `@layer`.** El brief los pedía y, contra el código real, es mala idea a
-  medias: una regla dentro de una capa **pierde** siempre contra una regla sin capa, así que meter
-  los tokens y los componentes nuevos en una capa mientras 1.281 reglas siguen fuera invierte la
-  cascada para todo lo que se mueva. Las capas se introducen en un solo barrido, en el paso 9, cuando
-  ya no quede nada fuera. Mientras tanto, el orden del fichero y el índice de la cabecera hacen el
-  mismo trabajo.
-- **`.hi-edit-btn`, `.calc-result`, `.empty-state`, `.toast`, `.toggle-btn`** siguen con su CSS viejo
-  porque los comparten pantallas sin migrar. `Cuerpo` los usa con un override acotado y comentado.
-- **El fichero sigue siendo uno solo.** Dividirlo obligaría a tocar `sw.js` (`CACHE_NAME` + `ASSETS`)
-  y la lista `PUBLIC` de `build-pages.mjs` a cambio de peticiones extra en el arranque de una PWA que
-  se instala. No compensa.
+- **`border-radius:50%`** (19 usos) — lo circular. Un token sería una capa de indirección sin
+  significado: `50%` ya dice "círculo".
+- **`border-radius:0`** (6 usos) — lo que explícitamente no tiene esquina.
 
----
+Cero colores, cero `z-index`, cero duraciones, cero sombras y cero anchos inventados. Los números,
+frente a los del inventario de partida:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Radios distintos | 24 | 6 tokens + `50%` y `0` |
+| `z-index` distintos | 18 | 16 con nombre, 0 literales |
+| Duraciones | 22 | 7 tokens, 0 literales |
+| Colores literales fuera de `:root` | 52 (33 hex + 64 `rgba()`) | **0** |
+| Tamaños de botón | 49 | 3 |
+| `.btn--block` | (implícito en los 66 botones) | **9** |
+| Reglas en la hoja | 1.281 | 1.349, repartidas en 6 capas |
+
+### 9.3 La deuda que sigue viva
+
+- **Los `style=""` que quedan en las plantillas de `js/` pasan un color de dato**, no maquetan: el
+  color de un dominio en el radar, el de una zona de pulso, el ancho de una barra de progreso. Son
+  valores calculados en tiempo de ejecución y no pueden ser una clase. Los que maquetaban se han ido.
+- **`.calc-result`, `.hi-edit-btn`, `.toast`, `.timer-*`, `.sr-*` y el bloque de HIIT** siguen siendo
+  componentes de pantalla con nombre propio, no del sistema. Están tokenizados y viven en la capa
+  `pantallas`, que es donde les toca; convertirlos en componentes del sistema solo tendría sentido
+  cuando algo más los necesite.
+- **`.sec-title-accent` sobrevive como alias vacío** de `.sec-title` mientras siga escrito en las
+  plantillas. Es una línea de CSS y quitarla exige tocar seis ficheros de JS por nada.
+- **El fichero sigue siendo uno solo.** Dividirlo obligaría a tocar `sw.js` (`CACHE_NAME` +
+  `ASSETS`) y la lista `PUBLIC` de `build-pages.mjs` a cambio de peticiones extra en el arranque de
+  una PWA que se instala. Con las capas, el argumento para dividirlo —"no encuentro nada"— ya no se
+  sostiene.
+- **Lo anotado en `mejoras_arete.md`** que es lógica y no presentación: el parser de `.FIT`, la
+  tabla de umbrales femenina y `saveDB` serializando la base entera en cada escritura.
 
 ## 10. Guía de contribución
 
@@ -666,10 +741,11 @@ necesita agarrar, nunca para estilar.
 
 **La regla de oro.** Si necesitas un valor que no es un token, o el token falta o el diseño está mal.
 
-**Antes de dar por buena una pantalla migrada**, la lista corta:
+**Antes de dar por buena una pantalla nueva o retocada**, la lista corta:
 
 - [ ] Cero colores, espacios, radios y duraciones escritos a mano; cero `style=""` en sus plantillas.
-- [ ] Cero alias heredados (`--accent`, `--surface2`, `--text2`…).
+- [ ] Ningún alias heredado (`--accent`, `--surface2`, `--text2`…): ya no existen.
+- [ ] Cada regla en su capa: componente → `sistema`, ajuste de pantalla → `pantallas`.
 - [ ] Como máximo **una** acción primaria en rojo en la vista.
 - [ ] Ningún componente crece de tamaño de móvil a escritorio.
 - [ ] Ningún estado marcado con barra de acento lateral.
