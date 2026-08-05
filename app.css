@@ -583,9 +583,6 @@ select{cursor:pointer}
 .nav-quiron{position:relative}
 .nav-dimmed{opacity:.55}
 @media(min-width:1024px){
-/* El panel arranca donde acaba el rail: el chat no es un modal que tape la
-   navegación, es una superficie más de la app. */
-.quiron-panel{left:var(--rail-w)}
 /* Quirón, al pie del rail y separado del resto por un filete: los cinco de
    arriba son pantallas con tus datos; éste es una conversación. */
 .nav-quiron{margin-top:auto;border-top:.5px solid var(--color-border-subtle);
@@ -2091,6 +2088,37 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    que anclarse. En escritorio no informa de nada, así que no se dibuja. */
 .ex-dots{display:none}
 .ex-dots.visible{display:none}
+}
+/* ── Quirón ───────────────────────────────────────────────
+   Dos cosas, y la primera es una decisión del sistema que se había perdido sin
+   que se notara.
+
+   El §7.1 dice, y el CSS decía, que el panel arranca donde acaba el rail: "el
+   chat no es un modal que tape la navegación, es una superficie más de la app".
+   Pero la regla vivía en la capa `sistema` y `.quiron-panel{inset:0}` vive en
+   `pantallas`, que gana por capa aunque tenga menos especificidad. El
+   `left:var(--rail-w)` llevaba muerto desde que la hoja se organizó en capas, y
+   el panel tapaba el rail entero. Aquí, en `escritorio`, gana — que además es
+   donde el §4.4 dice que va todo lo que vive dentro de un min-width.
+
+   Y el estado vacío estaba anclado abajo, con 640px de nada por encima, porque
+   .quiron-msgs se quedaba con todo el espacio libre del flex. Un estado vacío
+   se centra en su superficie: es lo único que hay en ella. */
+@media(min-width:1024px){
+.quiron-panel{left:var(--rail-w)}
+}
+/* Con el setup a la vista, .quiron-msgs (flex:1) se quedaba con TODO el espacio
+   libre y empujaba el estado vacío contra el borde de abajo. Sin sitio que
+   repartir, sus márgenes automáticos no podían centrarlo. */
+.quiron-panel:has(.quiron-setup:not([hidden])) .quiron-msgs{flex:0 0 auto}
+.quiron-setup{margin-block:auto}
+/* ── Entrenar/Carrera · Actividad ─────────────────────────
+   "Importar del reloj" era un relleno rojo de 520px alineado a la izquierda
+   debajo de dos paneles de 915: ni acompañaba al contenido ni era un botón,
+   era el resto de un ancho completo de móvil. Ancho automático y centrado con
+   lo que hay debajo, que es su alternativa ("Registro manual"). */
+@media(min-width:1024px){
+.run-start-btn{width:auto;min-width:260px;margin-inline:auto}
 }
 /* ── Entrenar/Fuerza · Plan ───────────────────────────────
    Mismo fallo que Actividad y misma cura. Las seis sesiones del plan eran seis
