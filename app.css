@@ -1,25 +1,230 @@
-:root{--bg:#f4f2f0;--surface:#fff;--surface2:#ebe8e5;--surface-high:#f0eeeb;--surface-glass:rgba(255,255,255,.75);--border:rgba(92,68,64,.08);--ghost-border:rgba(0,0,0,.06);--text:#1c1b1b;--text2:rgba(93,63,59,.80);--text3:rgba(93,63,59,.64);--accent:#d4372c;--accent2:#ff5545;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.12);--green:#16a34a;--red:#dc2626;--blue:#d4372c;--teal:#0891b2;--color-running:#0891b2;--radius:16px;--radius-lg:24px;--font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;/* La app se lee con el móvil en el suelo, sudado y entre series: el suelo de la
-   escala es 11px y el tamaño de cuerpo 14px. --text3 es para iconografía y
-   separadores; cualquier texto que haya que leer va en --text2 o --text.
-   Contraste medido sobre los tres fondos claros (bg, surface, surface2):
-   --text2 ≥ 4,5:1 (AA de texto) y --text3 ≥ 3,0:1 (AA de elementos no
-   textuales, 1.4.11). Con .78 y .62, --text2 se quedaba en 4,46:1 sobre
-   surface2 — fallaba por tres centésimas justo en las tarjetas. */
---fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;--fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;
-/* Geometría de la shell. Todo lo que dependa del ancho del contenido o de la
-   altura/anchura de la navegación va por estas tres variables: el ancho estaba
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARETÉ — hoja única, servida tal cual (sin build step). Índice:
+
+     1. TOKENS      primitivos · semánticos · alias heredados · escalas
+     2. BASE        reset, tipografía, shell, campos
+     3. SISTEMA     botones, rail colapsable, roles tipográficos
+     4. PANTALLAS   Cuerpo (migrada) y el resto, por migrar
+     5. ESCRITORIO  shell, rail, rejillas de ≥640/1024/1440
+
+   El documento del sistema es DESIGN_SYSTEM.md. Regla de oro: si necesitas un
+   valor que no es un token, o falta el token o el diseño está mal.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1.1 PRIMITIVOS ─────────────────────────────────────────────────────────
+   Valores crudos, sin significado. No se usan en ningún componente: solo aquí
+   debajo, para dar de alta un token semántico. Si un componente escribe
+   var(--red-600) es que falta un semántico. */
+:root{
+  /* Rojo Areté. 600 es el de marca; 500 el que aguanta el fondo oscuro. */
+  --red-200:#ffb4aa; --red-500:#ff5545; --red-600:#d4372c;
+  --red-500-rgb:255,85,69; --red-600-rgb:212,55,44;
+  /* Neutros cálidos (papel) */
+  --sand-0:#fff; --sand-50:#f4f2f0; --sand-100:#f0eeeb; --sand-200:#ebe8e5;
+  --brown-900:#1c1b1b; --brown-700-rgb:93,63,59;
+  /* Neutros de tinta (noche) */
+  --ink-900:#131313; --ink-800:#201f1f; --ink-700:#2a2a2a; --ink-600:#353534;
+  --ash-50:#e5e2e1; --rose-200-rgb:231,189,183;
+  /* Estado y dominio */
+  --green-600:#16a34a; --green-400:#30d158;
+  --crimson-600:#dc2626; --crimson-400:#ff453a;
+  --amber-700:#a16207; --cyan-600:#0891b2; --cyan-300:#68d3fc;
+}
+
+/* ── 1.2 SEMÁNTICOS · tema claro ────────────────────────────────────────────
+   CONTRASTE MEDIDO (WCAG 2.1, ratio real con el alfa compuesto sobre cada
+   fondo; fondos: bg #f4f2f0 · surface #fff · surface2 #ebe8e5 · high #f0eeeb):
+
+     --color-text-primary   15,39 · 17,19 · 14,08 · 14,84   (AA y AAA)
+     --color-text-secondary  4,96 ·  5,34 ·  4,68 ·  4,85   (AA de texto)
+     --color-text-tertiary   3,36 ·  3,53 ·  3,23 ·  3,30   (AA no textual)
+     --color-action-primary  4,29 ·  4,79 ·  3,93 ·  4,14
+     blanco sobre la acción primaria: 4,79 (AA)
+
+   El alfa .80/.64 de secondary/tertiary está calibrado al límite: con .78 el
+   secundario caía a 4,46 sobre surface2 y fallaba por tres centésimas justo en
+   las tarjetas. Si tocas un color, vuelve a medir y escribe la cifra aquí. */
+:root{
+  --color-surface-0:var(--sand-50);       /* lienzo de la página */
+  --color-surface-1:var(--sand-0);        /* tarjeta, panel */
+  --color-surface-2:var(--sand-200);      /* campo, chip, pista */
+  --color-surface-3:var(--sand-100);      /* hover de una superficie 1 */
+  --color-surface-glass:rgba(255,255,255,.75);
+  --color-text-primary:var(--brown-900);
+  --color-text-secondary:rgba(var(--brown-700-rgb),.80);
+  --color-text-tertiary:rgba(var(--brown-700-rgb),.64);
+  --color-text-inverse:var(--sand-0);
+  --color-border-subtle:rgba(92,68,64,.08);
+  --color-border-ghost:rgba(0,0,0,.06);
+  /* Acción. Dos tokens y no uno: el relleno del botón y el acento tipográfico
+     tienen requisitos de contraste opuestos, y en oscuro divergen (§1.3). */
+  --color-action-primary:var(--red-600);       /* relleno del botón primario */
+  --color-action-primary-fg:var(--sand-0);     /* texto sobre ese relleno */
+  --color-accent-text:var(--red-600);          /* acento como texto o icono */
+  --color-accent-soft:var(--red-200);
+  --color-accent-wash:rgba(var(--red-600-rgb),.08);   /* fondo teñido */
+  --color-accent-glow:rgba(var(--red-500-rgb),.12);   /* sombra de la acción */
+  --color-state-success:var(--green-600);
+  --color-state-danger:var(--crimson-600);
+  --color-state-warning:var(--amber-700);
+  --color-state-info:var(--cyan-600);
+  /* Dominio: fuerza es la marca, carrera es el cian. No son estados. */
+  --color-domain-strength:var(--red-600);
+  --color-domain-running:var(--cyan-600);
+  --color-scrim:rgba(0,0,0,.5);
+  --color-focus-ring:rgba(var(--red-600-rgb),.3);
+}
+
+/* ── 1.3 ALIAS HEREDADOS ────────────────────────────────────────────────────
+   Los nombres viejos siguen vivos como alias mientras dura la migración. Se
+   borran cuando no queden usos: ver DESIGN_SYSTEM.md §9 (plan de migración).
+   Definirlos aquí, y no repetirlos en :root.dark, es lo que hace que el tema
+   oscuro solo tenga que redefinir la capa semántica. */
+:root{
+  --bg:var(--color-surface-0);
+  --surface:var(--color-surface-1);
+  --surface2:var(--color-surface-2);
+  --surface-high:var(--color-surface-3);
+  --surface-glass:var(--color-surface-glass);
+  --border:var(--color-border-subtle);
+  --ghost-border:var(--color-border-ghost);
+  --text:var(--color-text-primary);
+  --text2:var(--color-text-secondary);
+  --text3:var(--color-text-tertiary);
+  --accent:var(--color-accent-text);
+  --accent2:var(--red-500);
+  --accent-soft:var(--color-accent-soft);
+  --accent-glow:var(--color-accent-glow);
+  --green:var(--color-state-success);
+  --red:var(--color-state-danger);
+  --teal:var(--color-state-info);
+  --blue:var(--color-accent-text);
+  --color-running:var(--color-domain-running);
+}
+
+/* ── 1.4 TIPOGRAFÍA ─────────────────────────────────────────────────────────
+   La escala. La app se lee con el móvil en el suelo, sudado y entre series: el
+   suelo es 11px y el cuerpo 14px. En ≥1024 la escala sube un escalón entera
+   (§5), no se redefine html{font-size} — eso descoordinaría los px literales de
+   iconos, toggles y radios. */
+:root{
+  --font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;
+  --fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;
+
+  /* ROLES. Atan tamaño + peso + interlineado; el tracking viaja aparte porque
+     el shorthand `font` no lo admite. Para no escribir las dos líneas a mano
+     están las clases .t-* (§3), que además ponen las cifras tabulares donde
+     tocan. El shorthand `font` resetea font-variant-numeric: por eso --type-
+     metric SIEMPRE se aplica con .t-metric o con su tabular-nums al lado. */
+  --type-display:800 var(--fs-3xl)/1.1 var(--font);      --track-display:-.04em;
+  --type-title-lg:800 var(--fs-xl)/1.2 var(--font);      --track-title-lg:-.03em;
+  --type-title:700 var(--fs-lg)/1.25 var(--font);        --track-title:-.01em;
+  --type-body:400 var(--fs-md)/1.5 var(--font);          --track-body:0;
+  --type-body-strong:600 var(--fs-md)/1.45 var(--font);  --track-body-strong:0;
+  --type-caption:500 var(--fs-sm)/1.45 var(--font);      --track-caption:0;
+  --type-label:600 var(--fs-xs)/1.3 var(--font);         --track-label:.06em;
+  --type-metric:800 var(--fs-2xl)/1.1 var(--font);       --track-metric:-.02em;
+  --type-metric-lg:800 var(--fs-3xl)/1 var(--font);      --track-metric-lg:-.03em;
+}
+
+/* ── 1.5 ESPACIO, RADIO, SOMBRA, PROFUNDIDAD, MOVIMIENTO ────────────────────*/
+:root{
+  /* Escala base */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;
+
+  /* Espaciado DE COMPONENTE: el relleno interno por tamaño de control. Un
+     botón sm y un chip sm comparten estos dos valores, no se los inventan. */
+  --pad-y-sm:8px;  --pad-x-sm:14px;
+  --pad-y-md:12px; --pad-x-md:20px;
+  --pad-y-lg:16px; --pad-x-lg:24px;
+  --pad-card:var(--sp-4);
+
+  /* Espaciado DE LAYOUT: la densidad cambia por breakpoint desde aquí (§5), no
+     regla a regla. */
+  --gap-tight:var(--sp-2);     /* elementos de una misma fila */
+  --gap-stack:var(--sp-3);     /* tarjetas de una misma lista */
+  --gap-group:var(--sp-5);     /* bloques de una misma sección */
+  --gap-section:var(--sp-8);   /* entre secciones y entre columnas */
+
+  /* Radios. Eran 24 valores sueltos; son seis. */
+  --radius-xs:6px; --radius-sm:8px; --radius-md:10px;
+  --radius-lg:16px; --radius-xl:24px; --radius-pill:999px;
+  --radius:var(--radius-lg);   /* alias heredado */
+
+  /* Sombras. Elevación, no decoración: 1 = pegado, 2 = flotando, 3 = sobre
+     todo lo demás. La de acción tiñe con el acento y es solo del primario. */
+  --shadow-1:0 1px 3px rgba(0,0,0,.08);
+  --shadow-2:0 6px 20px rgba(0,0,0,.06);
+  --shadow-3:0 8px 32px rgba(0,0,0,.25);
+  --shadow-action:0 8px 24px var(--color-accent-glow);
+  --shadow-panel:-12px 0 40px rgba(0,0,0,.12);
+
+  /* Profundidad. Eran 18 números repartidos por la hoja; ahora tienen nombre y
+     el nombre dice qué tapa a qué. Nada nuevo se escribe fuera de esta escala. */
+  --z-raised:1;
+  --z-sticky-action:40;     /* el botón de guardar pegado al pie */
+  --z-sticky-dots:45;       /* los puntos de ejercicio */
+  --z-sticky-mini:46;       /* el mini-timer */
+  --z-sticky-timer:50;      /* la barra de timer */
+  --z-sticky-context:55;    /* la barra de contexto */
+  --z-header:60;
+  --z-runner:90;            /* el runner de sesión, a pantalla completa */
+  --z-sheet:95;             /* hojas inferiores (test de dominio) */
+  --z-nav:100;              /* nav inferior y rail */
+  --z-overlay:200;          /* modales y el panel de Quirón */
+  --z-overlay-top:210;      /* barras acopladas a un modal */
+  --z-toast:250;
+  --z-toast-top:260;
+  --z-alert:300;            /* celebración de PR, banner de actualización */
+  --z-immersive:500;        /* carrera en vivo */
+  --z-immersive-top:600;    /* bloqueo de pantalla */
+
+  /* Movimiento. Eran 22 duraciones sin criterio. Cuatro escalones y tres
+     curvas; todo lo nuevo respeta prefers-reduced-motion (§final). */
+  --dur-instant:.1s;   /* respuesta al dedo: :active */
+  --dur-fast:.15s;     /* cambio de color, hover */
+  --dur-base:.2s;      /* entrada de panel, cambio de pestaña */
+  --dur-slow:.3s;      /* hoja inferior, barrido lateral */
+  --ease-standard:ease-out;
+  --ease-sheet:cubic-bezier(.32,.72,0,1);
+  --ease-linear:linear;
+}
+
+/* ── 1.6 SHELL Y MEDIDAS ────────────────────────────────────────────────────
+   Geometría de la shell. Todo lo que dependa del ancho del contenido o de la
+   altura/anchura de la navegación va por estas variables: el ancho estaba
    escrito a mano en seis sitios y cualquier cambio dejaba descentrados los
    elementos fijos (.detail-btn-bar, .share-editor-overlay, nav).
-   Los valores por breakpoint están en "Escritorio: shell y rail". */
---shell:100%;--nav-h:84px;--rail-w:0px;
-/* Medidas máximas por tipo de contenido: no todo debe ocupar la shell. */
---measure-prose:46rem;--measure-form:520px}
+   Los valores por breakpoint están en "Escritorio: shell y rail".
+   --rail-w es también de dónde sale el colapso del rail: nadie escribe 232 ni
+   64 a mano en ningún sitio. */
+:root{
+  --shell:100%;--nav-h:84px;--rail-w:0px;
+  --rail-w-open:232px;--rail-w-icon:64px;
+  /* Medidas máximas por tipo de contenido: no todo debe ocupar la shell. */
+  --measure-prose:46rem;   /* texto seguido: 45-75 caracteres */
+  --measure-form:520px;    /* un formulario no se ensancha nunca */
+  --measure-panel:560px;   /* filas etiqueta-valor y series */
+  --measure-table:100%;    /* una tabla vale más cuantas más columnas se vean */
+}
 *{margin:0;padding:0;box-sizing:border-box}html{font-size:16px}
+/* `hidden` es el interruptor del sistema para ocultar algo, y hasta ahora no
+   funcionaba: la regla del navegador es display:none con especificidad cero, así
+   que cualquier `display:flex` de una clase la ganaba. Se veía en
+   `.quiron-setup[hidden]{display:none}`, un parche puntual para el mismo
+   problema. Con esto, `el.hidden = true` oculta de verdad en toda la app y deja
+   de hacer falta manosear `style.display` desde JS. */
+[hidden]{display:none!important}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:var(--nav-h);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:24px 24px 0 0;display:flex;z-index:100;padding:8px 8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
 :root.dark nav{background:rgba(19,19,19,.6);box-shadow:0 -10px 40px rgba(0,0,0,.4)}
 nav button{flex:1;background:none;border:none;color:var(--text2);padding:6px 4px 4px;font-family:var(--font);font-size:var(--fs-xs);font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:all .2s;border-radius:var(--radius)}
 nav button.active{color:#fff;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}nav button .material-symbols-outlined{font-size:24px}nav button svg{width:24px;height:24px;stroke-width:1.8}
+/* El plegado del rail solo existe donde hay rail: por debajo de 1024 la nav es
+   la barra inferior y no hay nada que plegar. */
+#railToggle{display:none}
 header{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:60}
 :root.dark header{background:rgba(19,19,19,.4)}
 header h1{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;text-transform:uppercase;display:flex;align-items:center;gap:6px}header h1 span{color:var(--accent)}.header-logo{width:24px;height:24px;border-radius:6px}
@@ -28,15 +233,187 @@ header h1{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;text-tran
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 label{display:block;font-size:var(--fs-base);color:var(--text2);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 select,input[type="date"],input[type="number"],input[type="text"],input[type="password"]{width:100%;background:var(--surface2);border:none;color:var(--text);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;border-radius:10px;outline:none;-webkit-appearance:none;transition:background .2s}
-select:focus,input:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(212,55,44,.3)}
+select:focus,input:focus{background:var(--surface);box-shadow:0 0 0 2px var(--color-focus-ring)}
 input[type="number"]{font-size:var(--fs-xl);text-align:center;font-weight:600}
 textarea{width:100%;background:var(--surface2);border:none;color:var(--text);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;border-radius:10px;outline:none;resize:vertical;min-height:60px;transition:background .2s}
-textarea:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(212,55,44,.3)}
+textarea:focus{background:var(--surface);box-shadow:0 0 0 2px var(--color-focus-ring)}
 .row{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3)}.row>*{flex:1}.mb{margin-bottom:var(--sp-3)}.mb2{margin-bottom:var(--sp-5)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:16px 24px;border-radius:var(--radius);cursor:pointer;width:100%;transition:transform .1s,opacity .15s;box-shadow:0 8px 24px var(--accent-glow)}
+/* ── 3.1 BOTONES ────────────────────────────────────────────────────────────
+   Taxonomía en tres ejes independientes: jerarquía, tamaño y ancho.
+
+   JERARQUÍA  .btn (primario) · .btn--secondary · .btn--ghost · .btn--danger
+   TAMAÑO     .btn--sm · (md por defecto) · .btn--lg
+   ANCHO      auto por defecto · .btn--block cuando de verdad toca
+   ICONO      .btn--icon (cuadrado, exige aria-label)
+
+   Dos decisiones que cambian lo que había:
+
+   1. `.btn` ya NO es `width:100%`. Un "Iniciar sesión" de 1.100px en un
+      monitor no es un botón, es una valla. El ancho completo es la excepción
+      declarada de la acción principal de una hoja móvil, y se pide con
+      `.btn--block`.
+   2. El tamaño por defecto es **md** (12/20, cuerpo md). El viejo defecto era
+      lg (16/24, cuerpo lg), que es el tamaño de una acción de hoja, no el de
+      un botón cualquiera.
+
+   Los ~100 botones de las pantallas sin migrar llevan `btn--lg btn--block`
+   añadidos en este pase: hacen explícito lo que antes recibían implícitos, y
+   así el aspecto no cambia en ninguna pantalla que todavía no se ha rediseñado.
+   Cada pantalla que se migra los borra donde no aplican. Contarlos
+   (`grep -c 'btn--block'`) es la barra de progreso de la fase 2.
+
+   PRESUPUESTO DEL ACENTO: como máximo **una** acción primaria en rojo por
+   vista. La segunda acción es --secondary; la tercera, --ghost. Un acento que
+   aparece diez veces por pantalla ya no acentúa. */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--color-action-primary);color:var(--color-action-primary-fg);border:none;
+  font-family:var(--font);font-size:var(--fs-md);font-weight:700;
+  padding:var(--pad-y-md) var(--pad-x-md);border-radius:var(--radius-lg);
+  cursor:pointer;width:auto;min-height:44px;
+  transition:transform var(--dur-instant),opacity var(--dur-fast),background var(--dur-fast);
+  box-shadow:var(--shadow-action)}
 .btn:active{transform:scale(.97);opacity:.85}
-.btn-outline{background:var(--surface2);border:none;color:var(--text);font-weight:500}.btn-outline:active{background:var(--surface-high,var(--surface2));opacity:.85}
-.btn-sm{padding:10px 16px;font-size:var(--fs-md);width:auto}.btn-danger{background:var(--red);color:#fff}
+/* Secundario: mismo peso de forma, cero peso de color. */
+.btn--secondary,.btn-outline{background:var(--color-surface-2);color:var(--color-text-primary);font-weight:500;box-shadow:none}
+.btn--secondary:active,.btn-outline:active{background:var(--color-surface-3);opacity:.85}
+/* Terciario: solo texto. Para lo que no compite con nada. */
+.btn--ghost{background:none;color:var(--color-text-secondary);font-weight:600;box-shadow:none}
+.btn--ghost:active{background:var(--color-surface-2);opacity:1}
+/* Peligro: rojo de estado, no rojo de marca, y nunca en la misma vista que la
+   acción primaria si se puede evitar. */
+.btn--danger,.btn-danger{background:var(--color-state-danger);color:var(--color-text-inverse);box-shadow:none}
+/* Tamaños */
+.btn--sm,.btn-sm{padding:var(--pad-y-sm) var(--pad-x-sm);font-size:var(--fs-base);width:auto;min-height:44px}
+/* --lg no lleva min-height: en escritorio el relleno se aprieta a 12/20 (§5) y
+   un mínimo de 52 dejaría los botones más altos de lo que están hoy. */
+.btn--lg{padding:var(--pad-y-lg) var(--pad-x-lg);font-size:var(--fs-lg)}
+/* Ancho */
+.btn--block{width:100%}
+/* Icono. El aria-label no es opcional: sin él es un botón sin nombre. */
+.btn--icon{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border-radius:var(--radius-md);gap:0}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+
+/* ── 3.3 ROLES TIPOGRÁFICOS ─────────────────────────────────────────────────
+   Para no volver a escribir `font-size:var(--fs-lg);font-weight:700` a mano.
+   Cada clase ata tamaño + peso + interlineado + tracking, y las que muestran
+   cifras traen las tabulares puestas: una columna de números que baila al
+   cambiar de dígito no se compara de un vistazo, y este producto son números. */
+.t-display{font:var(--type-display);letter-spacing:var(--track-display)}
+.t-title-lg{font:var(--type-title-lg);letter-spacing:var(--track-title-lg)}
+.t-title{font:var(--type-title);letter-spacing:var(--track-title)}
+.t-body{font:var(--type-body);letter-spacing:var(--track-body)}
+.t-body-strong{font:var(--type-body-strong);letter-spacing:var(--track-body-strong)}
+.t-caption{font:var(--type-caption);letter-spacing:var(--track-caption);color:var(--color-text-secondary)}
+.t-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.t-metric{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums}
+.t-metric-lg{font:var(--type-metric-lg);letter-spacing:var(--track-metric-lg);font-variant-numeric:tabular-nums}
+
+/* ── 3.4 SECTIONHEADER ──────────────────────────────────────────────────────
+   Título de pantalla + su única acción primaria. El subtítulo es contexto
+   (cuándo se midió por última vez, qué programa está activo), no adorno: si no
+   hay nada que decir, se omite el elemento. */
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:var(--gap-tight);flex-wrap:wrap;margin-bottom:var(--gap-group)}
+.page-head-txt{min-width:0}
+.page-title{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);text-transform:uppercase}
+.page-sub{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+
+/* ── 3.5 PANEL (Card) ───────────────────────────────────────────────────────
+   La superficie 1 con su cabecera. Es el contenedor de lectura por defecto:
+   una tarjeta de resultado, una tabla, una lista. No lleva sombra — la
+   separación la da el salto de superficie, y en oscuro las sombras no separan
+   nada. Nunca marca estado con una banda lateral: lo hace el fondo o un chip. */
+.panel{background:var(--color-surface-1);border-radius:var(--radius-xl);
+  padding:var(--pad-card);margin-bottom:var(--gap-stack)}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;
+  gap:var(--gap-tight);margin-bottom:var(--sp-3)}
+.panel-title{font:var(--type-label);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
+.panel-note{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-3)}
+/* Sin relleno: para cuando el hijo ya trae el suyo (una tabla con scroll). */
+.panel--flush{padding:0;overflow:hidden}
+.panel--flush .panel-title{padding:var(--pad-card) var(--pad-card) 0}
+
+/* ── 3.6 METRICTILE ─────────────────────────────────────────────────────────
+   La cifra grande: peso, kcal, un PR. Etiqueta arriba, cifra tabular abajo,
+   y una variación opcional. Crece **en número por fila**, nunca de tamaño: es
+   el mismo componente en el móvil y en el monitor. */
+/* 132px y no 148: en un móvil de 375 la columna útil son 303px, y a 148 los
+   tiles caían de dos a uno por fila justo en la pantalla donde más importa la
+   densidad. Con 132 entran dos en 375 y siguen entrando ocho en 1440. */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:var(--gap-tight)}
+.tile{background:var(--color-surface-2);border-radius:var(--radius-lg);padding:var(--sp-3) var(--sp-4)}
+.tile-label{font:var(--type-label);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--color-text-secondary)}
+.tile-value{font:var(--type-metric);letter-spacing:var(--track-metric);
+  font-variant-numeric:tabular-nums;margin-top:2px}
+.tile-unit{font:var(--type-caption);color:var(--color-text-secondary);margin-left:3px}
+.tile-delta{font:var(--type-caption);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile-delta--up{color:var(--color-state-success)}
+.tile-delta--down{color:var(--color-state-info)}
+.tile-delta--flat{color:var(--color-text-secondary)}
+.tile--empty .tile-value{color:var(--color-text-secondary);font:var(--type-body);letter-spacing:0}
+
+/* ── 3.7 LISTROW ────────────────────────────────────────────────────────────
+   Nombre a la izquierda, valor a la derecha. Es el patrón más repetido del
+   producto y hasta ahora estaba reescrito en quince sitios con quince nombres. */
+.listrow{display:flex;align-items:baseline;gap:var(--gap-tight);
+  padding:var(--sp-2) 0;border-top:1px solid var(--color-border-ghost)}
+.listrow:first-child{border-top:none}
+.listrow-name{flex:1;min-width:0;font:var(--type-body-strong)}
+.listrow-value{font:var(--type-body-strong);font-variant-numeric:tabular-nums;text-align:right}
+.listrow-meta{font:var(--type-caption);color:var(--color-text-secondary)}
+
+/* ── 3.8 CAMPOS ─────────────────────────────────────────────────────────────
+   Etiqueta encima siempre. Con la etiqueta a la izquierda y el campo a la
+   derecha, en un monitor quedan cientos de píxeles de vacío entre una etiqueta
+   y el campo al que pertenece y la asociación se pierde en la segunda fila. */
+.field{display:block;margin-bottom:var(--sp-3)}
+.field-label{display:block;font:var(--type-label);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:4px}
+.field-hint{display:block;font:var(--type-caption);color:var(--color-text-secondary);margin-top:4px}
+.field-error{display:block;font:var(--type-caption);color:var(--color-state-danger);margin-top:4px}
+/* Un formulario no se ensancha nunca más allá de su medida. */
+.form{max-width:var(--measure-form)}
+
+/* ── 3.9 MODAL / BOTTOMSHEET ────────────────────────────────────────────────
+   El mismo componente y la misma API: hoja que sube desde abajo en el móvil,
+   diálogo centrado en escritorio. Cambia la presentación, no el contrato.
+   `.sheet.open` lo muestra; el `role="dialog"` y el `aria-modal` van en el
+   HTML porque el componente no decide si es modal, lo decide quien lo usa. */
+.sheet{position:fixed;inset:0;z-index:var(--z-overlay);display:none;
+  align-items:flex-end;justify-content:center;background:var(--color-scrim)}
+.sheet.open{display:flex}
+.sheet-panel{display:flex;flex-direction:column;width:100%;max-width:var(--measure-form);
+  max-height:92dvh;background:var(--color-surface-0);
+  border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  animation:sheetUp var(--dur-slow) var(--ease-sheet)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-head{display:flex;align-items:center;gap:var(--gap-tight);
+  padding:var(--sp-4) var(--sp-4) var(--sp-2)}
+.sheet-title{flex:1;font:var(--type-title-lg);letter-spacing:var(--track-title-lg)}
+.sheet-body{flex:1;overflow-y:auto;padding:var(--sp-2) var(--sp-4) var(--sp-4)}
+.sheet-foot{display:flex;gap:var(--gap-tight);padding:var(--sp-3) var(--sp-4)
+  calc(var(--sp-4) + env(safe-area-inset-bottom));border-top:1px solid var(--color-border-ghost)}
+/* La acción principal de una hoja móvil: éste es el caso para el que existe
+   .btn--block, y prácticamente el único. */
+.sheet-foot .btn--block{flex:1}
+@media(min-width:640px){
+.sheet{align-items:center}
+.sheet-panel{border-radius:var(--radius-xl);max-height:88vh;animation:fadeIn var(--dur-base) var(--ease-standard)}
+}
+@media(prefers-reduced-motion:reduce){.sheet-panel{animation:none}}
+
+/* ── 3.10 BANNER DE ESTADO ──────────────────────────────────────────────────
+   Fondo teñido e icono. NUNCA una banda de acento lateral: en una tarjeta, en
+   una fila o en una alerta, la barra de color a la izquierda está prohibida en
+   este sistema — el ojo la lee como decoración de borde, no como estado. */
+.banner{display:flex;align-items:center;gap:var(--gap-tight);
+  background:var(--color-accent-wash);border-radius:var(--radius-lg);
+  padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-3)}
+.banner-text{flex:1;min-width:0;font:var(--type-caption);
+  font-weight:600;color:var(--color-accent-text)}
+.banner .material-symbols-outlined{font-size:20px;color:var(--color-accent-text);flex-shrink:0}
 .save-bar{margin-top:var(--sp-3)}
 .save-bar-notes-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .save-bar-notes-label{font-size:var(--fs-xs);color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
@@ -152,18 +529,64 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
 .hi-edit-btn{background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:var(--fs-sm);font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;margin-top:var(--sp-2);transition:opacity .2s}
 .hi-edit-btn:active{opacity:.7}
 .load-more-btn{display:block;width:100%;background:var(--surface2);border:none;color:var(--text2);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;border-radius:var(--radius);cursor:pointer;margin-top:var(--sp-1);transition:background .2s}.load-more-btn:active{background:var(--border)}
-.measure-row{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2)}
-.measure-row label{flex:1;margin:0;font-size:var(--fs-base);font-weight:500}
-.measure-row input{width:85px;flex:none}
-.proportion-card{background:var(--surface);border-radius:var(--radius);padding:12px;margin-bottom:var(--sp-2)}
-.proportion-card .p-label{font-size:var(--fs-base);color:var(--text2);font-weight:500}
-.proportion-card .p-value{font-size:var(--fs-xl);font-weight:700;margin:5px 0;letter-spacing:-.02em}
-.proportion-card .p-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
-.proportion-card .p-fill{height:100%;border-radius:2px;transition:width .4s ease}
+/* .calc-result se queda: Cuerpo ya no lo usa (ahora son MetricTiles), pero los
+   1RM y los récords de Ajustes sí, y Ajustes no se migra en esta fase. */
 .calc-result{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:var(--sp-2)}
 .calc-result .cr-label{font-size:var(--fs-xs);color:var(--text2);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
 .calc-result .cr-value{font-size:var(--fs-2xl);font-weight:700;color:var(--accent);letter-spacing:-.02em;margin-top:2px}
 .calc-result .cr-sub{font-size:var(--fs-base);color:var(--text2);margin-top:2px}
+
+/* ── 4.1 CUERPO ─────────────────────────────────────────────────────────────
+   Pantalla migrada. Todo lo que sigue usa tokens y los componentes de §3; no
+   hay un solo color, radio, espacio ni duración escrito a mano.
+
+   Las once medidas, en rejilla y con la etiqueta encima. En fila con el campo
+   a la derecha, en un monitor quedaban ~370px de vacío entre una etiqueta y su
+   campo: la asociación se pierde a partir de la segunda fila. */
+.measure-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:var(--gap-tight)}
+.measure-grid .field{margin-bottom:0}
+.measure-grid input{text-align:center}
+.body-measures-hint{margin-bottom:var(--sp-3)}
+
+/* Proporciones: fila de lectura con barra de progreso. El estado (dentro de
+   rango / corto / pasado) lo dice el color de la barra y del valor, nunca una
+   banda lateral. */
+.prop-row{padding:var(--sp-2) 0;border-top:1px solid var(--color-border-ghost)}
+.prop-row:first-child{border-top:none}
+.prop-label{font:var(--type-caption);color:var(--color-text-secondary)}
+.prop-value{font:var(--type-title);letter-spacing:var(--track-title);
+  font-variant-numeric:tabular-nums;margin:2px 0 var(--sp-2)}
+.prop-target{font:var(--type-caption);color:var(--color-text-secondary)}
+.prop-bar{height:4px;background:var(--color-surface-2);border-radius:var(--radius-pill);overflow:hidden}
+.prop-fill{height:100%;border-radius:var(--radius-pill);transition:width var(--dur-slow) var(--ease-standard)}
+.prop-row--ok .prop-value{color:var(--color-state-success)}
+.prop-row--ok .prop-fill{background:var(--color-state-success)}
+.prop-row--low .prop-value{color:var(--color-text-primary)}
+.prop-row--low .prop-fill{background:var(--color-text-tertiary)}
+.prop-row--high .prop-value{color:var(--color-state-info)}
+.prop-row--high .prop-fill{background:var(--color-state-info)}
+.prop-row--empty .prop-value{font:var(--type-body);color:var(--color-text-secondary);letter-spacing:0}
+.prop-warn{margin:0 0 var(--sp-3)}
+
+/* Altura y edad: parámetros del cálculo, no captura. Se ven como lo que son —
+   ajustes discretos al pie de su panel, no un formulario más. */
+.body-calc-args{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:var(--gap-tight);margin-top:var(--sp-4);padding-top:var(--sp-3);
+  border-top:1px solid var(--color-border-ghost);max-width:var(--measure-form)}
+.body-calc-args .field{margin-bottom:0}
+
+/* El presupuesto del acento, aplicado. "Editar" aparece una vez por fila del
+   historial: en rojo eran diez acciones primarias compitiendo con la única que
+   lo es de verdad ("Registrar medidas"). Editar una fila es secundario por
+   definición — no es lo que has venido a hacer a esta pantalla.
+   El selector va con .body-history delante porque .hi-edit-btn se declara más
+   abajo en la hoja y es la que sigue mandando en el historial de fuerza, que
+   todavía no está migrado. */
+.body-history .hi-edit-btn{background:var(--color-surface-2);color:var(--color-text-primary);
+  font-weight:600;border-radius:var(--radius-md);padding:6px 12px;min-height:36px;margin-top:0}
+@media(hover:hover) and (pointer:fine){
+.body-history .hi-edit-btn:hover{background:var(--color-surface-3)}
+}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:8px 20px 24px;width:100%;max-width:500px;max-height:75vh;overflow-y:auto;animation:slideUp .3s}
@@ -224,8 +647,22 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-
    El @media(min-width:700px) de la carrera en vivo es aparte a propósito: es un
    overlay sin nav y su umbral responde a que quepan panel y mapa. */
 @media(min-width:640px){:root{--shell:600px}}
-@media(min-width:1024px){:root{--shell:880px;--nav-h:0px;--rail-w:232px}}
+@media(min-width:1024px){:root{--shell:880px;--nav-h:0px;--rail-w:var(--rail-w-open)}}
 @media(min-width:1440px){:root{--shell:1180px}}
+
+/* ── 3.2 RAIL COLAPSABLE ────────────────────────────────────────────────────
+   El rail se pliega a modo icono. Y colapsarlo tiene que **servir para algo**:
+   si la shell no creciera, los 168px liberados se convertirían en margen y el
+   usuario habría hecho un clic para nada. Por eso la shell recupera
+   exactamente lo que suelta el rail. Todo sale de --rail-w y de --rail-w-open/
+   --rail-w-icon: ni 232 ni 64 se escriben a mano en ninguna otra regla. */
+@media(min-width:1024px){
+:root.rail-collapsed{--rail-w:var(--rail-w-icon);
+  --shell:calc(880px + var(--rail-w-open) - var(--rail-w-icon))}
+}
+@media(min-width:1440px){
+:root.rail-collapsed{--shell:calc(1180px + var(--rail-w-open) - var(--rail-w-icon))}
+}
 
 @media(min-width:640px){
 body{max-width:var(--shell);margin:0 auto}
@@ -253,6 +690,21 @@ header{padding-inline:var(--sp-6)}
 nav{top:0;bottom:0;left:0;right:auto;width:var(--rail-w);max-width:none;height:100dvh;transform:none;flex-direction:column;justify-content:flex-start;gap:var(--sp-1);border-radius:0;border-right:.5px solid var(--border);padding:var(--sp-5) var(--sp-3) var(--sp-5)}
 nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:var(--sp-3);padding:11px 14px;font-size:var(--fs-md);font-weight:600;min-height:44px}
 nav button svg{width:22px;height:22px;flex-shrink:0}
+/* El plegado del rail. La transición la desactiva la regla global de
+   prefers-reduced-motion, igual que el resto de la hoja. */
+nav{transition:width var(--dur-base) var(--ease-standard)}
+body{transition:padding-left var(--dur-base) var(--ease-standard)}
+/* Arriba, no abajo: el pie del rail es de Quirón (#quironFab). */
+#railToggle{display:flex;justify-content:center;margin-bottom:var(--sp-2);color:var(--color-text-tertiary)}
+#railToggle .material-symbols-outlined{transition:transform var(--dur-base) var(--ease-standard)}
+:root.rail-collapsed #railToggle .material-symbols-outlined{transform:rotate(180deg)}
+/* Modo icono: se va la etiqueta, el icono se centra y el objetivo sigue
+   midiendo 44. El nombre del destino no se pierde — pasa a `title`, que lo
+   pone rail.js al plegar. */
+:root.rail-collapsed nav{padding-inline:var(--sp-2)}
+:root.rail-collapsed nav button{justify-content:center;padding:11px 0;gap:0}
+:root.rail-collapsed nav button>span:not(.material-symbols-outlined){
+  position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 /* El FAB de Quirón se ancla más abajo, con el resto de sus reglas. */
 /* Los fijos anclados a la columna se centran contando con el rail. */
 .detail-btn-bar,.share-editor-overlay{left:calc(50% + var(--rail-w)/2)}
@@ -264,8 +716,8 @@ nav button svg{width:22px;height:22px;flex-shrink:0}
 #prefillBanner{display:none;background:rgba(212,55,44,.08);border:.5px solid rgba(212,55,44,.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:var(--sp-3);align-items:center;justify-content:space-between;gap:var(--sp-2)}
 #prefillText{font-size:var(--fs-md);color:var(--accent);font-weight:600}
 .prefill-clear{background:none;border:none;color:var(--text2);font-size:var(--fs-base);font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px;white-space:nowrap}
-#bodyEditBanner{display:none;background:rgba(212,55,44,.08);border:.5px solid rgba(212,55,44,.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:var(--sp-3);align-items:center;justify-content:space-between;gap:var(--sp-2)}
-#bodyEditText{font-size:var(--fs-md);color:var(--accent);font-weight:600}
+/* #bodyEditBanner ya no tiene reglas propias: es un .banner del sistema (§3.10)
+   y se oculta con el atributo `hidden`, no con un display:none escrito a mano. */
 .cal-nav-today{flex:1;text-align:center}
 .history-filter-wrap{margin-top:var(--sp-3)}
 .sec-title-mt{margin-top:var(--sp-5)}
@@ -918,8 +1370,56 @@ input.prefilled:focus{background:var(--surface);border:none}
 .dash-act-time{font-size:var(--fs-xs);color:var(--text2);margin-top:var(--sp-2)}
 .dash-empty{color:var(--text2);font-size:var(--fs-base);text-align:center;padding:var(--sp-8) 0}
 
-/* Dark theme — applied via .dark class on :root */
-:root.dark{--bg:#131313;--surface:#201f1f;--surface2:#2a2a2a;--surface-high:#353534;--surface-glass:rgba(32,31,31,.85);--border:transparent;--ghost-border:rgba(93,63,59,.15);--text:#e5e2e1;--text2:rgba(231,189,183,.78);--text3:rgba(231,189,183,.62);--accent:#ff5545;--accent2:#ffb4aa;--accent-soft:#ffb4aa;--accent-glow:rgba(255,85,69,.3);--green:#30d158;--red:#ff453a;--teal:#68d3fc}
+/* ── 1.7 SEMÁNTICOS · tema oscuro ───────────────────────────────────────────
+   Solo se redefine la capa semántica: los alias de §1.3 la siguen solos.
+
+   CONTRASTE MEDIDO (fondos: bg #131313 · surface #201f1f · surface2 #2a2a2a ·
+   high #353534):
+
+     --color-text-primary   14,42 · 12,76 · 11,14 · 9,53   (AA y AAA)
+     --color-text-secondary  7,02 ·  6,42 ·  5,76 · 5,07   (AA de texto)
+     --color-text-tertiary   4,85 ·  4,57 ·  4,21 · 3,80   (AA de texto)
+     --color-accent-text     5,87 ·  5,20 ·  4,54 · 3,88
+
+   Y la corrección que trae este pase: el relleno de la acción primaria era
+   #ff5545 con texto blanco, y eso son **3,16:1** — falla el AA de texto en el
+   botón más importante de la app. El acento tipográfico se queda en #ff5545
+   (5,87:1 sobre el lienzo, que sí pasa) y el relleno baja a #d4372c, donde el
+   blanco da **4,79:1** y el propio botón conserva 3,88:1 contra el fondo, por
+   encima del 3,0 que pide 1.4.11 para un componente. Es exactamente el motivo
+   por el que la acción tiene dos tokens y no uno. */
+:root.dark{
+  --color-surface-0:var(--ink-900);
+  --color-surface-1:var(--ink-800);
+  --color-surface-2:var(--ink-700);
+  --color-surface-3:var(--ink-600);
+  --color-surface-glass:rgba(32,31,31,.85);
+  --color-text-primary:var(--ash-50);
+  --color-text-secondary:rgba(var(--rose-200-rgb),.78);
+  --color-text-tertiary:rgba(var(--rose-200-rgb),.62);
+  --color-text-inverse:var(--ink-900);
+  /* En oscuro no hay borde: la separación la da el salto de superficie. */
+  --color-border-subtle:transparent;
+  --color-border-ghost:rgba(var(--brown-700-rgb),.15);
+  --color-action-primary:var(--red-600);
+  --color-action-primary-fg:var(--sand-0);
+  --color-accent-text:var(--red-500);
+  --color-accent-soft:var(--red-200);
+  --color-accent-wash:rgba(var(--red-500-rgb),.14);
+  --color-accent-glow:rgba(var(--red-500-rgb),.3);
+  --color-state-success:var(--green-400);
+  --color-state-danger:var(--crimson-400);
+  --color-state-warning:#e0a82e;
+  --color-state-info:var(--cyan-300);
+  --color-domain-strength:var(--red-500);
+  --color-domain-running:var(--cyan-300);
+  --color-scrim:rgba(0,0,0,.6);
+  --color-focus-ring:rgba(var(--red-500-rgb),.45);
+  --shadow-2:0 6px 20px rgba(0,0,0,.35);
+  --shadow-panel:-12px 0 40px rgba(0,0,0,.5);
+}
+/* --accent2 en oscuro era el rosa claro, no el rojo: se mantiene. */
+:root.dark{--accent2:var(--red-200)}
 :root.dark body{-webkit-font-smoothing:auto}
 :root.dark select,:root.dark input[type="date"],:root.dark input[type="number"],:root.dark input[type="text"],:root.dark textarea{color-scheme:dark}
 :root.dark .timer-start{color:#fff}
@@ -1373,19 +1873,21 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 #secSettings .settings-card,#secSettings .drive-sync-toggle{break-inside:avoid}
 }
 
-/* ── Cuerpo ─────────────────────────────────────────────── */
+/* ── Cuerpo (migrada) ────────────────────────────────────
+   Dos columnas de paneles. Ni la cabecera ni el estado ni el historial se
+   parten: la cabecera porque es una sola línea, el estado y el historial
+   porque son rejillas que ya crecen en número por fila — es exactamente el
+   principio de "el escritorio gana densidad, no tamaño". Lo único que se
+   reparte son los dos paneles de lectura, que sí son bloques independientes. */
 @media(min-width:1024px){
-/* dense: sin él la colocación automática es monótona y la segunda columna
-   empieza en la fila siguiente a la última de la primera, no arriba. */
-#secBody.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 var(--sp-8);align-items:start}
-#secBody>*{grid-column:1}
-#secBody>.body-col2{grid-column:2;grid-row:1/span 99}
-#secBody>.body-hist-full{grid-column:1/-1;grid-row:100}
+#secBody.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:0 var(--gap-section);align-items:start}
+#secBody>.page-head,#secBody>.body-now,#secBody>.body-hist-full{grid-column:1/-1}
 }
 
 /* ── Formularios: un campo por línea, sin estirar ───────── */
 @media(min-width:1024px){
-#secBody .row,#strTrain>.row,#runTrain .row{max-width:var(--measure-form)}
+#strTrain>.row,#runTrain .row{max-width:var(--measure-form)}
 .progress-select-wrap select,.history-filter-wrap select,.str-plan-select{max-width:var(--measure-form)}
 }
 
@@ -1400,6 +1902,11 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    escalón redefiniendo los tokens — html{font-size} descoordinaría los px
    literales de iconos, toggles y radios. */
 :root{--fs-2xs:.75rem;--fs-xs:.8125rem;--fs-sm:.875rem;--fs-base:.9375rem;--fs-md:1.0625rem;--fs-lg:1.1875rem;--fs-xl:1.5rem;--fs-2xl:1.75rem;--fs-3xl:2.5rem;--fs-4xl:3.25rem}
+/* La densidad también sale del token, no de una regla por componente: con ratón
+   el relleno de tarjeta se aprieta y la separación entre bloques se abre, que es
+   lo contrario de lo que hace el móvil. Un componente que usa --pad-card y
+   --gap-* cambia de densidad sin escribir un solo media query propio. */
+:root{--pad-card:var(--sp-5);--gap-stack:var(--sp-4);--gap-group:var(--sp-6);--gap-section:var(--sp-8)}
 body{line-height:1.5}
 .dash-greeting-title,.dash-streak-value,.prof-level,.sr-name,.run-live-timer,.timer-display{line-height:1.15}
 /* Con ratón el objetivo puede apretarse; lo que se gana es información por
@@ -1437,23 +1944,15 @@ a:hover{opacity:.8}
 select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 select{cursor:pointer}
 
-/* ── Cuerpo: la etiqueta encima del campo ─────────────────
-   Con la etiqueta a la izquierda y el input de 85px a la derecha, en un monitor
-   quedaban ~370px de vacío entre una etiqueta y el campo al que pertenece: la
-   asociación se pierde a partir de la segunda fila. Encima y en rejilla, las 11
-   medidas caben en un bloque en vez de en 660px de alto. */
+/* Los 1RM de Ajustes: cinco filas de 76px que caben en un bloque. Cuerpo ya no
+   necesita esta regla — .measure-grid y .tiles se recolocan solos con
+   auto-fill, sin un media query por breakpoint. */
 @media(min-width:1024px){
-#bodyMeasures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3) var(--sp-4)}
-.measure-row{flex-direction:column;align-items:stretch;gap:2px;margin-bottom:0}
-.measure-row label{flex:none;margin-bottom:0}
-.measure-row input{width:100%;flex:none}
-/* Los bloques de 5 números que eran 5 filas de 76px. */
-#caloriesPanel,#rmPanel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2)}
-#caloriesPanel .calc-result,#rmPanel .calc-result{margin-bottom:0}
+#rmPanel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2)}
+#rmPanel .calc-result{margin-bottom:0}
 }
 @media(min-width:1440px){
-#bodyMeasures{grid-template-columns:repeat(3,minmax(0,1fr))}
-#caloriesPanel,#rmPanel{grid-template-columns:repeat(3,minmax(0,1fr))}
+#rmPanel{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
 /* ── Importar arrastrando (J3) ──────────────────────────── */
