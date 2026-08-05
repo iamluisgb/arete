@@ -19,6 +19,7 @@ import { renderDashboard } from './ui/dashboard.js';
 import { initProfile } from './ui/profile.js';
 import { initQuiron } from './ui/quiron.js';
 import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
+import { initRail, toggleRail } from './ui/rail.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
@@ -294,7 +295,8 @@ function bindEvents() {
   initBody(db);
   initRunning(db);
   initProfile(db);
-  initShortcuts(db, { switchTab });
+  initRail();
+  initShortcuts(db, { switchTab, toggleRail });
   document.getElementById('shortcutsBtn')?.addEventListener('click', toggleShortcutSheet);
   // Quirón puede crear/editar planes: al aplicar o deshacer, refrescar la UI que
   // depende del programa activo (selector, fase, sesiones, sección visible, lista custom).
@@ -506,7 +508,9 @@ syncDialogTraps();
 // tiene, su botón de cerrar. Así el detailModal sigue escondiendo su btn-bar.
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape' || e.defaultPrevented) return;
-  const open = [...document.querySelectorAll('.modal-overlay.open')].filter(isDialogVisible);
+  // .sheet es el componente del design system (Modal/BottomSheet); .modal-overlay
+  // es el patrón heredado. Conviven hasta que acabe la migración.
+  const open = [...document.querySelectorAll('.modal-overlay.open, .sheet.open')].filter(isDialogVisible);
   const el = open[open.length - 1];
   if (!el) return;
   el.dispatchEvent(new MouseEvent('click', { bubbles: true }));

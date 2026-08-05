@@ -16,6 +16,7 @@ const TECLAS_SECCION = { 1: 'secDashboard', 2: 'secTrain', 3: 'secProfile', 4: '
 export const ATAJOS = [
   { tecla: '1 – 5', que: 'Ir a Hoy, Entrenar, Perfil, Cuerpo o Más' },
   { tecla: '/', que: 'Abrir Quirón y escribir' },
+  { tecla: 'N', que: 'Plegar y desplegar la navegación lateral' },
   { tecla: 'Espacio', que: 'Serie hecha, con la sesión en curso' },
   { tecla: '← →', que: 'Mes anterior y siguiente en el calendario' },
   { tecla: 'Esc', que: 'Cerrar lo que esté abierto' },
@@ -49,7 +50,7 @@ function hoja() {
       <dl class="shortcut-list">
         ${ATAJOS.map(a => `<div class="shortcut-row"><dt><kbd>${a.tecla}</kbd></dt><dd>${a.que}</dd></div>`).join('')}
       </dl>
-      <button class="btn btn-outline" data-close>Cerrar</button>
+      <button class="btn btn--lg btn--block btn-outline" data-close>Cerrar</button>
     </div>`;
   el.addEventListener('click', e => {
     if (e.target === el || e.target.closest('[data-close]')) el.classList.remove('open');
@@ -63,7 +64,7 @@ export function toggleShortcutSheet() {
   el.classList.toggle('open');
 }
 
-export function initShortcuts(db, { switchTab } = {}) {
+export function initShortcuts(db, { switchTab, toggleRail } = {}) {
   if (!matchMedia('(pointer:fine)').matches) return;
 
   document.addEventListener('keydown', e => {
@@ -93,6 +94,16 @@ export function initShortcuts(db, { switchTab } = {}) {
       const btn = document.querySelector(`nav button[data-sec="${seccion}"]`);
       if (btn && switchTab) switchTab(btn, db);
       else btn?.click();
+      return;
+    }
+
+    // El rail es un ajuste de espacio, no una navegación: por eso su atajo es
+    // una letra y no un número. `n` de navegación, y libre en el layout español
+    // (los corchetes piden AltGr aquí, así que no valen como atajo).
+    if (e.key === 'n' || e.key === 'N') {
+      e.preventDefault();
+      if (toggleRail) toggleRail();
+      else document.getElementById('railToggle')?.click();
       return;
     }
 
