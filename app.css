@@ -897,6 +897,15 @@ nav button .material-symbols-outlined{font-size:24px}
 .history-item .hi-date{font-size:var(--fs-base);color:var(--color-text-primary);font-weight:700}
 .history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--color-text-primary);margin-top:6px;line-height:1.4}
+/* Nombre a la izquierda, series a la derecha: el mismo ListRow que el resto del
+   producto (§6.x). Las cifras en tabulares para que las columnas de dos
+   sesiones distintas se puedan comparar de un vistazo. */
+.hi-rows{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+.hi-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-4)}
+.hi-ex{color:var(--color-text-primary);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-sets{color:var(--color-text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+.hi-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);
+  padding:2px 6px;border-radius:var(--radius-sm);font-weight:700;margin-left:6px}
 .history-item .hi-plan{font-size:.6rem;color:var(--color-text-secondary);background:var(--color-surface-2);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;white-space:nowrap}
 /* Editar una fila nunca es la acción primaria de una vista: no es a lo que has
    venido (§8). Era el mismo argumento que ya se aplicó en el historial corporal
@@ -1051,6 +1060,14 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
    y se oculta con el atributo `hidden`, no con un display:none escrito a mano. */
 .cal-nav-today{flex:1;text-align:center}
 .history-filter-wrap{margin-top:var(--sp-3)}
+/* Los dos filtros comparten fila mientras quepan: son la misma decisión —qué
+   subconjunto miro— y apilarlos los convertía en dos pasos. */
+.history-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:var(--sp-3);margin-bottom:var(--sp-3)}
+.history-filters .history-filter-wrap{margin-top:0}
+.date-filter-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  background:var(--color-surface-2);border-radius:var(--radius);padding:8px 8px 8px 14px;
+  margin-bottom:var(--sp-3);font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500}
 #importFile{display:none}
 /* La pastilla mide 50×30, pero el objetivo son 44: el área de toque se estira
    con padding transparente y la pastilla se dibuja dentro con un ::before. Un
@@ -1879,11 +1896,16 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    Fuerza y carrera son dos MODOS dentro de "Entrenar", no dos secciones; el
    modo activo se marca por fondo y peso, nunca por una banda de acento. */
 .train-mode{display:flex;gap:var(--sp-1);background:var(--color-surface-2);
-  border-radius:var(--radius-pill);padding:3px}
-.train-mode-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+  border-radius:var(--radius-pill);padding:3px;container-type:inline-size}
+/* min-width:0 y no la anchura del texto. Con `flex:1` a secas la base de cada
+   botón es su contenido, así que en el carril de 168px del escritorio los dos
+   pedían 175 y "Carrera" se salía de la pastilla por 13px. El icono es lo
+   primero que sobra cuando no cabe: la etiqueta es la que identifica el modo. */
+.train-mode-btn{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;
   background:none;border:none;border-radius:var(--radius-pill);padding:9px 4px;min-height:44px;
   cursor:pointer;font-family:var(--font);font-size:var(--fs-base);font-weight:700;
   color:var(--color-text-secondary);transition:background var(--dur-base),color var(--dur-base)}
+@container (max-width:200px){.train-mode-btn .material-symbols-outlined{display:none}}
 .train-mode-btn .material-symbols-outlined{font-size:18px}
 .train-mode-btn.active{background:var(--color-surface-1);color:var(--color-text-primary);box-shadow:var(--shadow-1)}
 .train-panel{display:none}
@@ -2150,10 +2172,19 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 @media(min-width:1024px){
 /* La última fila, vacía, absorbe el alto sobrante de la lista, que es mucho más
    alta que el calendario y si no reparte su exceso entre las filas que cruza. */
-#strHistory.active,#runHistory.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,380px) minmax(0,1fr);grid-template-rows:auto auto auto auto 1fr;gap:var(--sp-3) var(--sp-6);align-items:start}
-#strHistory>.cal-nav,#strHistory>#calendarPanel,#strHistory>.history-filter-wrap,
+/* La columna del calendario se ajusta a lo que el calendario mide (~260), no a
+   380. Con 380 y el panel centrado dentro, 162px de esa columna estaban vacíos
+   mientras la lista —que es el contenido— se quedaba en 212 y truncaba los
+   nombres de los ejercicios. El filtro no puede ocupar más que aquello que
+   filtra. */
+#strHistory.active,#runHistory.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,260px) minmax(0,1fr);grid-template-rows:auto auto auto auto 1fr;gap:var(--sp-3) var(--sp-6);align-items:start}
+#strHistory>.cal-nav,#strHistory>#calendarPanel,#strHistory>.history-filters,
 #runHistory>.cal-nav,#runHistory>#runCalendarPanel,#runHistory>.history-filter-wrap{grid-column:1}
-#historyList,#runHistoryList{grid-column:2;grid-row:1/-1}
+#runHistoryList{grid-column:2;grid-row:1/-1}
+/* La barra de "estás viendo un día" va en la columna de la lista, encima de
+   ella: es donde se lee el efecto del filtro. Oculta, la fila se colapsa. */
+#historyDateFilter{grid-column:2;grid-row:1}
+#historyList{grid-column:2;grid-row:2/-1}
 }
 /* ── Entrenar/Fuerza · Progreso ─────────────────────────── */
 @media(min-width:1024px){
@@ -2411,7 +2442,10 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #calendarPanel,#runCalendarPanel{max-width:420px;margin-inline:auto}
 }
 @media(min-width:1024px){
-#calendarPanel,#runCalendarPanel{max-width:none}
+/* margin-inline:0 además de max-width: el auto heredado del breakpoint de 640
+   dejaba el calendario flotando en el centro de su columna en vez de alineado
+   con los filtros que tiene encima. */
+#calendarPanel,#runCalendarPanel{max-width:none;margin-inline:0}
 }
 @media(min-width:1024px){
 .progress-select-wrap .progress-label,.progress-select-wrap select{display:none}
@@ -2484,7 +2518,7 @@ nav button:hover:not(.active){color:var(--color-text-primary);background:var(--c
 .dash-level:hover .dash-level-go{color:var(--color-accent-text)}
 .q-chip:hover,.timer-btn:hover,.se-preset-chip:hover{background:var(--color-surface-2);border-color:var(--color-accent-soft)}
 .str-tab:hover:not(.active),.run-tab:hover:not(.active),.train-mode-btn:hover:not(.active){color:var(--color-text-primary)}
-.cal-day.has:hover{outline:2px solid var(--color-accent-soft);outline-offset:1px}
+.cal-day.has-workout:hover{outline:2px solid var(--color-accent-soft);outline-offset:1px}
 
 .quiron-hbtn:hover,.cal-nav button:hover,.prefill-clear:hover{background:var(--color-surface-3);color:var(--color-accent-text)}
 .toggle-btn:hover{filter:brightness(.97)}

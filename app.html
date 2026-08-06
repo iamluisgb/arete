@@ -224,10 +224,22 @@
     </div>
   </div>
   <div class="str-panel" id="strHistory">
+    <!-- Los filtros ANTES del calendario: deciden qué estás mirando, incluido lo
+         que el propio calendario pinta (renderCalendar respeta el filtro de
+         plan). Debajo quedaban a ~700px de la parte de arriba, después del
+         objeto que ya habían condicionado. -->
+    <div class="history-filters">
+      <div class="history-filter-wrap"><label for="historyProgFilter">Plan</label><select id="historyProgFilter"><option value="">Todos los planes</option></select></div>
+      <div class="history-filter-wrap"><label for="historyFilter">Sesión</label><select id="historyFilter"><option value="">Todas</option></select></div>
+    </div>
     <div class="cal-nav"><button aria-label="Mes anterior" title="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">▶</button></div>
     <div id="calendarPanel"></div>
-    <div class="mb history-filter-wrap"><label>Plan</label><select id="historyProgFilter"><option value="">Todos los planes</option></select></div>
-    <div class="mb history-filter-wrap"><label>Filtrar por sesión</label><select id="historyFilter"><option value="">Todas</option></select></div>
+    <!-- Filtrar por un día se hace pulsando en el calendario, así que la salida
+         tiene que estar donde miras el resultado, no de vuelta en el calendario. -->
+    <div id="historyDateFilter" class="date-filter-bar" hidden>
+      <span id="historyDateFilterText"></span>
+      <button type="button" class="btn btn--ghost btn--sm" id="historyDateClear">Ver todo</button>
+    </div>
     <div id="historyList"></div>
   </div>
   <div class="str-panel" id="strProgress">

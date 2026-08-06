@@ -16,22 +16,42 @@ function planName(id) {
   return getProgramById(pid)?._meta?.name || pid;
 }
 
+/** Una fila por ejercicio, nombre a la izquierda y series a la derecha.
+ *  El resumen corrido —"Sentadilla: 100×5, 100×5 · Press: 77.5×2, …"— obligaba a
+ *  leer el párrafo entero para encontrar un levantamiento, y hacía imposible
+ *  comparar dos sesiones: los mismos ejercicios caían en columnas distintas
+ *  según lo largo que fuera el nombre del anterior. */
+function summaryRows(w) {
+  const rows = w.exercises.map(e => {
+    const loaded = e.sets.some(s => s.kg);
+    if (loaded) {
+      return { name: e.name, detail: e.sets.map(s => `${esc(s.kg) || '—'}×${esc(s.reps) || '—'}`).join(' · ') };
+    }
+    if (e.sets[0]?.reps) return { name: e.name, detail: esc(e.sets[0].reps) };
+    return null;
+  }).filter(Boolean);
+  if (!rows.length) return '';
+  return `<div class="hi-rows">${rows.map(r =>
+    `<div class="hi-row"><span class="hi-ex">${esc(r.name)}</span><span class="hi-sets">${r.detail}</span></div>`
+  ).join('')}</div>`;
+}
+
 function renderItem(w) {
-  const summary = w.exercises.filter(e => e.sets.some(s => s.kg)).map(e => `${esc(e.name)}: ${e.sets.map(s => `${esc(s.kg) || '—'}×${esc(s.reps) || '—'}`).join(', ')}`).join(' · ');
-  const hs = w.exercises.filter(e => !e.sets.some(s => s.kg) && e.sets[0]?.reps).map(e => `${esc(e.name)}: ${esc(e.sets[0].reps)}`).join(' · ');
+  const summary = summaryRows(w);
   const hasPR = w.prs && w.prs.length > 0;
-  const prBadge = hasPR ? '<span style="font-size:.55rem;background:var(--color-accent-text);color:#fff;padding:2px 6px;border-radius:6px;font-weight:700;margin-left:6px">🏆 PR</span>' : '';
+  const prBadge = hasPR ? '<span class="hi-pr">🏆 PR</span>' : '';
   const plan = `<span class="hi-plan">${esc(planName(w.program))}</span>`;
   // Una suelta no pertenece a la fase en la que estaba el atleta ese día: decirlo
   // sería inventar una relación con su plan que no existe.
   const origen = w.sessionId ? 'Tu sesión' : `Fase ${ROMAN[w.phase - 1] || w.phase}`;
-  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">${origen} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || hs || '—'}</div></div>`;
+  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">${origen} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || '—'}</div></div>`;
 }
 
 // Por defecto el historial muestra el plan ACTIVO (vista limpia de siempre).
 // "Todos los planes" es la salida para que ninguna sesión quede nunca oculta.
 // Una vez el usuario toca el filtro, su elección manda durante la sesión.
 let _planFilterTouched = false;
+let _dateFilter = null;
 
 /** Filtro de plan efectivo (fuente única para historial Y calendario).
  *  '' = todos los planes; si no, id de programa. Por defecto, el plan activo. */
@@ -59,11 +79,25 @@ function populatePlanFilter(db) {
   }
 }
 
+/** Refleja en pantalla si hay un día seleccionado, y ofrece la salida.
+ *  Sin esto, pulsar un día del calendario dejaba la lista reducida a una fecha
+ *  sin decir por qué ni cómo volver. */
+function renderDateFilterBar(dateFilter) {
+  const bar = document.getElementById('historyDateFilter');
+  if (!bar) return;
+  bar.hidden = !dateFilter;
+  if (dateFilter) {
+    document.getElementById('historyDateFilterText').textContent = `Sesiones del ${formatDate(dateFilter)}`;
+  }
+}
+
 /** Render paginated workout history list */
 export function renderHistory(db, dateFilter) {
   _currentDb = db;
   historyPage = 0;
+  _dateFilter = dateFilter || null;
   populatePlanFilter(db);
+  renderDateFilterBar(_dateFilter);
   const filter = document.getElementById('historyFilter').value;
   const progFilter = currentPlanFilter();
   let items = [...db.workouts].reverse();
@@ -108,6 +142,7 @@ function loadMore() {
   let items = [..._currentDb.workouts].reverse();
   if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
   if (filter) items = items.filter(w => w.session === filter);
+  if (_dateFilter) items = items.filter(w => w.date === _dateFilter);
 
   const end = (historyPage + 1) * PAGE_SIZE;
   const slice = items.slice(0, end);
@@ -211,8 +246,11 @@ export function getDetailWorkout(db) {
 
 /** Initialize history section: bind filter, list clicks, and detail modal */
 export function initHistory(db, { onEdit }) {
+  // Tocar cualquiera de los dos selectores suelta el día: son filtros del mismo
+  // conjunto, y mantener la fecha puesta daría listas vacías sin explicación.
   document.getElementById('historyFilter').addEventListener('change', () => renderHistory(db));
   document.getElementById('historyProgFilter')?.addEventListener('change', () => { _planFilterTouched = true; renderCalendar(db); renderHistory(db); });
+  document.getElementById('historyDateClear')?.addEventListener('click', () => renderHistory(db));
   document.getElementById('historyList').addEventListener('click', (e) => {
     if (e.target.closest('.load-more-btn')) { loadMore(); return; }
     const emptyAction = e.target.closest('[data-empty-action]')?.dataset.emptyAction;

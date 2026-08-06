@@ -2,8 +2,32 @@ import { showDetail } from './history.js';
 import { renderHistory, currentPlanFilter } from './history.js';
 
 let calViewDate = new Date();
+let _calLanded = false;
+
+/** El mes al que abrir: el más reciente CON sesiones, no el de hoy.
+ *  Un calendario cuyo único estado interactivo son los días con entreno, abierto
+ *  en un mes vacío, es un objeto inerte: no hay nada que pulsar y nada que leer
+ *  salvo un cero. El atleta que vuelve en agosto tras parar en julio aterrizaba
+ *  ahí. Solo manda la primera vez que se abre la pantalla: a partir de ahí el
+ *  mes lo decide quien navega. */
+function landOnMonthWithData(db) {
+  if (_calLanded) return;
+  _calLanded = true;
+  const pf = currentPlanFilter();
+  const dates = db.workouts
+    .filter(w => !pf || (w.program || 'arete') === pf)
+    .map(w => w.date)
+    .sort();
+  const last = dates[dates.length - 1];
+  if (!last) return;                       // sin historial, hoy es tan buen mes como otro
+  const [y, m] = last.split('-').map(Number);
+  const now = new Date();
+  if (y === now.getFullYear() && m === now.getMonth() + 1) return;
+  calViewDate = new Date(y, m - 1, 1);
+}
 
 export function calNav(d, db) {
+  _calLanded = true;
   if (d === 0) calViewDate = new Date();
   else calViewDate.setMonth(calViewDate.getMonth() + d);
   renderCalendar(db);
@@ -12,6 +36,7 @@ export function calNav(d, db) {
 /** Render the monthly calendar grid with workout indicators */
 export function renderCalendar(db) {
   const panel = document.getElementById('calendarPanel');
+  landOnMonthWithData(db);
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const pf = currentPlanFilter();
@@ -61,12 +86,11 @@ export function initCalendar(db) {
   });
 }
 
+/** Un día del calendario filtra la lista. Siempre, haya una sesión o cinco.
+ *  Antes, un día con una sola sesión abría el modal y uno con varias filtraba:
+ *  el mismo gesto hacía dos cosas distintas según un dato que no está a la
+ *  vista, así que no se podía aprender qué iba a pasar al pulsar. */
 export function calDayClick(ds, db) {
-  const pf = currentPlanFilter();
-  const ws = db.workouts.filter(w => w.date === ds && (!pf || (w.program || 'arete') === pf));
-  if (ws.length === 1) showDetail(ws[0].id, db);
-  else if (ws.length > 1) {
-    document.getElementById('historyFilter').value = '';
-    renderHistory(db, ds);
-  }
+  document.getElementById('historyFilter').value = '';
+  renderHistory(db, ds);
 }
