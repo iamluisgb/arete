@@ -8,6 +8,7 @@ import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
 import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
+import { renderSettingsIndex, openSettingsPage } from './settings.js';
 import {
   getPrograms, getProgramList, getAllPhases, getRunningProgramList,
   validateProgram, applyProgramProposal, undoProgramCommit, getProgramById,
@@ -953,6 +954,7 @@ function persistSettings() {
   LLM.setModel(els.setModel.value);
   LLM.setVisionModel(els.setVisionModel.value);
   showSetupIfNeeded();
+  renderSettingsIndex(dbRef);   // la fila "Quirón" del índice dice proveedor y modelo
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
@@ -1051,8 +1053,11 @@ export function initQuiron(db, opts = {}) {
     if (prompt && !busy) { els.input.value = prompt; autoGrow(); els.input.focus(); }
   });
 
+  // "Configurar" desde el panel del chat aterriza en la subpágina de Quirón, no
+  // en el índice de Ajustes: quien pulsa ahí ya sabe a qué va.
   document.getElementById('quironGoSettings').addEventListener('click', () => {
     closePanel();
     document.querySelector('nav button[data-sec="secSettings"]')?.click();
+    openSettingsPage('setQuiron');
   });
 }

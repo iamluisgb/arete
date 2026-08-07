@@ -463,6 +463,9 @@ select{cursor:pointer}
   padding:var(--sp-3) 0;background:none;border:none;text-align:left;
   font-family:var(--font);color:var(--color-text-primary);cursor:pointer;
   transition:background var(--dur-fast)}
+/* La fila que es un <a> y no un <button>: se comporta como fila, no como enlace.
+   El subrayado y el color de acento son para el enlace dentro de un párrafo. */
+a.listrow--action{text-decoration:none}
 .listrow--action:active{background:var(--color-surface-2)}
 .listrow-icon{width:28px;height:28px;border-radius:var(--radius-xs);flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
@@ -990,7 +993,47 @@ nav button .material-symbols-outlined{font-size:24px}
 .delete-zone{margin-top:var(--sp-6);padding-top:16px}
 /* ── 4.2 AJUSTES ────────────────────────────────────────────────────────────
    Migrada. Las filas son .listrow del sistema (§3.7); aquí solo queda lo propio
-   de esta pantalla. */
+   de esta pantalla.
+
+   Ajustes es un índice con subpáginas. Las subpáginas son hermanas dentro de la
+   misma sección y se alternan con .active, igual que los .str-panel de Entrenar:
+   no hay router ni transiciones que mantener, y el DOM de cada una sigue vivo
+   —los ids que el JS ya tenía cogidos no cambian de sitio. */
+.set-page{display:none}
+.set-page.active{display:block}
+/* El foco aterriza en el título al abrir una subpágina, para que el lector de
+   pantalla anuncie dónde está. Es foco programático sobre algo que no se pulsa:
+   el anillo sobraría. */
+.set-page .page-title[tabindex]:focus{outline:none}
+/* La cabecera de subpágina: volver + título. El botón de volver es el primer
+   elemento tabulable, como en cualquier pila de navegación. */
+.set-subhead{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--gap-section)}
+.set-back{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:var(--color-surface-1);border:none;border-radius:var(--radius-md);
+  color:var(--color-text-primary);cursor:pointer;transition:background var(--dur-fast)}
+.set-back:hover{background:var(--color-surface-2)}
+.set-back svg{width:20px;height:20px}
+/* El valor actual a la derecha de cada fila del índice. Es lo que convierte una
+   lista de puertas cerradas en algo que se lee de un vistazo: sin esto, plegar
+   los ajustes en subpáginas solo escondería. */
+.listrow-status{flex-shrink:1;min-width:0;font:var(--type-caption);
+  color:var(--color-text-secondary);text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* "Sin configurar" no es un valor: es la ausencia de uno, y se lee distinto. */
+.listrow-status--off{color:var(--color-text-tertiary);font-style:italic}
+/* Lo que exige saber de APIs se pliega. Cerrado por defecto: quien no sepa qué
+   es una Base URL no debería verla para configurar el coach. */
+.set-advanced{margin-bottom:var(--sp-4);padding-top:var(--sp-3);
+  border-top:1px solid var(--color-border-ghost)}
+.set-advanced>summary{list-style:none;cursor:pointer;min-height:44px;
+  display:flex;align-items:center;gap:var(--sp-2);
+  font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary)}
+.set-advanced>summary::-webkit-details-marker{display:none}
+.set-advanced>summary::before{content:'›';font-size:var(--fs-xl);font-weight:300;line-height:1;
+  transition:transform var(--dur-fast)}
+.set-advanced[open]>summary::before{transform:rotate(90deg)}
+.set-advanced[open]>summary{margin-bottom:var(--sp-3)}
 .settings-card-danger{margin-top:var(--gap-group)}
 .zones-preview{display:flex;flex-wrap:wrap;gap:var(--sp-1);padding-bottom:var(--pad-card)}
 .zp-chip{font:var(--type-label);letter-spacing:var(--track-label);color:var(--color-text-inverse);
@@ -2207,18 +2250,27 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    vean, más vale. */
 #progressHistory{grid-column:2}
 #progressChart,#progressStats{grid-column:2}
-#progressChart{grid-row:1}
-#progressStats{grid-row:2}
-#progressHistory{grid-row:3}
+#progressChart{grid-row:2}
+#progressStats{grid-row:3}
+#progressHistory{grid-row:4}
 /* La lista de ejercicios ocupa el alto de las tres, y así no arrastra a la
    columna derecha cuando hay muchos. */
-.progress-select-wrap{grid-row:1/span 3}
+.progress-select-wrap{grid-row:2/span 3}
+/* Los 1RM cruzan las dos columnas y encabezan la pantalla: son el resumen de
+   "cómo voy" y valen para todos los ejercicios, no para el que esté elegido.
+   Sin fila propia caían al final del grid, flotando entre las dos columnas. */
+#rmCard{grid-column:1/-1;grid-row:1}
 }
-/* ── Ajustes: ocho grupos independientes, dos columnas ──── */
+/* ── Ajustes: una columna, y a lo ancho de una lista ────── */
 @media(min-width:1024px){
-/* Las cuatro categorías fluyen en dos columnas sin partirse por la mitad. */
-#secSettings.active{columns:2;column-gap:var(--sp-8)}
-#secSettings>.settings-group{break-inside:avoid;margin-bottom:var(--gap-section)}
+/* Las dos columnas tenían sentido con ocho bloques de contenido independientes.
+   El índice no es contenido: es una lista de estado, y en una lista el orden
+   vertical ES la jerarquía. A dos columnas, "Borrar todos los datos" caía en lo
+   alto de la derecha —lo primero que veía el ojo— y "Apariencia" se leía antes
+   que "Entrenamiento". Vuelve a una columna, con el ancho de una lista y no el
+   de la pantalla: una fila de 1.100px con dos palabras en cada extremo obliga a
+   cruzar el monitor entero para emparejar el ajuste con su valor. */
+#secSettings .set-page{max-width:680px}
 #secSettings .panel{break-inside:avoid}
 }
 /* ── Importar arrastrando (J3) ──────────────────────────── */
@@ -2238,18 +2290,16 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    (0,1,1) por el selector de atributo y le gana a una clase suelta. */
 input.sc-input-sm{width:92px;flex:none;text-align:center}
 /* ── Ajustes: dos niveles ─────────────────────────────────
-   Eran ocho bloques al mismo nivel jerárquico, sin relación visible entre
-   ellos, en una columna de 2.300px. Agrupados en cuatro categorías (apariencia,
-   entrenamiento, coach y sincronización, aplicación) el usuario sabe dónde está
-   sin desplegar nada: las categorías se ven, no se abren. Un acordeón aquí
-   costaría un clic por grupo y escondería el estado, que es lo contrario de lo
-   que se busca en una pantalla de ajustes. */
-/* Eran ocho bloques al mismo nivel jerárquico, sin relación visible entre ellos,
-   en una columna de 2.300px. Agrupados en cuatro categorías (apariencia,
-   entrenamiento, coach y sincronización, aplicación) el usuario sabe dónde está
-   sin desplegar nada: las categorías se ven, no se abren. Un acordeón aquí
-   costaría un clic por grupo y escondería el estado, que es lo contrario de lo
-   que se busca en una pantalla de ajustes. */
+   Agrupar los ocho bloques en categorías arregló la jerarquía pero no el
+   tamaño: seguían abiertos a la vez, 1.300px de scroll con las preferencias,
+   los datos de solo lectura, las acciones puntuales y la configuración de APIs
+   compitiendo por la misma mirada. Ahora las categorías siguen viéndose —los
+   .settings-group son el índice— y el contenido se fue a subpáginas.
+
+   El acordeón que se descartó entonces sigue descartado por la misma razón: un
+   ajuste plegado esconde su estado. Lo que hace legítimo el segundo nivel aquí
+   es que cada fila del índice lo enseña (.listrow-status), así que se pliega el
+   control, nunca la información. */
 .settings-group{margin-bottom:var(--gap-section)}
 .settings-group:last-of-type{margin-bottom:var(--gap-stack)}
 /* ── Historial en escritorio: panel, no modal (J4) ────────
@@ -2536,7 +2586,9 @@ a:hover{opacity:.8}
 @media(hover:hover) and (pointer:fine){
 .progress-ex:hover:not(.active){background:var(--color-surface-2);color:var(--color-text-primary)}
 }
-@media(pointer:fine){.kbd-only{display:block}}
+/* La fila de atajos ahora ES el botón, no el panel que lo envolvía: devolverle
+   `display:block` la rompería en dos líneas (icono arriba, texto debajo). */
+@media(pointer:fine){.kbd-only{display:block}.listrow--action.kbd-only{display:flex}}
 
 }
 

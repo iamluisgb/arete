@@ -4,7 +4,7 @@ import { getPrograms, getAllPhases } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { renderHistory } from './history.js';
 import { renderBodyForm, renderBody } from './body.js';
-import { render1RMs } from './settings.js';
+import { render1RMs, renderSettingsIndex, resetSettingsToIndex } from './settings.js';
 import { initProgress } from './progress.js';
 import { populateSessions, exTargetText, requestStartSession } from './training.js';
 import { listCustomSessions, deleteCustomSession, sessionRef } from '../sessions.js';
@@ -41,7 +41,9 @@ export function switchTab(btn, db) {
   if (btn.dataset.sec === 'secTrain') renderTrainMode(db);
   if (btn.dataset.sec === 'secProfile') renderProfile(db);
   if (btn.dataset.sec === 'secBody') { renderBodyForm(db); renderBody(db); }
-  if (btn.dataset.sec === 'secSettings') render1RMs(db);
+  // Entrar en Ajustes desde la nav siempre aterriza en el índice: si te dejara
+  // donde lo dejaste, pulsar "Más" abriría a veces "Copia de seguridad".
+  if (btn.dataset.sec === 'secSettings') { resetSettingsToIndex(); renderSettingsIndex(db); }
 }
 
 // ── Entrenar: fuerza y carrera bajo la misma pestaña ─────
@@ -103,7 +105,7 @@ export function switchStrTab(tabName, db) {
   localStorage.setItem('areteLastStrTab', tabName);
   // Render content
   if (tabName === 'strHistory') { renderCalendar(db); renderHistory(db); }
-  if (tabName === 'strProgress') initProgress(db);
+  if (tabName === 'strProgress') { render1RMs(db); initProgress(db); }
   if (tabName === 'strPlan') renderStrPlan(db);
 }
 
@@ -319,5 +321,5 @@ export function refreshActiveSection(db) {
   if (sec === 'secTrain') renderTrainMode(db);
   if (sec === 'secProfile') renderProfile(db);
   if (sec === 'secBody') { renderBodyForm(db); renderBody(db); }
-  if (sec === 'secSettings') render1RMs(db);
+  if (sec === 'secSettings') renderSettingsIndex(db);
 }

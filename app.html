@@ -246,6 +246,14 @@
     <div id="historyList"></div>
   </div>
   <div class="str-panel" id="strProgress">
+    <!-- Los 1RM estimados (o los récords, según el plan) vivían en Ajustes, y
+         eran lo único de aquella pantalla que no se configuraba: se miraba. El
+         atleta tenía que salir de Entrenar y entrar en Ajustes para ver sus
+         récords. Encabezan Progreso, que es la pregunta que vienen a responder. -->
+    <div class="panel" id="rmCard">
+      <h4 class="panel-title" id="rmTitle">1RM Estimados</h4>
+      <div id="rmPanel"></div>
+    </div>
     <div class="progress-select-wrap">
       <label class="progress-label" for="progressExercise">Ejercicio</label>
       <select id="progressExercise"></select>
@@ -439,12 +447,24 @@
     <div id="bodyHistory"></div>
   </section>
 </div>
-<!-- AJUSTES — migrada. Cuatro categorías, y dentro de cada una paneles con filas
-     de anatomía idéntica: icono opcional · nombre · descripción · control a la
-     derecha. Antes había filas con la etiqueta como <label>, otras con <div>, el
-     control unas veces dentro del contenido y otras fuera, y tres estilos de
-     título de bloque. Ver DESIGN_SYSTEM.md §5.7. -->
+<!-- AJUSTES — índice + subpáginas, no una lista plana.
+
+     La versión anterior apilaba en 1300px de scroll cuatro cosas de naturaleza
+     distinta con el mismo peso visual: preferencias (tema, FC), datos de solo
+     lectura (los 1RM), acciones puntuales (exportar, copia, importar plan) y
+     configuración de APIs (proveedor, base URL, clave). "Tema" pesaba lo mismo
+     que "Borrar todos los datos" y había dos "Importar…" distintos a cuatro
+     dedos el uno del otro.
+
+     Ahora el índice es una lista de filas donde **cada una enseña su estado
+     actual** a la derecha: se lee como un panel de estado sin abrir nada. El
+     detalle vive en subpáginas hermanas dentro de esta misma sección, que
+     conservan todos los ids anteriores — el JS que ya las manejaba no se entera
+     de que se han mudado. Ver DESIGN_SYSTEM.md §5.7. -->
 <div class="section" id="secSettings" data-ds aria-label="Ajustes">
+
+<!-- ── ÍNDICE ──────────────────────────────────────────────────────────────── -->
+<div class="set-page active" id="setIndex">
   <div class="page-head">
     <div class="page-head-txt">
       <h2 class="page-title">Ajustes</h2>
@@ -452,165 +472,51 @@
     </div>
   </div>
 
-  <section class="settings-group" aria-labelledby="setGrpLook">
-    <h3 class="group-title" id="setGrpLook">Apariencia</h3>
-    <div class="panel panel--rows">
-      <div class="listrow listrow--control">
-        <div class="listrow-main"><div class="listrow-name">Tema</div></div>
-        <div class="listrow-control theme-options" id="themeOptions" role="group" aria-label="Tema">
-          <button class="theme-opt" type="button" data-theme="auto">Auto</button>
-          <button class="theme-opt" type="button" data-theme="light">Claro</button>
-          <button class="theme-opt" type="button" data-theme="dark">Oscuro</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="settings-group" aria-labelledby="setGrpTrain">
     <h3 class="group-title" id="setGrpTrain">Entrenamiento</h3>
-
-    <div class="panel">
-      <h4 class="panel-title" id="rmTitle">Records personales</h4>
-      <div id="rmPanel"></div>
-    </div>
-
     <div class="panel panel--rows">
-      <h4 class="panel-title">Zonas de carrera</h4>
-      <div class="listrow listrow--control">
-        <div class="listrow-main">
-          <label class="listrow-name" for="settingsRace5k">Mejor marca 5K</label>
-          <div class="listrow-desc">Introduce tu tiempo para personalizar las zonas de ritmo</div>
-        </div>
-        <input type="text" id="settingsRace5k" class="listrow-control sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
-      </div>
-      <div class="zones-preview" id="settingsZonesPreview"></div>
-    </div>
-
-    <div class="panel panel--rows">
-      <h4 class="panel-title">Frecuencia cardiaca</h4>
-      <div class="listrow listrow--control">
-        <div class="listrow-main">
-          <label class="listrow-name" for="settingsMaxHR">FC máxima</label>
-          <div class="listrow-desc">Dejar en 0 para estimarla desde tu edad (220 − edad)</div>
-        </div>
-        <input type="number" id="settingsMaxHR" class="listrow-control sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
-      </div>
-      <div class="zones-preview" id="settingsHRZonesPreview"></div>
-    </div>
-
-    <div class="panel panel--rows">
-      <h4 class="panel-title">Mis planes</h4>
-      <div id="customProgramsList"></div>
-      <button class="listrow listrow--action" type="button" id="importProgramBtn">
+      <button class="listrow listrow--action" type="button" data-setpage="setZones">
         <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </span>
-        <span class="listrow-main">Importar plan (.json)</span>
+        <span class="listrow-main">Mis zonas</span>
+        <span class="listrow-status" id="setZonesStatus"></span>
         <span class="listrow-chevron" aria-hidden="true">›</span>
       </button>
-      <input type="file" id="importProgramFile" accept=".json" hidden>
-      <p class="panel-note"><a href="blog/crear-plan.html">¿No tienes un plan? Aprende a crear uno</a></p>
+      <button class="listrow listrow--action" type="button" data-setpage="setPlans">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        <span class="listrow-main">Mis planes</span>
+        <span class="listrow-status" id="setPlansStatus"></span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
     </div>
   </section>
 
   <section class="settings-group" aria-labelledby="setGrpCoach">
-    <h3 class="group-title" id="setGrpCoach">Coach y sincronización</h3>
-
-    <div class="panel">
-      <h4 class="panel-title">Quirón (IA)</h4>
-      <div class="form">
-        <label class="field"><span class="field-label">Proveedor</span>
-          <select id="quironProvider">
-            <option value="nan">nan</option>
-            <option value="openai">OpenAI</option>
-            <option value="openrouter">OpenRouter</option>
-            <option value="groq">Groq</option>
-            <option value="custom">Personalizado</option>
-          </select>
-        </label>
-        <label class="field"><span class="field-label">Base URL</span>
-          <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
-        </label>
-        <label class="field"><span class="field-label">API key</span>
-          <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
-          <span class="field-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</span>
-        </label>
-        <label class="field"><span class="field-label">Modelo</span>
-          <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
-          <datalist id="quironModelList"></datalist>
-        </label>
-        <label class="field"><span class="field-label">Modelo de visión (opcional)</span>
-          <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
-          <span class="field-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</span>
-        </label>
-        <button class="btn btn--secondary" type="button" id="quironTestBtn">Probar conexión</button>
-        <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
-      </div>
-    </div>
-
+    <h3 class="group-title" id="setGrpCoach">Coach</h3>
     <div class="panel panel--rows">
-      <h4 class="panel-title">Google Drive</h4>
-      <div class="listrow listrow--control">
-        <div class="listrow-main">
-          <div class="listrow-name" id="autoSyncLabel">Sincronización automática</div>
-          <div class="listrow-desc" id="autoSyncDesc">Desactivada</div>
-        </div>
-        <button class="toggle-btn listrow-control" type="button" id="autoSyncBtn" role="switch" aria-checked="false" aria-labelledby="autoSyncLabel"></button>
-      </div>
-      <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
-      <button class="listrow listrow--action" type="button" id="driveBackupBtn">
+      <button class="listrow listrow--action" type="button" data-setpage="setQuiron">
         <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>
         </span>
-        <span class="listrow-main">Subir copia de seguridad</span>
-        <span class="listrow-chevron" aria-hidden="true">›</span>
-      </button>
-      <button class="listrow listrow--action" type="button" id="driveRestoreBtn">
-        <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </span>
-        <span class="listrow-main">Restaurar desde Drive</span>
-        <span class="listrow-chevron" aria-hidden="true">›</span>
-      </button>
-      <button class="listrow listrow--action" type="button" id="driveRevisionsBtn">
-        <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        </span>
-        <span class="listrow-main">Recuperar versión anterior</span>
+        <span class="listrow-main">Quirón (IA)</span>
+        <span class="listrow-status" id="setQuironStatus"></span>
         <span class="listrow-chevron" aria-hidden="true">›</span>
       </button>
     </div>
   </section>
 
-  <section class="settings-group" aria-labelledby="setGrpApp">
-    <h3 class="group-title" id="setGrpApp">Aplicación</h3>
-
+  <section class="settings-group" aria-labelledby="setGrpData">
+    <h3 class="group-title" id="setGrpData">Tus datos</h3>
     <div class="panel panel--rows">
-      <h4 class="panel-title">Datos</h4>
-      <button class="listrow listrow--action" type="button" id="exportBtn">
+      <button class="listrow listrow--action" type="button" data-setpage="setBackup">
         <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </span>
-        <span class="listrow-main">Exportar JSON</span>
-        <span class="listrow-chevron" aria-hidden="true">›</span>
-      </button>
-      <button class="listrow listrow--action" type="button" id="importBtn">
-        <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-        </span>
-        <span class="listrow-main">Importar JSON</span>
-        <span class="listrow-chevron" aria-hidden="true">›</span>
-      </button>
-      <input type="file" id="importFile" accept=".json" hidden>
-    </div>
-
-    <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
-    <div class="panel panel--rows kbd-only">
-      <button class="listrow listrow--action" type="button" id="shortcutsBtn">
-        <span class="listrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
-        </span>
-        <span class="listrow-main">Atajos de teclado</span>
+        <span class="listrow-main">Copia de seguridad</span>
+        <span class="listrow-status" id="setBackupStatus"></span>
         <span class="listrow-chevron" aria-hidden="true">›</span>
       </button>
     </div>
@@ -627,6 +533,239 @@
       </button>
     </div>
   </section>
+
+  <!-- El tema se queda en el índice: es una elección de un toque y meterla en
+       una subpágina costaría más navegación de la que ahorra. -->
+  <section class="settings-group" aria-labelledby="setGrpLook">
+    <h3 class="group-title" id="setGrpLook">Apariencia</h3>
+    <div class="panel panel--rows">
+      <div class="listrow listrow--control">
+        <div class="listrow-main"><div class="listrow-name">Tema</div></div>
+        <div class="listrow-control theme-options" id="themeOptions" role="group" aria-label="Tema">
+          <button class="theme-opt" type="button" data-theme="auto">Auto</button>
+          <button class="theme-opt" type="button" data-theme="light">Claro</button>
+          <button class="theme-opt" type="button" data-theme="dark">Oscuro</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="settings-group" aria-labelledby="setGrpAbout">
+    <h3 class="group-title" id="setGrpAbout">Acerca de</h3>
+    <div class="panel panel--rows">
+      <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
+      <button class="listrow listrow--action kbd-only" type="button" id="shortcutsBtn">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+        </span>
+        <span class="listrow-main">Atajos de teclado</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
+      <a class="listrow listrow--action" href="blog/crear-plan.html">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        </span>
+        <span class="listrow-main">Cómo crear tu propio plan</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </a>
+    </div>
+  </section>
+</div>
+
+<!-- ── SUBPÁGINA · MIS ZONAS ────────────────────────────────────────────────
+     Ritmo y pulso eran dos paneles gemelos separados por el ancho de la
+     pantalla. Responden a la misma pregunta del atleta —"¿cuáles son mis
+     zonas?"— y ahora se contestan juntas, con las dos previsualizaciones a la
+     vista para poder compararlas. -->
+<div class="set-page" id="setZones" aria-label="Mis zonas">
+  <div class="set-subhead">
+    <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-head-txt">
+      <h2 class="page-title" tabindex="-1">Mis zonas</h2>
+      <p class="page-sub">De aquí salen los ritmos y las pulsaciones de cada entreno</p>
+    </div>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Ritmo de carrera</h4>
+    <div class="listrow listrow--control">
+      <div class="listrow-main">
+        <label class="listrow-name" for="settingsRace5k">Mejor marca 5K</label>
+        <div class="listrow-desc">Introduce tu tiempo para personalizar las zonas de ritmo</div>
+      </div>
+      <input type="text" id="settingsRace5k" class="listrow-control sc-input-sm" placeholder="mm:ss" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="zones-preview" id="settingsZonesPreview"></div>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Frecuencia cardiaca</h4>
+    <div class="listrow listrow--control">
+      <div class="listrow-main">
+        <label class="listrow-name" for="settingsMaxHR">FC máxima</label>
+        <div class="listrow-desc">Dejar en 0 para estimarla desde tu edad (220 − edad)</div>
+      </div>
+      <input type="number" id="settingsMaxHR" class="listrow-control sc-input-sm" placeholder="190" min="100" max="230" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="zones-preview" id="settingsHRZonesPreview"></div>
+  </div>
+</div>
+
+<!-- ── SUBPÁGINA · MIS PLANES ──────────────────────────────────────────────── -->
+<div class="set-page" id="setPlans" aria-label="Mis planes">
+  <div class="set-subhead">
+    <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-head-txt">
+      <h2 class="page-title" tabindex="-1">Mis planes</h2>
+      <p class="page-sub">Los planes propios que has importado, además de los que trae Areté</p>
+    </div>
+  </div>
+
+  <div class="panel panel--rows">
+    <div id="customProgramsList"></div>
+    <button class="listrow listrow--action" type="button" id="importProgramBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="listrow-main">Importar plan (.json)</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+    <input type="file" id="importProgramFile" accept=".json" hidden>
+    <p class="panel-note"><a href="blog/crear-plan.html">¿No tienes un plan? Aprende a crear uno</a></p>
+  </div>
+</div>
+
+<!-- ── SUBPÁGINA · QUIRÓN ───────────────────────────────────────────────────
+     Los cinco campos crudos (proveedor, base URL, clave, modelo, modelo de
+     visión) estaban a plena vista en medio de Ajustes: la parte más intimidante
+     de la app, y la primera que veía alguien que solo quería cambiar el tema.
+     Aquí quedan tres pasos en orden —elegir, pegar la clave, probar— y lo que
+     exige saber de APIs se pliega detrás de "Opciones avanzadas". Base URL sigue
+     siendo de solo lectura mientras el proveedor sea un preset, como antes. -->
+<div class="set-page" id="setQuiron" aria-label="Quirón (IA)">
+  <div class="set-subhead">
+    <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-head-txt">
+      <h2 class="page-title" tabindex="-1">Quirón (IA)</h2>
+      <p class="page-sub">El coach que lee tus datos y responde. Pones tú el proveedor y la clave</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="form">
+      <label class="field"><span class="field-label">Proveedor</span>
+        <select id="quironProvider">
+          <option value="nan">nan</option>
+          <option value="openai">OpenAI</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </label>
+      <label class="field"><span class="field-label">API key</span>
+        <input type="password" id="quironKey" placeholder="sk-…" autocomplete="off">
+        <span class="field-hint">Se guarda solo en este navegador. Nunca sale de tu dispositivo salvo hacia tu proveedor.</span>
+      </label>
+      <label class="field"><span class="field-label">Modelo</span>
+        <input type="text" id="quironModel" list="quironModelList" placeholder="deepseek-v4-flash" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <datalist id="quironModelList"></datalist>
+      </label>
+
+      <details class="set-advanced">
+        <summary>Opciones avanzadas</summary>
+        <label class="field"><span class="field-label">Base URL</span>
+          <input type="text" id="quironBaseUrl" placeholder="https://api…/v1" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="field-hint">La rellena el proveedor. Solo se edita con «Personalizado».</span>
+        </label>
+        <label class="field"><span class="field-label">Modelo de visión</span>
+          <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="field-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</span>
+        </label>
+      </details>
+
+      <button class="btn btn--secondary" type="button" id="quironTestBtn">Probar conexión</button>
+      <div id="quironAiStatus" class="drive-status" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUBPÁGINA · COPIA DE SEGURIDAD ───────────────────────────────────────
+     Drive y el JSON estaban en dos grupos distintos ("Coach y sincronización" y
+     "Aplicación") con tres botones que decían "Importar" o "Exportar" sin decir
+     de qué. El atleta tiene un solo objetivo —no perder sus datos— así que las
+     dos rutas se juntan aquí, con Drive arriba como la recomendada y el archivo
+     debajo como la alternativa manual. -->
+<div class="set-page" id="setBackup" aria-label="Copia de seguridad">
+  <div class="set-subhead">
+    <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-head-txt">
+      <h2 class="page-title" tabindex="-1">Copia de seguridad</h2>
+      <p class="page-sub">Tus datos viven en este navegador. Si lo borras sin copia, se van con él</p>
+    </div>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Google Drive · recomendado</h4>
+    <div class="listrow listrow--control">
+      <div class="listrow-main">
+        <div class="listrow-name" id="autoSyncLabel">Sincronización automática</div>
+        <div class="listrow-desc" id="autoSyncDesc">Desactivada</div>
+      </div>
+      <button class="toggle-btn listrow-control" type="button" id="autoSyncBtn" role="switch" aria-checked="false" aria-labelledby="autoSyncLabel"></button>
+    </div>
+    <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
+    <button class="listrow listrow--action" type="button" id="driveBackupBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </span>
+      <span class="listrow-main">Subir copia ahora</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+    <button class="listrow listrow--action" type="button" id="driveRestoreBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </span>
+      <span class="listrow-main">Restaurar desde Drive</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+    <button class="listrow listrow--action" type="button" id="driveRevisionsBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      </span>
+      <span class="listrow-main">Recuperar versión anterior</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Archivo en tu dispositivo</h4>
+    <button class="listrow listrow--action" type="button" id="exportBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </span>
+      <span class="listrow-main">Guardar copia en un archivo</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+    <button class="listrow listrow--action" type="button" id="importBtn">
+      <span class="listrow-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+      </span>
+      <span class="listrow-main">Restaurar desde un archivo</span>
+      <span class="listrow-chevron" aria-hidden="true">›</span>
+    </button>
+    <input type="file" id="importFile" accept=".json" hidden>
+    <p class="panel-note">El archivo es un .json con todo tu historial. Sirve para pasarte a otro navegador o guardarlo donde quieras.</p>
+  </div>
+</div>
+
 </div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Seleccionar Programa</h3>
   <div id="programOptions"></div>

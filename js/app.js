@@ -20,6 +20,7 @@ import { initProfile } from './ui/profile.js';
 import { initQuiron } from './ui/quiron.js';
 import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
 import { initRail, toggleRail } from './ui/rail.js';
+import { initSettingsNav, renderSettingsIndex } from './ui/settings.js';
 
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
@@ -79,13 +80,17 @@ function updateSyncUI() {
   // El toggle es un role="switch": su estado tiene que estar en aria-checked, no
   // solo en una clase de CSS que el lector de pantalla no ve.
   btn.setAttribute('aria-checked', String(isAutoSync()));
+  // La fila "Copia de seguridad" del índice enseña este mismo estado: se
+  // refresca aquí para que no haya dos verdades sobre si hay copia o no.
+  renderSettingsIndex(db);
 }
 
 function renderCustomProgramsList() {
   const list = document.getElementById('customProgramsList');
   const customs = getCustomPrograms(db);
+  renderSettingsIndex(db);   // la fila "Mis planes" cuenta los propios
   if (customs.length === 0) {
-    list.innerHTML = '';
+    list.innerHTML = '<p class="panel-note">Todavía no has importado ningún plan propio. Los que trae Areté se eligen desde Entrenar → Plan.</p>';
     return;
   }
   list.innerHTML = customs.map(p => {
@@ -172,6 +177,7 @@ async function init() {
       saveDB(db);
       $zonesPreview.innerHTML = '<span class="zp-hint">Sin marca → zonas por defecto</span>';
     }
+    renderSettingsIndex(db);
   }
   $race5k.addEventListener('input', updateZonesPreview);
   updateZonesPreview();
@@ -191,6 +197,7 @@ async function init() {
       const color = ZONE_COLORS[z.zone];
       return `<span class="zp-chip" style="background:${color}">${z.zone} ${z.min}-${z.max}</span>`;
     }).join('') + `<span class="zp-hint">FC max: ${max} bpm</span>`;
+    renderSettingsIndex(db);
   }
   $maxHR.addEventListener('change', updateHRZonesPreview);
   updateHRZonesPreview();
@@ -299,6 +306,7 @@ function bindEvents() {
   initRunning(db);
   initProfile(db);
   initRail();
+  initSettingsNav(db);
   initShortcuts(db, { switchTab, toggleRail });
   document.getElementById('shortcutsBtn')?.addEventListener('click', toggleShortcutSheet);
   // Quirón puede crear/editar planes: al aplicar o deshacer, refrescar la UI que
