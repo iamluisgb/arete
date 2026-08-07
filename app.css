@@ -25,7 +25,14 @@
    Regla de oro: si necesitas un valor que no es un token, o falta el token o el
    diseño está mal. El documento del sistema es DESIGN_SYSTEM.md.
    ═══════════════════════════════════════════════════════════════════════════ */
-@layer tokens, base, sistema, pantallas, escritorio, overrides;
+@layer vendor, tokens, base, sistema, pantallas, escritorio, overrides;
+
+/* La hoja de Material Symbols trae su propia base para .material-symbols-outlined
+   (display y font-size:24px). Venía por <link>, es decir SIN capa, y una regla sin
+   capa gana siempre a una con capa: se comía las 20 reglas de tamaño de icono de
+   este fichero y la container query del segmentado Fuerza/Carrera. Entra por
+   @import en `vendor`, la primera capa, para que quede debajo de todo lo nuestro. */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0") layer(vendor);
 
 @layer tokens {
 

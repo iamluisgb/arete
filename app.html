@@ -16,7 +16,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<!-- Material Symbols lo importa app.css en la capa `vendor`: por <link> entraría sin
+     capa y ganaría a todas nuestras reglas de icono. Se precarga para no perder el
+     viaje que costaba el <link>. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 <link rel="stylesheet" href="app.css">
 <!-- Leaflet se carga bajo demanda desde js/leaflet-loader.js: solo hace falta en los tres mapas de running. -->
 <meta name="description" content="Tracker de entrenamiento: fuerza, running, test periódicos y dashboard de rendimiento. Todo en tu navegador.">
