@@ -4,8 +4,9 @@ import {
   loadRatio, recentPRs, bodyTrend, lastStrengthSessions, lastRuns,
   periodStats, runIntensitySplit,
 } from '../js/ai/metrics.js';
-import { buildSnapshot, buildReport } from '../js/ai/context.js';
-import { makeToolExecutor } from '../js/ai/tools.js';
+import { buildSnapshot, buildReport, domainSummary } from '../js/ai/context.js';
+import { makeToolExecutor, QUIRON_TOOLS, QUIRON_WRITE_TOOLS } from '../js/ai/tools.js';
+import { SOUL } from '../js/ai/soul.js';
 
 // Fecha de referencia fija para todos los tests: jueves 2026-07-16
 const REF = new Date('2026-07-16T12:00:00');
@@ -160,6 +161,84 @@ describe('buildSnapshot', () => {
   it('avisa cuando no hay entrenamientos', () => {
     const snap = buildSnapshot({ settings: {}, workouts: [], runningLogs: [], bodyLogs: [] }, {}, REF);
     expect(snap).toContain('SIN ENTRENAMIENTOS');
+  });
+});
+
+// Los 7 dominios son el núcleo del producto y hasta ahora el agente no los veía. Estos
+// tests fijan las dos reglas que no se negocian (mínimo, y lo no medido no es un cero):
+// si alguien las relaja en domains.js, el contexto del agente se entera aquí.
+// El SOUL es un template literal de ~7000 caracteres editado a mano. Dos formas de
+// romperlo en silencio, las dos cometidas al añadir la sección de dominios: una comilla
+// invertida sin escapar (cierra la plantilla y el módulo deja de cargar en el navegador)
+// y una sección duplicada al insertar texto por índice. Ninguna de las dos la veía nadie,
+// porque hasta ahora ningún test miraba el SOUL.
+describe('SOUL', () => {
+  it('carga y no tiene secciones duplicadas', () => {
+    const heads = SOUL.split('\n').filter(l => l.startsWith('# '));
+    expect(heads.length).toBeGreaterThan(5);
+    expect(new Set(heads).size).toBe(heads.length);
+  });
+
+  it('los bloques de código del formato están balanceados', () => {
+    // Solo cuentan las vallas a principio de línea: el SOUL también menciona ``` dentro
+    // de una frase para explicar la regla del bloque, y eso no abre nada.
+    const fences = SOUL.split('\n').filter(l => /^```/.test(l)).length;
+    expect(fences % 2).toBe(0);
+    expect(fences).toBeGreaterThan(0);
+  });
+
+  it('nombra las herramientas que existen de verdad', () => {
+    const declaradas = SOUL.match(/\b(get|log|propose)_[a-z_]+/g) || [];
+    const reales = new Set([...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS].map(t => t.function.name));
+    for (const d of new Set(declaradas)) expect(reales, `el SOUL cita ${d}`).toContain(d);
+  });
+
+  it('enuncia el marco de los 7 dominios', () => {
+    expect(SOUL).toContain('7 dominios');
+    expect(SOUL).toContain('get_domain_profile');
+  });
+});
+
+describe('perfil de dominios en el contexto del agente', () => {
+  // Peso 76.5 kg y sentadilla 116.7 de e1RM → 1.53×BW (nivel IV); banca 87.5 → 1.14× (III);
+  // peso muerto y press militar sin registrar → sin medir.
+  it('resume nivel global, limitante y calibración', () => {
+    const lines = domainSummary(DB, REF);
+    expect(lines.join('\n')).toContain('PERFIL DE DOMINIOS');
+    expect(lines.join('\n')).toContain('Te limita:');
+    expect(lines.join('\n')).toContain('~75 kg');       // la nota de calibración viaja
+  });
+
+  it('marca el perfil como provisional cuando faltan dominios', () => {
+    expect(domainSummary(DB, REF).join('\n')).toMatch(/PROVISIONAL, solo \d+\/7/);
+  });
+
+  it('no ocupa contexto con un atleta sin nada medido', () => {
+    expect(domainSummary({ settings: {}, workouts: [], runningLogs: [], bodyLogs: [] }, REF)).toBe(null);
+  });
+
+  it('el snapshot lo incluye y enuncia la regla del mínimo', () => {
+    const snap = buildSnapshot(DB, {}, REF);
+    expect(snap).toContain('PERFIL DE DOMINIOS');
+    expect(snap).toContain('MÁS BAJA');
+    expect(snap).toContain('lo no medido no cuenta como 0');
+  });
+
+  it('la tool da el detalle por métrica, con la fuente de cada valor', async () => {
+    const exec = makeToolExecutor(DB, { ref: REF });
+    const out = await exec('get_domain_profile', {});
+    expect(out).toContain('NIVEL GLOBAL');
+    expect(out).toContain('LIMITANTE');
+    expect(out).toContain('derivada del histórico');
+    expect(out).toContain('sin medir');
+    expect(out).toContain('SIGUIENTE TEST RECOMENDADO');
+  });
+
+  it('la tool acota a un dominio y rechaza uno inventado', async () => {
+    const exec = makeToolExecutor(DB, { ref: REF });
+    expect(await exec('get_domain_profile', { domain: 'mobility' })).toContain('Movilidad');
+    expect(await exec('get_domain_profile', { domain: 'mobility' })).not.toContain('Fuerza máxima');
+    expect(await exec('get_domain_profile', { domain: 'brazos' })).toContain('Dominio desconocido');
   });
 });
 

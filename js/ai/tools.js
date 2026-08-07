@@ -4,6 +4,7 @@
 // `progFns` se inyecta (por defecto, programs.js del app) para poder testear con fixtures.
 
 import { workoutTonnage, epley } from './metrics.js';
+import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 
 export const QUIRON_TOOLS = [
   {
@@ -61,6 +62,19 @@ export const QUIRON_TOOLS = [
         type: 'object',
         properties: {
           limit: { type: 'number', description: 'Máximo de registros, los más recientes (por defecto 20)' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_domain_profile',
+      description: 'Perfil completo de los 7 dominios de rendimiento: cada métrica con su valor, nivel I-V, si viene de un test manual o derivada del histórico, cuántos días tiene y si ha caducado. Incluye el dominio limitante y el siguiente test recomendado. Úsala para "¿qué me está frenando?", "¿cuál es mi punto débil?", "¿qué test hago ahora?" o cualquier pregunta sobre el nivel del atleta: el snapshot solo trae el resumen.',
+      parameters: {
+        type: 'object',
+        properties: {
+          domain: { type: 'string', description: 'Opcional: un solo dominio (strength, pull, glyco, cardio, kb, core, mobility). Sin esto, los siete.' },
         },
       },
     },
@@ -266,6 +280,39 @@ export function makeToolExecutor(db, deps = {}) {
           return `${date}: ${ms || '—'}`;
         });
       return rows.length ? rows.join('\n') : 'Sin registros corporales.';
+    }
+
+    if (name === 'get_domain_profile') {
+      // El perfil se calcula con computeProfile(), la MISMA función que pinta la pantalla
+      // de Perfil. Si el agente y la app dieran niveles distintos, el atleta creería que
+      // uno de los dos miente — y tendría razón.
+      const p = computeProfile(db, deps.ref || new Date());
+      const wanted = String(args.domain || '').toLowerCase().trim();
+      const doms = wanted ? p.domains.filter(d => d.id.toLowerCase() === wanted) : p.domains;
+      if (!doms.length) return `Dominio desconocido "${args.domain}". Válidos: ${p.domains.map(d => d.id).join(', ')}.`;
+
+      const L = [];
+      if (!wanted) {
+        L.push(`NIVEL GLOBAL: ${p.level > 0 ? `${ROMAN[p.level]} ${LEVEL_NAMES[p.level]}` : 'sin medir'}${p.provisional ? ` (PROVISIONAL — ${p.measured}/${p.total} dominios medidos; el que falta podría ser más bajo)` : ''}`);
+        if (p.limitedBy) L.push(`LIMITANTE: ${p.limitedBy.name}${p.limitedBy.weakest ? ` — su métrica más baja es ${p.limitedBy.weakest.label}` : ''}`);
+      }
+      for (const d of doms) {
+        L.push(`${d.name} — nivel ${d.level > 0 ? ROMAN[d.level] : '—'}${d.stale ? ' · CADUCADO, conviene repetir el test' : ''}${d.complete ? '' : ` · ${d.missing.length} métrica(s) sin medir`}`);
+        for (const m of d.metrics) {
+          const src = m.source === 'test' ? 'test' : m.source === 'derived' ? 'derivada del histórico' : 'sin medir';
+          const age = m.days != null ? `, hace ${m.days} d` : '';
+          L.push(`  ${m.label}: ${formatMetric(m)} → nivel ${m.level > 0 ? ROMAN[m.level] : '—'} (${src}${age})`);
+        }
+      }
+      const nt = nextTest(p);
+      if (nt && !wanted) {
+        const why = nt.reason === 'nunca' ? 'nunca se ha medido'
+          : nt.reason === 'caducado' ? `caducado (${nt.domain.oldest} días)`
+            : 'es el dominio limitante';
+        L.push(`SIGUIENTE TEST RECOMENDADO: ${nt.domain.name} — ${why}.`);
+      }
+      L.push(CALIBRATION_NOTE);
+      return L.join('\n');
     }
 
     if (name === 'get_program_detail') {

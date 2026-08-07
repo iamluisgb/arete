@@ -5,6 +5,7 @@
 // (la resuelve el llamante desde programs.js) para poder testear con fixtures.
 
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
+import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit,
@@ -12,6 +13,30 @@ import {
 
 /** "+12%" · "-4%" · "s/ref" cuando no hay periodo anterior con el que comparar. */
 const deltaPct = (v) => (v == null ? 's/ref' : `${v >= 0 ? '+' : ''}${v}%`);
+
+/** "III Intermedio" · "— sin medir" */
+const levelLabel = (n) => (n > 0 ? `${ROMAN[n]} ${LEVEL_NAMES[n]}` : '— sin medir');
+
+/**
+ * Resumen del perfil de dominios para el snapshot: nivel global, quién lo limita y el
+ * nivel de cada dominio. Devuelve null si no hay nada medido todavía (un usuario nuevo
+ * no necesita cuatro líneas diciéndole siete veces que no sabemos nada de él).
+ */
+export function domainSummary(db, ref = new Date()) {
+  const p = computeProfile(db, ref);
+  if (!p.measured) return null;
+  const lines = ['PERFIL DE DOMINIOS (el nivel de un dominio es su métrica MÁS BAJA; el global, el dominio más bajo de los MEDIDOS — lo no medido no cuenta como 0):'];
+  lines.push(`  Nivel global: ${levelLabel(p.level)}${p.provisional ? ` — PROVISIONAL, solo ${p.measured}/${p.total} dominios medidos` : ''}`);
+  if (p.limitedBy) {
+    const w = p.limitedBy.weakest;
+    lines.push(`  Te limita: ${p.limitedBy.name} (${levelLabel(p.limitedBy.level)})${w ? ` — por ${w.label}` : ''}`);
+  }
+  lines.push('  ' + p.domains.map(d => `${d.short} ${d.level > 0 ? ROMAN[d.level] : '—'}${d.stale ? '(caducado)' : ''}`).join(' · '));
+  // La calibración es del producto, no del agente, y omitirla haría que Quirón leyera
+  // como absolutos unos umbrales que no lo son. La app ya lo declara en pantalla.
+  lines.push(`  ${CALIBRATION_NOTE}`);
+  return lines;
+}
 
 /**
  * @param {Object} db  la db de la app
@@ -41,6 +66,18 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   if (prog.name) p.push(`fuerza: ${prog.name}${prog.phaseName ? ` — fase "${prog.phaseName}"` : ''}${prog.sessionNames?.length ? ` (sesiones: ${prog.sessionNames.join(', ')})` : ''}`);
   if (prog.runProgramName) p.push(`running: ${prog.runProgramName}${prog.runWeek ? ` — semana ${prog.runWeek}` : ''}`);
   if (p.length) L.push(`PROGRAMA ACTIVO: ${p.join(' | ')}`);
+
+  // Perfil de los 7 dominios — el núcleo del producto (ver AGENTS.md y js/domains.js).
+  //
+  // Estaba ausente del contexto: Quirón no tenía ni snapshot ni herramienta que lo
+  // mencionara, así que ante "¿qué me está frenando?" —la pregunta que Areté promete
+  // responder— improvisaba desde el histórico de series. Aquí va el resumen; el detalle
+  // por métrica se pide con `get_domain_profile` (capa 2).
+  //
+  // Las dos reglas del producto se enuncian aquí para que el modelo no las "corrija":
+  // el nivel es el MÍNIMO (no la media) y lo no medido NO cuenta como cero.
+  const dp = domainSummary(db, ref);
+  if (dp) L.push(...dp);
 
   // Zonas
   const paceZones = getPaceZones(db).map(z => `${z.zone}<${z.max === Infinity ? '∞' : formatPace(z.max)}`).join(' ');

@@ -66,6 +66,34 @@ export const SCENARIOS = [
     grounded: true,
   },
 
+  // ── Los 7 dominios ────────────────────────────────────────────────────────
+  // El marco del producto (js/domains.js). Hasta ahora el agente no lo veía: ni snapshot
+  // ni herramienta lo mencionaban, así que ante "¿qué me frena?" improvisaba desde el
+  // histórico de series. Estos escenarios existen para que eso no vuelva a pasar
+  // inadvertido, y para vigilar las dos reglas que el modelo tiende a "corregir": el
+  // nivel es el MÍNIMO, y lo no medido no es un cero.
+  {
+    id: 'dominio-limitante',
+    prompt: '¿Qué me está frenando ahora mismo? ¿Cuál es mi punto débil?',
+    desc: 'El perfil dice que le limita Fuerza máxima por el press militar. Debe responder desde los dominios, no desde el histórico de series.',
+    ok: [/[Ff]uerza m[áa]xima|[Pp]ress militar/],
+    grounded: true,
+  },
+  {
+    id: 'dominio-provisional',
+    prompt: '¿Qué nivel tengo?',
+    desc: 'Solo 3 de 7 dominios están medidos: debe dar el nivel como PROVISIONAL y decir que falta medir, no cerrar un nivel global.',
+    ok: [/provisional|sin medir|no.{0,20}medid|falta/i],
+    grounded: true,
+  },
+  {
+    id: 'dominio-siguiente-test',
+    prompt: '¿Qué test debería hacerme ahora?',
+    desc: 'Cuatro dominios sin medir. Debe pedir get_domain_profile y proponer uno de ellos, no un test de fuerza que ya está derivado.',
+    expectCall: 'get_domain_profile',
+    ok: [/glicol|400|core|movilidad|S&S|kettlebell/i],
+  },
+
   // ── Ruteo de escritura ────────────────────────────────────────────────────
   // Tres frases casi iguales, tres destinos distintos. Equivocarse aquí no es un error
   // de formato: es escribir en el sitio que no toca.

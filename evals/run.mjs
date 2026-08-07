@@ -34,6 +34,7 @@ async function runTurn(sc) {
     getPrograms: pc.getPrograms,
     onProposal: (p) => proposals.push(p),
     askedBy: sc.prompt,        // mismo respaldo que la app ante una tool sin argumentos
+    ref,                       // el perfil de dominios se calcula a la fecha del fixture
   });
   const convo = [system, { role: 'user', content: sc.prompt }];
 
