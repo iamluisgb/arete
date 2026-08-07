@@ -7,3 +7,8 @@ export const REVISION_PREVIEW_LIMIT = 20;
 export const LOCALE = 'es';
 export const APP_VERSION = '2.1.0';
 export const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+// Los meses, escritos una vez. El calendario los pinta en su cabecera y el
+// historial los usa para agrupar la lista: si fueran dos listas, "Agosto 2026"
+// del calendario y el separador de la lista de al lado podrían no coincidir.
+export const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];

@@ -579,6 +579,10 @@ a.listrow--action{text-decoration:none}
 .banner--neutral .banner-text,.banner--neutral .material-symbols-outlined{color:var(--color-text-secondary)}
 .banner--neutral .banner-text b{color:var(--color-text-primary)}
 /* Los chips de contexto (programa, fase, semana) son .chip del sistema. */
+/* El grupo de estado de una cabecera: modo, plan, fase. Un solo hijo del
+   .page-head, para que el space-between reparta UN hueco entre identidad y
+   estado en vez de repartir dos entre tres piezas sueltas. */
+.page-head-state{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
 .page-head-ctx{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
 .page-head-ctx .chip svg{color:var(--color-text-tertiary);flex-shrink:0}
 /* Stats grid: son MetricTile del sistema (§3.6); no queda nada propio. */
@@ -887,6 +891,17 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-header .cal-title{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em}
 .cal-header .cal-count{font-size:var(--fs-xs);color:var(--color-text-secondary);text-align:right;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 .cal-header .cal-count span{display:block;font-size:var(--fs-2xl);font-weight:700;color:var(--color-text-primary);letter-spacing:-.02em}
+/* El plegable del calendario. Su summary es un control real: 44px de objetivo
+   táctil y un chevron que gira, como el resto de la app. */
+.cal-fold{margin-bottom:var(--sp-3)}
+.cal-fold>summary{list-style:none;cursor:pointer;min-height:44px;
+  display:flex;align-items:center;gap:var(--sp-2);
+  font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary)}
+.cal-fold>summary::-webkit-details-marker{display:none}
+.cal-fold>summary::before{content:'›';font-size:var(--fs-xl);font-weight:300;line-height:1;
+  transition:transform var(--dur-fast)}
+.cal-fold[open]>summary::before{transform:rotate(90deg)}
 .cal-nav{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);justify-content:center}
 .cal-nav button{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:8px 18px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base)}
 .cal-nav button:active{background:var(--color-surface-3)}
@@ -898,6 +913,15 @@ nav button .material-symbols-outlined{font-size:24px}
 .cal-grid .cal-day.today{box-shadow:inset 0 0 0 1.5px var(--color-text-tertiary)}
 .cal-grid .cal-day.today.has-workout{box-shadow:inset 0 0 0 2px var(--color-on-fill)}
 .cal-grid .cal-day.empty{color:transparent}
+/* El separador de mes. Pegajoso: al recorrer una lista larga, el mes que estás
+   mirando sigue escrito arriba, que es lo único que orienta cuando todas las
+   tarjetas se parecen. Va sobre el fondo de la página —no sobre surface-1— para
+   que la tarjeta que pasa por debajo no se transparente a través de él. */
+.hi-month{position:sticky;top:0;z-index:1;
+  background:var(--color-surface-0);padding:var(--sp-3) 0 var(--sp-2);
+  font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary)}
+.hi-month:first-child{padding-top:0}
 .history-item{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:14px;margin-bottom:var(--sp-2);cursor:pointer;transition:transform var(--dur-instant)}
 .history-item:active{transform:scale(.98)}
 /* Una fecha no es un acento. Eran seis rojos apilados en la primera pantalla de
@@ -1945,8 +1969,14 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    Migrada, y con la reorganización de navegación de §7.2 del documento.
    Fuerza y carrera son dos MODOS dentro de "Entrenar", no dos secciones; el
    modo activo se marca por fondo y peso, nunca por una banda de acento. */
+/* Sin `container-type:inline-size`. Lo llevaba para esconder los iconos cuando
+   el segmentado vivía en el carril de 168px, pero `container-type` aplica
+   `contain:inline-size`: el elemento deja de dimensionarse por su contenido. En
+   la cabecera eso dejaba la pastilla en 6px —los dos paddings— con los botones
+   desbordándola, que es de dónde salía la rayita gris a su izquierda. El carril
+   ya no existe y con él se va la container query. */
 .train-mode{display:flex;gap:var(--sp-1);background:var(--color-surface-2);
-  border-radius:var(--radius-pill);padding:3px;container-type:inline-size}
+  border-radius:var(--radius-pill);padding:3px}
 /* min-width:0 y no la anchura del texto. Con `flex:1` a secas la base de cada
    botón es su contenido, así que en el carril de 168px del escritorio los dos
    pedían 175 y "Carrera" se salía de la pastilla por 13px. El icono es lo
@@ -1955,8 +1985,20 @@ body.session-focus{padding-bottom:0;overflow:hidden}
   background:none;border:none;border-radius:var(--radius-pill);padding:9px 4px;min-height:44px;
   cursor:pointer;font-family:var(--font);font-size:var(--fs-base);font-weight:700;
   color:var(--color-text-secondary);transition:background var(--dur-base),color var(--dur-base)}
-@container (max-width:200px){.train-mode-btn .material-symbols-outlined{display:none}}
 .train-mode-btn .material-symbols-outlined{font-size:18px}
+/* En la cabecera el segmentado se mide por su contenido. `flex:1 1 0` era para
+   repartir el ancho FIJO del carril de 168px; dentro de un flex sin ancho que
+   repartir la pastilla se colapsaba y "Fuerza" y "Carrera" salían impresos uno
+   encima del otro.
+   Y todo el grupo a 48. Eran 50 el modo, 44 los chips y 48 las pestañas: tres
+   alturas que no cuadraban entre sí en la misma cabecera. Se iguala por ARRIBA
+   —48 y no 44— porque bajar el modo a 44 por fuera dejaba su botón en 40, por
+   debajo del objetivo táctil de 44 que el sistema exige. Aquí nadie baja de 44:
+   el modo es una pastilla de 2px de inset sobre botones de 44, los chips suben
+   los cuatro píxeles que les faltaban, y la fila de pestañas ya medía 48. */
+.page-head-state .train-mode{flex:0 0 auto;width:max-content;padding:2px}
+.page-head-state .train-mode-btn{flex:0 0 auto;min-height:44px;padding:8px var(--sp-4)}
+.page-head-state .chip{min-height:48px}
 .train-mode-btn.active{background:var(--color-surface-1);color:var(--color-text-primary);box-shadow:var(--shadow-1)}
 .train-panel{display:none}
 .train-panel.active{display:block}
@@ -2218,8 +2260,18 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .str-plan-header,.str-plan-desc{grid-column:1/-1}
 .str-plan-start-btn.btn--block{width:auto;min-width:200px;margin-left:auto;display:block}
 }
-/* ── Entrenar/Fuerza · Historial: calendario y lista a la vez ── */
-@media(min-width:1024px){
+/* ── Entrenar/Fuerza · Historial: calendario y lista a la vez ──
+   A 1440, no a 1024, y el motivo es aritmético. Historial no dispone del ancho
+   de la ventana: vive dentro del panel de Entrenar, que ya cede 168px a la
+   navegación secundaria. Con la shell en 880 quedan ~664px, y partirlos en
+   260 (calendario) + 24 + resto dejaba la lista en 332px — el 29% de la
+   pantalla para el único contenido de la vista, con 772px de cromo por delante.
+   A ese ancho las series de una sesión de cinco (57.5×3 · 57.5×3 · …) rompían a
+   una segunda línea que quedaba huérfana, sin el nombre del ejercicio al lado.
+   El reparto en dos columnas es bueno cuando hay dos columnas que repartir: a
+   1440 la lista se queda con 632px y todo eso desaparece. Por debajo, el
+   calendario se apila encima de la lista y le devuelve el ancho entero. */
+@media(min-width:1440px){
 /* La última fila, vacía, absorbe el alto sobrante de la lista, que es mucho más
    alta que el calendario y si no reparte su exceso entre las filas que cruza. */
 /* La columna del calendario se ajusta a lo que el calendario mide (~260), no a
@@ -2228,8 +2280,15 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    nombres de los ejercicios. El filtro no puede ocupar más que aquello que
    filtra. */
 #strHistory.active,#runHistory.active{display:grid;grid-auto-flow:row dense;grid-template-columns:minmax(0,260px) minmax(0,1fr);grid-template-rows:auto auto auto auto 1fr;gap:var(--sp-3) var(--sp-6);align-items:start}
-#strHistory>.cal-nav,#strHistory>#calendarPanel,#strHistory>.history-filters,
-#runHistory>.cal-nav,#runHistory>#runCalendarPanel,#runHistory>.history-filter-wrap{grid-column:1}
+#strHistory>.cal-fold,#runHistory>.cal-fold{grid-column:1}
+/* Los filtros cruzan las dos columnas. Metidos en la de 260 se apilaban en
+   vertical —.history-filters es auto-fit de 150px y ahí solo cabe uno— y dejaban
+   a su derecha un hueco del ancho de la lista. Deciden qué se ve en las DOS
+   columnas, calendario incluido, así que abarcarlas es lo que además dice. */
+#strHistory>.history-filters,#runHistory>.history-filter-wrap{grid-column:1/-1}
+/* Con columna propia el plegado no aporta: el calendario ya no le quita sitio a
+   la lista. calendar.js lo abre, y aquí se retira el control que sobra. */
+.cal-fold>summary{display:none}
 #runHistoryList{grid-column:2;grid-row:1/-1}
 /* La barra de "estás viendo un día" va en la columna de la lista, encima de
    ella: es donde se lee el efecto del filtro. Oculta, la fila se colapsa. */
@@ -2438,9 +2497,21 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 }
 /* ── Rejillas que solo cambian de conteo ────────────────── */
 @media(min-width:1024px){
+.run-stats-grid,.run-prs-grid,.run-type-grid{grid-template-columns:repeat(4,1fr)}
+}
+/* El bento de Hoy NO entra aquí, y es la excepción que hay que explicar: no
+   ocupa el ancho de la pantalla sino la columna izquierda del dashboard, que a
+   partir de 1024 es un `minmax(0,1.35fr)` frente a la actividad reciente. Con
+   la shell en 880 esa columna mide 450px y las cuatro tarjetas piden 523 — y
+   como el track es minmax(0,·) no crece: desbordaba 73px por la derecha y
+   "Carreras" se metía 40px dentro de Actividad reciente.
+   Las cuatro caben cuando la shell pasa a 1180, no antes. Hasta ahí se queda el
+   2×2 de la base, que a 450px da tarjetas de 219 — de sobra para un anillo de
+   80 y su etiqueta. Medir la rejilla contra la ventana cuando lo que la
+   contiene es una columna es el fallo; el número 1440 sale de esa columna. */
+@media(min-width:1440px){
 .dash-bento{grid-template-columns:repeat(4,1fr)}
 .dash-card-wide{grid-column:span 4}
-.run-stats-grid,.run-prs-grid,.run-type-grid{grid-template-columns:repeat(4,1fr)}
 }
 /* ── Entrenar: navegación secundaria lateral (§7.2) ───────
    Las tres barras apiladas del móvil se convierten aquí en una columna: el modo
@@ -2449,24 +2520,30 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    El destino activo se marca con fondo y peso, NO en rojo: el rojo del rail ya
    dice en qué sección estás, y un segundo rojo diciendo lo mismo un nivel más
    abajo deja de informar. */
+/* Liberar ancho no es repartirlo: la tarjeta del historial son filas de nombre a
+   la izquierda y series a la derecha, y `--measure-panel` existe exactamente
+   para eso. Sin tope se fue a 816px y el nombre y sus series quedaban en
+   extremos opuestos con un vacío en medio — el mismo defecto que la lista de
+   212px, por el otro lado. El ancho recuperado es para la rejilla de ejercicios
+   y la gráfica de progreso, que sí saben qué hacer con él. */
+#historyList,#runHistoryList{max-width:var(--measure-panel)}
+/* La columna de 168px se retiró: aquí iban las reglas que volteaban las pestañas
+   a vertical en ≥1024. La navegación secundaria de Entrenar es la misma fila
+   horizontal en todos los anchos —el `.subnav-tabs` de la base— y la sección
+   vuelve a ser flujo normal en una columna.
+
+   El razonamiento está en el HTML, junto a #trainSubnav, y en DESIGN_SYSTEM §7.2b:
+   el carril lateral se justificaba por las ~180px verticales de TRES barras
+   apiladas, y esa misma reorganización eliminó dos. Con una sola barra el
+   intercambio se invierte — 48px verticales una vez contra 168 horizontales
+   permanentes— y en esta pantalla el eje vertical es el barato.
+   El modo Fuerza/Carrera se fue a la cabecera con el resto del estado. */
 @media(min-width:1024px){
-/* 168 y no 200: la columna es una NAVEGACIÓN de cuatro palabras cortas, no un
-   tercio de la pantalla. A 200 se leía como un panel que se hubiera quedado sin
-   contenido; a 168 se lee como lo que es, y los 32px devueltos van a la rejilla
-   de ejercicios, que sí sabe qué hacer con ellos.
-   `align-content:start` y no `align-items:start` a secas: sin él, las dos filas
-   de la rejilla se estiraban y el arranque de cada columna dejaba de coincidir
-   por unos pocos píxeles — que es lo que hace que una pantalla se lea
-   descuidada sin que sepas por qué. */
-#secTrain.active{display:grid;grid-template-columns:minmax(0,168px) minmax(0,1fr);
-  gap:var(--gap-stack) var(--gap-section);align-items:start;align-content:start}
-#secTrain>.page-head{grid-column:1/-1}
-#secTrain>.subnav{grid-column:1;margin-bottom:0}
-#secTrain>.train-panel{grid-column:2;min-width:0}
-.subnav-tabs{flex-direction:column;background:none;padding:0;gap:2px;border-radius:0}
-.subnav-tabs>button{text-align:left;padding:9px var(--sp-3);border-radius:var(--radius-md)}
-.subnav-tabs>button.active{background:var(--color-surface-2);
-  color:var(--color-text-primary);box-shadow:none;font-weight:700}
+/* Las pestañas no se estiran a lo ancho de la pantalla: son cuatro palabras
+   cortas, y un segmentado de 900px con el texto flotando en el centro de cada
+   cuarto no se lee como un control. Ancho de contenido, alineado al principio. */
+.subnav-tabs{align-self:start;width:max-content;max-width:100%}
+.subnav-tabs>button{flex:0 0 auto;padding-inline:var(--sp-5)}
 }
 /* ── Cuerpo (migrada) ────────────────────────────────────
    Dos columnas de paneles. Ni la cabecera ni el estado ni el historial se
@@ -2502,7 +2579,28 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 /* margin-inline:0 además de max-width: el auto heredado del breakpoint de 640
    dejaba el calendario flotando en el centro de su columna en vez de alineado
    con los filtros que tiene encima. */
-#calendarPanel,#runCalendarPanel{max-width:none;margin-inline:0}
+#calendarPanel,#runCalendarPanel{margin-inline:0}
+/* Apilado encima de la lista, el calendario cambia de papel: deja de ser una
+   columna hermana para ser lo que hay ANTES del contenido, y su alto se lo come
+   a la primera pantalla. A 420px de ancho las celdas son de 52 (aspect-ratio:1)
+   y el mes entero mide 470: la lista arrancaba fuera del viewport y no se veía
+   ni una sesión sin scroll — peor que el problema que esto venía a arreglar.
+   A 300 las celdas quedan en 37, el mes en ~300, y la primera sesión entra.
+   Sigue siendo un filtro: no puede ocupar más que aquello que filtra. */
+#calendarPanel,#runCalendarPanel,.cal-nav{max-width:300px}
+.cal-nav{margin-inline:0;margin-bottom:var(--sp-2)}
+.cal-container{padding:12px}
+.cal-header{margin-bottom:8px}
+.cal-grid .cal-day{font-size:var(--fs-sm)}
+}
+/* Con columna propia vuelve a ser una columna hermana, no un preámbulo: recupera
+   los 260 de su carril y la densidad normal. */
+@media(min-width:1440px){
+#calendarPanel,#runCalendarPanel,.cal-nav{max-width:none}
+.cal-nav{margin-bottom:var(--sp-4)}
+.cal-container{padding:16px}
+.cal-header{margin-bottom:14px}
+.cal-grid .cal-day{font-size:var(--fs-md)}
 }
 @media(min-width:1024px){
 .progress-select-wrap .progress-label,.progress-select-wrap select{display:none}

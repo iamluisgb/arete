@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { safeNum, esc, formatDate, today } from '../js/utils.js';
+import { safeNum, esc, formatDate, formatDateShort, today } from '../js/utils.js';
 
 describe('safeNum', () => {
   it('parses valid number within range', () => {
@@ -60,6 +60,30 @@ describe('formatDate', () => {
 
   it('returns input as-is if not splittable', () => {
     expect(formatDate('invalid')).toBe('invalid');
+  });
+});
+
+// La fecha corta se escribía a mano en ocho sitios como slice(5), que deja
+// MM/DD mientras formatDate da DD/MM: el mismo entreno salía como 05/08/2026 en
+// el historial y como 08/05 en Actividad. El día >12 es el caso que lo delata.
+describe('formatDateShort', () => {
+  it('converts YYYY-MM-DD to DD/MM', () => {
+    expect(formatDateShort('2026-08-05')).toBe('05/08');
+  });
+
+  it('no invierte día y mes cuando el día pasa de 12', () => {
+    expect(formatDateShort('2026-05-13')).toBe('13/05');
+    expect(formatDateShort('2026-06-24')).toBe('24/06');
+  });
+
+  it('coincide con formatDate menos el año', () => {
+    const d = '2026-01-31';
+    expect(formatDate(d).startsWith(formatDateShort(d))).toBe(true);
+  });
+
+  it('devuelve cadena vacía sin fecha, para no pintar un guion en un eje', () => {
+    expect(formatDateShort(null)).toBe('');
+    expect(formatDateShort('')).toBe('');
   });
 });
 

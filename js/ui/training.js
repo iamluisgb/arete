@@ -2,7 +2,7 @@ import { saveDB, getSaveRevision } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { getPrograms, getActiveProgram, getAllPhases } from '../programs.js';
 import { listCustomSessions, getCustomSession, isSessionRef, refToId, sessionRef, touchCustomSession } from '../sessions.js';
-import { esc } from '../utils.js';
+import { esc, formatDateShort, phaseChipLabel } from '../utils.js';
 import { toast } from './toast.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
@@ -310,7 +310,7 @@ function renderSessionOverview(db, sess, exercises) {
     } catch { return false; }
   })();
 
-  const lastDate = prev ? prev.date.slice(5).replace('-', '/') : null;
+  const lastDate = prev ? formatDateShort(prev.date) : null;
   const btnText = hasDraft ? 'Continuar entreno' : 'Empezar entreno';
 
   let draftInfo = '';
@@ -385,7 +385,7 @@ export function loadSessionTemplate(db, autoPrefill) {
   const shouldPrefill = autoPrefill && prev;
 
   if (shouldPrefill) {
-    const prevDate = prev.date.slice(5).replace('-', '/');
+    const prevDate = formatDateShort(prev.date);
     $prefillText.textContent = `📋 Cargada tu última ${session} (${prevDate})`;
     $prefillBanner.style.display = 'flex';
   } else {
@@ -788,7 +788,7 @@ function _prevBadgeHtml(prevStr, bestResult, isTime) {
     const best = bestResult.best;
     if (!prev) return '';
     const isRecord = prev.rounds === best.rounds && prev.secs === best.secs;
-    const dateStr = bestResult.date ? bestResult.date.slice(5).replace('-', '/') : '';
+    const dateStr = bestResult.date ? formatDateShort(bestResult.date) : '';
     if (isRecord) return `<span class="prev-badge prev-badge--record">★ tu récord</span>`;
     return `<span class="prev-badge">★ récord: ${bestResult.bestStr}${dateStr ? ` · ${dateStr}` : ''}</span>`;
   } else {
@@ -797,7 +797,7 @@ function _prevBadgeHtml(prevStr, bestResult, isTime) {
       return Math.max(m, r);
     }, 0);
     const { best, date } = bestResult;
-    const dateStr = date ? date.slice(5).replace('-', '/') : '';
+    const dateStr = date ? formatDateShort(date) : '';
     if (prevMax >= best) return `<span class="prev-badge prev-badge--record">★ tu récord</span>`;
     return `<span class="prev-badge">★ récord: ${best} reps${dateStr ? ` · ${dateStr}` : ''}</span>`;
   }
@@ -827,7 +827,9 @@ export function startEdit(workout, db) {
     const phases = getAllPhases();
     const phase = phases.find(p => p.id === db.phase);
     const roman = ROMAN[db.phase - 1] || db.phase;
-    document.getElementById('phaseName').textContent = phase ? `Fase ${roman} · ${phase.name}` : `Fase ${roman}`;
+    // 'fuerza' fijo: aquí se está cargando un entreno de FUERZA para editarlo,
+    // así que el modo activo no puede ser otro.
+    document.getElementById('phaseName').textContent = phaseChipLabel(roman, phase?.name, 'fuerza');
     populateSessions(db);
   }
 
@@ -852,7 +854,7 @@ function _fillEditForm(workout, db) {
     });
   });
 
-  const dateStr = workout.date.slice(5).replace('-', '/');
+  const dateStr = formatDateShort(workout.date);
   $prefillText.textContent = `✏️ Editando ${workout.session} (${dateStr})`;
   $prefillBanner.style.display = 'flex';
 
@@ -885,7 +887,9 @@ export function selectAndStartSession(ref, phaseKey, db) {
     const phases = getAllPhases();
     const phase = phases.find(p => p.id === db.phase);
     const roman = ROMAN[db.phase - 1] || db.phase;
-    document.getElementById('phaseName').textContent = phase ? `Fase ${roman} · ${phase.name}` : `Fase ${roman}`;
+    // 'fuerza' fijo: aquí se está cargando un entreno de FUERZA para editarlo,
+    // así que el modo activo no puede ser otro.
+    document.getElementById('phaseName').textContent = phaseChipLabel(roman, phase?.name, 'fuerza');
     populateSessions(db);
   }
   $trainSession.value = ref;
@@ -942,7 +946,7 @@ export function buildSessionSummary(db) {
     session: sess.name,
     setsDone, setsTotal, volume, prs,
     volumeDelta: prevVol > 0 && volume > 0 ? Math.round((volume / prevVol - 1) * 100) : null,
-    volumePrevDate: prev ? prev.date.slice(5).replace('-', '/') : '',
+    volumePrevDate: prev ? formatDateShort(prev.date) : '',
   };
 }
 

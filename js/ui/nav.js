@@ -11,17 +11,15 @@ import { listCustomSessions, deleteCustomSession, sessionRef } from '../sessions
 import { refreshRunning, renderRunHistory, renderRunProgress } from './running.js';
 import { renderDashboard } from './dashboard.js';
 import { renderProfile } from './profile.js';
-import { esc } from '../utils.js';
+import { esc, phaseChipLabel } from '../utils.js';
 
 /** Update the phase name in the context bar */
 export function updatePhaseDisplay(db) {
   const phases = getAllPhases();
   const phase = phases.find(p => p.id === db.phase);
   const roman = ROMAN[db.phase - 1] || db.phase;
-  const name = phase ? phase.name : '';
-  document.getElementById('phaseName').textContent = name
-    ? `Fase ${roman} · ${name}`
-    : `Fase ${roman}`;
+  document.getElementById('phaseName').textContent =
+    phaseChipLabel(roman, phase ? phase.name : '', getTrainMode() === 'run' ? 'carrera' : 'fuerza');
 }
 
 /** Switch active section and render its content */
@@ -78,9 +76,6 @@ function renderTrainMode(db) {
   document.getElementById('runCtx')?.toggleAttribute('hidden', enFuerza);
   document.querySelector('.str-subnav')?.toggleAttribute('hidden', !enFuerza);
   document.getElementById('runSubnav')?.toggleAttribute('hidden', enFuerza);
-  const sub = document.getElementById('trainSub');
-  if (sub) sub.textContent = enFuerza ? 'Fuerza' : 'Carrera';
-
   if (mode === 'run') { refreshRunning(db); return; }
   const panel = document.querySelector('.str-panel.active')?.id;
   if (panel === 'strHistory') { renderCalendar(db); renderHistory(db); }

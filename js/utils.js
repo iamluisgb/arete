@@ -29,6 +29,43 @@ export function formatDate(d) {
   return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
 }
 
+/**
+ * 'YYYY-MM-DD' como 'DD/MM' — la fecha corta, sin año, para etiquetas donde el
+ * año se da por sabido: el eje de un gráfico, un badge de récord, "última vez".
+ *
+ * Existe porque había ocho sitios haciendo `date.slice(5).replace('-','/')`, que
+ * corta el año y deja **MM/DD**. Convivía con formatDate(), que da DD/MM, en la
+ * misma pantalla: la tarjeta del historial decía 05/08/2026 y Actividad decía
+ * 08/05 del mismo entreno. Con día ≤12 era ambiguo; con día >12, falso.
+ */
+export function formatDateShort(d) {
+  if (!d) return '';
+  const p = d.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}` : d;
+}
+
+/**
+ * El texto del chip de fase: "Fase II · Hipertrofia", o "Fase I" a secas cuando
+ * el nombre de la fase repite al modo que tiene al lado en la cabecera.
+ *
+ * Con el segmentado Fuerza/Carrera a ocho píxeles del chip, "Fase I · Fuerza"
+ * decía Fuerza dos veces. Se calla solo en ese caso: las fases II a IV se llaman
+ * Hipertrofia, Definición Máxima y Ajustes, y ahí el nombre es lo único que
+ * informa — borrarlo por sistema cambiaría una redundancia por una pérdida.
+ *
+ * Vive aquí, y no en nav.js, porque lo necesitan nav.js y training.js y
+ * training.js no importa nav.js: acoplarlos sería un ciclo. Es pura a propósito.
+ *
+ * @param {string|number} roman  el numeral ya formateado
+ * @param {string} name          nombre de la fase, puede ser ''
+ * @param {string} modoActivo    'fuerza' | 'carrera'
+ */
+export function phaseChipLabel(roman, name, modoActivo) {
+  const n = (name || '').trim();
+  const repite = n.toLowerCase() === (modoActivo || '').toLowerCase();
+  return n && !repite ? `Fase ${roman} · ${n}` : `Fase ${roman}`;
+}
+
 /** @returns {string} Today's date as 'YYYY-MM-DD' */
 export function today() {
   const d = new Date();

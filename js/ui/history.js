@@ -1,11 +1,16 @@
 import { saveDB, markDeleted } from '../data.js';
-import { ROMAN } from '../constants.js';
+import { ROMAN, MESES } from '../constants.js';
 import { formatDate, esc, confirmDanger } from '../utils.js';
 import { getActiveProgram, getProgramById } from '../programs.js';
 import { renderCalendar } from './calendar.js';
 import { toast } from './toast.js';
 import { openShareEditor } from './share-editor.js';
-const PAGE_SIZE = 50;
+// 15 y no 50. Con 50, tres meses de plan (39 sesiones) caben enteros y la lista
+// mide 7.400px: diez pantallas de scroll donde nada dice que has cruzado de
+// agosto a julio. El histórico completo lo quiere una minoría de visitas; el
+// resto viene a ver las dos últimas semanas, que son ~6 sesiones. 15 cubre un
+// mes largo y deja el corte a un clic.
+const PAGE_SIZE = 15;
 let detailWorkoutId = null;
 let historyPage = 0;
 let _currentDb = null;
@@ -34,6 +39,29 @@ function summaryRows(w) {
   return `<div class="hi-rows">${rows.map(r =>
     `<div class="hi-row"><span class="hi-ex">${esc(r.name)}</span><span class="hi-sets">${r.detail}</span></div>`
   ).join('')}</div>`;
+}
+
+/** 'agosto 2026' a partir de 'YYYY-MM-DD', sin construir un Date con zona. */
+function monthLabel(date) {
+  const [y, m] = date.split('-');
+  return `${MESES[parseInt(m) - 1]} ${y}`;
+}
+
+/**
+ * Las tarjetas con una cabecera por mes delante. Sin ellas la lista es un chorro
+ * plano de fechas sueltas: nada marca dónde acaba un mes y empieza el otro, y a
+ * la tercera pantalla de scroll ya no sabes por dónde vas. La cabecera se queda
+ * pegada arriba al recorrer (CSS), así que el mes que estás mirando siempre está
+ * escrito en pantalla.
+ */
+function renderItems(items) {
+  let mesActual = null;
+  return items.map(w => {
+    const mes = monthLabel(w.date);
+    const head = mes !== mesActual ? `<h4 class="hi-month">${esc(mes)}</h4>` : '';
+    mesActual = mes;
+    return head + renderItem(w);
+  }).join('');
 }
 
 function renderItem(w) {
@@ -91,6 +119,17 @@ function renderDateFilterBar(dateFilter) {
   }
 }
 
+/** Los entrenos que pasan los tres filtros, del más reciente al más antiguo. */
+function itemsFiltrados(db) {
+  const filter = document.getElementById('historyFilter').value;
+  const progFilter = currentPlanFilter();
+  let items = [...db.workouts].reverse();
+  if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
+  if (filter) items = items.filter(w => w.session === filter);
+  if (_dateFilter) items = items.filter(w => w.date === _dateFilter);
+  return items;
+}
+
 /** Render paginated workout history list */
 export function renderHistory(db, dateFilter) {
   _currentDb = db;
@@ -98,12 +137,7 @@ export function renderHistory(db, dateFilter) {
   _dateFilter = dateFilter || null;
   populatePlanFilter(db);
   renderDateFilterBar(_dateFilter);
-  const filter = document.getElementById('historyFilter').value;
-  const progFilter = currentPlanFilter();
-  let items = [...db.workouts].reverse();
-  if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
-  if (filter) items = items.filter(w => w.session === filter);
-  if (dateFilter) items = items.filter(w => w.date === dateFilter);
+  const items = itemsFiltrados(db);
 
   const list = document.getElementById('historyList');
   if (items.length === 0) {
@@ -127,30 +161,27 @@ export function renderHistory(db, dateFilter) {
     return;
   }
 
-  const slice = items.slice(0, PAGE_SIZE);
-  list.innerHTML = slice.map(renderItem).join('');
-  if (items.length > PAGE_SIZE) {
-    list.innerHTML += `<button class="load-more-btn" data-total="${items.length}">Cargar más (${items.length - PAGE_SIZE} restantes)</button>`;
+  pintarLista(items);
+}
+
+/** Pinta la página actual de la lista con su botón de "cargar más".
+ *  Es el único sitio que escribe en #historyList: renderHistory y loadMore
+ *  duplicaban el corte y el botón, y la agrupación por mes habría hecho falta
+ *  escribirla dos veces. */
+function pintarLista(items) {
+  const end = (historyPage + 1) * PAGE_SIZE;
+  const list = document.getElementById('historyList');
+  list.innerHTML = renderItems(items.slice(0, end));
+  const restantes = items.length - end;
+  if (restantes > 0) {
+    list.innerHTML += `<button class="load-more-btn" data-total="${items.length}">Ver ${restantes} anteriores</button>`;
   }
 }
 
 function loadMore() {
   if (!_currentDb) return;
   historyPage++;
-  const filter = document.getElementById('historyFilter').value;
-  const progFilter = currentPlanFilter();
-  let items = [..._currentDb.workouts].reverse();
-  if (progFilter) items = items.filter(w => (w.program || 'arete') === progFilter);
-  if (filter) items = items.filter(w => w.session === filter);
-  if (_dateFilter) items = items.filter(w => w.date === _dateFilter);
-
-  const end = (historyPage + 1) * PAGE_SIZE;
-  const slice = items.slice(0, end);
-  const list = document.getElementById('historyList');
-  list.innerHTML = slice.map(renderItem).join('');
-  if (end < items.length) {
-    list.innerHTML += `<button class="load-more-btn" data-total="${items.length}">Cargar más (${items.length - end} restantes)</button>`;
-  }
+  pintarLista(itemsFiltrados(_currentDb));
 }
 
 /** Marca en la lista cuál es la sesión que está abierta en el panel. Sin esto

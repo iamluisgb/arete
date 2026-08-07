@@ -139,7 +139,24 @@
   <div class="page-head">
     <div class="page-head-txt">
       <h2 class="page-title">Entrenar</h2>
-      <p class="page-sub" id="trainSub">Fuerza</p>
+      <!-- Sin subtítulo: decía "Fuerza" o "Carrera", que es exactamente lo que
+           marca el segmentado que tiene a la derecha. La §7.2 ya quitó esa
+           repetición en móvil; con el modo en la cabecera sobra en todas partes. -->
+    </div>
+    <!-- Todo el estado de la sección en un grupo: modo, plan y fase. Sueltos, el
+         segmentado quedaba a 123px EXACTOS de cada lado —space-between con tres
+         hijos reparte el sobrante a partes iguales— y equidistante de todo es la
+         definición de no estar agrupado con nada. Ahora la cabecera tiene dos
+         bloques: quién es la sección, y en qué estado está. -->
+    <div class="page-head-state">
+    <!-- Fuerza/Carrera es ESTADO, no navegación: dice de qué va la pantalla, no
+         te lleva a otra. Vivía dentro del carril de navegación secundaria, que
+         era el único sitio donde la §7.2 se contradecía a sí misma al justificar
+         por qué los chips de programa y fase subían aquí. Ahora está donde está
+         el resto del estado de la sección. -->
+    <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
+      <button class="train-mode-btn active" type="button" data-mode="str" role="tab" aria-selected="true">Fuerza</button>
+      <button class="train-mode-btn" type="button" data-mode="run" role="tab" aria-selected="false">Carrera</button>
     </div>
     <!-- El contexto: dónde estás, no a dónde vas. Chips, porque se pulsan para
          cambiar de programa, de fase o de semana. -->
@@ -159,16 +176,18 @@
         <span id="runWeekName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
       </button>
     </div>
+    </div>
   </div>
 
-  <!-- Navegación secundaria. Un solo bloque: el modo arriba y sus destinos
-       debajo. En ≥1024 es la columna izquierda de la pantalla y el cromo
-       vertical antes del primer dato pasa a cero. -->
+  <!-- Navegación secundaria: solo los cuatro destinos, que son los mismos en los
+       dos modos. Una fila horizontal en todos los anchos. Fue una columna lateral
+       de 168px, y la §7.2 lo justificaba por los ~180px verticales que costaban
+       las TRES barras apiladas de entonces — pero esa misma sección eliminó dos.
+       Con una sola barra el coste es ~48px verticales una vez, contra 168px
+       horizontales permanentes y a toda altura: a 1024 la navegación se llevaba
+       el 39% del viewport y el contenido se quedaba en 528px. En una sección de
+       3.200px de scroll, el eje vertical es el barato. -->
   <div class="subnav" id="trainSubnav">
-    <div class="train-mode" role="tablist" aria-label="Tipo de entreno">
-      <button class="train-mode-btn active" type="button" data-mode="str" role="tab" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>Fuerza</button>
-      <button class="train-mode-btn" type="button" data-mode="run" role="tab" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span>Carrera</button>
-    </div>
     <div class="str-subnav subnav-tabs" role="tablist" aria-label="Secciones de fuerza">
       <button class="str-tab active" type="button" role="tab" aria-selected="true" data-str="strTrain">Actividad</button>
       <button class="str-tab" type="button" role="tab" aria-selected="false" data-str="strHistory">Historial</button>
@@ -235,8 +254,17 @@
       <div class="history-filter-wrap"><label for="historyProgFilter">Plan</label><select id="historyProgFilter"><option value="">Todos los planes</option></select></div>
       <div class="history-filter-wrap"><label for="historyFilter">Sesión</label><select id="historyFilter"><option value="">Todas</option></select></div>
     </div>
-    <div class="cal-nav"><button aria-label="Mes anterior" title="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">▶</button></div>
-    <div id="calendarPanel"></div>
+    <!-- El calendario, plegable. Apilado encima de la lista ocupaba 470px de la
+         primera pantalla y empujaba las sesiones fuera del viewport: un mes
+         entero de rejilla no puede ser el preámbulo de una vista que se llama
+         Historial. Plegado, la vista abre por su contenido. A partir de 1440
+         tiene columna propia y no le quita sitio a nadie, así que calendar.js
+         lo abre solo. -->
+    <details class="cal-fold" id="calFold">
+      <summary>Calendario</summary>
+      <div class="cal-nav"><button aria-label="Mes anterior" title="Mes anterior">◀</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">▶</button></div>
+      <div id="calendarPanel"></div>
+    </details>
     <!-- Filtrar por un día se hace pulsando en el calendario, así que la salida
          tiene que estar donde miras el resultado, no de vuelta en el calendario. -->
     <div id="historyDateFilter" class="date-filter-bar" hidden>
@@ -352,8 +380,17 @@
 
   <!-- TAB 2: Historial -->
   <div class="run-panel" id="runHistory">
-    <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior" title="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">&#9654;</button></div>
-    <div id="runCalendarPanel"></div>
+    <!-- El calendario, plegable. Apilado encima de la lista ocupaba 470px de la
+         primera pantalla y empujaba las sesiones fuera del viewport: un mes
+         entero de rejilla no puede ser el preámbulo de una vista que se llama
+         Historial. Plegado, la vista abre por su contenido. A partir de 1440
+         tiene columna propia y no le quita sitio a nadie, así que calendar.js
+         lo abre solo. -->
+    <details class="cal-fold" id="runCalFold">
+      <summary>Calendario</summary>
+      <div class="cal-nav" id="runCalNav"><button aria-label="Mes anterior" title="Mes anterior">&#9664;</button><button class="cal-nav-today">Hoy</button><button aria-label="Mes siguiente" title="Mes siguiente">&#9654;</button></div>
+      <div id="runCalendarPanel"></div>
+    </details>
     <div class="mb history-filter-wrap"><label>Filtrar por tipo</label><select id="runHistoryFilter"><option value="">Todas</option>
       <option value="intervalos">Intervalos</option><option value="rodaje">Rodaje</option><option value="tempo">Tempo</option>
       <option value="fartlek">Fartlek</option><option value="cuestas">Cuestas</option><option value="competicion">Competición</option><option value="libre">Libre</option>

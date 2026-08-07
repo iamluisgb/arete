@@ -123,8 +123,11 @@ describe('buildSessionSummary', () => {
   it('compara el volumen contra la última vez que se hizo ESTA sesión', async () => {
     const db = freshDB();
     // La sesión B es más reciente pero no es comparable: no debe usarse.
+    // Día 14 a propósito: con un día ≤12 la fecha se lee igual en DD/MM que en
+    // MM/DD y el test no distingue una de otra. Este fixture llevaba un 07-01 y
+    // afirmaba '07/01', que era el formato MM/DD equivocado.
     db.workouts.push({
-      id: 1, date: '2026-07-01', session: 'Sesión A', phase: 1,
+      id: 1, date: '2026-07-14', session: 'Sesión A', phase: 1,
       exercises: [{ name: 'Sentadilla', sets: [{ kg: '100', reps: '5' }] }],  // 500
     });
     db.workouts.push({
@@ -137,7 +140,7 @@ describe('buildSessionSummary', () => {
     const s = t.buildSessionSummary(db);
 
     expect(s.volumeDelta).toBe(6);
-    expect(s.volumePrevDate).toBe('07/01');
+    expect(s.volumePrevDate).toBe('14/07');
   });
 
   it('sin sesión previa no compara nada en vez de comparar contra cero', async () => {

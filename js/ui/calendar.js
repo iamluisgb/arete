@@ -1,3 +1,4 @@
+import { MESES } from '../constants.js';
 import { showDetail } from './history.js';
 import { renderHistory, currentPlanFilter } from './history.js';
 
@@ -33,9 +34,32 @@ export function calNav(d, db) {
   renderCalendar(db);
 }
 
+// A partir de 1440 el calendario tiene columna propia al lado de la lista: ahí
+// estar plegado solo esconde. Por debajo comparte columna con ella y su mes
+// entero se comía la primera pantalla, así que arranca cerrado.
+const DOS_COLUMNAS = '(min-width:1440px)';
+
+let _foldInit = false;
+
+/** Abre o cierra los plegables del calendario según haya columna para ellos.
+ *  Solo en dos momentos: la primera vez que se pinta y al cruzar el umbral. Si
+ *  se aplicara en cada render, cambiar un filtro cerraría de golpe el calendario
+ *  que el usuario acaba de abrir. */
+export function syncCalendarFold() {
+  const abierto = matchMedia(DOS_COLUMNAS).matches;
+  for (const id of ['calFold', 'runCalFold']) {
+    const el = document.getElementById(id);
+    if (el) el.open = abierto;
+  }
+}
+if (typeof matchMedia !== 'undefined') {
+  matchMedia(DOS_COLUMNAS).addEventListener('change', syncCalendarFold);
+}
+
 /** Render the monthly calendar grid with workout indicators */
 export function renderCalendar(db) {
   const panel = document.getElementById('calendarPanel');
+  if (!_foldInit) { _foldInit = true; syncCalendarFold(); }
   landOnMonthWithData(db);
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -46,7 +70,6 @@ export function renderCalendar(db) {
   const vm = new Date(calViewDate.getFullYear(), calViewDate.getMonth(), 1);
   let html = '';
   const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-  const MN = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const y = vm.getFullYear(), m = vm.getMonth(), dim = new Date(y, m + 1, 0).getDate();
   let fd = new Date(y, m, 1).getDay();
   fd = fd === 0 ? 6 : fd - 1;
@@ -55,7 +78,7 @@ export function renderCalendar(db) {
     const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     if (wd[ds]) mc++;
   }
-  html += `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MN[m]} ${y}</div><div class="cal-count">Sesiones<span>${mc}</span></div></div><div class="cal-grid">`;
+  html += `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MESES[m]} ${y}</div><div class="cal-count">Sesiones<span>${mc}</span></div></div><div class="cal-grid">`;
   DOW.forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
   for (let e = 0; e < fd; e++) html += '<div class="cal-day empty">·</div>';
   for (let d = 1; d <= dim; d++) {

@@ -1,8 +1,25 @@
 import { getActiveProgram } from '../programs.js';
-import { esc } from '../utils.js';
+import { esc, formatDateShort } from '../utils.js';
 
 let _bound = false;
 let _chartCache = { name: null, count: 0, w: 0 };
+const LAST_EX_KEY = 'areteProgressEx';
+
+/** El ejercicio con más sesiones registradas en el plan activo. Con empate gana
+ *  el que antes aparezca en la lista, que ya viene ordenada. */
+function masEntrenado(db, prog, candidatos) {
+  const cuenta = new Map();
+  for (const w of db.workouts) {
+    if ((w.program || 'arete') !== prog) continue;
+    for (const e of w.exercises) cuenta.set(e.name, (cuenta.get(e.name) || 0) + 1);
+  }
+  let mejor = null, max = 0;
+  for (const n of candidatos) {
+    const c = cuenta.get(n) || 0;
+    if (c > max) { max = c; mejor = n; }
+  }
+  return mejor;
+}
 
 /**
  * Ancho del viewBox del SVG. Las etiquetas y los trazos de la gráfica están en
@@ -21,7 +38,12 @@ export function initProgress(db) {
   _chartCache = { name: null, count: 0, w: 0 };
   if (!_bound) {
     const $sel = document.getElementById('progressExercise');
-    $sel.addEventListener('change', () => { markExerciseActive($sel.value); renderProgressChart(db); });
+    $sel.addEventListener('change', () => {
+      // Se recuerda entre visitas: quien sigue un levantamiento vuelve a él.
+      if ($sel.value) localStorage.setItem(LAST_EX_KEY, $sel.value);
+      markExerciseActive($sel.value);
+      renderProgressChart(db);
+    });
     document.getElementById('progressExList')?.addEventListener('click', e => {
       const btn = e.target.closest('.progress-ex');
       if (!btn) return;
@@ -46,7 +68,13 @@ export function initProgress(db) {
   const sorted = [...exercises].sort();
   const prev = sel.value;
   sel.innerHTML = sorted.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-  if (prev && sorted.includes(prev)) sel.value = prev;
+  // El <select> arrancaba en el primer ejercicio por orden ALFABÉTICO, que en el
+  // plan Areté es "Clean": el accesorio menos representativo abriendo la pantalla
+  // de progreso, y dos clics para llegar a la sentadilla. Manda, por este orden,
+  // el que estabas mirando, el último que elegiste en otra visita, y el más
+  // entrenado — que es la respuesta razonable a "enséñame mi progreso".
+  const recordado = localStorage.getItem(LAST_EX_KEY);
+  sel.value = [prev, recordado, masEntrenado(db, prog, sorted)].find(n => n && sorted.includes(n)) || sorted[0] || '';
   renderExerciseList(sorted, sel.value);
   renderProgressChart(db);
 }
@@ -156,7 +184,7 @@ export function renderProgressChart(db) {
     : [...new Set(Array.from({ length: maxX }, (_, k) =>
         Math.round(k * (points.length - 1) / (maxX - 1))))];
   showX.forEach(i => {
-    const d = points[i].date.slice(5).replace('-', '/');
+    const d = formatDateShort(points[i].date);
     xLabels += `<text x="${coords[i].x}" y="${H - 4}" text-anchor="middle" fill="var(--color-text-secondary)" font-size="${fsAxis}" font-weight="500">${d}</text>`;
   });
 
@@ -198,7 +226,7 @@ export function renderProgressChart(db) {
     const isPR = p[metric] === pr;
     const vol = p.totalVol > 1000 ? (p.totalVol / 1000).toFixed(1) + 't' : Math.round(p.totalVol) + 'kg';
     return `<tr${isPR ? ' class="is-pr"' : ''}>
-      <td class="ph-date">${p.date.slice(5).replace('-', '/')}</td>
+      <td class="ph-date">${formatDateShort(p.date)}</td>
       <td class="ph-num"><b>${hasKg ? p.maxKg + ' kg' : p.maxReps + ' reps'}</b>${isPR ? ' <span class="ph-pr">PR</span>' : ''}</td>
       ${hasKg ? `<td class="ph-num">${p.maxReps}</td><td class="ph-num">${vol}</td>` : ''}
     </tr>`;
