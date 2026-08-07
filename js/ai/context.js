@@ -10,6 +10,9 @@ import {
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit,
 } from './metrics.js';
 
+/** "+12%" · "-4%" · "s/ref" cuando no hay periodo anterior con el que comparar. */
+const deltaPct = (v) => (v == null ? 's/ref' : `${v >= 0 ? '+' : ''}${v}%`);
+
 /**
  * @param {Object} db  la db de la app
  * @param {Object} prog  contexto de programas: { name, phaseName, sessionNames, runProgramName, runWeek }
@@ -50,6 +53,21 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   for (const w of weeks) {
     L.push(`  ${w.weekStart}: fuerza ${w.strengthSessions}×/${w.tonnage} kg · running ${w.runSessions}×/${w.km} km`);
   }
+
+  // Totales del periodo, YA SUMADOS.
+  //
+  // La serie semanal de arriba invita a que el modelo sume para responder "¿cómo van mis
+  // últimas 4 semanas?", y sumar es justo lo que no sabe hacer: en un eval listó las
+  // cuatro cifras semanales correctas y dio un total de 40958 kg donde la suma es 37776
+  // (un 8% inventado, en la línea de titular del RESUMEN). El resto del snapshot ya
+  // aplica esta regla —el e1RM y el ratio llegan calculados— y esto la extiende a los
+  // agregados: si una cifra se puede citar, no hay que derivarla.
+  const p7 = periodStats(db, 7, ref);
+  const p28 = periodStats(db, 28, ref);
+  // Mismo formato que SEMANAS (fuerza N×/kg · running N×/km) para que se lea como su total.
+  L.push('TOTALES (calculados por la app — cítalos, NUNCA los sumes tú):');
+  L.push(`  7 días:  fuerza ${p7.current.strengthSessions}×/${p7.current.tonnage} kg · running ${p7.current.runSessions}×/${p7.current.km} km`);
+  L.push(`  28 días: fuerza ${p28.current.strengthSessions}×/${p28.current.tonnage} kg (${deltaPct(p28.tonnageDeltaPct)} vs los 28d anteriores) · running ${p28.current.runSessions}×/${p28.current.km} km (${deltaPct(p28.kmDeltaPct)})`);
 
   // Carga aguda vs crónica
   const lr = loadRatio(db, ref);
@@ -148,9 +166,8 @@ export function buildReport(db, prog = {}, { period = 'week', ref = new Date() }
   const L = [`INFORME · ${label} (hasta ${ref.toISOString().slice(0, 10)})`];
 
   const ps = periodStats(db, days, ref);
-  const dPct = (v) => v == null ? 's/ref' : `${v >= 0 ? '+' : ''}${v}%`;
-  L.push(`Fuerza: ${ps.current.strengthSessions} sesiones · ${ps.current.tonnage} kg tonelaje (${dPct(ps.tonnageDeltaPct)} vs periodo anterior)`);
-  L.push(`Running: ${ps.current.runSessions} sesiones · ${ps.current.km} km (${dPct(ps.kmDeltaPct)}) · ${ps.current.runMin} min`);
+  L.push(`Fuerza: ${ps.current.strengthSessions} sesiones · ${ps.current.tonnage} kg tonelaje (${deltaPct(ps.tonnageDeltaPct)} vs periodo anterior)`);
+  L.push(`Running: ${ps.current.runSessions} sesiones · ${ps.current.km} km (${deltaPct(ps.kmDeltaPct)}) · ${ps.current.runMin} min`);
 
   // Adherencia vs plan (proxy): sesiones de fuerza hechas vs planificadas por la fase activa
   if (prog.plannedPerWeek > 0) {

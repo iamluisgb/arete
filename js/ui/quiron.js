@@ -6,7 +6,7 @@
 
 import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import { renderSettingsIndex, openSettingsPage } from './settings.js';
 import {
@@ -239,6 +239,9 @@ async function send(db, text, opts = {}) {
         getPrograms,
         validateProgram,
         onProposal: (p) => proposals.push(p),
+        // Si el modelo pide una tool de escritura sin argumentos, se usa la petición del
+        // atleta como intención en vez de perder el turno (ver `intent` en tools.js).
+        askedBy: q,
       });
       try {
         await LLM.chatToolsLoop({
@@ -250,7 +253,11 @@ async function send(db, text, opts = {}) {
           tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
           execute: async (name, args) => {
             const out = await executor(name, args);
-            if (name !== 'propose_program') gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
+            // Solo los volcados de LECTURA son datos. Lo que devuelven las tools de
+            // escritura es una instrucción para el modelo ("dile en una frase que…"), y
+            // colarla en el bloque `data` la deja viajando en los turnos siguientes como
+            // si fuera histórico del atleta. Estaba filtrado solo `propose_program`.
+            if (!WRITE_TOOL_NAMES.has(name)) gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
             return out;
           },
           maxRounds: GATHER_MAX_ROUNDS,

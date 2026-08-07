@@ -197,6 +197,18 @@ describe('ruteo de escritura', () => {
     expect(fails(checkScenario(sc, r, TRUTH), 'ruteo')).toBe(true);
   });
 
+  it('no confunde un turno acabado en propuesta con una respuesta vacía', () => {
+    // El escenario no esperaba escritura, pero el modelo propuso: el turno acaba en la
+    // tarjeta y no hay texto que analizar. Antes se apuntaba "no-vacía", que describía el
+    // síntoma y escondía la causa.
+    const r = run({
+      calls: [{ name: 'propose_program', args: {}, result: 'ok' }],
+      proposals: [{ type: 'program_request', goal: 'Plan de 9 meses para un ultra de 100K de montaña' }],
+    });
+    const res = checkScenario({ id: 'x', grounded: true }, r, TRUTH);
+    expect(names(res)).toEqual([]);
+  });
+
   it('falla cuando rutea bien pero manda una intención vacía', () => {
     const r = run({
       calls: [{ name: 'propose_session', args: {}, result: 'ok' }],

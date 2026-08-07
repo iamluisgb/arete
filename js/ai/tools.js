@@ -128,6 +128,11 @@ export const QUIRON_WRITE_TOOLS = [
   },
 ];
 
+// Los nombres de las tools de escritura, derivados de la lista para que no puedan
+// divergir: lo que devuelven no son datos del atleta sino instrucciones para el modelo,
+// y quien construya el bloque `data` del turno tiene que poder distinguirlas.
+export const WRITE_TOOL_NAMES = new Set(QUIRON_WRITE_TOOLS.map(t => t.function.name));
+
 // Instrucción de la fase de recolección. Vive aquí (y no dentro de quiron.js)
 // para que los evals prueben EXACTAMENTE el prompt que corre en la app: el ruteo
 // entre sesión / plan / entreno registrado es lo único que separa esto de un
@@ -155,22 +160,41 @@ function inRange(date, from, to) {
  */
 export function makeToolExecutor(db, deps = {}) {
   const progFns = deps;   // alias: las tools de lectura ya usaban `progFns.getPrograms`
+
+  // Red de seguridad de las tools de escritura: si el modelo pide la herramienta pero se
+  // deja el argumento vacío, se cae al mensaje del atleta en vez de devolver un error.
+  //
+  // No es teórico: en un eval, `propose_session` llegó con `{}`. Con el error, el turno
+  // acaba sin tarjeta y el modelo escribe la sesión como tabla en el chat — justo lo que
+  // el SOUL prohíbe y lo que el patrón proponer→confirmar existe para evitar. El atleta
+  // pide una sesión y se queda con un texto que no puede guardar ni empezar.
+  //
+  // Una `goal` pobre produce una sesión mejorable; una `goal` ausente no produce nada. Y
+  // el mensaje del atleta describe lo que quiere mejor que un error: es literalmente la
+  // petición. `askedBy` lo inyecta el llamante (la UI y los evals).
+  const intent = (value, fallbackLabel) => {
+    const v = String(value || '').trim();
+    if (v) return v;
+    const asked = String(deps.askedBy || '').trim();
+    return asked || fallbackLabel;
+  };
+
   return async function execute(name, args = {}) {
     // ── Escritura: señales de intención (la app genera el dato real y lo confirma) ──
     if (name === 'propose_program') {
-      const goal = String(args.goal || '').trim();
+      const goal = intent(args.goal, '');
       if (!goal) return 'ERROR: falta `goal` describiendo el plan a generar.';
       if (deps.onProposal) deps.onProposal({ type: 'program_request', goal, basedOn: args.basedOn || null });
       return 'Solicitud de plan registrada. La app generará el plan y se lo mostrará al atleta para confirmar. En tu respuesta, dile en una frase que le has preparado un plan para revisar (sin listar el detalle).';
     }
     if (name === 'propose_session') {
-      const goal = String(args.goal || '').trim();
+      const goal = intent(args.goal, '');
       if (!goal) return 'ERROR: falta `goal` describiendo la sesión a generar.';
       if (deps.onProposal) deps.onProposal({ type: 'session_request', goal });
       return 'Solicitud de sesión registrada. La app la generará y se la mostrará al atleta para empezarla o guardarla. En tu respuesta, dile en una frase qué has pensado para esa sesión y por qué (sin listar los ejercicios).';
     }
     if (name === 'log_workout') {
-      const description = String(args.description || '').trim();
+      const description = intent(args.description, '');
       if (!description) return 'ERROR: falta `description` con el entrenamiento a registrar.';
       if (deps.onProposal) deps.onProposal({ type: 'workout_request', description });
       return 'Entreno recibido. La app lo estructurará y le mostrará al atleta una tarjeta para revisar y confirmar. En tu respuesta, dile en una frase que lo tiene listo para revisar (sin repetir todas las series).';

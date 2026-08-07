@@ -24,7 +24,7 @@ export const SCENARIOS = [
     id: 'hoy',
     prompt: '¿Qué toca hoy?',
     desc: 'Debe apoyarse en el programa activo (Areté, fase Fuerza, sesiones A y B), no improvisar un plan.',
-    ok: [/Sesión A|Sesión B|Areté/i],
+    ok: [/Sesi[óo]n A|Sesi[óo]n B|Aret[ée]|HIIT|plan base/i],
     grounded: true,
   },
   {

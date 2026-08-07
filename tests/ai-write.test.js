@@ -94,6 +94,49 @@ describe('log_workout (tool = señal de intención)', () => {
   });
 });
 
+// Red de seguridad de las tools de escritura. Sale de un eval real: el modelo pidió
+// `propose_session` con `{}`. Con el error, el turno acababa sin tarjeta y la sesión
+// escrita como tabla en el chat — el atleta pide una sesión y no puede guardarla.
+describe('tools de escritura sin argumentos', () => {
+  it('cae al mensaje del atleta cuando falta `goal`', async () => {
+    const proposals = [];
+    const exec = makeToolExecutor(freshDB(), {
+      onProposal: (p) => proposals.push(p),
+      askedBy: 'Prepárame una sesión de pierna para hoy, tengo 45 minutos.',
+    });
+    const ok = await exec('propose_session', {});
+    expect(ok).toContain('Solicitud de sesión registrada');
+    expect(proposals[0].goal).toContain('pierna');
+  });
+
+  it('lo mismo para propose_program y log_workout', async () => {
+    const proposals = [];
+    const exec = makeToolExecutor(freshDB(), {
+      onProposal: (p) => proposals.push(p),
+      askedBy: 'Hoy he hecho sentadilla 5x5 a 100',
+    });
+    await exec('propose_program', {});
+    await exec('log_workout', {});
+    expect(proposals.map(p => p.type)).toEqual(['program_request', 'workout_request']);
+    expect(proposals[1].description).toContain('sentadilla');
+  });
+
+  it('el argumento explícito manda sobre el respaldo', async () => {
+    const proposals = [];
+    const exec = makeToolExecutor(freshDB(), {
+      onProposal: (p) => proposals.push(p),
+      askedBy: 'dame algo para hoy',
+    });
+    await exec('propose_session', { goal: 'empuje corto de 30 minutos' });
+    expect(proposals[0].goal).toBe('empuje corto de 30 minutos');
+  });
+
+  it('sigue siendo error si tampoco hay mensaje del atleta', async () => {
+    const exec = makeToolExecutor(freshDB(), {});
+    expect(await exec('propose_session', {})).toContain('ERROR');
+  });
+});
+
 describe('ingesta de workouts', () => {
   const raw = {
     date: '2026-07-18', session: 'Torso',

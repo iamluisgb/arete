@@ -144,6 +144,19 @@ describe('buildSnapshot', () => {
     expect(snap).toContain('Sentadilla');
     expect(snap).toContain('ÚLTIMAS CARRERAS');
   });
+  // Los totales llegan sumados a propósito: en un eval el modelo listó las cuatro cifras
+  // semanales correctas y dio un total un 8% más alto que su suma.
+  it('trae los totales de 7 y 28 días ya sumados, con su variación', () => {
+    const snap = buildSnapshot(DB, {}, REF);
+    expect(snap).toContain('TOTALES');
+    expect(snap).toContain('NUNCA los sumes tú');
+    // 7 días: solo la sesión del 14/07 (100×5×3 + 70×5 + 70×4 = 2130) y el rodaje del 12/07
+    expect(snap).toMatch(/7 días:\s+fuerza 1×\/2130 kg · running 1×\/10 km/);
+    // 28 días: arrastra también el rodaje del 20/06. El +373% del tonelaje sale de
+    // comparar con los 28 días anteriores, donde solo está la sesión del 01/06 (450 kg).
+    expect(snap).toMatch(/28 días:\s+fuerza 1×\/2130 kg \(\+373% vs los 28d anteriores\) · running 2×\/16 km \(s\/ref\)/);
+  });
+
   it('avisa cuando no hay entrenamientos', () => {
     const snap = buildSnapshot({ settings: {}, workouts: [], runningLogs: [], bodyLogs: [] }, {}, REF);
     expect(snap).toContain('SIN ENTRENAMIENTOS');

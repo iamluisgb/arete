@@ -153,11 +153,18 @@ export function checkScenario(sc, r, truth) {
       `esperaba ${sc.expectCall}, pidió ${names.join(', ') || 'nada'}`);
   }
 
-  // Los escenarios de escritura acaban en la tarjeta de propuesta: no hay respuesta que
-  // analizar. Lo que sí se exige es que la intención viaje con sustancia — una `goal` de
-  // cuatro palabras produce un plan genérico por mucho que el ruteo sea correcto.
-  if (sc.expectTool) {
-    const p = (r.proposals || [])[0];
+  // Un turno que acaba en propuesta acaba en la tarjeta de confirmación: no hay respuesta
+  // que analizar, y el resto de checks no aplica. La condición es que HAYA propuesta, no
+  // que el escenario la esperase: un escenario de lectura al que el modelo responde con
+  // una propuesta también sale por aquí, y antes se le apuntaba "respuesta vacía", que
+  // describe el síntoma y esconde la causa. Si esa deriva no debe ocurrir, se declara con
+  // `banTool` — que es un fallo de ruteo, no de contenido.
+  //
+  // Lo que sí se exige es que la intención viaje con sustancia: una `goal` de cuatro
+  // palabras produce un plan genérico por muy correcto que sea el ruteo.
+  const proposals = r.proposals || [];
+  if (sc.expectTool || proposals.length) {
+    const p = proposals[0];
     const text = (p?.goal || p?.description || '').trim();
     add(hard, 'propuesta', !!p && text.length > 15,
       p ? `descripción demasiado corta: "${text.slice(0, 40)}"` : 'no se registró propuesta');

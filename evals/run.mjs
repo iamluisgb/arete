@@ -30,7 +30,11 @@ async function runTurn(sc) {
   const snapshot = buildSnapshot(db, pc.ctx, ref);
   const system = buildSystemMessage(snapshot);
   const proposals = [];
-  const execute = makeToolExecutor(db, { getPrograms: pc.getPrograms, onProposal: (p) => proposals.push(p) });
+  const execute = makeToolExecutor(db, {
+    getPrograms: pc.getPrograms,
+    onProposal: (p) => proposals.push(p),
+    askedBy: sc.prompt,        // mismo respaldo que la app ante una tool sin argumentos
+  });
   const convo = [system, { role: 'user', content: sc.prompt }];
 
   const gatherMsgs = [...convo, { role: 'user', content: GATHER_INSTRUCTION }];
