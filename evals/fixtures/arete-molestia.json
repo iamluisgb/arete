@@ -1,0 +1,5178 @@
+{
+ "schemaVersion": 4,
+ "program": "arete",
+ "phase": 1,
+ "workouts": [
+  {
+   "id": 1767312000000,
+   "date": "2026-03-23",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "110",
+       "reps": "5"
+      },
+      {
+       "kg": "110",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767398400000,
+   "date": "2026-03-25",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "75",
+       "reps": "5"
+      },
+      {
+       "kg": "75",
+       "reps": "5"
+      },
+      {
+       "kg": "75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "40",
+       "reps": "5"
+      },
+      {
+       "kg": "40",
+       "reps": "5"
+      },
+      {
+       "kg": "40",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "45",
+       "reps": "3"
+      },
+      {
+       "kg": "45",
+       "reps": "3"
+      },
+      {
+       "kg": "45",
+       "reps": "3"
+      },
+      {
+       "kg": "45",
+       "reps": "3"
+      },
+      {
+       "kg": "45",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767484800000,
+   "date": "2026-03-27",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "110",
+       "reps": "5"
+      },
+      {
+       "kg": "110",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767571200000,
+   "date": "2026-03-30",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "60.75",
+       "reps": "5"
+      },
+      {
+       "kg": "60.75",
+       "reps": "5"
+      },
+      {
+       "kg": "60.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "111.25",
+       "reps": "5"
+      },
+      {
+       "kg": "111.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767657600000,
+   "date": "2026-04-01",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "76.25",
+       "reps": "5"
+      },
+      {
+       "kg": "76.25",
+       "reps": "5"
+      },
+      {
+       "kg": "76.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "40.25",
+       "reps": "5"
+      },
+      {
+       "kg": "40.25",
+       "reps": "5"
+      },
+      {
+       "kg": "40.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "45.5",
+       "reps": "3"
+      },
+      {
+       "kg": "45.5",
+       "reps": "3"
+      },
+      {
+       "kg": "45.5",
+       "reps": "3"
+      },
+      {
+       "kg": "45.5",
+       "reps": "3"
+      },
+      {
+       "kg": "45.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767744000000,
+   "date": "2026-04-03",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "60.75",
+       "reps": "5"
+      },
+      {
+       "kg": "60.75",
+       "reps": "5"
+      },
+      {
+       "kg": "60.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "111.25",
+       "reps": "5"
+      },
+      {
+       "kg": "111.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767830400000,
+   "date": "2026-04-06",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "61.5",
+       "reps": "5"
+      },
+      {
+       "kg": "61.5",
+       "reps": "5"
+      },
+      {
+       "kg": "61.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "112.5",
+       "reps": "5"
+      },
+      {
+       "kg": "112.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767916800000,
+   "date": "2026-04-08",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "77.5",
+       "reps": "5"
+      },
+      {
+       "kg": "77.5",
+       "reps": "5"
+      },
+      {
+       "kg": "77.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "40.5",
+       "reps": "5"
+      },
+      {
+       "kg": "40.5",
+       "reps": "5"
+      },
+      {
+       "kg": "40.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "46",
+       "reps": "3"
+      },
+      {
+       "kg": "46",
+       "reps": "3"
+      },
+      {
+       "kg": "46",
+       "reps": "3"
+      },
+      {
+       "kg": "46",
+       "reps": "3"
+      },
+      {
+       "kg": "46",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768003200000,
+   "date": "2026-04-10",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "61.5",
+       "reps": "5"
+      },
+      {
+       "kg": "61.5",
+       "reps": "5"
+      },
+      {
+       "kg": "61.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "112.5",
+       "reps": "5"
+      },
+      {
+       "kg": "112.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768089600000,
+   "date": "2026-04-13",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "62.25",
+       "reps": "5"
+      },
+      {
+       "kg": "62.25",
+       "reps": "5"
+      },
+      {
+       "kg": "62.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "113.75",
+       "reps": "5"
+      },
+      {
+       "kg": "113.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768176000000,
+   "date": "2026-04-15",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "78.75",
+       "reps": "5"
+      },
+      {
+       "kg": "78.75",
+       "reps": "5"
+      },
+      {
+       "kg": "78.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "40.75",
+       "reps": "5"
+      },
+      {
+       "kg": "40.75",
+       "reps": "5"
+      },
+      {
+       "kg": "40.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "46.5",
+       "reps": "3"
+      },
+      {
+       "kg": "46.5",
+       "reps": "3"
+      },
+      {
+       "kg": "46.5",
+       "reps": "3"
+      },
+      {
+       "kg": "46.5",
+       "reps": "3"
+      },
+      {
+       "kg": "46.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768262400000,
+   "date": "2026-04-17",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "62.25",
+       "reps": "5"
+      },
+      {
+       "kg": "62.25",
+       "reps": "5"
+      },
+      {
+       "kg": "62.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "113.75",
+       "reps": "5"
+      },
+      {
+       "kg": "113.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768348800000,
+   "date": "2026-04-20",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "63",
+       "reps": "5"
+      },
+      {
+       "kg": "63",
+       "reps": "5"
+      },
+      {
+       "kg": "63",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "115",
+       "reps": "5"
+      },
+      {
+       "kg": "115",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768435200000,
+   "date": "2026-04-22",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "80",
+       "reps": "5"
+      },
+      {
+       "kg": "80",
+       "reps": "5"
+      },
+      {
+       "kg": "80",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "41",
+       "reps": "5"
+      },
+      {
+       "kg": "41",
+       "reps": "5"
+      },
+      {
+       "kg": "41",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "47",
+       "reps": "3"
+      },
+      {
+       "kg": "47",
+       "reps": "3"
+      },
+      {
+       "kg": "47",
+       "reps": "3"
+      },
+      {
+       "kg": "47",
+       "reps": "3"
+      },
+      {
+       "kg": "47",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768521600000,
+   "date": "2026-04-24",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "63",
+       "reps": "5"
+      },
+      {
+       "kg": "63",
+       "reps": "5"
+      },
+      {
+       "kg": "63",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "115",
+       "reps": "5"
+      },
+      {
+       "kg": "115",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768608000000,
+   "date": "2026-04-27",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "63.75",
+       "reps": "5"
+      },
+      {
+       "kg": "63.75",
+       "reps": "5"
+      },
+      {
+       "kg": "63.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "116.25",
+       "reps": "5"
+      },
+      {
+       "kg": "116.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768694400000,
+   "date": "2026-04-29",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "81.25",
+       "reps": "5"
+      },
+      {
+       "kg": "81.25",
+       "reps": "5"
+      },
+      {
+       "kg": "81.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "41.25",
+       "reps": "5"
+      },
+      {
+       "kg": "41.25",
+       "reps": "5"
+      },
+      {
+       "kg": "41.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "47.5",
+       "reps": "3"
+      },
+      {
+       "kg": "47.5",
+       "reps": "3"
+      },
+      {
+       "kg": "47.5",
+       "reps": "3"
+      },
+      {
+       "kg": "47.5",
+       "reps": "3"
+      },
+      {
+       "kg": "47.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768780800000,
+   "date": "2026-05-01",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "63.75",
+       "reps": "5"
+      },
+      {
+       "kg": "63.75",
+       "reps": "5"
+      },
+      {
+       "kg": "63.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "116.25",
+       "reps": "5"
+      },
+      {
+       "kg": "116.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      },
+      {
+       "kg": "",
+       "reps": "6"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768867200000,
+   "date": "2026-05-04",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "64.5",
+       "reps": "5"
+      },
+      {
+       "kg": "64.5",
+       "reps": "5"
+      },
+      {
+       "kg": "64.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "117.5",
+       "reps": "5"
+      },
+      {
+       "kg": "117.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1768953600000,
+   "date": "2026-05-06",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "82.5",
+       "reps": "5"
+      },
+      {
+       "kg": "82.5",
+       "reps": "5"
+      },
+      {
+       "kg": "82.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "41.5",
+       "reps": "5"
+      },
+      {
+       "kg": "41.5",
+       "reps": "5"
+      },
+      {
+       "kg": "41.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "48",
+       "reps": "3"
+      },
+      {
+       "kg": "48",
+       "reps": "3"
+      },
+      {
+       "kg": "48",
+       "reps": "3"
+      },
+      {
+       "kg": "48",
+       "reps": "3"
+      },
+      {
+       "kg": "48",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769040000000,
+   "date": "2026-05-08",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "64.5",
+       "reps": "5"
+      },
+      {
+       "kg": "64.5",
+       "reps": "5"
+      },
+      {
+       "kg": "64.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "117.5",
+       "reps": "5"
+      },
+      {
+       "kg": "117.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769126400000,
+   "date": "2026-05-11",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "65.25",
+       "reps": "5"
+      },
+      {
+       "kg": "65.25",
+       "reps": "5"
+      },
+      {
+       "kg": "65.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "118.75",
+       "reps": "5"
+      },
+      {
+       "kg": "118.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769212800000,
+   "date": "2026-05-13",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "83.75",
+       "reps": "5"
+      },
+      {
+       "kg": "83.75",
+       "reps": "5"
+      },
+      {
+       "kg": "83.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "41.75",
+       "reps": "5"
+      },
+      {
+       "kg": "41.75",
+       "reps": "5"
+      },
+      {
+       "kg": "41.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "48.5",
+       "reps": "3"
+      },
+      {
+       "kg": "48.5",
+       "reps": "3"
+      },
+      {
+       "kg": "48.5",
+       "reps": "3"
+      },
+      {
+       "kg": "48.5",
+       "reps": "3"
+      },
+      {
+       "kg": "48.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769299200000,
+   "date": "2026-05-15",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "65.25",
+       "reps": "5"
+      },
+      {
+       "kg": "65.25",
+       "reps": "5"
+      },
+      {
+       "kg": "65.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "118.75",
+       "reps": "5"
+      },
+      {
+       "kg": "118.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769385600000,
+   "date": "2026-05-18",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "66",
+       "reps": "5"
+      },
+      {
+       "kg": "66",
+       "reps": "5"
+      },
+      {
+       "kg": "66",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "120",
+       "reps": "5"
+      },
+      {
+       "kg": "120",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769472000000,
+   "date": "2026-05-20",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      },
+      {
+       "kg": "85",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "42",
+       "reps": "5"
+      },
+      {
+       "kg": "42",
+       "reps": "5"
+      },
+      {
+       "kg": "42",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "49",
+       "reps": "3"
+      },
+      {
+       "kg": "49",
+       "reps": "3"
+      },
+      {
+       "kg": "49",
+       "reps": "3"
+      },
+      {
+       "kg": "49",
+       "reps": "3"
+      },
+      {
+       "kg": "49",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769558400000,
+   "date": "2026-05-22",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "66",
+       "reps": "5"
+      },
+      {
+       "kg": "66",
+       "reps": "5"
+      },
+      {
+       "kg": "66",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "120",
+       "reps": "5"
+      },
+      {
+       "kg": "120",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769644800000,
+   "date": "2026-05-25",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "66.75",
+       "reps": "5"
+      },
+      {
+       "kg": "66.75",
+       "reps": "5"
+      },
+      {
+       "kg": "66.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "121.25",
+       "reps": "5"
+      },
+      {
+       "kg": "121.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769731200000,
+   "date": "2026-05-27",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      },
+      {
+       "kg": "86.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "42.25",
+       "reps": "5"
+      },
+      {
+       "kg": "42.25",
+       "reps": "5"
+      },
+      {
+       "kg": "42.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "49.5",
+       "reps": "3"
+      },
+      {
+       "kg": "49.5",
+       "reps": "3"
+      },
+      {
+       "kg": "49.5",
+       "reps": "3"
+      },
+      {
+       "kg": "49.5",
+       "reps": "3"
+      },
+      {
+       "kg": "49.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769817600000,
+   "date": "2026-05-29",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "66.75",
+       "reps": "5"
+      },
+      {
+       "kg": "66.75",
+       "reps": "5"
+      },
+      {
+       "kg": "66.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "121.25",
+       "reps": "5"
+      },
+      {
+       "kg": "121.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769904000000,
+   "date": "2026-06-01",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "97.5",
+       "reps": "5"
+      },
+      {
+       "kg": "97.5",
+       "reps": "5"
+      },
+      {
+       "kg": "97.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "67.5",
+       "reps": "5"
+      },
+      {
+       "kg": "67.5",
+       "reps": "5"
+      },
+      {
+       "kg": "67.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "122.5",
+       "reps": "5"
+      },
+      {
+       "kg": "122.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1769990400000,
+   "date": "2026-06-03",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      },
+      {
+       "kg": "87.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "42.5",
+       "reps": "5"
+      },
+      {
+       "kg": "42.5",
+       "reps": "5"
+      },
+      {
+       "kg": "42.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "50",
+       "reps": "3"
+      },
+      {
+       "kg": "50",
+       "reps": "3"
+      },
+      {
+       "kg": "50",
+       "reps": "3"
+      },
+      {
+       "kg": "50",
+       "reps": "3"
+      },
+      {
+       "kg": "50",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770076800000,
+   "date": "2026-06-05",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "97.5",
+       "reps": "5"
+      },
+      {
+       "kg": "97.5",
+       "reps": "5"
+      },
+      {
+       "kg": "97.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "67.5",
+       "reps": "5"
+      },
+      {
+       "kg": "67.5",
+       "reps": "5"
+      },
+      {
+       "kg": "67.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "122.5",
+       "reps": "5"
+      },
+      {
+       "kg": "122.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770163200000,
+   "date": "2026-06-08",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "98.75",
+       "reps": "5"
+      },
+      {
+       "kg": "98.75",
+       "reps": "5"
+      },
+      {
+       "kg": "98.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "68.25",
+       "reps": "5"
+      },
+      {
+       "kg": "68.25",
+       "reps": "5"
+      },
+      {
+       "kg": "68.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "123.75",
+       "reps": "5"
+      },
+      {
+       "kg": "123.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770249600000,
+   "date": "2026-06-10",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      },
+      {
+       "kg": "88.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "42.75",
+       "reps": "5"
+      },
+      {
+       "kg": "42.75",
+       "reps": "5"
+      },
+      {
+       "kg": "42.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "50.5",
+       "reps": "3"
+      },
+      {
+       "kg": "50.5",
+       "reps": "3"
+      },
+      {
+       "kg": "50.5",
+       "reps": "3"
+      },
+      {
+       "kg": "50.5",
+       "reps": "3"
+      },
+      {
+       "kg": "50.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770336000000,
+   "date": "2026-06-12",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "98.75",
+       "reps": "5"
+      },
+      {
+       "kg": "98.75",
+       "reps": "5"
+      },
+      {
+       "kg": "98.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "68.25",
+       "reps": "5"
+      },
+      {
+       "kg": "68.25",
+       "reps": "5"
+      },
+      {
+       "kg": "68.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "123.75",
+       "reps": "5"
+      },
+      {
+       "kg": "123.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      },
+      {
+       "kg": "",
+       "reps": "7"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770422400000,
+   "date": "2026-06-15",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "100",
+       "reps": "5"
+      },
+      {
+       "kg": "100",
+       "reps": "5"
+      },
+      {
+       "kg": "100",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "69",
+       "reps": "5"
+      },
+      {
+       "kg": "69",
+       "reps": "5"
+      },
+      {
+       "kg": "69",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "125",
+       "reps": "5"
+      },
+      {
+       "kg": "125",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770508800000,
+   "date": "2026-06-17",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "43",
+       "reps": "5"
+      },
+      {
+       "kg": "43",
+       "reps": "5"
+      },
+      {
+       "kg": "43",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "51",
+       "reps": "3"
+      },
+      {
+       "kg": "51",
+       "reps": "3"
+      },
+      {
+       "kg": "51",
+       "reps": "3"
+      },
+      {
+       "kg": "51",
+       "reps": "3"
+      },
+      {
+       "kg": "51",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770595200000,
+   "date": "2026-06-19",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "100",
+       "reps": "5"
+      },
+      {
+       "kg": "100",
+       "reps": "5"
+      },
+      {
+       "kg": "100",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "69",
+       "reps": "5"
+      },
+      {
+       "kg": "69",
+       "reps": "5"
+      },
+      {
+       "kg": "69",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "125",
+       "reps": "5"
+      },
+      {
+       "kg": "125",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770681600000,
+   "date": "2026-06-22",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "101.25",
+       "reps": "5"
+      },
+      {
+       "kg": "101.25",
+       "reps": "5"
+      },
+      {
+       "kg": "101.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "69.75",
+       "reps": "5"
+      },
+      {
+       "kg": "69.75",
+       "reps": "5"
+      },
+      {
+       "kg": "69.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "126.25",
+       "reps": "5"
+      },
+      {
+       "kg": "126.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770768000000,
+   "date": "2026-06-24",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      },
+      {
+       "kg": "91.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "43.25",
+       "reps": "5"
+      },
+      {
+       "kg": "43.25",
+       "reps": "5"
+      },
+      {
+       "kg": "43.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "51.5",
+       "reps": "3"
+      },
+      {
+       "kg": "51.5",
+       "reps": "3"
+      },
+      {
+       "kg": "51.5",
+       "reps": "3"
+      },
+      {
+       "kg": "51.5",
+       "reps": "3"
+      },
+      {
+       "kg": "51.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770854400000,
+   "date": "2026-06-26",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "101.25",
+       "reps": "5"
+      },
+      {
+       "kg": "101.25",
+       "reps": "5"
+      },
+      {
+       "kg": "101.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "69.75",
+       "reps": "5"
+      },
+      {
+       "kg": "69.75",
+       "reps": "5"
+      },
+      {
+       "kg": "69.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "126.25",
+       "reps": "5"
+      },
+      {
+       "kg": "126.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1770940800000,
+   "date": "2026-06-29",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "102.5",
+       "reps": "5"
+      },
+      {
+       "kg": "102.5",
+       "reps": "5"
+      },
+      {
+       "kg": "102.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "70.5",
+       "reps": "5"
+      },
+      {
+       "kg": "70.5",
+       "reps": "5"
+      },
+      {
+       "kg": "70.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "127.5",
+       "reps": "5"
+      },
+      {
+       "kg": "127.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771027200000,
+   "date": "2026-07-01",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      },
+      {
+       "kg": "92.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "43.5",
+       "reps": "5"
+      },
+      {
+       "kg": "43.5",
+       "reps": "5"
+      },
+      {
+       "kg": "43.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "52",
+       "reps": "3"
+      },
+      {
+       "kg": "52",
+       "reps": "3"
+      },
+      {
+       "kg": "52",
+       "reps": "3"
+      },
+      {
+       "kg": "52",
+       "reps": "3"
+      },
+      {
+       "kg": "52",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771113600000,
+   "date": "2026-07-03",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "102.5",
+       "reps": "5"
+      },
+      {
+       "kg": "102.5",
+       "reps": "5"
+      },
+      {
+       "kg": "102.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "70.5",
+       "reps": "5"
+      },
+      {
+       "kg": "70.5",
+       "reps": "5"
+      },
+      {
+       "kg": "70.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "127.5",
+       "reps": "5"
+      },
+      {
+       "kg": "127.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771200000000,
+   "date": "2026-07-06",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "103.75",
+       "reps": "5"
+      },
+      {
+       "kg": "103.75",
+       "reps": "5"
+      },
+      {
+       "kg": "103.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "71.25",
+       "reps": "5"
+      },
+      {
+       "kg": "71.25",
+       "reps": "5"
+      },
+      {
+       "kg": "71.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "128.75",
+       "reps": "5"
+      },
+      {
+       "kg": "128.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771286400000,
+   "date": "2026-07-08",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      },
+      {
+       "kg": "93.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "43.75",
+       "reps": "5"
+      },
+      {
+       "kg": "43.75",
+       "reps": "5"
+      },
+      {
+       "kg": "43.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "52.5",
+       "reps": "3"
+      },
+      {
+       "kg": "52.5",
+       "reps": "3"
+      },
+      {
+       "kg": "52.5",
+       "reps": "3"
+      },
+      {
+       "kg": "52.5",
+       "reps": "3"
+      },
+      {
+       "kg": "52.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771372800000,
+   "date": "2026-07-10",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "103.75",
+       "reps": "5"
+      },
+      {
+       "kg": "103.75",
+       "reps": "5"
+      },
+      {
+       "kg": "103.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "71.25",
+       "reps": "5"
+      },
+      {
+       "kg": "71.25",
+       "reps": "5"
+      },
+      {
+       "kg": "71.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "128.75",
+       "reps": "5"
+      },
+      {
+       "kg": "128.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771459200000,
+   "date": "2026-07-13",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "105",
+       "reps": "5"
+      },
+      {
+       "kg": "105",
+       "reps": "5"
+      },
+      {
+       "kg": "105",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "72",
+       "reps": "5"
+      },
+      {
+       "kg": "72",
+       "reps": "5"
+      },
+      {
+       "kg": "72",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "130",
+       "reps": "5"
+      },
+      {
+       "kg": "130",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771545600000,
+   "date": "2026-07-15",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      },
+      {
+       "kg": "95",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "44",
+       "reps": "5"
+      },
+      {
+       "kg": "44",
+       "reps": "5"
+      },
+      {
+       "kg": "44",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "53",
+       "reps": "3"
+      },
+      {
+       "kg": "53",
+       "reps": "3"
+      },
+      {
+       "kg": "53",
+       "reps": "3"
+      },
+      {
+       "kg": "53",
+       "reps": "3"
+      },
+      {
+       "kg": "53",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771632000000,
+   "date": "2026-07-17",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "105",
+       "reps": "5"
+      },
+      {
+       "kg": "105",
+       "reps": "5"
+      },
+      {
+       "kg": "105",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "72",
+       "reps": "5"
+      },
+      {
+       "kg": "72",
+       "reps": "5"
+      },
+      {
+       "kg": "72",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "130",
+       "reps": "5"
+      },
+      {
+       "kg": "130",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771718400000,
+   "date": "2026-07-20",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "106.25",
+       "reps": "5"
+      },
+      {
+       "kg": "106.25",
+       "reps": "5"
+      },
+      {
+       "kg": "106.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "72.75",
+       "reps": "5"
+      },
+      {
+       "kg": "72.75",
+       "reps": "5"
+      },
+      {
+       "kg": "72.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "131.25",
+       "reps": "5"
+      },
+      {
+       "kg": "131.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771804800000,
+   "date": "2026-07-22",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      },
+      {
+       "kg": "96.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "44.25",
+       "reps": "5"
+      },
+      {
+       "kg": "44.25",
+       "reps": "5"
+      },
+      {
+       "kg": "44.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "53.5",
+       "reps": "3"
+      },
+      {
+       "kg": "53.5",
+       "reps": "3"
+      },
+      {
+       "kg": "53.5",
+       "reps": "3"
+      },
+      {
+       "kg": "53.5",
+       "reps": "3"
+      },
+      {
+       "kg": "53.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771891200000,
+   "date": "2026-07-24",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "106.25",
+       "reps": "5"
+      },
+      {
+       "kg": "106.25",
+       "reps": "5"
+      },
+      {
+       "kg": "106.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "72.75",
+       "reps": "5"
+      },
+      {
+       "kg": "72.75",
+       "reps": "5"
+      },
+      {
+       "kg": "72.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "131.25",
+       "reps": "5"
+      },
+      {
+       "kg": "131.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      },
+      {
+       "kg": "",
+       "reps": "8"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1771977600000,
+   "date": "2026-07-27",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "Molestia en la rodilla derecha al bajar en sentadilla. Bajo carga.",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "70",
+       "reps": "5"
+      },
+      {
+       "kg": "70",
+       "reps": "5"
+      },
+      {
+       "kg": "70",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "73.5",
+       "reps": "5"
+      },
+      {
+       "kg": "73.5",
+       "reps": "5"
+      },
+      {
+       "kg": "73.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1772064000000,
+   "date": "2026-08-03",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "La rodilla sigue quejándose en las últimas repeticiones.",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "70",
+       "reps": "5"
+      },
+      {
+       "kg": "70",
+       "reps": "5"
+      },
+      {
+       "kg": "70",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "74.25",
+       "reps": "5"
+      },
+      {
+       "kg": "74.25",
+       "reps": "5"
+      },
+      {
+       "kg": "74.25",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "90",
+       "reps": "5"
+      },
+      {
+       "kg": "90",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      },
+      {
+       "kg": "",
+       "reps": "9"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1772150400000,
+   "date": "2026-08-05",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "La rodilla sigue quejándose en las últimas repeticiones.",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      },
+      {
+       "kg": "60",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "44.75",
+       "reps": "5"
+      },
+      {
+       "kg": "44.75",
+       "reps": "5"
+      },
+      {
+       "kg": "44.75",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "54.5",
+       "reps": "3"
+      },
+      {
+       "kg": "54.5",
+       "reps": "3"
+      },
+      {
+       "kg": "54.5",
+       "reps": "3"
+      },
+      {
+       "kg": "54.5",
+       "reps": "3"
+      },
+      {
+       "kg": "54.5",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "10"
+      },
+      {
+       "kg": "",
+       "reps": "10"
+      },
+      {
+       "kg": "",
+       "reps": "10"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "bodyLogs": [
+  {
+   "id": 1772236800000,
+   "date": "2026-03-24",
+   "peso": 80,
+   "grasa": 17
+  },
+  {
+   "id": 1772323200000,
+   "date": "2026-06-02",
+   "peso": 79.4,
+   "grasa": 16.6
+  },
+  {
+   "id": 1772409600000,
+   "date": "2026-07-28",
+   "peso": 79,
+   "grasa": 16.4
+  }
+ ],
+ "deletedIds": [],
+ "customPrograms": [],
+ "runningLogs": [],
+ "runningProgram": null,
+ "runningWeek": 0,
+ "runningGoal": {
+  "type": "km",
+  "target": 20,
+  "enabled": false
+ },
+ "settings": {
+  "height": 182,
+  "age": 38,
+  "race5k": 0,
+  "maxHR": 183
+ },
+ "_eval": {
+  "ref": "2026-08-07",
+  "archetype": "molestia",
+  "desc": "Rodilla tocada desde hace dos semanas, anotada en las notas de las sesiones; sentadilla bajada un 20% y una sesión saltada."
+ }
+}

@@ -77,6 +77,38 @@ describe('extracción de cifras', () => {
     expect(numbersOf('tu ratio de carga está en 0.92').ratio).toEqual([0.92]);
   });
 
+  // Estos cuatro salen de falsos positivos de la primera batería completa: el checker
+  // denunciaba cifras que el agente no se había inventado.
+  it('une los millares con punto, que es como se escriben en español', () => {
+    expect(numbersOf('13.682 kg').kg).toEqual([13682]);
+    expect(numbersOf('ratio 1.45').ratio).toEqual([1.45]);   // el decimal no se toca
+    expect(numbersOf('1.5 km').km).toEqual([1.5]);
+  });
+
+  it('una viñeta hereda la prescripción de la línea que la introduce', () => {
+    const t = 'Propuesta: semana suave. En números:\n- Sesión A: Sentadilla 3×5 a 95 kg\n- Sesión B: Press Militar 3×5 a 37.5 kg';
+    expect(isPrescriptive(t, t.indexOf('95 kg'))).toBe(true);
+    expect(isPrescriptive(t, t.indexOf('37.5 kg'))).toBe(true);
+  });
+
+  it('las distancias de carrera canónicas no son afirmaciones sobre sus datos', () => {
+    const sc = { id: 'x', grounded: true };
+    const res = checkScenario(sc, run({ answer: 'Ese ritmo no lo sostienes 21 km.' }), TRUTH);
+    expect(fails(res, 'cifras')).toBe(false);
+    // pero un kilometraje cualquiera sí se sigue denunciando
+    expect(fails(checkScenario(sc, run({ answer: 'Has corrido 18 km.' }), TRUTH), 'cifras')).toBe(true);
+  });
+
+  it('un punto decimal no corta la frase', () => {
+    // Era la causa de fondo de varios falsos positivos: "respeta" quedaba al otro lado
+    // del punto de "2.5" y la cifra pasaba a juzgarse como una afirmación sobre el pasado.
+    const t = 'Peso Muerto 50 kg se queda corto (e1RM 58.3), pero respeta la progresión de 2.5 kg/sesión: 52.5 kg.';
+    expect(isPrescriptive(t, t.lastIndexOf('52.5'))).toBe(true);
+    // y una frase nueva sí corta
+    const u = 'Sube a 75 kg. Has corrido 18 km.';
+    expect(isPrescriptive(u, u.indexOf('18 km'))).toBe(false);
+  });
+
   it('reconoce las cifras prescriptivas y los rangos', () => {
     const t = 'sube a 75 kg la próxima';
     expect(isPrescriptive(t, t.indexOf('75'))).toBe(true);

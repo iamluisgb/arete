@@ -30,10 +30,17 @@ const RATIO_RE = new RegExp(String.raw`ratio[^\d\n]{0,30}(\d+[.,]\d+)`, 'gi');
 const LOAD_PAIR_RE = new RegExp(String.raw`(${NUM})\s*[×x]\s*\d+`, 'gi');
 const n = (s) => parseFloat(String(s).replace(',', '.'));
 
-// El modelo separa los millares con espacio fino ("40 958 kg"). Sin unir esos grupos, el
-// extractor lee "958 kg" y denuncia una cifra que nadie escribió — o peor, deja pasar el
-// total inventado porque el trozo suelto sí existía en los datos.
-export const joinThousands = (s) => String(s).replace(/(\d)[\s\u202f\u00a0](\d{3})(?!\d)/g, '$1$2');
+// El modelo separa los millares de las dos formas que se usan en español: con espacio
+// ("40 958 kg") y con punto ("13.682 kg"). Sin unir esos grupos, el extractor lee "958 kg"
+// o "13.682" como un decimal y denuncia una cifra que nadie escribió.
+//
+// El punto es ambiguo —también es el separador decimal— así que solo se une cuando la
+// forma es inequívoca como millar: 1-3 dígitos, punto, exactamente 3 dígitos y nada más
+// detrás. "1.45" (dos decimales) no casa; "13.682" sí. Los casos que siguen siendo
+// ambiguos ("1.450") los cubre `supported`, que prueba las dos lecturas.
+export const joinThousands = (s) => String(s)
+  .replace(/(\d)[\s\u202f\u00a0](\d{3})(?!\d)/g, '$1$2')
+  .replace(/\b(\d{1,3})\.(\d{3})\b(?![.,]?\d)/g, '$1$2');
 
 /** Todas las cifras con unidad de un texto, agrupadas por unidad. */
 export function numbersOf(raw) {
@@ -68,10 +75,11 @@ export const supported = (value, pool = []) => {
 // ruidoso se acaba ignorando, que es peor que no tenerlo. El sesgo es deliberado: este
 // check persigue el INFORME fabricado ("has corrido 18 km"), no la recomendación.
 const PRESCRIPTIVE = new RegExp([
-  'sub[ei]r?', 'baja', 'bajar', 'añad', 'increment', 'reduc', 'proxim', 'próxim', 'siguiente',
+  'sub[ei]r?', 'baja', 'bajar', 'anad', 'increment', 'reduc', 'proxim', 'proxim', 'siguiente',
   'objetivo', 'prueba', 'haz', 'pasa a', 'sumar', 'empieza', 'empezar', 'comienza', 'arranca',
-  'introduc', 'reintroduc', 'retoma', 'recomiend', 'propong', 'sugier', 'ajusta', 'limita',
-  'no pases de', 'máximo', 'maximo', 'descarga a', 'prioriz', 'mant[ée]n', 'consolida',
+  'introduc', 'reintroduc', 'retoma', 'recomiend', 'propong', 'propuest', 'sugier', 'ajusta',
+  'limita', 'planifica', 'toca', 'respeta', 'progresion de', 'no fuerces',
+  'no pases de', 'maximo', 'maximo', 'descarga a', 'prioriz', 'mant[ée]n', 'consolida',
   'mete', 'no menos de', String.raw`al \d+ ?%`,
 ].join('|'), 'i');
 
@@ -80,15 +88,48 @@ const PRESCRIPTIVE = new RegExp([
 // y con una ventana corta el verbo queda fuera para las últimas: se denunciaban como
 // inventadas tres cargas de la misma frase prescriptiva. Ensanchar la ventana a ciegas
 // arrastraba texto de la frase anterior; cortar por la frase es lo que corresponde.
+// Distancias canónicas de carrera. "no lo sostienes 21 km" habla de la media maratón, no
+// de lo que el atleta corrió: es conocimiento general, no una afirmación sobre sus datos.
+const RACE_KM = [5, 10, 21, 21.1, 42, 42.2, 100];
+
+const BULLET = /^\s*(?:[-*·•]|\d+[.)])\s/;
+
+/**
+ * Índice del último fin de frase real. Un punto SOLO cierra frase si le sigue un espacio
+ * o el final: en este dominio casi todo lleva decimales ("58.3", "2.5 kg") y tomar ese
+ * punto como frontera dejaba fuera el verbo que gobierna la cifra. Era la causa de fondo
+ * de varios falsos positivos de `cifras`, no un caso raro: cualquier recomendación con un
+ * decimal delante perdía su contexto.
+ */
+function lastSentenceEnd(s) {
+  let out = -1;
+  for (let i = 0; i < s.length; i++) {
+    if ('.!?'.includes(s[i]) && (i + 1 >= s.length || /[\s)"'»]/.test(s[i + 1]))) out = i;
+  }
+  return out;
+}
+
 export function isPrescriptive(text, index) {
   const upto = text.slice(0, index);
-  const start = Math.max(
-    upto.lastIndexOf('.'), upto.lastIndexOf('\n'), upto.lastIndexOf('!'), upto.lastIndexOf('?'),
-    index - 220,   // techo: una frase kilométrica no debe amnistiar el párrafo entero
-  );
-  const sentence = upto.slice(Math.max(0, start));
+  const lines = upto.split('\n');
+
+  // Las recomendaciones se escriben en lista ("**Propuesta:** semana suave. En números:"
+  // y debajo las viñetas), así que el verbo se queda en la línea que las introduce. Si la
+  // cifra va en una viñeta se sube hasta esa línea y se toma ENTERA: una línea que
+  // encabeza una lista gobierna toda la lista. Sin esto, cada viñeta de una misma
+  // recomendación se juzgaba como una afirmación suelta sobre el pasado — y en la primera
+  // batería completa eso denunció tres cargas de una sola frase prescriptiva.
+  let i = lines.length - 1;
+  const enLista = BULLET.test(lines[i]);
+  while (i > 0 && BULLET.test(lines[i])) i--;
+
+  const head = lines[i];
+  const cut = enLista ? 0 : Math.max(lastSentenceEnd(head), head.length - 220);
+  const sentence = head.slice(Math.max(0, cut)) + '\n' + lines.slice(i + 1).join('\n');
+
   // `4-5 km`, `≤ 5 km`: la cifra es el extremo de un rango o de un tope, no un dato.
-  return PRESCRIPTIVE.test(sentence) || /[+\-–≤≥<>~]\s*$/.test(upto);
+  // Sin acentos: "bájalas 2.5 kg" no casaba con `baja` y la carga se denunciaba como dato.
+  return PRESCRIPTIVE.test(norm(sentence)) || /[+\-–≤≥<>~]\s*$/.test(upto);
 }
 
 // Líneas de prescripción del formato SESIÓN del SOUL: "[ejercicio] [sets]×[reps] a [kg]".
@@ -204,6 +245,7 @@ export function checkScenario(sc, r, truth) {
       const u = m[2].toLowerCase();
       if (u === '%') continue;                        // los porcentajes son casi siempre derivados
       if (isPrescriptive(text, m.index)) continue;
+      if (u === 'km' && RACE_KM.includes(n(m[1]))) continue;   // distancia de prueba, no dato suyo
       if (!supported(String(m[1]).replace(',', '.'), support[u])) bad.push(`${m[1]} ${u}`);
     }
     for (const m of text.matchAll(RATIO_RE)) {

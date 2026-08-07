@@ -1,9 +1,5 @@
 {
  "schemaVersion": 4,
- "_eval": {
-  "ref": "2026-08-07",
-  "desc": "Atleta sintético: 8 meses de fuerza (fase 1 de Areté), press de banca estancado desde la semana 20, pico de carga en la última semana, running abandonado el 2026-07-05."
- },
  "program": "arete",
  "phase": 1,
  "workouts": [
@@ -11,8 +7,8 @@
    "id": 1767312000000,
    "date": "2025-12-15",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -97,8 +93,8 @@
    "id": 1767398400000,
    "date": "2025-12-17",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -195,8 +191,8 @@
    "id": 1767484800000,
    "date": "2025-12-19",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -281,8 +277,8 @@
    "id": 1767571200000,
    "date": "2025-12-22",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -367,8 +363,8 @@
    "id": 1767657600000,
    "date": "2025-12-24",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -465,8 +461,8 @@
    "id": 1767744000000,
    "date": "2025-12-26",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -551,8 +547,8 @@
    "id": 1767830400000,
    "date": "2025-12-29",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -637,8 +633,8 @@
    "id": 1767916800000,
    "date": "2025-12-31",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -735,8 +731,8 @@
    "id": 1768003200000,
    "date": "2026-01-02",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -821,8 +817,8 @@
    "id": 1768089600000,
    "date": "2026-01-05",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -907,8 +903,8 @@
    "id": 1768176000000,
    "date": "2026-01-07",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1005,8 +1001,8 @@
    "id": 1768262400000,
    "date": "2026-01-09",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1091,8 +1087,8 @@
    "id": 1768348800000,
    "date": "2026-01-12",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1177,8 +1173,8 @@
    "id": 1768435200000,
    "date": "2026-01-15",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1275,8 +1271,8 @@
    "id": 1768521600000,
    "date": "2026-01-19",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1361,8 +1357,8 @@
    "id": 1768608000000,
    "date": "2026-01-21",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1459,8 +1455,8 @@
    "id": 1768694400000,
    "date": "2026-01-23",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1545,8 +1541,8 @@
    "id": 1768780800000,
    "date": "2026-01-26",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1631,8 +1627,8 @@
    "id": 1768867200000,
    "date": "2026-01-28",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1729,8 +1725,8 @@
    "id": 1768953600000,
    "date": "2026-01-30",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1815,8 +1811,8 @@
    "id": 1769040000000,
    "date": "2026-02-02",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1901,8 +1897,8 @@
    "id": 1769126400000,
    "date": "2026-02-04",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -1999,8 +1995,8 @@
    "id": 1769212800000,
    "date": "2026-02-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2085,8 +2081,8 @@
    "id": 1769299200000,
    "date": "2026-02-09",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2171,8 +2167,8 @@
    "id": 1769385600000,
    "date": "2026-02-11",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2269,8 +2265,8 @@
    "id": 1769472000000,
    "date": "2026-02-13",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2355,8 +2351,8 @@
    "id": 1769558400000,
    "date": "2026-02-16",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2441,8 +2437,8 @@
    "id": 1769644800000,
    "date": "2026-02-19",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2539,8 +2535,8 @@
    "id": 1769731200000,
    "date": "2026-02-23",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2625,8 +2621,8 @@
    "id": 1769817600000,
    "date": "2026-02-25",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2723,8 +2719,8 @@
    "id": 1769904000000,
    "date": "2026-02-27",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2809,8 +2805,8 @@
    "id": 1769990400000,
    "date": "2026-03-02",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2895,8 +2891,8 @@
    "id": 1770076800000,
    "date": "2026-03-04",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -2993,8 +2989,8 @@
    "id": 1770163200000,
    "date": "2026-03-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3079,8 +3075,8 @@
    "id": 1770249600000,
    "date": "2026-03-09",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3165,8 +3161,8 @@
    "id": 1770336000000,
    "date": "2026-03-11",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3263,8 +3259,8 @@
    "id": 1770422400000,
    "date": "2026-03-13",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3349,8 +3345,8 @@
    "id": 1770508800000,
    "date": "2026-03-16",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3435,8 +3431,8 @@
    "id": 1770595200000,
    "date": "2026-03-18",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3533,8 +3529,8 @@
    "id": 1770681600000,
    "date": "2026-03-20",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3619,8 +3615,8 @@
    "id": 1770768000000,
    "date": "2026-03-23",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3705,8 +3701,8 @@
    "id": 1770854400000,
    "date": "2026-03-26",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3803,8 +3799,8 @@
    "id": 1770940800000,
    "date": "2026-03-30",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3889,8 +3885,8 @@
    "id": 1771027200000,
    "date": "2026-04-01",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -3987,8 +3983,8 @@
    "id": 1771113600000,
    "date": "2026-04-03",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4073,8 +4069,8 @@
    "id": 1771200000000,
    "date": "2026-04-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4159,8 +4155,8 @@
    "id": 1771286400000,
    "date": "2026-04-08",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4257,8 +4253,8 @@
    "id": 1771372800000,
    "date": "2026-04-10",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4343,8 +4339,8 @@
    "id": 1771459200000,
    "date": "2026-04-13",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4429,8 +4425,8 @@
    "id": 1771545600000,
    "date": "2026-04-15",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4527,8 +4523,8 @@
    "id": 1771632000000,
    "date": "2026-04-17",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4613,8 +4609,8 @@
    "id": 1771718400000,
    "date": "2026-04-20",
    "phase": 1,
-   "notes": "Semana de descarga",
    "session": "Sesión A",
+   "notes": "Semana de descarga",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4699,8 +4695,8 @@
    "id": 1771804800000,
    "date": "2026-04-23",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4797,8 +4793,8 @@
    "id": 1771891200000,
    "date": "2026-04-27",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4883,8 +4879,8 @@
    "id": 1771977600000,
    "date": "2026-04-30",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -4981,8 +4977,8 @@
    "id": 1772064000000,
    "date": "2026-05-04",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5067,8 +5063,8 @@
    "id": 1772150400000,
    "date": "2026-05-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5165,8 +5161,8 @@
    "id": 1772236800000,
    "date": "2026-05-08",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5251,8 +5247,8 @@
    "id": 1772323200000,
    "date": "2026-05-11",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5337,8 +5333,8 @@
    "id": 1772409600000,
    "date": "2026-05-13",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5435,8 +5431,8 @@
    "id": 1772496000000,
    "date": "2026-05-15",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5521,8 +5517,8 @@
    "id": 1772582400000,
    "date": "2026-05-18",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5607,8 +5603,8 @@
    "id": 1772668800000,
    "date": "2026-05-20",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5705,8 +5701,8 @@
    "id": 1772755200000,
    "date": "2026-05-22",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5791,8 +5787,8 @@
    "id": 1772841600000,
    "date": "2026-05-25",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5877,8 +5873,8 @@
    "id": 1772928000000,
    "date": "2026-05-27",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -5975,8 +5971,8 @@
    "id": 1773014400000,
    "date": "2026-05-29",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6061,8 +6057,8 @@
    "id": 1773100800000,
    "date": "2026-06-01",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6147,8 +6143,8 @@
    "id": 1773187200000,
    "date": "2026-06-04",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6245,8 +6241,8 @@
    "id": 1773273600000,
    "date": "2026-06-08",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6331,8 +6327,8 @@
    "id": 1773360000000,
    "date": "2026-06-10",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6429,8 +6425,8 @@
    "id": 1773446400000,
    "date": "2026-06-12",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6515,8 +6511,8 @@
    "id": 1773532800000,
    "date": "2026-06-15",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6601,8 +6597,8 @@
    "id": 1773619200000,
    "date": "2026-06-17",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6699,8 +6695,8 @@
    "id": 1773705600000,
    "date": "2026-06-19",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6785,8 +6781,8 @@
    "id": 1773792000000,
    "date": "2026-06-22",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6871,8 +6867,8 @@
    "id": 1773878400000,
    "date": "2026-06-24",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -6969,8 +6965,8 @@
    "id": 1773964800000,
    "date": "2026-06-26",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7055,8 +7051,8 @@
    "id": 1774051200000,
    "date": "2026-06-29",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7141,8 +7137,8 @@
    "id": 1774137600000,
    "date": "2026-07-01",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7239,8 +7235,8 @@
    "id": 1774224000000,
    "date": "2026-07-03",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7325,8 +7321,8 @@
    "id": 1774310400000,
    "date": "2026-07-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7411,8 +7407,8 @@
    "id": 1774396800000,
    "date": "2026-07-09",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7509,8 +7505,8 @@
    "id": 1774483200000,
    "date": "2026-07-13",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7595,8 +7591,8 @@
    "id": 1774569600000,
    "date": "2026-07-16",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7693,8 +7689,8 @@
    "id": 1774656000000,
    "date": "2026-07-20",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7779,8 +7775,8 @@
    "id": 1774742400000,
    "date": "2026-07-22",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7877,8 +7873,8 @@
    "id": 1774828800000,
    "date": "2026-07-24",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -7963,8 +7959,8 @@
    "id": 1774915200000,
    "date": "2026-07-27",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8049,8 +8045,8 @@
    "id": 1775001600000,
    "date": "2026-07-30",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8147,8 +8143,8 @@
    "id": 1775088000000,
    "date": "2026-08-03",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8233,8 +8229,8 @@
    "id": 1775174400000,
    "date": "2026-08-04",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8331,8 +8327,8 @@
    "id": 1775260800000,
    "date": "2026-08-05",
    "phase": 1,
-   "notes": "",
    "session": "Sesión A",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8417,8 +8413,8 @@
    "id": 1775347200000,
    "date": "2026-08-06",
    "phase": 1,
-   "notes": "",
    "session": "Sesión B",
+   "notes": "",
    "exercises": [
     {
      "name": "Sentadilla",
@@ -8514,49 +8510,49 @@
  ],
  "bodyLogs": [
   {
-   "id": 1767657600000,
+   "id": 1780444800000,
    "date": "2025-12-16",
    "peso": 78,
    "grasa": 18.5
   },
   {
-   "id": 1767744000000,
+   "id": 1780531200000,
    "date": "2026-01-13",
    "peso": 77.4,
    "grasa": 18.1
   },
   {
-   "id": 1767830400000,
+   "id": 1780617600000,
    "date": "2026-02-17",
    "peso": 77,
    "grasa": 17.6
   },
   {
-   "id": 1767916800000,
+   "id": 1780704000000,
    "date": "2026-03-17",
    "peso": 76.6,
    "grasa": 17.2
   },
   {
-   "id": 1768003200000,
+   "id": 1780790400000,
    "date": "2026-04-21",
    "peso": 76.2,
    "grasa": 16.9
   },
   {
-   "id": 1768089600000,
+   "id": 1780876800000,
    "date": "2026-05-19",
    "peso": 76,
    "grasa": 16.5
   },
   {
-   "id": 1768176000000,
+   "id": 1780963200000,
    "date": "2026-06-23",
    "peso": 75.6,
    "grasa": 16.2
   },
   {
-   "id": 1768262400000,
+   "id": 1781049600000,
    "date": "2026-07-28",
    "peso": 75.4,
    "grasa": 16
@@ -8566,7 +8562,7 @@
  "customPrograms": [],
  "runningLogs": [
   {
-   "id": 1769990400000,
+   "id": 1775433600000,
    "date": "2026-02-10",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -8588,7 +8584,7 @@
    "notes": ""
   },
   {
-   "id": 1770076800000,
+   "id": 1775520000000,
    "date": "2026-02-12",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
@@ -8610,7 +8606,7 @@
    "notes": ""
   },
   {
-   "id": 1770163200000,
+   "id": 1775606400000,
    "date": "2026-02-15",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -8632,52 +8628,8 @@
    "notes": ""
   },
   {
-   "id": 1770249600000,
+   "id": 1775692800000,
    "date": "2026-02-17",
-   "session": "Series 6×800",
-   "program": "mediaMaraton1h40",
-   "week": 2,
-   "type": "intervalos",
-   "distance": 6.5,
-   "duration": 2092,
-   "pace": 322,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1770336000000,
-   "date": "2026-02-19",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 2,
-   "type": "rodaje",
-   "distance": 10.1,
-   "duration": 3380,
-   "pace": 335,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1770422400000,
-   "date": "2026-02-22",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 2,
@@ -8698,7 +8650,51 @@
    "notes": ""
   },
   {
-   "id": 1770508800000,
+   "id": 1775779200000,
+   "date": "2026-02-19",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 2,
+   "type": "rodaje",
+   "distance": 8.1,
+   "duration": 2662,
+   "pace": 329,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1775865600000,
+   "date": "2026-02-22",
+   "session": "Series 6×800",
+   "program": "mediaMaraton1h40",
+   "week": 2,
+   "type": "intervalos",
+   "distance": 6.5,
+   "duration": 2092,
+   "pace": 322,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1775952000000,
    "date": "2026-02-24",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -8720,7 +8716,7 @@
    "notes": ""
   },
   {
-   "id": 1770595200000,
+   "id": 1776038400000,
    "date": "2026-02-26",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
@@ -8742,7 +8738,7 @@
    "notes": ""
   },
   {
-   "id": 1770681600000,
+   "id": 1776124800000,
    "date": "2026-03-01",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -8764,15 +8760,15 @@
    "notes": ""
   },
   {
-   "id": 1770768000000,
+   "id": 1776211200000,
    "date": "2026-03-03",
-   "session": "Tempo 20'",
+   "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 4,
-   "type": "tempo",
-   "distance": 7,
+   "type": "intervalos",
+   "distance": 6.5,
    "duration": 2075,
-   "pace": 296,
+   "pace": 319,
    "hr": 168,
    "hrMax": null,
    "hrTimeSeries": null,
@@ -8786,15 +8782,15 @@
    "notes": ""
   },
   {
-   "id": 1770854400000,
+   "id": 1776297600000,
    "date": "2026-03-05",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 4,
    "type": "rodaje",
-   "distance": 8.4,
-   "duration": 2739,
-   "pace": 326,
+   "distance": 10.4,
+   "duration": 3452,
+   "pace": 332,
    "hr": 142,
    "hrMax": null,
    "hrTimeSeries": null,
@@ -8808,8 +8804,30 @@
    "notes": ""
   },
   {
-   "id": 1770940800000,
+   "id": 1776384000000,
    "date": "2026-03-10",
+   "session": "Tempo 20'",
+   "program": "mediaMaraton1h40",
+   "week": 5,
+   "type": "tempo",
+   "distance": 7,
+   "duration": 2066,
+   "pace": 295,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1776470400000,
+   "date": "2026-03-12",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 5,
@@ -8830,8 +8848,8 @@
    "notes": ""
   },
   {
-   "id": 1771027200000,
-   "date": "2026-03-12",
+   "id": 1776556800000,
+   "date": "2026-03-15",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 5,
@@ -8852,52 +8870,8 @@
    "notes": ""
   },
   {
-   "id": 1771113600000,
-   "date": "2026-03-15",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 5,
-   "type": "rodaje",
-   "distance": 10.5,
-   "duration": 3472,
-   "pace": 331,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1771200000000,
+   "id": 1776643200000,
    "date": "2026-03-17",
-   "session": "Series 6×800",
-   "program": "mediaMaraton1h40",
-   "week": 6,
-   "type": "intervalos",
-   "distance": 6.5,
-   "duration": 2058,
-   "pace": 317,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1771286400000,
-   "date": "2026-03-19",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 6,
@@ -8918,8 +8892,8 @@
    "notes": ""
   },
   {
-   "id": 1771372800000,
-   "date": "2026-03-22",
+   "id": 1776729600000,
+   "date": "2026-03-19",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 6,
@@ -8940,8 +8914,52 @@
    "notes": ""
   },
   {
-   "id": 1771459200000,
+   "id": 1776816000000,
+   "date": "2026-03-22",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 6,
+   "type": "rodaje",
+   "distance": 8.6,
+   "duration": 2781,
+   "pace": 323,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1776902400000,
    "date": "2026-03-24",
+   "session": "Series 6×800",
+   "program": "mediaMaraton1h40",
+   "week": 7,
+   "type": "intervalos",
+   "distance": 6.5,
+   "duration": 2050,
+   "pace": 315,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1776988800000,
+   "date": "2026-03-26",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 7,
@@ -8962,8 +8980,8 @@
    "notes": ""
   },
   {
-   "id": 1771545600000,
-   "date": "2026-03-26",
+   "id": 1777075200000,
+   "date": "2026-03-29",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 7,
@@ -8984,52 +9002,8 @@
    "notes": ""
   },
   {
-   "id": 1771632000000,
-   "date": "2026-03-29",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 7,
-   "type": "rodaje",
-   "distance": 8.7,
-   "duration": 2802,
-   "pace": 322,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1771718400000,
+   "id": 1777161600000,
    "date": "2026-03-31",
-   "session": "Tempo 20'",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "tempo",
-   "distance": 7,
-   "duration": 2041,
-   "pace": 292,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1771804800000,
-   "date": "2026-04-02",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9050,37 +9024,15 @@
    "notes": ""
   },
   {
-   "id": 1771891200000,
-   "date": "2026-04-07",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 9,
-   "duration": 2875,
-   "pace": 319,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1771977600000,
-   "date": "2026-04-09",
+   "id": 1777248000000,
+   "date": "2026-04-02",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 8,
    "type": "intervalos",
    "distance": 6.5,
-   "duration": 2033,
-   "pace": 313,
+   "duration": 2041,
+   "pace": 314,
    "hr": 168,
    "hrMax": null,
    "hrTimeSeries": null,
@@ -9094,8 +9046,8 @@
    "notes": ""
   },
   {
-   "id": 1772064000000,
-   "date": "2026-04-12",
+   "id": 1777334400000,
+   "date": "2026-04-07",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9116,7 +9068,51 @@
    "notes": ""
   },
   {
-   "id": 1772150400000,
+   "id": 1777420800000,
+   "date": "2026-04-09",
+   "session": "Tempo 20'",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "tempo",
+   "distance": 7,
+   "duration": 2033,
+   "pace": 290,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1777507200000,
+   "date": "2026-04-12",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "rodaje",
+   "distance": 9,
+   "duration": 2875,
+   "pace": 319,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1777593600000,
    "date": "2026-04-14",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
@@ -9138,7 +9134,7 @@
    "notes": ""
   },
   {
-   "id": 1772236800000,
+   "id": 1777680000000,
    "date": "2026-04-16",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9160,7 +9156,7 @@
    "notes": ""
   },
   {
-   "id": 1772323200000,
+   "id": 1777766400000,
    "date": "2026-04-19",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
@@ -9182,52 +9178,8 @@
    "notes": ""
   },
   {
-   "id": 1772409600000,
+   "id": 1777852800000,
    "date": "2026-04-21",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 11.2,
-   "duration": 3613,
-   "pace": 323,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1772496000000,
-   "date": "2026-04-23",
-   "session": "Tempo 20'",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "tempo",
-   "distance": 7,
-   "duration": 2016,
-   "pace": 288,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1772582400000,
-   "date": "2026-04-26",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9248,7 +9200,51 @@
    "notes": ""
   },
   {
-   "id": 1772668800000,
+   "id": 1777939200000,
+   "date": "2026-04-23",
+   "session": "Series 6×800",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "intervalos",
+   "distance": 6.5,
+   "duration": 2016,
+   "pace": 310,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1778025600000,
+   "date": "2026-04-26",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "rodaje",
+   "distance": 11.2,
+   "duration": 3613,
+   "pace": 323,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1778112000000,
    "date": "2026-04-28",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
@@ -9270,7 +9266,7 @@
    "notes": ""
   },
   {
-   "id": 1772755200000,
+   "id": 1778198400000,
    "date": "2026-04-30",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9292,30 +9288,8 @@
    "notes": ""
   },
   {
-   "id": 1772841600000,
+   "id": 1778284800000,
    "date": "2026-05-05",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 9.4,
-   "duration": 2953,
-   "pace": 314,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1772928000000,
-   "date": "2026-05-07",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9336,8 +9310,8 @@
    "notes": ""
   },
   {
-   "id": 1773014400000,
-   "date": "2026-05-10",
+   "id": 1778371200000,
+   "date": "2026-05-07",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9358,8 +9332,52 @@
    "notes": ""
   },
   {
-   "id": 1773100800000,
+   "id": 1778457600000,
+   "date": "2026-05-10",
+   "session": "Tempo 20'",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "tempo",
+   "distance": 7,
+   "duration": 1999,
+   "pace": 286,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1778544000000,
    "date": "2026-05-12",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "rodaje",
+   "distance": 9.6,
+   "duration": 3003,
+   "pace": 313,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1778630400000,
+   "date": "2026-05-14",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9380,8 +9398,8 @@
    "notes": ""
   },
   {
-   "id": 1773187200000,
-   "date": "2026-05-14",
+   "id": 1778716800000,
+   "date": "2026-05-17",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9402,52 +9420,8 @@
    "notes": ""
   },
   {
-   "id": 1773273600000,
-   "date": "2026-05-17",
-   "session": "Tempo 20'",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "tempo",
-   "distance": 7,
-   "duration": 1991,
-   "pace": 284,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1773360000000,
+   "id": 1778803200000,
    "date": "2026-05-19",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 11.7,
-   "duration": 3711,
-   "pace": 317,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1773446400000,
-   "date": "2026-05-21",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9468,8 +9442,8 @@
    "notes": ""
   },
   {
-   "id": 1773532800000,
-   "date": "2026-05-24",
+   "id": 1778889600000,
+   "date": "2026-05-21",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9490,8 +9464,52 @@
    "notes": ""
   },
   {
-   "id": 1773619200000,
+   "id": 1778976000000,
+   "date": "2026-05-24",
+   "session": "Series 6×800",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "intervalos",
+   "distance": 6.5,
+   "duration": 1982,
+   "pace": 305,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1779062400000,
    "date": "2026-05-26",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "rodaje",
+   "distance": 11.8,
+   "duration": 3727,
+   "pace": 316,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1779148800000,
+   "date": "2026-05-28",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9512,29 +9530,7 @@
    "notes": ""
   },
   {
-   "id": 1773705600000,
-   "date": "2026-05-28",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 9.8,
-   "duration": 3040,
-   "pace": 310,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1773792000000,
+   "id": 1779235200000,
    "date": "2026-06-02",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9556,7 +9552,7 @@
    "notes": ""
   },
   {
-   "id": 1773878400000,
+   "id": 1779321600000,
    "date": "2026-06-04",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
@@ -9578,7 +9574,7 @@
    "notes": ""
   },
   {
-   "id": 1773964800000,
+   "id": 1779408000000,
    "date": "2026-06-07",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9600,52 +9596,8 @@
    "notes": ""
   },
   {
-   "id": 1774051200000,
+   "id": 1779494400000,
    "date": "2026-06-09",
-   "session": "Series 6×800",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "intervalos",
-   "distance": 6.5,
-   "duration": 1957,
-   "pace": 301,
-   "hr": 168,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1774137600000,
-   "date": "2026-06-11",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 12,
-   "duration": 3758,
-   "pace": 313,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1774224000000,
-   "date": "2026-06-14",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9666,7 +9618,51 @@
    "notes": ""
   },
   {
-   "id": 1774310400000,
+   "id": 1779580800000,
+   "date": "2026-06-11",
+   "session": "Rodaje suave",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "rodaje",
+   "distance": 10,
+   "duration": 3076,
+   "pace": 308,
+   "hr": 142,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 45,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1779667200000,
+   "date": "2026-06-14",
+   "session": "Series 6×800",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "intervalos",
+   "distance": 6.5,
+   "duration": 1957,
+   "pace": 301,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1779753600000,
    "date": "2026-06-16",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9688,7 +9684,7 @@
    "notes": ""
   },
   {
-   "id": 1774396800000,
+   "id": 1779840000000,
    "date": "2026-06-18",
    "session": "Tempo 20'",
    "program": "mediaMaraton1h40",
@@ -9710,7 +9706,7 @@
    "notes": ""
   },
   {
-   "id": 1774483200000,
+   "id": 1779926400000,
    "date": "2026-06-21",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
@@ -9732,15 +9728,15 @@
    "notes": ""
   },
   {
-   "id": 1774569600000,
+   "id": 1780012800000,
    "date": "2026-06-23",
-   "session": "Tempo 20'",
+   "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 8,
-   "type": "tempo",
-   "distance": 7,
+   "type": "intervalos",
+   "distance": 6.5,
    "duration": 1940,
-   "pace": 277,
+   "pace": 298,
    "hr": 168,
    "hrMax": null,
    "hrTimeSeries": null,
@@ -9754,15 +9750,15 @@
    "notes": ""
   },
   {
-   "id": 1774656000000,
+   "id": 1780099200000,
    "date": "2026-06-25",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
    "type": "rodaje",
-   "distance": 10.3,
-   "duration": 3141,
-   "pace": 305,
+   "distance": 12.3,
+   "duration": 3819,
+   "pace": 310,
    "hr": 142,
    "hrMax": null,
    "hrTimeSeries": null,
@@ -9776,8 +9772,30 @@
    "notes": ""
   },
   {
-   "id": 1774742400000,
+   "id": 1780185600000,
    "date": "2026-06-30",
+   "session": "Tempo 20'",
+   "program": "mediaMaraton1h40",
+   "week": 8,
+   "type": "tempo",
+   "distance": 7,
+   "duration": 1932,
+   "pace": 276,
+   "hr": 168,
+   "hrMax": null,
+   "hrTimeSeries": null,
+   "hrZoneTimes": null,
+   "elevation": 20,
+   "cadence": null,
+   "splits": null,
+   "route": null,
+   "segments": null,
+   "source": "import",
+   "notes": ""
+  },
+  {
+   "id": 1780272000000,
+   "date": "2026-07-02",
    "session": "Rodaje suave",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9798,8 +9816,8 @@
    "notes": ""
   },
   {
-   "id": 1774828800000,
-   "date": "2026-07-02",
+   "id": 1780358400000,
+   "date": "2026-07-05",
    "session": "Series 6×800",
    "program": "mediaMaraton1h40",
    "week": 8,
@@ -9812,28 +9830,6 @@
    "hrTimeSeries": null,
    "hrZoneTimes": null,
    "elevation": 20,
-   "cadence": null,
-   "splits": null,
-   "route": null,
-   "segments": null,
-   "source": "import",
-   "notes": ""
-  },
-  {
-   "id": 1774915200000,
-   "date": "2026-07-05",
-   "session": "Rodaje suave",
-   "program": "mediaMaraton1h40",
-   "week": 8,
-   "type": "rodaje",
-   "distance": 12.4,
-   "duration": 3833,
-   "pace": 309,
-   "hr": 142,
-   "hrMax": null,
-   "hrTimeSeries": null,
-   "hrZoneTimes": null,
-   "elevation": 45,
    "cadence": null,
    "splits": null,
    "route": null,
@@ -9854,5 +9850,10 @@
   "age": 34,
   "race5k": 1305,
   "maxHR": 186
+ },
+ "_eval": {
+  "ref": "2026-08-07",
+  "archetype": "hibrido",
+  "desc": "Ocho meses de fuerza; press de banca estancado desde la semana 20; pico de carga (ratio 1.45) en la última semana; running abandonado el 2026-07-05."
  }
 }

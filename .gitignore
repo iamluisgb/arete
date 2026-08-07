@@ -8,7 +8,10 @@ stitch/
 # contiene datos de nadie. El real y los runs, no.
 evals/fixtures/*
 !evals/fixtures/synth.mjs
-!evals/fixtures/arete-synth.json
+!evals/fixtures/arete-hibrido.json
+!evals/fixtures/arete-novato.json
+!evals/fixtures/arete-corredor.json
+!evals/fixtures/arete-molestia.json
 evals/out/
 evals/runs/
 

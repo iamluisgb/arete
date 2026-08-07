@@ -1,0 +1,306 @@
+{
+ "schemaVersion": 4,
+ "program": "arete",
+ "phase": 1,
+ "workouts": [
+  {
+   "id": 1767312000000,
+   "date": "2026-07-26",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "Primer día",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "40",
+       "reps": "5"
+      },
+      {
+       "kg": "40",
+       "reps": "5"
+      },
+      {
+       "kg": "40",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "50",
+       "reps": "5"
+      },
+      {
+       "kg": "50",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2"
+      },
+      {
+       "kg": "",
+       "reps": "2"
+      },
+      {
+       "kg": "",
+       "reps": "2"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767398400000,
+   "date": "2026-07-30",
+   "phase": 1,
+   "session": "Sesión B",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press Militar",
+     "sets": [
+      {
+       "kg": "20",
+       "reps": "5"
+      },
+      {
+       "kg": "20",
+       "reps": "5"
+      },
+      {
+       "kg": "20",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Clean",
+     "sets": [
+      {
+       "kg": "20",
+       "reps": "3"
+      },
+      {
+       "kg": "20",
+       "reps": "3"
+      },
+      {
+       "kg": "20",
+       "reps": "3"
+      },
+      {
+       "kg": "20",
+       "reps": "3"
+      },
+      {
+       "kg": "20",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Supino",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "3"
+      },
+      {
+       "kg": "",
+       "reps": "3"
+      },
+      {
+       "kg": "",
+       "reps": "3"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Lateral",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "1min"
+      },
+      {
+       "kg": "",
+       "reps": "1min"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 1767484800000,
+   "date": "2026-08-04",
+   "phase": 1,
+   "session": "Sesión A",
+   "notes": "",
+   "exercises": [
+    {
+     "name": "Sentadilla",
+     "sets": [
+      {
+       "kg": "42.5",
+       "reps": "5"
+      },
+      {
+       "kg": "42.5",
+       "reps": "5"
+      },
+      {
+       "kg": "42.5",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Press de Banca",
+     "sets": [
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      },
+      {
+       "kg": "30",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Peso Muerto",
+     "sets": [
+      {
+       "kg": "50",
+       "reps": "5"
+      },
+      {
+       "kg": "50",
+       "reps": "5"
+      }
+     ]
+    },
+    {
+     "name": "Dominada Prono",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2"
+      },
+      {
+       "kg": "",
+       "reps": "2"
+      },
+      {
+       "kg": "",
+       "reps": "2"
+      }
+     ]
+    },
+    {
+     "name": "Plancha Abdominal",
+     "sets": [
+      {
+       "kg": "",
+       "reps": "2min"
+      },
+      {
+       "kg": "",
+       "reps": "2min"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "bodyLogs": [
+  {
+   "id": 1767571200000,
+   "date": "2026-07-26",
+   "peso": 82,
+   "grasa": 24
+  }
+ ],
+ "deletedIds": [],
+ "customPrograms": [],
+ "runningLogs": [],
+ "runningProgram": null,
+ "runningWeek": 0,
+ "runningGoal": {
+  "type": "km",
+  "target": 20,
+  "enabled": false
+ },
+ "settings": {
+  "height": 180,
+  "age": 29,
+  "race5k": 0,
+  "maxHR": 0
+ },
+ "_eval": {
+  "ref": "2026-08-07",
+  "archetype": "novato",
+  "desc": "Tres entrenos en doce días, un pesaje, sin carrera. Casi todo sin medir: el caso donde alucinar es más fácil."
+ }
+}

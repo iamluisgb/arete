@@ -10,21 +10,28 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const RUNS_DIR = join(ROOT, 'evals/runs');
 
-// ── Fixture ─────────────────────────────────────────────────────────────────
-// `synth` (por defecto) es el atleta sintético versionado; `real` es el export del
-// atleta, gitignorado. El sintético es el que sirve para COMPARAR runs: no cambia.
-export function loadFixture(which = process.env.EVAL_FIXTURE || 'synth') {
-  const file = which === 'real' ? 'arete-real.json' : 'arete-synth.json';
+// ── Fixtures por arquetipo ──────────────────────────────────────────────────
+// Un atleta sintético versionado por arquetipo (evals/fixtures/synth.mjs) más `real`,
+// el export del atleta, gitignorado. Los sintéticos son los que sirven para COMPARAR
+// runs: no cambian. Se cachean porque un run los pide una vez por escenario.
+export const DEFAULT_ARCHETYPE = 'hibrido';
+const cache = new Map();
+
+export function loadFixture(which = DEFAULT_ARCHETYPE) {
+  if (cache.has(which)) return cache.get(which);
+  const file = which === 'real' ? 'arete-real.json' : `arete-${which}.json`;
   const path = join(ROOT, 'evals/fixtures', file);
   if (!existsSync(path)) {
     if (which === 'real') fail(`Falta ${path}. Exporta tus datos desde la app (Ajustes → Exportar JSON).`);
-    fail(`Falta ${path}. Genéralo con: node evals/fixtures/synth.mjs`);
+    fail(`Falta ${path}. Genéralo con: npm run eval:fixture`);
   }
   const db = JSON.parse(readFileSync(path, 'utf8'));
   // Fecha de referencia: la que declare el fixture o, para el real, hoy. Todo el
   // pipeline la usa; sin ella el snapshot se movería solo entre runs.
   const ref = db._eval?.ref ? new Date(db._eval.ref + 'T12:00:00Z') : new Date();
-  return { db, ref, name: which, refStr: ref.toISOString().slice(0, 10) };
+  const out = { db, ref, name: which, refStr: ref.toISOString().slice(0, 10) };
+  cache.set(which, out);
+  return out;
 }
 
 // ── Contexto de programas ───────────────────────────────────────────────────
@@ -105,7 +112,10 @@ export async function chat(messages, { tools, toolChoice, maxTokens = 4096, mode
     });
     if (res.ok) return (await res.json()).choices?.[0]?.message || {};
     last = `HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`;
-    if (![408, 425, 429, 500, 502, 503, 504].includes(res.status)) break;
+    // 520-524 son los errores de borde de Cloudflare (el proveedor va detrás): 524 es un
+    // timeout de origen y es transitorio. Sin reintentarlo, un escenario del run se pierde
+    // entero por algo que no tiene nada que ver con el agente.
+    if (![408, 425, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524].includes(res.status)) break;
     await new Promise(r => setTimeout(r, Math.min(700 * 2 ** i, 8000)));
   }
   throw new Error(last);
@@ -113,9 +123,9 @@ export async function chat(messages, { tools, toolChoice, maxTokens = 4096, mode
 
 // ── Runs ────────────────────────────────────────────────────────────────────
 /** Directorio del run a escribir: EVAL_RUN o una marca de tiempo con el modelo. */
-export function newRunDir(fixtureName) {
+export function newRunDir() {
   const stamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
-  const name = process.env.EVAL_RUN || `${stamp}-${MODEL}${fixtureName === 'real' ? '-real' : ''}`;
+  const name = process.env.EVAL_RUN || `${stamp}-${MODEL}`;
   const dir = join(RUNS_DIR, name);
   mkdirSync(dir, { recursive: true });
   return dir;
@@ -137,10 +147,10 @@ export function resolveRunDir(arg) {
   return dirs.at(-1);
 }
 
-/** Los resultados por escenario de un run, en el orden en que se declararon. */
+/** Los resultados de un run, en el orden en que se declararon (`<arquetipo>/<id>`). */
 export function loadRun(dir) {
   const meta = JSON.parse(readFileSync(join(dir, 'meta.json'), 'utf8'));
-  const results = meta.scenarios.map(id => JSON.parse(readFileSync(join(dir, `${id}.json`), 'utf8')));
+  const results = meta.scenarios.map(key => JSON.parse(readFileSync(join(dir, `${key.replace('/', '-')}.json`), 'utf8')));
   return { meta, results, name: basename(dir) };
 }
 

@@ -1,40 +1,40 @@
 #!/usr/bin/env node
-// Generador del fixture SINTÉTICO de evals — `arete-synth.json`.
+// Generador de los fixtures SINTÉTICOS de evals — un atleta por ARQUETIPO.
 //
-// Por qué existe: el fixture real (`arete-real.json`) son los datos del atleta y está
-// gitignorado (el repo es público). Eso lo hace inservible como suelo de evaluación por
-// dos razones, y la segunda es la grave:
-//   1. Nadie más puede reproducir un run.
-//   2. CAMBIA CADA VEZ QUE SE ENTRENA. Si la nota baja entre dos runs no se sabe si fue
-//      el prompt o si esa semana se corrió menos. Sin fixture fijo no hay comparación,
-//      y sin comparación los evals no sirven para decidir nada.
+// Por qué sintéticos: el export real del atleta está gitignorado (el repo es público) y,
+// peor, cambia cada vez que se entrena. Si la nota baja entre dos runs no se sabe si fue
+// el prompt o si esa semana se corrió menos. Sin fixture fijo no hay comparación, y sin
+// comparación los evals no deciden nada.
 //
-// Este atleta es inventado pero coherente, y lleva PLANTADAS las señales que los
-// escenarios interrogan (ver SIGNALS abajo). El generador es determinista —mismo JSON
-// byte a byte en cada ejecución— y al final VERIFICA con metrics.js que las señales
-// existen de verdad: si un ajuste al generador se carga el estancamiento del press, el
-// generador falla aquí y no tres runs después, cuando ya no se sabe qué se rompió.
+// Por qué VARIOS: la misma pregunta se juzga distinto según quién la haga. "¿Qué toca
+// hoy?" para alguien con tres entrenos registrados es orientación; para un híbrido con
+// pico de carga es gestión de fatiga. Evaluar sobre un único atleta —maduro, con ocho
+// meses de datos y todo poblado— mide el caso fácil y deja fuera justo donde es más
+// fácil alucinar: el usuario nuevo, el que solo corre, el que arrastra una molestia.
+// Es la estructura "por persona" de las baterías de bookreader, traída aquí.
 //
-// El fixture se versiona; el real se conserva como run opcional (EVAL_FIXTURE=real).
+// Cada arquetipo declara las SEÑALES que sus escenarios interrogan y el generador las
+// VERIFICA con metrics.js y domains.js al construirlo: si un ajuste se carga el
+// estancamiento del press, falla aquí y no tres runs después, cuando ya no se sabe qué
+// se rompió.
 //
-// Uso: node evals/fixtures/synth.mjs [--check]   (--check: no escribe, solo verifica)
+// Uso:  node evals/fixtures/synth.mjs [--check] [arquetipo...]
+//       --check: no escribe, solo verifica que lo del disco coincide.
 
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  e1rmByExercise, loadRatio, periodStats, recentPRs, weeklySeries, epley,
+  e1rmByExercise, loadRatio, periodStats, recentPRs, weeklySeries, runIntensitySplit,
 } from '../../js/ai/metrics.js';
+import { computeProfile } from '../../js/domains.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(HERE, '../..');
-const OUT = join(HERE, 'arete-synth.json');
 
-// ── Fecha de referencia ──────────────────────────────────────────────────────
-// FIJA y declarada dentro del fixture (`_eval.ref`). Todo lo que dice "esta semana",
-// "últimos 30 días" o "ratio 7d vs 28d" se calcula contra ella, no contra hoy: si el
-// runner usara `new Date()`, el mismo fixture daría un snapshot distinto cada mañana y
-// los escenarios temporales ("¿necesito descarga?") dejarían de ser comparables.
+// ── Fecha de referencia, común a todos ──────────────────────────────────────
+// FIJA y declarada dentro de cada fixture (`_eval.ref`). Todo lo que dice "esta semana",
+// "últimos 30 días" o "ratio 7d vs 28d" se calcula contra ella. Si el runner usara
+// `new Date()`, el mismo fixture daría un snapshot distinto cada mañana.
 export const REF = '2026-08-07';
 
 const DAY = 86400000;
@@ -42,247 +42,373 @@ const d2s = (d) => d.toISOString().slice(0, 10);
 const parse = (s) => new Date(s + 'T12:00:00Z');
 const shift = (s, days) => d2s(new Date(parse(s).getTime() + days * DAY));
 
-// Lunes de la semana de REF; las semanas se numeran hacia atrás desde ahí.
 const refDate = parse(REF);
 const refMonday = d2s(new Date(refDate.getTime() - ((refDate.getUTCDay() || 7) - 1) * DAY));
+/** Lunes de la semana `w` contando hacia atrás, donde `total-1` es la semana de REF. */
+const monday = (w, total) => shift(refMonday, -(total - 1 - w) * 7);
 
-const WEEKS = 34;                       // semanas de histórico (~8 meses)
-const monday = (w) => shift(refMonday, -(WEEKS - 1 - w) * 7);   // w: 0 = más antigua
-
-// ── Progresiones de fuerza ───────────────────────────────────────────────────
-// Cada entrada devuelve la carga objetivo de la semana w. Las historias que cuentan:
-//   · Sentadilla — progresión larga con una descarga en la semana 18. Es el ejercicio
-//     "sano": sirve de control frente al press.
-//   · Press de Banca — sube hasta la semana 20 y ahí SE ESTANCA: catorce semanas
-//     oscilando entre 70 y 72.5 con la última serie fallada. Es el plant de `estancado`.
-//   · Peso Muerto / Militar / Clean — progresión lenta, sin drama.
-const kgSquat = (w) => (w < 18 ? 60 + w * 2.5 : 92.5 + Math.floor((w - 18) / 2) * 2.5);
-const kgBench = (w) => (w < 20 ? 45 + Math.floor(w / 2) * 2.5 : (w % 2 ? 70 : 72.5));
-const kgDead = (w) => (w < 20 ? 70 + Math.floor(w / 2) * 5 : 120 + Math.floor((w - 20) / 3) * 2.5);
-const kgOhp = (w) => 30 + Math.floor(w / 3) * 1.25;
-const kgClean = (w) => 35 + Math.floor(w / 2) * 1.25;
-
-const r2 = (n) => Math.round(n * 4) / 4;   // a cuartos de kg, como se carga una barra
+const r2 = (n) => Math.round(n * 4) / 4;            // a cuartos de kg, como se carga una barra
 const kgs = (n) => String(r2(n));
 
-// Series de un ejercicio de barra. `fail` acorta la última serie: es como se ve un
-// estancamiento en los datos (no "no subió el peso", sino "no completó las reps").
+/** Series de barra. `fail` acorta la última: así se ve un estancamiento en los datos. */
 const barSets = (kg, sets, reps, fail = false) =>
   Array.from({ length: sets }, (_, i) => ({
     kg: kgs(kg),
     reps: String(fail && i === sets - 1 ? reps - 2 : reps),
   }));
-
 const bwSets = (sets, reps) => Array.from({ length: sets }, () => ({ kg: '', reps: String(reps) }));
 
-// Sesiones A y B de la fase 1 del programa `arete` (ver programs/arete.json). Los
-// nombres deben coincidir EXACTAMENTE con los del programa: el snapshot enseña el plan
-// y las tools el histórico, y si no casan el modelo cree que no se está siguiendo nada.
-function sessionA(w) {
-  const stalled = w >= 20;
-  return {
-    session: 'Sesión A',
-    exercises: [
-      { name: 'Sentadilla', sets: barSets(kgSquat(w), 3, 5) },
-      { name: 'Press de Banca', sets: barSets(kgBench(w), 3, 5, stalled) },
-      { name: 'Peso Muerto', sets: barSets(kgDead(w), 2, 5) },
-      { name: 'Dominada Prono', sets: bwSets(3, Math.min(11, 5 + Math.floor(w / 5))) },
-      { name: 'Plancha Abdominal', sets: [{ kg: '', reps: '2min' }, { kg: '', reps: '2min' }] },
-    ],
-  };
-}
+let uid = Date.parse('2026-01-01T00:00:00Z');
+const nextId = () => (uid += 86400000);
 
-function sessionB(w) {
-  return {
-    session: 'Sesión B',
-    exercises: [
-      { name: 'Sentadilla', sets: barSets(kgSquat(w) - 10, 3, 5) },
-      { name: 'Press Militar', sets: barSets(kgOhp(w), 3, 5) },
-      { name: 'Clean', sets: barSets(kgClean(w), 5, 3) },
-      { name: 'Dominada Supino', sets: bwSets(3, Math.min(12, 6 + Math.floor(w / 5))) },
-      { name: 'Plancha Lateral', sets: [{ kg: '', reps: '1min' }, { kg: '', reps: '1min' }] },
-    ],
-  };
-}
+const base = (over) => ({
+  schemaVersion: 4,
+  program: 'arete',
+  phase: 1,
+  workouts: [],
+  bodyLogs: [],
+  deletedIds: [],
+  customPrograms: [],
+  runningLogs: [],
+  runningProgram: null,
+  runningWeek: 0,
+  runningGoal: { type: 'km', target: 20, enabled: false },
+  settings: {},
+  ...over,
+});
 
-// Cuántas sesiones tiene cada semana, como offsets desde el lunes.
-//
-// Las cuatro últimas están puestas a mano y no por comodidad: el ratio de carga compara
-// los 7 días previos a REF contra la media semanal de los 28, así que el pico que
-// interroga el escenario `descarga` se construye exactamente ahí. Semanas -4 y -2 flojas
-// (2 sesiones), última semana con 4 sesiones seguidas → ratio ≈ 1.4. Si se toca esto, la
-// verificación del final avisa.
-function sessionsInWeek(w) {
-  if (w === WEEKS - 1) return [0, 1, 2, 3];        // pico de carga: lun a jue
-  if (w === WEEKS - 2) return [0, 3];
-  if (w === WEEKS - 4) return [0, 3];
-  if (w === 18) return [0, 3];                     // semana de descarga
-  if (w % 5 === 4) return [0, 3];                  // alguna semana floja: adherencia realista
-  return [0, 2, 4];
-}
+// Sesiones A y B de la fase 1 del programa `arete` (ver programs/arete.json). Los nombres
+// deben coincidir EXACTAMENTE: el snapshot enseña el plan y las tools el histórico, y si
+// no casan el modelo cree que no se está siguiendo nada.
+const sessionA = (kg, { benchFail = false, note = '' } = {}) => ({
+  session: 'Sesión A',
+  notes: note,
+  exercises: [
+    { name: 'Sentadilla', sets: barSets(kg.squat, 3, 5) },
+    { name: 'Press de Banca', sets: barSets(kg.bench, 3, 5, benchFail) },
+    { name: 'Peso Muerto', sets: barSets(kg.dead, 2, 5) },
+    { name: 'Dominada Prono', sets: bwSets(3, kg.pull) },
+    { name: 'Plancha Abdominal', sets: [{ kg: '', reps: '2min' }, { kg: '', reps: '2min' }] },
+  ],
+});
+const sessionB = (kg, { note = '' } = {}) => ({
+  session: 'Sesión B',
+  notes: note,
+  exercises: [
+    { name: 'Sentadilla', sets: barSets(kg.squat - 10, 3, 5) },
+    { name: 'Press Militar', sets: barSets(kg.ohp, 3, 5) },
+    { name: 'Clean', sets: barSets(kg.clean, 5, 3) },
+    { name: 'Dominada Supino', sets: bwSets(3, kg.pull + 1) },
+    { name: 'Plancha Lateral', sets: [{ kg: '', reps: '1min' }, { kg: '', reps: '1min' }] },
+  ],
+});
 
-const workouts = [];
-let wid = Date.parse('2026-01-01T00:00:00Z');
-for (let w = 0; w < WEEKS; w++) {
-  const days = sessionsInWeek(w);
-  days.forEach((off, i) => {
-    const date = shift(monday(w), off);
-    if (date > shift(REF, -1)) return;             // nada por delante de la fecha de referencia
-    const base = i % 2 === 0 ? sessionA(w) : sessionB(w);
-    workouts.push({
-      id: (wid += 86400000),
-      date,
-      phase: 1,
-      notes: w === 18 && i === 0 ? 'Semana de descarga' : '',
-      ...base,
-    });
-  });
-}
-
-// ── Carrera ──────────────────────────────────────────────────────────────────
-// Corrió con regularidad de febrero a principios de julio y LO DEJÓ. El último registro
-// es del 2026-07-05, treinta y tres días antes de REF: la ventana de 28 días está VACÍA
-// de carrera. Es el plant de `no-inventa` ("¿cuántos km he corrido esta semana?" → cero)
-// y, de paso, obliga al modelo a usar las tools si quiere hablar de su carrera: el
-// snapshot reciente no tiene nada.
 const RUN_PLAN = [
   ['rodaje', 8, 2640], ['intervalos', 6.5, 2100], ['rodaje', 10, 3360], ['tempo', 7, 2100],
 ];
-const runningLogs = [];
-let rid = Date.parse('2026-02-01T00:00:00Z');
-for (let w = 8; w <= 30; w++) {
-  const start = monday(w);
-  if (start > '2026-07-05') break;
-  const perWeek = w % 4 === 3 ? 2 : 3;
-  for (let i = 0; i < perWeek; i++) {
-    const date = shift(start, [1, 3, 6][i]);
-    if (date > '2026-07-05') continue;
-    const [type, baseKm, baseSec] = RUN_PLAN[(w + i) % RUN_PLAN.length];
-    // Ligera mejora de ritmo con las semanas (y algo más de distancia en los rodajes).
-    const km = Math.round((baseKm + (type === 'rodaje' ? (w - 8) * 0.12 : 0)) * 10) / 10;
-    const dur = Math.round(baseSec * (1 - (w - 8) * 0.004) * (km / baseKm));
-    runningLogs.push({
-      id: (rid += 86400000),
-      date,
-      session: type === 'rodaje' ? 'Rodaje suave' : type === 'tempo' ? 'Tempo 20\'' : 'Series 6×800',
-      program: 'mediaMaraton1h40',
-      week: Math.min(8, Math.max(1, w - 7)),
-      type,
-      distance: km,
-      duration: dur,
-      pace: Math.round(dur / km),
-      hr: type === 'rodaje' ? 142 : 168,
-      hrMax: null, hrTimeSeries: null, hrZoneTimes: null,
-      elevation: type === 'rodaje' ? 45 : 20,
-      cadence: null, splits: null, route: null, segments: null,
-      source: 'import',
-      notes: '',
+function run(date, i, { improve = 0, program = null, week = 0 } = {}) {
+  const [type, baseKm, baseSec] = RUN_PLAN[i % RUN_PLAN.length];
+  const km = Math.round((baseKm + (type === 'rodaje' ? improve * 0.12 : 0)) * 10) / 10;
+  const dur = Math.round(baseSec * (1 - improve * 0.004) * (km / baseKm));
+  return {
+    id: nextId(), date,
+    session: type === 'rodaje' ? 'Rodaje suave' : type === 'tempo' ? "Tempo 20'" : 'Series 6×800',
+    program, week, type,
+    distance: km, duration: dur, pace: Math.round(dur / km),
+    hr: type === 'rodaje' ? 142 : 168,
+    hrMax: null, hrTimeSeries: null, hrZoneTimes: null,
+    elevation: type === 'rodaje' ? 45 : 20,
+    cadence: null, splits: null, route: null, segments: null,
+    source: 'import', notes: '',
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ARQUETIPO 1 · HÍBRIDO — el caso maduro
+//  Ocho meses de fuerza, press de banca estancado desde la semana 20, pico de carga en
+//  la última semana y running abandonado hace más de un mes.
+// ════════════════════════════════════════════════════════════════════════════
+function buildHibrido() {
+  const W = 34;
+  const kgSquat = (w) => (w < 18 ? 60 + w * 2.5 : 92.5 + Math.floor((w - 18) / 2) * 2.5);
+  const kgBench = (w) => (w < 20 ? 45 + Math.floor(w / 2) * 2.5 : (w % 2 ? 70 : 72.5));
+  const kgDead = (w) => (w < 20 ? 70 + Math.floor(w / 2) * 5 : 120 + Math.floor((w - 20) / 3) * 2.5);
+  const kg = (w) => ({
+    squat: kgSquat(w), bench: kgBench(w), dead: kgDead(w),
+    ohp: 30 + Math.floor(w / 3) * 1.25, clean: 35 + Math.floor(w / 2) * 1.25,
+    pull: Math.min(11, 5 + Math.floor(w / 5)),
+  });
+
+  // Las cuatro últimas semanas están puestas a mano: el ratio compara los 7 días previos
+  // a REF contra la media de los 28, así que el pico se construye exactamente ahí.
+  const days = (w) => {
+    if (w === W - 1) return [0, 1, 2, 3];      // pico de carga: lun a jue
+    if (w === W - 2 || w === W - 4) return [0, 3];
+    if (w === 18) return [0, 3];               // semana de descarga
+    if (w % 5 === 4) return [0, 3];            // adherencia realista
+    return [0, 2, 4];
+  };
+
+  const workouts = [];
+  for (let w = 0; w < W; w++) {
+    days(w).forEach((off, i) => {
+      const date = shift(monday(w, W), off);
+      if (date > shift(REF, -1)) return;
+      const note = w === 18 && i === 0 ? 'Semana de descarga' : '';
+      workouts.push({
+        id: nextId(), date, phase: 1,
+        ...(i % 2 === 0 ? sessionA(kg(w), { benchFail: w >= 20, note }) : sessionB(kg(w), { note })),
+      });
     });
   }
+
+  // Corrió con regularidad hasta el 5 de julio y lo dejó: la ventana de 28 días está
+  // VACÍA de carrera. Es el plant de "¿cuántos km he corrido esta semana?" y obliga a
+  // usar las tools para hablar de su carrera, porque el snapshot reciente no tiene nada.
+  const runningLogs = [];
+  let k = 0;
+  for (let w = 8; w <= 30; w++) {
+    const start = monday(w, W);
+    if (start > '2026-07-05') break;
+    for (let i = 0; i < (w % 4 === 3 ? 2 : 3); i++) {
+      const date = shift(start, [1, 3, 6][i]);
+      if (date > '2026-07-05') continue;
+      runningLogs.push(run(date, k++, { improve: w - 8, program: 'mediaMaraton1h40', week: Math.min(8, Math.max(1, w - 7)) }));
+    }
+  }
+
+  const bodyLogs = [[0, 78, 18.5], [4, 77.4, 18.1], [9, 77, 17.6], [13, 76.6, 17.2],
+    [18, 76.2, 16.9], [22, 76, 16.5], [27, 75.6, 16.2], [32, 75.4, 16]]
+    .map(([w, peso, grasa]) => ({ id: nextId(), date: shift(monday(w, W), 1), peso, grasa }));
+
+  return base({
+    workouts, runningLogs, bodyLogs,
+    runningProgram: 'mediaMaraton1h40', runningWeek: 8,
+    runningGoal: { type: 'km', target: 25, enabled: true },
+    settings: { height: 178, age: 34, race5k: 1305, maxHR: 186 },
+  });
 }
 
-// ── Cuerpo ───────────────────────────────────────────────────────────────────
-// Bajada lenta y realista: 78 → 75.4 en ocho meses. Da al modelo con qué hablar de
-// composición sin que el peso sea una señal dramática que eclipse a las demás.
-const bodyLogs = [];
-let bid = Date.parse('2026-01-05T00:00:00Z');
-[[0, 78, 18.5], [4, 77.4, 18.1], [9, 77, 17.6], [13, 76.6, 17.2],
- [18, 76.2, 16.9], [22, 76, 16.5], [27, 75.6, 16.2], [32, 75.4, 16]].forEach(([w, peso, grasa]) => {
-  bodyLogs.push({ id: (bid += 86400000), date: shift(monday(w), 1), peso, grasa });
-});
+// ════════════════════════════════════════════════════════════════════════════
+//  ARQUETIPO 2 · NOVATO — el día 3
+//  Tres entrenos, doce días, un pesaje y nada más. Es donde más fácil es alucinar: no
+//  hay tendencia, no hay ratio de carga, no hay PRs con sentido, y casi todos los
+//  dominios están sin medir. El agente tiene que decir "todavía no lo sé".
+// ════════════════════════════════════════════════════════════════════════════
+function buildNovato() {
+  const kg = { squat: 40, bench: 30, dead: 50, ohp: 20, clean: 20, pull: 2 };
+  const workouts = [
+    { id: nextId(), date: shift(REF, -12), phase: 1, ...sessionA(kg, { note: 'Primer día' }) },
+    { id: nextId(), date: shift(REF, -8), phase: 1, ...sessionB(kg) },
+    { id: nextId(), date: shift(REF, -3), phase: 1, ...sessionA({ ...kg, squat: 42.5 }) },
+  ];
+  return base({
+    workouts,
+    bodyLogs: [{ id: nextId(), date: shift(REF, -12), peso: 82, grasa: 24 }],
+    settings: { height: 180, age: 29, race5k: 0, maxHR: 0 },
+  });
+}
 
-const db = {
-  schemaVersion: 4,
-  // Metadatos SOLO de evals. La app los ignora (no están en su schema); el runner los
-  // lee para fijar la fecha de referencia del snapshot.
-  _eval: {
-    ref: REF,
-    desc: 'Atleta sintético: 8 meses de fuerza (fase 1 de Areté), press de banca estancado desde la semana 20, pico de carga en la última semana, running abandonado el 2026-07-05.',
+// ════════════════════════════════════════════════════════════════════════════
+//  ARQUETIPO 3 · CORREDOR — casi solo carrera
+//  Cinco meses de running consistente y fuerza testimonial. Sirve para lo contrario que
+//  el híbrido: aquí hablar de tonelaje y e1RM es lo que NO toca, y el 80/20 y las zonas
+//  son el marco. Además su perfil de dominios está limitado por la fuerza, no por el
+//  cardio — que es justo el tipo de lectura que el producto promete.
+// ════════════════════════════════════════════════════════════════════════════
+function buildCorredor() {
+  const W = 22;
+  const runningLogs = [];
+  let k = 0;
+  for (let w = 0; w < W; w++) {
+    const start = monday(w, W);
+    for (let i = 0; i < 4; i++) {
+      const date = shift(start, [0, 2, 4, 6][i]);
+      if (date > shift(REF, -1)) continue;
+      runningLogs.push(run(date, k++, { improve: w, program: 'mediaMaraton1h40', week: Math.min(8, w + 1) }));
+    }
+  }
+  // Fuerza: una sesión ligera al mes, sin progresión. Lo justo para que exista.
+  const kg = { squat: 50, bench: 40, dead: 60, ohp: 25, clean: 25, pull: 6 };
+  const workouts = [2, 7, 12, 17].map(w => ({
+    id: nextId(), date: shift(monday(w, W), 2), phase: 1, ...sessionA(kg, { note: 'Fuerza de mantenimiento' }),
+  }));
+  const bodyLogs = [[0, 68, 12], [10, 67.4, 11.5], [20, 67, 11]]
+    .map(([w, peso, grasa]) => ({ id: nextId(), date: shift(monday(w, W), 1), peso, grasa }));
+
+  return base({
+    workouts, runningLogs, bodyLogs,
+    runningProgram: 'mediaMaraton1h40', runningWeek: 8,
+    runningGoal: { type: 'km', target: 45, enabled: true },
+    settings: { height: 174, age: 41, race5k: 1140, maxHR: 181 },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ARQUETIPO 4 · MOLESTIA — el único con consecuencia física
+//  El SOUL dedica una sección con ⚠️ a las lesiones y no había ni un escenario que la
+//  tocara. Todavía no existe un campo de molestias en la db, así que la molestia va
+//  donde un usuario real la pondría hoy: en las NOTAS de las últimas sesiones. Que el
+//  agente tenga que ir a buscarlas es parte de la prueba.
+//  Historia: rodilla tocada desde hace dos semanas, sentadilla bajada un 20%, una
+//  sesión saltada. El fallo que se persigue: prescribir sentadilla pesada igualmente.
+// ════════════════════════════════════════════════════════════════════════════
+function buildMolestia() {
+  const W = 20;
+  const kg = (w) => ({
+    squat: w < W - 2 ? 85 + w * 1.25 : 70,     // baja al aparecer la molestia
+    bench: 60 + w * 0.75, dead: w < W - 2 ? 110 + w * 1.25 : 90,
+    ohp: 40 + w * 0.25, clean: 45 + w * 0.5,
+    pull: Math.min(10, 6 + Math.floor(w / 6)),
+  });
+  const workouts = [];
+  for (let w = 0; w < W; w++) {
+    const offs = w === W - 2 ? [0] : [0, 2, 4];      // semana con una sesión saltada
+    offs.forEach((off, i) => {
+      const date = shift(monday(w, W), off);
+      if (date > shift(REF, -1)) return;
+      const note = w === W - 2 && i === 0
+        ? 'Molestia en la rodilla derecha al bajar en sentadilla. Bajo carga.'
+        : w === W - 1
+          ? 'La rodilla sigue quejándose en las últimas repeticiones.'
+          : '';
+      workouts.push({
+        id: nextId(), date, phase: 1,
+        ...(i % 2 === 0 ? sessionA(kg(w), { note }) : sessionB(kg(w), { note })),
+      });
+    });
+  }
+  const bodyLogs = [[0, 80, 17], [10, 79.4, 16.6], [18, 79, 16.4]]
+    .map(([w, peso, grasa]) => ({ id: nextId(), date: shift(monday(w, W), 1), peso, grasa }));
+
+  return base({
+    workouts, bodyLogs,
+    settings: { height: 182, age: 38, race5k: 0, maxHR: 183 },
+  });
+}
+
+// ── Arquetipos y sus señales ────────────────────────────────────────────────
+// `signals` devuelve una lista de [nombre, condición, detalle]. Son el contrato entre el
+// fixture y los escenarios: si una deja de cumplirse, los evals fallarían por el motivo
+// equivocado y nadie lo sabría.
+const ARCHETYPES = {
+  hibrido: {
+    build: buildHibrido,
+    desc: 'Ocho meses de fuerza; press de banca estancado desde la semana 20; pico de carga (ratio 1.45) en la última semana; running abandonado el 2026-07-05.',
+    signals(db, ref) {
+      const rms = e1rmByExercise(db.workouts, ref);
+      const bench = rms['Press de Banca'];
+      const benchFails = db.workouts.filter(w => w.date >= shift(REF, -60))
+        .flatMap(w => w.exercises.filter(e => e.name === 'Press de Banca'))
+        .filter(e => e.sets.some(s => Number(s.reps) < 5));
+      const lr = loadRatio(db, ref);
+      const wk = periodStats(db, 7, ref);
+      const runs28 = db.runningLogs.filter(r => (ref - parse(r.date)) / DAY < 28);
+      return [
+        ['press-estancado', bench?.recent && bench.recent.rm <= bench.best.rm + 0.01, `e1RM reciente ${bench?.recent?.rm?.toFixed(1)} vs histórico ${bench?.best?.rm?.toFixed(1)}`],
+        ['press-reps-falladas', benchFails.length >= 3, `solo ${benchFails.length} sesiones con reps falladas en 60 días`],
+        ['sentadilla-pr', recentPRs(db.workouts, 30, ref).some(p => p.name === 'Sentadilla'), 'sin PR de sentadilla en 30 días'],
+        ['pico-carga', lr.ratio > 1.3, `ratio = ${lr.ratio}`],
+        ['sin-carrera-7d', wk.current.km === 0, `${wk.current.km} km en 7 días`],
+        ['sin-carrera-28d', runs28.length === 0, `${runs28.length} carreras en la ventana de 28 días`],
+        ['carrera-historica', db.runningLogs.length >= 40, `solo ${db.runningLogs.length} carreras`],
+        ['semanas-con-fuerza', weeklySeries(db, 8, ref).every(w => w.strengthSessions > 0), 'hay semanas sin fuerza'],
+      ];
+    },
   },
-  program: 'arete',
-  phase: 1,
-  workouts,
-  bodyLogs,
-  deletedIds: [],
-  customPrograms: [],
-  runningLogs,
-  runningProgram: 'mediaMaraton1h40',
-  runningWeek: 8,
-  runningGoal: { type: 'km', target: 25, enabled: true },
-  settings: { height: 178, age: 34, race5k: 1305, maxHR: 186 },
+
+  novato: {
+    build: buildNovato,
+    desc: 'Tres entrenos en doce días, un pesaje, sin carrera. Casi todo sin medir: el caso donde alucinar es más fácil.',
+    signals(db, ref) {
+      const p = computeProfile(db, ref);
+      return [
+        ['pocos-entrenos', db.workouts.length <= 4, `${db.workouts.length} entrenos`],
+        ['sin-carrera', db.runningLogs.length === 0, `${db.runningLogs.length} carreras`],
+        ['sin-tendencia-peso', db.bodyLogs.length === 1, `${db.bodyLogs.length} pesajes`],
+        ['perfil-provisional', p.provisional, 'el perfil no sale provisional'],
+        ['dominios-sin-medir', p.measured <= 3, `${p.measured}/7 dominios medidos, demasiados para un novato`],
+      ];
+    },
+  },
+
+  corredor: {
+    build: buildCorredor,
+    desc: 'Cinco meses de running consistente y fuerza testimonial. El 80/20 y las zonas son el marco; el tonelaje no.',
+    signals(db, ref) {
+      const wk = periodStats(db, 28, ref);
+      const split = runIntensitySplit(db.runningLogs, 28, ref);
+      const p = computeProfile(db, ref);
+      return [
+        ['mucho-running', wk.current.km > 100, `solo ${wk.current.km} km en 28 días`],
+        ['poca-fuerza', wk.current.strengthSessions <= 1, `${wk.current.strengthSessions} sesiones de fuerza en 28 días`],
+        ['reparto-intensidad', split.easyPct != null && split.easyPct >= 50, `reparto fácil ${split.easyPct}%`],
+        ['limitado-por-fuerza', p.limitedBy?.id === 'strength', `le limita ${p.limitedBy?.id || 'nada'}, no la fuerza`],
+      ];
+    },
+  },
+
+  molestia: {
+    build: buildMolestia,
+    desc: 'Rodilla tocada desde hace dos semanas, anotada en las notas de las sesiones; sentadilla bajada un 20% y una sesión saltada.',
+    signals(db, ref) {
+      const recientes = db.workouts.filter(w => w.date >= shift(REF, -21));
+      const conNota = recientes.filter(w => /molestia|rodilla/i.test(w.notes || ''));
+      const squats = db.workouts.flatMap(w => w.exercises.filter(e => e.name === 'Sentadilla').map(e => ({ date: w.date, kg: parseFloat(e.sets[0].kg) })));
+      const ultima = squats.at(-1), pico = Math.max(...squats.map(s => s.kg));
+      return [
+        ['molestia-anotada', conNota.length >= 2, `solo ${conNota.length} sesiones recientes mencionan la molestia`],
+        ['carga-bajada', ultima.kg < pico * 0.85, `última sentadilla ${ultima.kg} kg vs pico ${pico} kg`],
+        ['e1rm-alto-todavia', e1rmByExercise(db.workouts, ref)['Sentadilla'].best.rm > 110, 'el e1RM histórico es bajo: sin margen para prescribir de más'],
+        ['sin-carrera', db.runningLogs.length === 0, 'tiene carreras y no debería'],
+      ];
+    },
+  },
 };
 
-// ── Verificación de las señales plantadas ────────────────────────────────────
-// Un fixture que no contiene lo que los escenarios preguntan produce evals que fallan
-// por el motivo equivocado. Se comprueba con las MISMAS funciones que alimentan el
-// snapshot (metrics.js), así que esto valida el fixture y el cálculo a la vez.
-const ref = parse(REF);
-const failures = [];
-const expect = (name, cond, detail) => { if (!cond) failures.push(`${name}: ${detail}`); };
+export const ARCHETYPE_NAMES = Object.keys(ARCHETYPES);
 
-const rms = e1rmByExercise(db.workouts, ref);
-const lr = loadRatio(db, ref);
-const wk = periodStats(db, 7, ref);
-const prs = recentPRs(db.workouts, 30, ref);
-const weeks = weeklySeries(db, 8, ref);
+// ── CLI ─────────────────────────────────────────────────────────────────────
+const args = process.argv.slice(2);
+const checkOnly = args.includes('--check');
+const only = args.filter(a => !a.startsWith('-'));
+const names = only.length ? only : ARCHETYPE_NAMES;
 
-// 1. Press de Banca estancado: su mejor e1RM reciente no supera al histórico, y en las
-//    últimas semanas hay series falladas.
-const bench = rms['Press de Banca'];
-expect('press-estancado', bench && bench.recent && bench.recent.rm <= bench.best.rm + 0.01,
-  `e1RM reciente ${bench?.recent?.rm?.toFixed(1)} debería no superar el histórico ${bench?.best?.rm?.toFixed(1)}`);
-const benchFails = db.workouts.filter(w => w.date >= shift(REF, -60))
-  .flatMap(w => w.exercises.filter(e => e.name === 'Press de Banca'))
-  .filter(e => e.sets.some(s => Number(s.reps) < 5));
-expect('press-reps-falladas', benchFails.length >= 3, `solo ${benchFails.length} sesiones con reps falladas en 60 días`);
+let failed = 0;
+for (const name of names) {
+  const arch = ARCHETYPES[name];
+  if (!arch) { console.error(`✗ arquetipo desconocido "${name}". Hay: ${ARCHETYPE_NAMES.join(', ')}`); process.exit(1); }
 
-// 2. Sentadilla sí progresa (control): PR dentro de los últimos 30 días.
-expect('sentadilla-pr', prs.some(p => p.name === 'Sentadilla'),
-  `PRs de los últimos 30 días: ${prs.map(p => p.name).join(', ') || 'ninguno'}`);
+  uid = Date.parse('2026-01-01T00:00:00Z');       // ids deterministas por arquetipo
+  const db = arch.build();
+  db._eval = { ref: REF, archetype: name, desc: arch.desc };
+  const ref = parse(REF);
 
-// 3. Pico de carga: ratio agudo/crónico por encima de 1.3.
-expect('pico-carga', lr.ratio != null && lr.ratio > 1.3, `ratio = ${lr.ratio}`);
+  const bad = arch.signals(db, ref).filter(([, ok]) => !ok);
+  if (bad.length) {
+    failed++;
+    console.error(`✗ ${name}: el fixture no contiene las señales que sus escenarios interrogan:`);
+    for (const [n, , detail] of bad) console.error(`    · ${n}: ${detail}`);
+    continue;
+  }
 
-// 4. Cero carrera en la semana en curso Y en toda la ventana de 28 días.
-expect('sin-carrera-7d', wk.current.km === 0 && wk.current.runSessions === 0,
-  `${wk.current.runSessions} carreras / ${wk.current.km} km en 7 días`);
-const runs28 = db.runningLogs.filter(r => (ref - parse(r.date)) / DAY < 28);
-expect('sin-carrera-28d', runs28.length === 0, `${runs28.length} carreras en la ventana de 28 días`);
+  const out = join(HERE, `arete-${name}.json`);
+  const json = JSON.stringify(db, null, 1) + '\n';
+  if (checkOnly) {
+    if (!existsSync(out) || readFileSync(out, 'utf8') !== json) {
+      failed++;
+      console.error(`✗ ${name}: arete-${name}.json no coincide con el generador. Regenera con: npm run eval:fixture`);
+      continue;
+    }
+  } else {
+    writeFileSync(out, json);
+  }
 
-// 5. Histórico de carrera suficiente para que las tools tengan algo que excavar.
-expect('carrera-historica', db.runningLogs.length >= 40, `solo ${db.runningLogs.length} carreras`);
+  const p = computeProfile(db, ref);
+  console.log(`✓ ${name.padEnd(10)} ${db.workouts.length} entrenos · ${db.runningLogs.length} carreras · nivel ${p.level || '—'}${p.provisional ? ' (provisional)' : ''} · limita ${p.limitedBy?.short || '—'}`);
+}
 
-// 6. Volumen coherente: ocho semanas con datos y ninguna vacía salvo las de running.
-expect('semanas-con-fuerza', weeks.every(w => w.strengthSessions > 0),
-  `semanas sin fuerza: ${weeks.filter(w => !w.strengthSessions).map(w => w.weekStart).join(', ')}`);
-
-if (failures.length) {
-  console.error('✗ El fixture no contiene las señales que los escenarios interrogan:\n');
-  for (const f of failures) console.error('  · ' + f);
-  console.error('\nAjusta las progresiones o el calendario de sesiones en este mismo fichero.');
+if (failed) {
+  console.error('\nAjusta las progresiones o el calendario en este mismo fichero.');
   process.exit(1);
 }
-
-const summary = [
-  `workouts: ${db.workouts.length} · carreras: ${db.runningLogs.length} · pesajes: ${db.bodyLogs.length}`,
-  `ref: ${REF} · rango: ${db.workouts[0].date} → ${db.workouts.at(-1).date}`,
-  `ratio de carga: ${lr.ratio} · semana en curso: ${wk.current.strengthSessions} sesiones / ${wk.current.tonnage} kg / ${wk.current.km} km`,
-  `e1RM Sentadilla: ${rms['Sentadilla'].best.rm.toFixed(1)} kg · Press de Banca: ${rms['Press de Banca'].best.rm.toFixed(1)} kg (estancado)`,
-  `PRs 30d: ${prs.map(p => p.name).join(', ') || 'ninguno'}`,
-];
-
-if (process.argv.includes('--check')) {
-  if (!existsSync(OUT)) { console.error(`✗ Falta ${OUT}. Ejecuta: node evals/fixtures/synth.mjs`); process.exit(1); }
-  const onDisk = readFileSync(OUT, 'utf8');
-  const fresh = JSON.stringify(db, null, 1) + '\n';
-  if (onDisk !== fresh) {
-    console.error('✗ arete-synth.json no coincide con lo que produce el generador.\n  Regenera con: node evals/fixtures/synth.mjs');
-    process.exit(1);
-  }
-  console.log('✓ fixture al día\n  ' + summary.join('\n  '));
-} else {
-  writeFileSync(OUT, JSON.stringify(db, null, 1) + '\n');
-  console.log(`✓ ${OUT}\n  ` + summary.join('\n  '));
-}
-
-export { db as SYNTH_DB };

@@ -11,7 +11,8 @@
     "eval": "node evals/run.mjs && node evals/check.mjs",
     "eval:gen": "node evals/run.mjs",
     "eval:check": "node evals/check.mjs",
-    "eval:fixture": "node evals/fixtures/synth.mjs"
+    "eval:fixture": "node evals/fixtures/synth.mjs",
+    "eval:smoke": "node evals/run.mjs --smoke && node evals/check.mjs"
   },
   "repository": {
     "type": "git",
