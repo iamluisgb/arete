@@ -3,9 +3,14 @@ PLAN-EVOLUCION.md
 node_modules/
 stitch/
 
-# Datos personales y salidas de evals (el repo es público)
-evals/fixtures/
+# Datos personales y salidas de evals (el repo es público).
+# El fixture SINTÉTICO sí se versiona: es el suelo de comparación entre runs y no
+# contiene datos de nadie. El real y los runs, no.
+evals/fixtures/*
+!evals/fixtures/synth.mjs
+!evals/fixtures/arete-synth.json
 evals/out/
+evals/runs/
 
 # Evaluación local de medios con licencia (© Gym visual) — NUNCA se versiona
 .eval/

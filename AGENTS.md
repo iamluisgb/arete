@@ -123,9 +123,16 @@ Prácticas que sostienen esto, y por qué:
   por longitud (`finish_reason: 'length'`).
 - **Los prompts que rutean viven en `tools.js`, no en la UI** (`GATHER_INSTRUCTION`), para que
   los evals prueben exactamente el prompt que corre en la app.
-- **Evals con datos reales**: `node evals/run.mjs`. Fixture en `evals/fixtures/` (gitignorado:
-  el repo es público). Cubre el ruteo de escritura, que es donde equivocarse no es un error de
-  formato sino escribir en el sitio que no toca.
+- **Evals en dos fases** (`npm run eval`, detalle en [`docs/EVALS.md`](docs/EVALS.md)): `run.mjs`
+  genera contra un **fixture sintético versionado** con fecha de referencia fija, y `check.mjs`
+  comprueba. Separadas porque afinar un criterio no debe costar otra ronda de llamadas, y el
+  fixture es sintético porque el real cambia cada vez que se entrena: sin fixture fijo dos runs
+  no son comparables y los evals no deciden nada. Los fallos duros capan el run.
+- **La alucinación de este dominio es el número inventado**, no la cita falsa: el check `cifras`
+  exige que toda cifra con unidad de una respuesta descriptiva salga del snapshot o de un
+  resultado de herramienta. Es el equivalente del `[[aN]]` de bookreader.
+- **Los checks tienen tests** (`tests/evals-checks.test.js`): un comprobador que no caza nada
+  pasa siempre, y entonces un run en verde no significa nada.
 
 ## Google Drive
 
