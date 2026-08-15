@@ -934,15 +934,34 @@ function fillModelOptions(providerId) {
   els.setModelList.innerHTML = (preset?.models || []).map(m => `<option value="${esc(m)}">`).join('');
 }
 
-function initSettingsUI() {
+// El bloque de la demo solo tiene sentido sin clave; el aviso de "estás en la demo",
+// solo con ella puesta. Se repinta al guardar y al activar la demo.
+function paintDemoUI() {
+  const demo = LLM.isDemo();
+  if (els.demoPanel) els.demoPanel.hidden = LLM.hasKey();
+  if (els.demoOn) els.demoOn.hidden = !demo;
+}
+
+// Volcar los ajustes al formulario. Aparte del cableado porque también se llama al
+// activar la demo, y repetir los addEventListener dejaría los oyentes duplicados.
+function fillSettingsUI() {
   const preset = LLM.currentProvider();
   els.setProvider.value = preset ? preset.id : 'custom';
   els.setBaseUrl.value = LLM.getBaseUrl();
   els.setBaseUrl.readOnly = !!preset;
-  els.setKey.value = LLM.getKey();
+  // El token de la demo NO se enseña: es nuestro, no algo que el atleta haya escrito o
+  // pueda reutilizar. Enseñarlo además invitaba a guardarlo contra otro proveedor, que
+  // es exactamente cómo se rompía la demo (401 "API key inválida" a la primera).
+  els.setKey.value = LLM.isDemo() ? '' : LLM.getKey();
   els.setModel.value = LLM.getModel();
   els.setVisionModel.value = LLM.getVisionModelSetting();
   fillModelOptions(preset?.id);
+  paintDemoUI();
+}
+
+function initSettingsUI() {
+  fillSettingsUI();
+  wireDemoButtons();
 
   els.setProvider.addEventListener('change', () => {
     const p = LLM.PROVIDERS.find(x => x.id === els.setProvider.value);
@@ -992,12 +1011,51 @@ function initSettingsUI() {
 }
 
 function persistSettings() {
+  const key = els.setKey.value.trim();
+  // Con la demo activa el campo de clave sale vacío a propósito, así que vaciarlo aquí
+  // sería borrar el token por el mero hecho de tocar otro campo. Y si además la base URL
+  // ya no es la del gateway (el atleta cambió de proveedor sin pegar su clave), lo que
+  // NO se puede hacer es mandar el token del gateway a ese proveedor: es un 401 seguro.
+  // En ese caso se conserva la demo entera y se avisa.
+  const demoIntacta = !key && LLM.isGatewayUrl(els.setBaseUrl.value);
+  const demoMovida = !key && !LLM.isGatewayUrl(els.setBaseUrl.value) && LLM.isDemo();
+  if (demoMovida) {
+    fillSettingsUI();                                  // deshacer el cambio de proveedor
+    els.setStatus.className = 'drive-status';
+    els.setStatus.textContent = 'Sigues con la demo. Para cambiar de proveedor, pega su clave.';
+    return;
+  }
+  if (!demoIntacta) LLM.setKey(key);
   LLM.setBaseUrl(els.setBaseUrl.value);
-  LLM.setKey(els.setKey.value);
   LLM.setModel(els.setModel.value);
   LLM.setVisionModel(els.setVisionModel.value);
   showSetupIfNeeded();
+  paintDemoUI();
   renderSettingsIndex(dbRef);   // la fila "Quirón" del índice dice proveedor y modelo
+}
+
+// Demo self-service: un botón en Ajustes y otro en la pantalla de bienvenida del chat.
+// Los dos hacen lo mismo —pedir token y autoconfigurar— porque los dos son sitios
+// donde alguien se topa con "necesitas una API key" por primera vez.
+function wireDemoButtons() {
+  for (const [btn, out] of [[els.demoBtn, els.demoStatus], [els.setupDemoBtn, els.setupStatus]]) {
+    if (!btn || btn.dataset.wired) continue;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      if (out) { out.className = 'drive-status'; out.textContent = 'Creando tu demo…'; }
+      try {
+        await LLM.requestDemoToken();
+        if (out) { out.className = 'drive-status drive-success'; out.textContent = '✓ Listo, ya puedes preguntar'; }
+        fillSettingsUI();            // repinta Ajustes con la config puesta
+        renderSettingsIndex(dbRef);
+        showSetupIfNeeded();         // el chat deja de pedir configuración
+      } catch (e) {
+        if (out) { out.className = 'drive-status drive-error'; out.textContent = `No se pudo activar la demo: ${e.message}`; }
+        btn.disabled = false;
+      }
+    });
+  }
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
@@ -1025,6 +1083,13 @@ export function initQuiron(db, opts = {}) {
     setVisionModel: document.getElementById('quironVisionModel'),
     setTest: document.getElementById('quironTestBtn'),
     setStatus: document.getElementById('quironAiStatus'),
+    // Demo self-service: bloque de Ajustes + botón de la pantalla de bienvenida.
+    demoPanel: document.getElementById('quironDemoPanel'),
+    demoBtn: document.getElementById('quironDemoBtn'),
+    demoStatus: document.getElementById('quironDemoStatus'),
+    demoOn: document.getElementById('quironDemoOn'),
+    setupDemoBtn: document.getElementById('quironSetupDemoBtn'),
+    setupStatus: document.getElementById('quironSetupStatus'),
   };
 
   convo = loadConvo();

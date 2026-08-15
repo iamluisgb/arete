@@ -694,8 +694,21 @@
     </div>
   </div>
 
+  <!-- Demo sin API key (gateway compartido con bookreader). Va ANTES del formulario:
+       pedirle a alguien que elija proveedor y consiga una clave antes de haber visto
+       lo que hace el coach es pedirle trabajo por adelantado. El bloque desaparece en
+       cuanto hay clave (propia o de la demo). -->
+  <div class="panel" id="quironDemoPanel">
+    <div class="form">
+      <button class="btn btn--primary" type="button" id="quironDemoBtn">Probar Quirón (sin API key)</button>
+      <span class="field-hint">Un cupo de llamadas de prueba con el modelo de la casa, sin registro. Cuando se acabe, pon tu propia clave abajo.</span>
+      <div id="quironDemoStatus" class="drive-status" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
   <div class="panel">
     <div class="form">
+      <div id="quironDemoOn" class="field-hint" hidden>Ahora mismo estás usando la demo. Elige proveedor y pega tu clave para seguir sin cupo.</div>
       <label class="field"><span class="field-label">Proveedor</span>
         <select id="quironProvider">
           <option value="nan">nan</option>
@@ -1148,8 +1161,10 @@
   <div class="quiron-setup" id="quironSetup" hidden>
     <div class="quiron-setup-icon">🏹</div>
     <p><strong>Quirón necesita un proveedor de IA.</strong></p>
-    <p>Configura tu API key para hablar con tu coach. Tus datos de entrenamiento no salen de tu dispositivo salvo hacia el proveedor que tú elijas.</p>
+    <p>Pruébalo con nuestro cupo de demo, o configura tu API key. Tus datos de entrenamiento no salen de tu dispositivo salvo hacia el proveedor que uses.</p>
+    <button class="btn btn-sm btn--primary" id="quironSetupDemoBtn">Probar sin API key</button>
     <button class="btn btn-sm" id="quironGoSettings">Ir a Ajustes</button>
+    <div id="quironSetupStatus" class="drive-status" role="status" aria-live="polite"></div>
   </div>
   <div class="quiron-chips" id="quironChips"></div>
   <div class="quiron-inputbar" id="quironInputBar">

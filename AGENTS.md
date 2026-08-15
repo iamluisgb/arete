@@ -106,6 +106,23 @@ streameada con las herramientas puestas** (`chatAgent` en [`js/ai/llm.js`](js/ai
 el snapshot basta, ahí acaba; si el modelo pide herramientas, se ejecutan en local y una
 segunda vuelta streamea la respuesta con los resultados dentro.
 
+**Demo sin API key.** "Configura tu proveedor y consigue una clave" antes de haber visto
+lo que hace el coach es pedir trabajo por adelantado, y ahí se cae casi todo el mundo. El
+botón *Probar Quirón* pide un token al **gateway de bookreader**
+(`workers/gateway` en aquel repo, ADR-021) y autoconfigura los tres slots; el atleta no ve
+token ni URLs. Lo que hay que saber:
+
+- El gateway ata cada token a su **producto**: los de arete solo pueden usar los alias
+  `arete-fast` / `arete-vision` (que apuntan a deepseek-v4-flash y qwen3.6). Por eso
+  `requestDemoToken` manda `{"product":"arete"}` — sin eso emitiría un token de bookreader,
+  inservible aquí. Es también lo que permite saber cuánto consume cada app (`product_stats`).
+- **El token no se enseña nunca** en el campo de clave, y guardar Ajustes sin clave escrita
+  conserva la demo en vez de moverla. Se enseñaba en bookreader, y "Guardar" mandaba el
+  token del gateway al proveedor del desplegable: 401 en todo, con el usuario convencido de
+  que la clave de la demo nacía rota. `llm.js` además **repara ese estado al cargar** (un
+  token `br-` con otra base URL no puede venir de otro sitio).
+- El cupo es por red y día **por producto**: probar bookreader no te deja sin probar arete.
+
 Prácticas que sostienen esto, y por qué:
 
 - **Presupuesto de contexto por turno.** Solo viajan los últimos `HISTORY_MSGS` mensajes, y

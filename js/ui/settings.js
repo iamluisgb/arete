@@ -129,7 +129,11 @@ export function renderSettingsIndex(db) {
     customs ? `${customs} propio${customs > 1 ? 's' : ''}` : 'Solo los incluidos',
     { off: !customs });
 
-  if (LLM.hasKey()) {
+  if (LLM.isDemo()) {
+    // La demo no es un proveedor de la lista y su alias de modelo no le dice nada a
+    // nadie: el índice tiene que decir en qué estado está, no repetir la config.
+    setStatus('setQuironStatus', 'Demo · sin API key');
+  } else if (LLM.hasKey()) {
     const prov = LLM.currentProvider();
     setStatus('setQuironStatus', `${prov ? prov.id : 'Personalizado'} · ${LLM.getModel()}`);
   } else {

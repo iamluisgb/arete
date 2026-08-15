@@ -12,6 +12,16 @@
 
 const DEFAULT_BASE_URL = 'https://api.nan.builders/v1';
 const DEFAULT_MODEL = 'deepseek-v4-flash';
+
+// Demo sin API key, sobre el gateway compartido con bookreader (su repo: workers/gateway,
+// ADR-021). El botón "Probar Quirón" pide un token self-service y autoconfigura los tres
+// ajustes; el atleta no ve token ni URLs. Los alias son PROPIOS de arete: el gateway ata
+// cada token a su producto, así que un token de arete solo puede usar `arete-*` —es lo
+// que permite saber cuánto consume cada app— y `arete-vision` apunta a qwen3.6, el
+// modelo con el que aquí está verificada la lectura de capturas.
+const GATEWAY_BASE_URL = 'https://bookreader-gateway.luisgonzalezb93.workers.dev/v1';
+const GATEWAY_MODEL = 'arete-fast';
+const GATEWAY_VISION_MODEL = 'arete-vision';
 // Tope de tokens de salida por respuesta. Si el proveedor corta por longitud
 // (finish_reason 'length'), la UI ofrece "Continuar" (ver onDone).
 const MAX_TOKENS = 4096;
@@ -50,6 +60,43 @@ export function currentProvider() {
   return PROVIDERS.find(p => p.baseUrl.replace(/\/+$/, '') === b) || null;
 }
 
+// ---- Demo del gateway ---------------------------------------------------------
+
+/** ¿Está configurada la demo? (no es un preset de la lista y no tiene key que enseñar) */
+export function isDemo() { return isGatewayUrl(getBaseUrl()); }
+
+/** Igual, pero para una URL suelta: lo que hay ESCRITO en el formulario de Ajustes. */
+export function isGatewayUrl(u) { return (u || '').trim().replace(/\/+$/, '') === GATEWAY_BASE_URL; }
+
+// Pide un token demo y AUTOCONFIGURA proveedor, modelo y visión. Devuelve
+// { token, remaining, model, product } y deja Ajustes listo: quien pulsa el botón
+// quiere preguntarle a Quirón, no rellenar un formulario.
+export async function requestDemoToken() {
+  const res = await fetch(GATEWAY_BASE_URL.replace(/\/v1$/, '') + '/demo-token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product: 'arete' }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body?.error?.message || `HTTP ${res.status}`);
+  setBaseUrl(GATEWAY_BASE_URL);
+  setKey(body.token);
+  setModel(body.model || GATEWAY_MODEL);
+  setVisionModel(GATEWAY_VISION_MODEL);
+  return body;
+}
+
+// Reparación de un estado imposible: un token `br-…` es del gateway y solo vale ahí.
+// Verlo junto a otra base URL significa que Ajustes lo movió de sitio (guardar con la
+// demo activa y otro proveedor en el desplegable), y el síntoma es un 401 en todo con
+// el atleta convencido de que la key de la demo nació rota. Se restaura la demo; quien
+// pegue su propia key la pisa igual que siempre. Misma cura que en bookreader.
+if (/^br-/i.test(getKey().trim()) && !isGatewayUrl(getBaseUrl())) {
+  setBaseUrl(GATEWAY_BASE_URL);
+  setModel(GATEWAY_MODEL);
+  setVisionModel(GATEWAY_VISION_MODEL);
+}
+
 // Modelo de VISIÓN (para ingesta de capturas, Fase 5.1). El modelo de texto por
 // defecto (deepseek) no tiene visión; en nan usamos qwen3.6 (verificado). Resolución:
 // ajuste explícito del usuario → qwen3.6 si el proveedor es nan → vacío (sin visión).
@@ -59,6 +106,7 @@ export function getVisionModel() {
   const explicit = getVisionModelSetting().trim();
   if (explicit) return explicit;
   if (currentProvider()?.id === 'nan') return 'qwen3.6';
+  if (isDemo()) return GATEWAY_VISION_MODEL;   // la demo también lee capturas
   return '';
 }
 export function hasVision() { return getVisionModel().length > 0; }
