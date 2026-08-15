@@ -1,6 +1,6 @@
 // Herramientas de retrieval para Quirón (capa 2 del contexto): el snapshot cubre
 // el estado reciente; con esto el modelo excava en el histórico completo bajo
-// demanda vía chatToolsLoop. Definiciones en formato OpenAI + ejecutor sobre la db.
+// demanda vía chatAgent. Definiciones en formato OpenAI + ejecutor sobre la db.
 // `progFns` se inyecta (por defecto, programs.js del app) para poder testear con fixtures.
 
 import { workoutTonnage, epley } from './metrics.js';
@@ -147,11 +147,16 @@ export const QUIRON_WRITE_TOOLS = [
 // y quien construya el bloque `data` del turno tiene que poder distinguirlas.
 export const WRITE_TOOL_NAMES = new Set(QUIRON_WRITE_TOOLS.map(t => t.function.name));
 
-// Instrucción de la fase de recolección. Vive aquí (y no dentro de quiron.js)
-// para que los evals prueben EXACTAMENTE el prompt que corre en la app: el ruteo
-// entre sesión / plan / entreno registrado es lo único que separa esto de un
-// generador de ruido, y se valida con evals, no a ojo.
-export const GATHER_INSTRUCTION = '[INSTRUCCIÓN DE LA APP] Esta es la fase de HERRAMIENTAS. Reglas:\n1) Si necesitas histórico que no esté en el snapshot, pide las tools de lectura.\n2) RUTEO — tres peticiones parecidas, tres herramientas distintas. Fíjate en el TIEMPO VERBAL y en el ALCANCE:\n   · UNA sesión para hacer (hoy, mañana, "algo corto", "una sesión de pierna") → propose_session con la sesión descrita en `goal`.\n   · Un PLAN de varias semanas o la edición de uno existente ("un plan de 8 semanas", "cámbiame el plan") → propose_program con el plan descrito en `goal`.\n   · Un entreno YA HECHO que quiere registrar ("hoy he hecho sentadilla 5x5 a 100") → log_workout con esa descripción en `description`.\n   En caso de duda entre sesión y plan: si no se mencionan semanas ni progresión, es una SESIÓN.\n3) Antes de proponer sesión o plan, consulta su e1RM/marca con las tools de lectura para calibrar las cargas y dilas en `goal`.\n4) NO escribas la sesión/el plan/el entreno como tabla — la app los genera desde la herramienta. Si respondes "LISTO" sin llamar a la herramienta cuando se pide, se pierde.\n5) Cuando tengas los datos y (si procede) hayas llamado a la herramienta, responde exactamente "LISTO". NO respondas aún al atleta.';
+// El protocolo de dos fases —recolección no-streaming que terminaba en "LISTO" y una
+// llamada aparte para responder— se retiró el 2026-08-07. Costaba 3-4 llamadas por turno
+// y 13-22 segundos de espera ciega antes del primer token, y su regla central era un
+// contrato en lenguaje natural cuyo propio texto admitía que se podía perder ("si
+// respondes LISTO sin llamar a la herramienta, se pierde").
+//
+// Las reglas de ruteo que vivían aquí están ahora en el SOUL (# CUÁNDO USAR CADA
+// HERRAMIENTA DE ESCRITURA), que es donde está el resto de la especificación del
+// producto, y se siguen validando con la batería de evals — que es lo que importaba de
+// tenerlas fuera de la UI.
 
 const fmtDur = (s) => {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);

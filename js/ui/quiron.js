@@ -1,12 +1,13 @@
 // Quirón, tu coach — panel de chat con el agente (Fase 3 del plan).
-// Patrón por turno (heredado de bookreader): 1) fase de recolección con
-// herramientas vía chatToolsLoop (no-streaming, el modelo responde "LISTO"
-// cuando tiene datos), 2) respuesta final streameada con chatStream.
+// Un turno es UNA llamada streameada con las herramientas puestas (`chatAgent`): si el
+// modelo las pide, se ejecutan en local y una segunda vuelta streamea la respuesta con
+// los resultados dentro. Retiró al protocolo de dos fases heredado de bookreader
+// (recolección no-streaming que terminaba en "LISTO" + llamada aparte para responder).
 // La conversación vive en localStorage 'areteQuiron', fuera de la db sincronizada.
 
 import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, GATHER_INSTRUCTION, makeToolExecutor } from '../ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import { renderSettingsIndex, openSettingsPage } from './settings.js';
 import {
@@ -143,6 +144,25 @@ export function mdLite(text) {
   }).join('');
 }
 
+// Qué se le enseña al atleta mientras corren las herramientas. Decir QUÉ se está
+// mirando hace la espera más corta de lo que mide el reloj, y el bucle ya sabe los
+// nombres: desperdiciarlos en un "consultando tus datos…" mudo era gratis y peor.
+const TOOL_LABELS = {
+  get_exercise_history: 'repasando tu histórico',
+  get_workouts: 'repasando tus sesiones',
+  get_runs: 'repasando tus carreras',
+  get_body_logs: 'mirando tu peso y medidas',
+  get_domain_profile: 'mirando tu perfil de dominios',
+  get_program_detail: 'mirando tu plan',
+  propose_program: 'preparando tu plan',
+  propose_session: 'preparando la sesión',
+  log_workout: 'anotando el entreno',
+};
+export function toolLabel(names = []) {
+  const etiquetas = [...new Set(names.map(n => TOOL_LABELS[n]).filter(Boolean))];
+  return etiquetas.length ? `${etiquetas.join(' · ')}…` : 'consultando tus datos…';
+}
+
 function appendBubble(role, html) {
   const el = document.createElement('div');
   el.className = `q-bubble q-${role}`;
@@ -229,11 +249,21 @@ async function send(db, text, opts = {}) {
       return;
     }
 
-    // 1) Recolección + propuestas: el modelo pide herramientas de lectura si el
-    //    snapshot no basta, y puede proponer escrituras (propose_program) que NO se
-    //    aplican: se recogen para mostrar una tarjeta de confirmación tras el turno.
+    // 1) UNA llamada con las herramientas puestas, streameada. Si el modelo las pide, se
+    //    ejecutan (lecturas locales, microsegundos) y la siguiente vuelta streamea la
+    //    respuesta con los resultados dentro.
+    //
+    //    Sustituye al protocolo de dos fases (recolección no-streaming que terminaba en
+    //    "LISTO" + llamada aparte para responder): eran 3-4 llamadas por turno y 13-22
+    //    segundos de espera ciega antes del primer token, medidos el 2026-08-07. Aquí el
+    //    texto empieza a salir en la primera llamada.
+    // `gathered` acumula los volcados de las tools de LECTURA para guardarlos como
+    // mensaje `data` del turno (ver el presupuesto de contexto en context.js). Se llena
+    // dentro del `execute`, que corre en el bucle de chatAgent.
     const gathered = [];
     const proposals = [];
+    let full = '';
+    let truncated = false;
     if (!opts.skipGather) {
       const executor = makeToolExecutor(db, {
         getPrograms,
@@ -243,31 +273,50 @@ async function send(db, text, opts = {}) {
         // atleta como intención en vez de perder el turno (ver `intent` en tools.js).
         askedBy: q,
       });
-      try {
-        await LLM.chatToolsLoop({
-          messages: [
-            system,
-            ...history,
-            { role: 'user', content: GATHER_INSTRUCTION },
-          ],
-          tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
-          execute: async (name, args) => {
-            const out = await executor(name, args);
-            // Solo los volcados de LECTURA son datos. Lo que devuelven las tools de
-            // escritura es una instrucción para el modelo ("dile en una frase que…"), y
-            // colarla en el bloque `data` la deja viajando en los turnos siguientes como
-            // si fuera histórico del atleta. Estaba filtrado solo `propose_program`.
-            if (!WRITE_TOOL_NAMES.has(name)) gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
-            return out;
-          },
-          maxRounds: GATHER_MAX_ROUNDS,
-          maxTokens: 1024,
-          signal,
-        });
-      } catch (e) {
-        if (e.name === 'AbortError') throw e;
-        console.warn('Recolección falló; respondo solo con el snapshot:', e);
-      }
+
+      const res = await LLM.chatAgent({
+        messages: [system, ...history],
+        tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
+        execute: async (name, args) => {
+          const out = await executor(name, args);
+          // Solo los volcados de LECTURA son datos. Lo que devuelven las tools de
+          // escritura es una instrucción para el modelo ("dile en una frase que…"), y
+          // colarla en el bloque `data` la deja viajando en los turnos siguientes como
+          // si fuera histórico del atleta.
+          if (!WRITE_TOOL_NAMES.has(name)) gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
+          return out;
+        },
+        maxRounds: GATHER_MAX_ROUNDS,
+        onToken: (tok) => {
+          full += tok;
+          bubble.innerHTML = mdLite(full);
+          els.msgs.scrollTop = els.msgs.scrollHeight;
+        },
+        // La ronda llevaba herramientas: lo escrito era preámbulo ("voy a mirar tu
+        // histórico"), no la respuesta. Se descarta antes de pintar la de verdad.
+        onRoundReset: () => { full = ''; },
+        onTools: (names) => {
+          bubble.innerHTML = `<span class="q-typing">${esc(toolLabel(names))}</span>`;
+          els.msgs.scrollTop = els.msgs.scrollHeight;
+        },
+        // Una escritura termina el turno en la tarjeta: no se pide respuesta después.
+        stopAfterTools: () => proposals.length > 0,
+        onDone: (info) => { truncated = info.truncated; },
+        signal,
+      });
+      full = res.content || full;
+    } else {
+      // Informe: el bloque de datos ya viaja en `history` y no hay nada que preguntarle a
+      // ninguna herramienta, así que es una sola llamada streameada, sin tools.
+      full = await LLM.chatStream({
+        messages: [system, ...history],
+        onToken: (tok) => {
+          bubble.innerHTML = mdLite((full += tok));
+          els.msgs.scrollTop = els.msgs.scrollHeight;
+        },
+        onDone: (info) => { truncated = info.truncated; },
+        signal,
+      });
     }
     if (gathered.length) {
       convo.push({ role: 'data', content: gathered.join('\n\n') });
@@ -315,20 +364,7 @@ async function send(db, text, opts = {}) {
       return;
     }
 
-    // 2b) Respuesta final, streameada.
-    let full = '';
-    let truncated = false;
-    await LLM.chatStream({
-      messages: [system, ...history],
-      onToken: (tok) => {
-        full += tok;
-        bubble.innerHTML = mdLite(full);
-        els.msgs.scrollTop = els.msgs.scrollHeight;
-      },
-      onDone: (info) => { truncated = info.truncated; },
-      signal,
-    });
-
+    // 2b) La respuesta ya viene streameada del bucle de arriba: aquí solo se persiste.
     if (!full.trim()) { bubble.remove(); toast('Respuesta vacía del modelo', 'error'); }
     else {
       convo.push({ role: 'assistant', content: full });

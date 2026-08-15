@@ -14,7 +14,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildSnapshot } from '../js/ai/context.js';
 import { buildSystemMessage } from '../js/ai/soul.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, GATHER_INSTRUCTION, makeToolExecutor } from '../js/ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, makeToolExecutor } from '../js/ai/tools.js';
 import { loadFixture, progContext, chat, newRunDir, MODEL } from './lib.mjs';
 import { expand } from './scenarios.mjs';
 
@@ -23,10 +23,15 @@ const smoke = args.includes('--smoke');
 const archArg = args.find(a => a.startsWith('--archetype='))?.split('=')[1] || null;
 const ids = args.filter(a => !a.startsWith('-'));
 
-// Turno completo, igual que js/ui/quiron.js: fase de recolección (no-streaming, con las
-// tools de lectura Y las de escritura, para que el ruteo que se mide sea el real) y
-// después la respuesta. El snapshot se construye con la fecha de referencia del fixture,
-// no con `new Date()`: es lo que hace que dos runs sean comparables.
+// Mismo tope que la app (GATHER_MAX_ROUNDS en quiron.js).
+const MAX_ROUNDS = 3;
+
+// Turno completo, igual que js/ui/quiron.js: UNA llamada con las herramientas puestas;
+// si el modelo las pide, se ejecutan y va una segunda con los resultados. Sin fase de
+// recolección aparte y sin protocolo "LISTO".
+//
+// El runner no streamea (no hay a quién pintarle tokens), pero cuenta las mismas llamadas
+// y recorre las mismas rondas que la app: lo que se mide aquí es lo que corre allí.
 async function runTurn(sc, fixture) {
   const { db, ref } = fixture;
   const pc = progContext(db);
@@ -39,42 +44,33 @@ async function runTurn(sc, fixture) {
     askedBy: sc.prompt,        // mismo respaldo que la app ante una tool sin argumentos
     ref,                       // el perfil de dominios se calcula a la fecha del fixture
   });
-  const convo = [system, { role: 'user', content: sc.prompt }];
 
-  const gatherMsgs = [...convo, { role: 'user', content: GATHER_INSTRUCTION }];
+  const convo = [system, { role: 'user', content: sc.prompt }];
   const calls = [];
-  for (let round = 1; round <= 3; round++) {
-    const msg = await chat(gatherMsgs, {
-      tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
-      toolChoice: round < 3 ? 'auto' : 'none',
-      maxTokens: 1024,
-    });
+  let apiCalls = 0;
+
+  for (let round = 1; round <= MAX_ROUNDS; round++) {
+    apiCalls++;
+    const msg = await chat(convo, round < MAX_ROUNDS
+      ? { tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS], toolChoice: 'auto' }
+      : {});
     const toolCalls = msg.tool_calls || [];
-    if (!toolCalls.length) break;
-    gatherMsgs.push({ role: 'assistant', content: msg.content || null, tool_calls: toolCalls });
+    if (!toolCalls.length) return { answer: msg.content || '', snapshot, calls, proposals, apiCalls, rounds: round };
+
+    convo.push({ role: 'assistant', content: msg.content || null, tool_calls: toolCalls });
     for (const tc of toolCalls) {
       let a = {};
       try { a = JSON.parse(tc.function?.arguments || '{}'); } catch { /* args inválidos */ }
       const result = await execute(tc.function?.name, a);
       calls.push({ name: tc.function?.name, args: a, result: String(result ?? '') });
-      gatherMsgs.push({ role: 'tool', tool_call_id: tc.id, name: tc.function?.name, content: String(result ?? '') });
+      convo.push({ role: 'tool', tool_call_id: tc.id, name: tc.function?.name, content: String(result ?? '') });
     }
+
+    // Las herramientas de escritura terminan el turno en la tarjeta de confirmación: la
+    // app no pide respuesta después, así que el eval tampoco.
+    if (proposals.length) return { answer: '', snapshot, calls, proposals, apiCalls, rounds: round };
   }
-
-  if (calls.length) {
-    convo.push({
-      role: 'user',
-      content: '[DATOS DEL HISTÓRICO — generados por la app, no por el atleta]\n'
-        + calls.map(c => `[${c.name}(${JSON.stringify(c.args)})]\n${c.result}`).join('\n\n'),
-    });
-  }
-
-  // Si pidió una escritura, la app no streamea respuesta normal: el turno acaba en la
-  // tarjeta de propuesta. Lo que se evalúa entonces es QUÉ pidió, no qué dijo.
-  if (proposals.length) return { answer: '', snapshot, calls, proposals };
-
-  const msg = await chat(convo);
-  return { answer: msg.content || '', snapshot, calls, proposals };
+  return { answer: '', snapshot, calls, proposals, apiCalls, rounds: MAX_ROUNDS, exhausted: true };
 }
 
 // Agrupados por arquetipo: así el fixture se carga una vez por grupo y el informe se lee
@@ -111,7 +107,7 @@ for (const { key, archetype, scenario } of jobs) {
     JSON.stringify({ key, id: scenario.id, archetype, prompt: scenario.prompt, ms, ...out }, null, 1));
   console.log(out.error
     ? `✗ ${out.error}`
-    : `${(ms / 1000).toFixed(1)}s · ${out.calls.map(c => c.name).join(', ') || '—'}`);
+    : `${(ms / 1000).toFixed(1)}s · ${out.apiCalls} llamada(s) · ${out.calls.map(c => c.name).join(', ') || '—'}`);
 }
 
 writeFileSync(join(dir, 'meta.json'), JSON.stringify({

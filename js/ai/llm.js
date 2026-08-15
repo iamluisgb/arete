@@ -2,9 +2,13 @@
 // Base URL, modelo y key son configurables (Ajustes → Quirón). Por defecto, nan.
 // La key vive solo en el navegador (localStorage).
 //
-// Particularidades heredadas (verificadas en bookreader):
-// - nan/DeepSeek solo emiten tool_calls fiables SIN streaming → chatTools/chatToolsLoop no streamean.
+// Particularidades:
 // - Reintentos con backoff ante 429/5xx transitorios, honrando Retry-After.
+// - `chatAgent` (streaming + tools) es el camino del chat. La premisa heredada de
+//   bookreader —"nan/DeepSeek solo emiten tool_calls fiables SIN streaming"— se volvió a
+//   medir el 2026-08-07 contra deepseek-v4-flash y ya no se cumple: cinco tool_calls
+//   simultáneas llegaron completas y con los argumentos parseables. `_chatToolsLoop` se
+//   conserva sin streaming para quien no lo soporte, pero el chat no lo usa.
 
 const DEFAULT_BASE_URL = 'https://api.nan.builders/v1';
 const DEFAULT_MODEL = 'deepseek-v4-flash';
@@ -103,6 +107,10 @@ export function queueState() {
 }
 
 export function chatStream(opts)    { return enqueue(() => _chatStream(opts), opts?.background); }
+export function chatAgent(opts)     { return enqueue(() => _chatAgent(opts), opts?.background); }
+// Sin uso en la app desde que el chat pasó a `chatAgent`. Se conserva a propósito: es el
+// camino para un proveedor BYOK que no emita tool_calls fiables en streaming. Si algún día
+// se retira, que sea por esa razón y no por parecer código muerto.
 export function chatToolsLoop(opts) { return enqueue(() => _chatToolsLoop(opts), opts?.background); }
 export function chatVision(opts)    { return enqueue(() => _chatVision(opts), opts?.background); }
 
@@ -221,6 +229,127 @@ async function _chatStream({ messages, onToken, onReasoning, onDone, signal, max
   }
   if (onDone) onDone({ finishReason, truncated: finishReason === 'length' });
   return full;
+}
+
+// ── Bucle de agente: STREAMING + tools en la misma llamada ───────────────────
+//
+// Es el camino del chat. Sustituye al protocolo de dos fases (recolección no-streaming
+// que terminaba en "LISTO" + llamada aparte para la respuesta), que costaba 3 o 4
+// llamadas por turno y dejaba al atleta 13-22 segundos mirando un "consultando tus
+// datos…" sin un solo token. Aquí:
+//
+//   · si el snapshot basta, es UNA llamada y el texto empieza a salir a los ~3 s;
+//   · si hacen falta datos, son DOS: la primera pide las herramientas, se ejecutan en
+//     local (microsegundos) y la segunda streamea la respuesta con los resultados.
+//
+// Desaparece además la ronda que solo servía para confirmar que no había más que pedir.
+//
+// Sobre el texto que precede a una tool: algunos modelos escriben una frase antes de
+// pedir la herramienta ("voy a mirar tu histórico"). Se streamea igual —informa mejor que
+// un spinner— y cuando la ronda resulta llevar tool_calls se avisa con `onRoundReset`
+// para que la UI lo descarte antes de pintar la respuesta de verdad.
+//
+// Devuelve { content, rounds, calls, truncated }.
+async function _chatAgent({
+  messages, tools, execute, maxRounds = 3, maxTokens = MAX_TOKENS, signal,
+  onToken, onReasoning, onRoundReset, onTools, stopAfterTools, onDone,
+}) {
+  const key = getKey().trim();
+  if (!key) throw new Error('Falta la API key. Configúrala en Ajustes → Quirón.');
+  const convo = [...messages];
+  const calls = [];
+
+  for (let round = 1; round <= maxRounds; round++) {
+    const res = await fetchRetrying(`${getBaseUrl()}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: getModel(), messages: convo, stream: true, max_tokens: maxTokens,
+        ...(tools && round < maxRounds ? { tools, tool_choice: 'auto' } : {}),
+      }),
+      signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      if (res.status === 401) throw new Error('API key inválida (401).');
+      if (res.status === 429) throw new Error('Límite de uso alcanzado (429). Reintenta en un momento.');
+      throw new Error(`Error del modelo (${res.status}). ${apiErrMsg(body)}`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '', text = '', finishReason = null;
+    // Los tool_calls llegan troceados: el nombre en un delta y los argumentos en varios,
+    // identificados por `index`. Se acumulan y solo se parsean al cerrar el stream.
+    const partial = new Map();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+      for (const part of parts) {
+        for (const line of part.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (payload === '[DONE]') continue;
+          let json;
+          try { json = JSON.parse(payload); } catch { continue; }
+          const choice = json.choices?.[0] || {};
+          if (choice.finish_reason) finishReason = choice.finish_reason;
+          const delta = choice.delta || {};
+          if (delta.reasoning_content && onReasoning) onReasoning(delta.reasoning_content);
+          if (delta.content) { text += delta.content; if (onToken) onToken(delta.content); }
+          for (const tc of (delta.tool_calls || [])) {
+            const cur = partial.get(tc.index) || { id: '', name: '', args: '' };
+            if (tc.id) cur.id += tc.id;
+            if (tc.function?.name) cur.name += tc.function.name;
+            if (tc.function?.arguments) cur.args += tc.function.arguments;
+            partial.set(tc.index, cur);
+          }
+        }
+      }
+    }
+
+    const toolCalls = [...partial.values()].filter(t => t.name);
+    if (!toolCalls.length) {
+      if (onDone) onDone({ finishReason, truncated: finishReason === 'length' });
+      return { content: text, rounds: round, calls, truncated: finishReason === 'length' };
+    }
+
+    // La ronda llevaba herramientas: lo escrito era preámbulo, no la respuesta.
+    if (onRoundReset) onRoundReset();
+    if (onTools) onTools(toolCalls.map(t => t.name));
+
+    convo.push({
+      role: 'assistant',
+      content: text || null,
+      tool_calls: toolCalls.map((t, i) => ({
+        id: t.id || `call_${round}_${i}`, type: 'function',
+        function: { name: t.name, arguments: t.args || '{}' },
+      })),
+    });
+
+    for (const [i, t] of toolCalls.entries()) {
+      let args = {};
+      try { args = JSON.parse(t.args || '{}'); } catch { /* args inválidos: la tool decide */ }
+      let result;
+      try { result = await execute(t.name, args); } catch (e) { result = 'ERROR: ' + e.message; }
+      calls.push({ name: t.name, args });
+      convo.push({
+        role: 'tool', tool_call_id: t.id || `call_${round}_${i}`, name: t.name,
+        content: String(result ?? ''),
+      });
+    }
+
+    // Las herramientas de escritura terminan el turno en la tarjeta de confirmación:
+    // seguir pidiendo una respuesta sería pagar una llamada para nada.
+    if (stopAfterTools && stopAfterTools(calls)) return { content: '', rounds: round, calls, stopped: true };
+  }
+
+  return { content: '', rounds: maxRounds, calls, exhausted: true };
 }
 
 // Bucle multi-turno de tool-use. No-streaming (nan/DeepSeek solo emiten tool_calls

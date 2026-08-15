@@ -101,8 +101,10 @@ Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y 
 Chat con el atleta sobre sus propios datos. Dos capas de contexto, como el agente de
 bookreader: un **snapshot** del estado actual siempre presente
 ([`js/ai/context.js`](js/ai/context.js)) y **herramientas** de lectura para excavar en el
-histórico bajo demanda ([`js/ai/tools.js`](js/ai/tools.js)). Un turno = fase de recolección
-con tools (no-streaming, el modelo contesta "LISTO") + respuesta final streameada.
+histórico bajo demanda ([`js/ai/tools.js`](js/ai/tools.js)). Un turno = **una llamada
+streameada con las herramientas puestas** (`chatAgent` en [`js/ai/llm.js`](js/ai/llm.js)): si
+el snapshot basta, ahí acaba; si el modelo pide herramientas, se ejecutan en local y una
+segunda vuelta streamea la respuesta con los resultados dentro.
 
 Prácticas que sostienen esto, y por qué:
 
@@ -121,8 +123,17 @@ Prácticas que sostienen esto, y por qué:
   fallando el día que el atleta le hace la foto a su entreno.
 - **Reintentos con backoff** honrando `Retry-After`, y "Continuar" cuando el proveedor corta
   por longitud (`finish_reason: 'length'`).
-- **Los prompts que rutean viven en `tools.js`, no en la UI** (`GATHER_INSTRUCTION`), para que
-  los evals prueben exactamente el prompt que corre en la app.
+- **Los prompts que rutean viven fuera de la UI**, para que los evals prueben exactamente el
+  prompt que corre en la app. Hoy están en el SOUL ([`js/ai/soul.js`](js/ai/soul.js),
+  *CUÁNDO USAR CADA HERRAMIENTA DE ESCRITURA*): el ruteo entre sesión / plan / entreno
+  registrado es lo único que separa esto de un generador de ruido.
+- **El protocolo de dos fases se retiró el 2026-08-07** (recolección no-streaming que acababa
+  en `"LISTO"` + llamada aparte para responder). Costaba 3-4 llamadas por turno y 13-22 s de
+  espera ciega antes del primer token, y su regla central era un contrato en lenguaje natural
+  que el propio prompt admitía que se podía perder. La premisa heredada de bookreader —"nan
+  solo emite tool_calls fiables sin streaming"— se volvió a medir y ya no se cumple.
+  `evals/probe-latency.mjs` es la sonda que lo decidió: repítela al cambiar de modelo o de
+  proveedor, porque es la única forma de saber si uno "más rápido" lo es aquí.
 - **Evals en dos fases** (`npm run eval`, detalle en [`docs/EVALS.md`](docs/EVALS.md)): `run.mjs`
   genera contra un **fixture sintético versionado** con fecha de referencia fija, y `check.mjs`
   comprueba. Separadas porque afinar un criterio no debe costar otra ronda de llamadas, y el
