@@ -928,16 +928,28 @@ nav button .material-symbols-outlined{font-size:24px}
    Historial —uno por tarjeta— por poner en color de marca el dato más repetido
    de la lista. En tinta y en negrita sigue siendo lo primero que se lee de cada
    tarjeta, que es para lo que estaba el color. */
-.history-item .hi-date{font-size:var(--fs-base);color:var(--color-text-primary);font-weight:700}
+/* Un escalón por encima del cuerpo. La fecha es el objetivo de escaneo de la
+   lista, y a --fs-base con peso 700 pesaba exactamente lo mismo que los cinco
+   nombres de ejercicio de debajo: seis cosas compitiendo por ser la identidad
+   de la tarjeta. */
+.history-item .hi-date{font-size:var(--fs-md);color:var(--color-text-primary);font-weight:700;letter-spacing:-.01em}
 .history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--color-text-primary);margin-top:6px;line-height:1.4}
 /* Nombre a la izquierda, series a la derecha: el mismo ListRow que el resto del
    producto (§6.x). Las cifras en tabulares para que las columnas de dos
    sesiones distintas se puedan comparar de un vistazo. */
-.hi-rows{display:flex;flex-direction:column;gap:2px;margin-top:2px}
-.hi-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-4)}
+/* Dos columnas reales, no `space-between`. Empujar el nombre a un extremo y sus
+   series al otro deja un vacío que crece con la tarjeta: 306px incluso con el
+   tope de --measure-panel puesto. A esa distancia el ojo pierde la línea entre
+   "Peso Muerto" y su 95×5, que es justo lo que la fila tenía que resolver.
+   La columna de nombres mide lo que mida el más largo de la tarjeta y las
+   series arrancan pegadas a ella; como comparten rejilla, siguen alineadas
+   entre sí de una fila a otra, que era la otra mitad del objetivo. */
+.hi-rows{display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);
+  column-gap:var(--sp-4);row-gap:2px;margin-top:2px}
+.hi-row{display:contents}
 .hi-ex{color:var(--color-text-primary);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hi-sets{color:var(--color-text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+.hi-sets{color:var(--color-text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap}
 .hi-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);
   padding:2px 6px;border-radius:var(--radius-sm);font-weight:700;margin-left:6px}
 .history-item .hi-plan{font-size:.6rem;color:var(--color-text-secondary);background:var(--color-surface-2);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;white-space:nowrap}
