@@ -7,7 +7,7 @@
     "test:watch": "vitest",
     "build:pages": "node scripts/build-pages.mjs",
     "build:preview": "node scripts/build-pages.mjs --worktree",
-    "deploy:pages": "node scripts/build-pages.mjs --deploy && wrangler pages deploy dist --project-name arete --branch main",
+    "deploy:pages": "node scripts/build-pages.mjs --deploy && wrangler pages deploy dist --project-name arete-app --branch main",
     "eval": "node evals/run.mjs && node evals/check.mjs",
     "eval:gen": "node evals/run.mjs",
     "eval:check": "node evals/check.mjs",
