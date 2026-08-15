@@ -49,6 +49,37 @@ los puntos 1, 2, 3 y 4 de abajo están cerrados. El 5 sigue abierto.
    conviene comprobar que sigue siendo cierto tras cualquier cambio en el panel, porque si se queda
    en `true` el foco se encierra en un panel que no es modal.
 
+## Ontología de ejercicios (2026-08)
+
+Plan completo en [`docs/PLAN-ONTOLOGIA.md`](docs/PLAN-ONTOLOGIA.md) — siete fases, con las
+decisiones ya cerradas. Resumen de por qué está aquí:
+
+8. **Los ejercicios son texto libre y eso rompe la fuente de verdad del perfil.** `LIFT_PATTERNS`
+   en `js/domains.js` resuelve los cuatro básicos con cuatro regex: un front squat o un hex-bar
+   deadlift no matchean, así que el atleta entrena y su nivel no se mueve. Es un bug de
+   integridad en el núcleo del producto, no una carencia del agente — **la fase F3 del plan es
+   independiente y merece hacerse aunque el resto se aparque.**
+
+9. **`propose_session` no está anclado a ningún catálogo.** Ante "algo para mi punto débil, en
+   casa", los ejercicios y el material salen de la cabeza del modelo; nada comprueba que existan
+   ni que se puedan hacer con lo que hay. Es la segunda alucinación de este dominio —el ejercicio
+   inventado— y hoy no la caza ningún check, al contrario que el número inventado (`cifras`).
+
+10. **No hay volumen por patrón ni por grupo muscular.** "12 series de empuje contra 4 de
+    tracción" es imposible de calcular porque la app no sabe qué es empuje. Es la clase de lectura
+    que separa a un entrenador de un tracker y encaja en el formato RESUMEN que ya existe.
+
+11. **Las referencias del blog siguen sin verificar** (los antiguos #8–#12 de la lista original:
+    Cejudo, el cruce Saeidifard/Shailendra, los IDs de PMC). La fase F6 del plan lo resuelve con
+    OpenAlex (CC0, sin API key) como herramienta de autoría; no toca la app y es la parte más
+    barata de todo el trabajo. Probado: la consulta del weight-bearing lunge test devuelve Bennell
+    et al. 1998 (*Aust J Physiother*) y la revisión de 2015 en *Manual Therapy*, con DOI.
+
+**Medición que acota el coste:** de los 89 ejercicios de `exercise-media.js`, solo **24 (27%)**
+casan exacto contra `free-exercise-db` tras normalizar, y el emparejamiento difuso produce pares
+equivocados con alta confianza (`Remo con Barra → Curl con barra`, `Burpee con flexión → Burpees
+sin Flexión`). El mapeo se revisa a mano, entero: es la fase que domina el esfuerzo.
+
 ## Anterior (recuperar de la lista original si aparece)
 
 7. **Tabla de umbrales femenina.** Los umbrales de los 7 dominios están calibrados para hombre de
