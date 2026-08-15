@@ -162,3 +162,70 @@ describe('Quirón · demo sin API key', () => {
     expect(document.getElementById('setQuironStatus').textContent).toBe('Demo · sin API key');
   });
 });
+
+// ---- Cupo visible (F5) --------------------------------------------------------
+// En porcentaje y no en llamadas: un turno puede costar una llamada o dos, y un
+// contador bajando a saltos se lee como un timo.
+describe('Quirón · cupo de la prueba gratuita', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  const conCupo = (remaining, total) => ({
+    areteAiBaseUrl: GATEWAY,
+    areteAiKey: 'br-demo-abc',
+    areteAiModel: 'arete-fast',
+    areteAiDemoQuota: JSON.stringify({ remaining, total }),
+  });
+
+  it('recién empezada la demo no se enseña nada', async () => {
+    await cargar(conCupo(80, 100));
+    expect(document.getElementById('quironQuota').hidden).toBe(true);
+  });
+
+  it('pasada la mitad aparece el porcentaje restante', async () => {
+    await cargar(conCupo(42, 100));
+    const el = document.getElementById('quironQuota');
+    expect(el.hidden).toBe(false);
+    expect(el.textContent).toContain('42%');
+    expect(el.querySelector('.quiron-quota-bar > span').style.width).toBe('42%');
+    expect(el.classList.contains('quiron-quota--low')).toBe(false);
+  });
+
+  it('el denominador es el total del servidor, no uno inventado', async () => {
+    await cargar(conCupo(42, 200));      // mismo remaining, otro total
+    expect(document.getElementById('quironQuota').textContent).toContain('21%');
+  });
+
+  it('quedando poco sube el tono y ofrece poner la clave propia', async () => {
+    await cargar(conCupo(12, 100));
+    const el = document.getElementById('quironQuota');
+    expect(el.classList.contains('quiron-quota--low')).toBe(true);
+    expect(el.querySelector('.quiron-quota-link')).not.toBeNull();
+  });
+
+  it('agotada lo dice sin medias tintas', async () => {
+    await cargar(conCupo(0, 100));
+    expect(document.getElementById('quironQuota').textContent).toContain('Se acabó la prueba gratuita');
+  });
+
+  it('con clave propia no hay medidor: el cupo no es asunto suyo', async () => {
+    await cargar({ areteAiBaseUrl: NAN, areteAiKey: 'sk-mia', areteAiDemoQuota: JSON.stringify({ remaining: 5, total: 100 }) });
+    expect(document.getElementById('quironQuota').hidden).toBe(true);
+  });
+
+  it('una respuesta del gateway actualiza el medidor sola', async () => {
+    const LLM = await cargar(conCupo(60, 100));
+    expect(document.getElementById('quironQuota').hidden).toBe(true);
+
+    // Misma forma que en producción: el cupo viaja en cabeceras, no en el cuerpo.
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true, status: 200,
+      headers: { get: (h) => ({ 'x-quota-remaining': '30', 'x-quota-total': '100' })[h.toLowerCase()] ?? null },
+      json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+    })));
+    await LLM.chatVision({ image: 'data:,', prompt: 'x' }).catch(() => {});
+
+    await vi.waitFor(() => {
+      expect(document.getElementById('quironQuota').textContent).toContain('30%');
+    });
+  });
+});

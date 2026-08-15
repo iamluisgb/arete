@@ -207,7 +207,34 @@ function showSetupIfNeeded() {
   els.setup.hidden = !needs;
   els.inputbar.style.display = needs ? 'none' : '';
   els.chips.style.display = needs ? 'none' : '';
+  renderQuota();
   return needs;
+}
+
+// Cupo de la demo, en PORCENTAJE. Ver la nota de getQuota en js/ai/llm.js: lo que
+// cuesta un turno varía, así que un contador de llamadas engaña; el porcentaje no.
+// No se pinta hasta consumida la mitad — antes de eso solo comunicaría escasez — y por
+// debajo de QUOTA_LOW sube el tono, que es donde el aviso ya es un favor.
+const QUOTA_SHOW_AT = 50;
+const QUOTA_LOW = 20;
+
+function renderQuota() {
+  if (!els.quota) return;
+  const q = LLM.getQuota();
+  if (!q || q.pct > 100 - QUOTA_SHOW_AT) { els.quota.hidden = true; return; }
+
+  els.quota.hidden = false;
+  els.quota.classList.toggle('quiron-quota--low', q.pct <= QUOTA_LOW);
+  els.quota.innerHTML = `
+    <div class="quiron-quota-bar"><span style="width:${q.pct}%"></span></div>
+    <p class="quiron-quota-txt">${q.pct > 0
+      ? `Te queda el ${q.pct}% de la prueba gratuita.`
+      : 'Se acabó la prueba gratuita.'}
+      <button type="button" class="quiron-quota-link">Usar mi propia clave</button></p>`;
+  els.quota.querySelector('.quiron-quota-link').addEventListener('click', () => {
+    closePanel();
+    document.querySelector('[data-setpage="setQuiron"]')?.click();
+  });
 }
 
 // opts.label    → texto visible en la burbuja del usuario (si el prompt real es largo/técnico)
@@ -1090,7 +1117,13 @@ export function initQuiron(db, opts = {}) {
     demoOn: document.getElementById('quironDemoOn'),
     setupDemoBtn: document.getElementById('quironSetupDemoBtn'),
     setupStatus: document.getElementById('quironSetupStatus'),
+    quota: document.getElementById('quironQuota'),
   };
+  // El cupo se repinta solo: llm.js lo publica al leer las cabeceras del gateway. Y se
+  // pinta ya al arrancar con lo último conocido: si esperara a la primera llamada de la
+  // sesión, quien vuelve con el cupo casi agotado no vería el aviso hasta gastarlo más.
+  window.addEventListener('llm:quota', renderQuota);
+  renderQuota();
 
   convo = loadConvo();
   renderConvo();

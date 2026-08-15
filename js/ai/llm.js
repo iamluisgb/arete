@@ -52,7 +52,12 @@ export function hasKey()     { return getKey().trim().length > 0; }
 export function getModel()   { return get('areteAiModel', DEFAULT_MODEL) || DEFAULT_MODEL; }
 export function setModel(m)  { set('areteAiModel', (m || '').trim() || DEFAULT_MODEL); }
 export function getBaseUrl() { return (get('areteAiBaseUrl', DEFAULT_BASE_URL) || DEFAULT_BASE_URL).trim().replace(/\/+$/, ''); }
-export function setBaseUrl(u) { set('areteAiBaseUrl', ((u || '').trim() || DEFAULT_BASE_URL).replace(/\/+$/, '')); }
+export function setBaseUrl(u) {
+  set('areteAiBaseUrl', ((u || '').trim() || DEFAULT_BASE_URL).replace(/\/+$/, ''));
+  // Salir de la demo tira su cupo: si no, volver a entrar enseñaría el porcentaje del
+  // token anterior hasta la primera llamada.
+  if (!isDemo()) localStorage.removeItem('areteAiDemoQuota');
+}
 
 /** Preset que coincide con la base URL actual, o null si es personalizada */
 export function currentProvider() {
@@ -67,6 +72,34 @@ export function isDemo() { return isGatewayUrl(getBaseUrl()); }
 
 /** Igual, pero para una URL suelta: lo que hay ESCRITO en el formulario de Ajustes. */
 export function isGatewayUrl(u) { return (u || '').trim().replace(/\/+$/, '') === GATEWAY_BASE_URL; }
+
+// ---- Cupo de la demo ----------------------------------------------------------
+// El gateway manda `X-Quota-Remaining` y `X-Quota-Total` en CADA respuesta, así que se
+// leen en el único sitio por el que pasan todas las llamadas. Se enseña en PORCENTAJE:
+// lo que cuesta un turno varía (una llamada, o dos si Quirón pide herramientas) y un
+// contador que baja a saltos se lee como un timo. El TOTAL viene del servidor para que
+// el porcentaje sobreviva a un navegador limpio.
+const QUOTA_KEY = 'areteAiDemoQuota';
+
+/** { remaining, total, pct } del cupo demo, o null si no estamos en la demo. */
+export function getQuota() {
+  let q = null;
+  try { q = JSON.parse(localStorage.getItem(QUOTA_KEY) || 'null'); } catch { /* corrupto */ }
+  if (!isDemo() || !q || !(q.total > 0)) return null;
+  return { ...q, pct: Math.max(0, Math.min(100, Math.round(100 * q.remaining / q.total))) };
+}
+
+function saveQuota(remaining, total) {
+  localStorage.setItem(QUOTA_KEY, JSON.stringify({ remaining, total }));
+  window.dispatchEvent?.(new CustomEvent('llm:quota', { detail: getQuota() }));
+}
+
+function readQuota(res) {
+  const remaining = Number(res.headers?.get?.('X-Quota-Remaining'));
+  const total = Number(res.headers?.get?.('X-Quota-Total'));
+  if (!Number.isFinite(remaining) || !Number.isFinite(total) || total <= 0) return;
+  saveQuota(remaining, total);
+}
 
 // Pide un token demo y AUTOCONFIGURA proveedor, modelo y visión. Devuelve
 // { token, remaining, model, product } y deja Ajustes listo: quien pulsa el botón
@@ -83,6 +116,10 @@ export async function requestDemoToken() {
   setKey(body.token);
   setModel(body.model || GATEWAY_MODEL);
   setVisionModel(GATEWAY_VISION_MODEL);
+  // El cupo ya se conoce al emitir: el medidor existe desde el primer momento en vez
+  // de aparecer de golpe a mitad de la primera respuesta.
+  const total = Number(body.quota ?? body.remaining);
+  if (total > 0) saveQuota(Number(body.remaining), total);
   return body;
 }
 
@@ -199,6 +236,7 @@ async function fetchRetrying(url, opts, { retries = 3 } = {}) {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
     try {
       const res = await fetch(url, opts);
+      readQuota(res);
       if (res.ok || !isRetryableStatus(res.status) || i === retries) return res;
       const wait = parseRetryAfter(res.headers.get('retry-after')) ?? backoffDelay(i);
       await sleep(wait, signal);

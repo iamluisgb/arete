@@ -1167,6 +1167,10 @@
     <div id="quironSetupStatus" class="drive-status" role="status" aria-live="polite"></div>
   </div>
   <div class="quiron-chips" id="quironChips"></div>
+  <!-- Cupo de la demo. Pegado a la barra de escribir, que es donde se gasta, y oculto
+       hasta pasada la mitad: un medidor delante de quien acaba de empezar solo
+       comunica escasez. Lo rellena renderQuota() en js/ui/quiron.js. -->
+  <div class="quiron-quota" id="quironQuota" hidden></div>
   <div class="quiron-inputbar" id="quironInputBar">
     <button id="quironAttachBtn" aria-label="Cargar entreno desde captura" title="Cargar entreno desde captura"><span class="material-symbols-outlined">add_a_photo</span></button>
     <input type="file" id="quironImageInput" accept="image/*" hidden>
