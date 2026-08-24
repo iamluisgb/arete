@@ -91,6 +91,12 @@ Lo que no es obvio y hay que respetar:
 El `por qué` se enseña siempre junto al peso (`.prog-why`). Un número que aparece solo y no se
 explica es un número que se deja de creer — y se borra.
 
+**Quirón la lee, no la calcula.** `get_next_prescription` ([`js/ai/tools.js`](js/ai/tools.js))
+expone el motor como herramienta. La regla vivía antes en el SOUL ("+2.5 kg en básicos de barra,
+descarga a las dos sesiones falladas") y no solo era no determinista: **contradecía al motor** —
+el tren inferior sube de 5 en 5, una pesa rusa sube a la siguiente pesa, y el estancamiento son
+tres sesiones al mismo peso. Dos fuentes de verdad para el mismo número es una de más.
+
 ## Running: se importa, no se trackea
 
 Areté no compite en tracking GPS contra Strava y Garmin. El tracker se ofrece **solo donde el

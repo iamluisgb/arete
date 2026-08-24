@@ -186,6 +186,16 @@ describe('lo que destapó el historial real', () => {
     expect(p).toMatchObject({ kind: 'deload', kg: 90 });
   });
 
+  it('el orden del array no decide cuál es la última sesión: manda la fecha', () => {
+    // La app añade al final, pero un merge de Drive o un import intercalan. Con el
+    // orden del array, "la última" sería la de hace tres meses.
+    const d = db([
+      wk('2026-07-14', 'Sentadilla', rep(3, 100, 5)),
+      wk('2026-06-01', 'Sentadilla', rep(3, 90, 5)),
+    ]);
+    expect(nextPrescription(d, SENTADILLA)).toMatchObject({ kind: 'up', kg: 105 });
+  });
+
   it('cambiar el objetivo del plan no dispara una descarga retroactiva', () => {
     // Areté no guarda la prescripción con el entreno: al pasar el plan de 3x5 a
     // 3x10, todo el histórico se relee como fallado. Pero el peso venía SUBIENDO,

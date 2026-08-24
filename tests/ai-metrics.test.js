@@ -339,6 +339,26 @@ describe('makeToolExecutor', () => {
     expect(out).toContain('FASE 1 — Fuerza');
     expect(out).toContain('Sentadilla 3×5');
   });
+  // La progresión la calcula la app. Antes la regla vivía en el SOUL ("+2.5 kg en
+  // básicos de barra"), donde ni era determinista ni sabía que el tren inferior
+  // sube de 5 en 5 — y encima contradecía al motor.
+  it('get_next_prescription da el peso, las reps y el motivo', async () => {
+    const out = await exec('get_next_prescription', {});
+    expect(out).toContain('Sentadilla');
+    expect(out).toContain('105 kg');
+    expect(out).toContain('Todas las reps la última vez');
+  });
+
+  it('get_next_prescription filtra por nombre parcial', async () => {
+    expect(await exec('get_next_prescription', { name: 'senta' })).toContain('105 kg');
+  });
+
+  it('un ejercicio fuera del plan lo dice en vez de inventar una carga', async () => {
+    const out = await exec('get_next_prescription', { name: 'burpee' });
+    expect(out).toContain('burpee');
+    expect(out).not.toMatch(/\d+ kg/);
+  });
+
   it('herramienta desconocida devuelve error legible', async () => {
     expect(await exec('nope', {})).toContain('ERROR');
   });

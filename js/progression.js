@@ -181,7 +181,15 @@ export function readSession(exercise, target) {
 export function sessionsFor(db, name, target) {
   const clave = String(target?.reps ?? '').trim();
   const out = [];
-  for (const w of (db?.workouts || [])) {
+  // Por FECHA, no por el orden del array. La app añade entrenos al final, así que
+  // casi siempre coinciden — pero un merge de Drive o un import los intercalan, y
+  // entonces "la última sesión" sería una de hace tres meses y la progresión
+  // partiría del peso equivocado. Empate: el orden del array desempata.
+  const workouts = [...(db?.workouts || [])]
+    .map((w, i) => ({ w, i }))
+    .sort((a, b) => String(a.w.date).localeCompare(String(b.w.date)) || a.i - b.i)
+    .map(x => x.w);
+  for (const w of workouts) {
     for (const ex of (w.exercises || [])) {
       if (ex.name !== name) continue;
       // Un entreno de una sesión suelta guarda su especificación (`w.spec`): si

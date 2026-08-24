@@ -4,6 +4,7 @@
 // `progFns` se inyecta (por defecto, programs.js del app) para poder testear con fixtures.
 
 import { workoutTonnage, epley } from './metrics.js';
+import { nextPrescription } from '../progression.js';
 import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 
 export const QUIRON_TOOLS = [
@@ -97,6 +98,22 @@ export const QUIRON_TOOLS = [
 // una frase. Cuando el modelo la llama, la app genera el JSON real con una llamada
 // dedicada (JSON-en-contenido, fiable) y muestra la tarjeta de confirmación.
 export const QUIRON_WRITE_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_next_prescription',
+      // La progresión la calcula la app, no el modelo. Antes esta regla vivía en el
+      // SOUL ("+2.5 kg en básicos de barra"), donde ni era determinista ni podía
+      // saber que una pesa rusa sube de pesa en pesa — y encima contradecía al motor.
+      description: 'Qué peso y reps le tocan HOY a un ejercicio del plan, con el motivo. Lo calcula la app desde el historial (sube si cerró todas las reps, mantiene si faltaron, descarga si lleva 3 sesiones atascado al mismo peso). Úsala SIEMPRE que el atleta pregunte cuánto cargar o cuánto subir, en vez de calcularlo tú. Sin `name` devuelve el plan entero de la fase activa.',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Nombre (o parte) del ejercicio; si se omite, todos los de la fase activa' },
+        },
+      },
+    },
+  },
   {
     type: 'function',
     function: {
@@ -317,6 +334,38 @@ export function makeToolExecutor(db, deps = {}) {
         L.push(`SIGUIENTE TEST RECOMENDADO: ${nt.domain.name} — ${why}.`);
       }
       L.push(CALIBRATION_NOTE);
+      return L.join('\n');
+    }
+
+    if (name === 'get_next_prescription') {
+      const phases = progFns.getPrograms ? progFns.getPrograms() : null;
+      if (!phases || !Object.keys(phases).length) return 'No hay programa de fuerza cargado.';
+      const fase = phases[db.phase] || Object.values(phases)[0];
+      const q = String(args.name || '').toLowerCase().trim();
+      const program = progFns.getActiveProgram ? progFns.getActiveProgram() : undefined;
+
+      const L = [];
+      const vistos = new Set();
+      for (const [sName, exercises] of Object.entries(fase?.sessions || {})) {
+        for (const ex of (exercises || [])) {
+          if (!ex.name || (q && !ex.name.toLowerCase().includes(q))) continue;
+          // Un mismo ejercicio repetido en dos sesiones con el mismo objetivo tiene
+          // una sola prescripción: repetirla es ruido en el contexto.
+          const clave = `${ex.name}|${ex.reps}`;
+          if (vistos.has(clave)) continue;
+          vistos.add(clave);
+          const p = nextPrescription(db, ex, program);
+          if (p.kind === 'off') continue;
+          const carga = p.kg != null ? `${p.kg} kg` : 'sin carga externa';
+          const reps = p.reps != null ? ` × ${p.reps} reps` : '';
+          L.push(`[${sName}] ${ex.name} (plan ${ex.sets}×${ex.reps}) → ${carga}${reps} — ${p.why}`);
+        }
+      }
+      if (!L.length) {
+        return q
+          ? `"${args.name}" no está en la fase activa del plan, o es un ejercicio sin objetivo de repeticiones (un aguante cronometrado, un AMRAP) al que no le corresponde una prescripción de carga.`
+          : 'Ningún ejercicio de la fase activa tiene una prescripción de carga.';
+      }
       return L.join('\n');
     }
 
