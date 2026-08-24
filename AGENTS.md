@@ -141,11 +141,17 @@ Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y 
 `ASSETS`, o los clientes instalados seguirán con la versión vieja.
 
 ### Dónde vive
-- `https://arete-6a8.pages.dev` — el deploy de Cloudflare Pages.
-- `https://arete.raiatech.com` — dominio de producción. El DNS de `raiatech.com` está en
-  **Namecheap**, no en Cloudflare: el CNAME hacia `arete-6a8.pages.dev` se añade a mano allí.
-- `https://luisgonzalezbernal.com/arete/` — GitHub Pages, sigue vivo sirviendo la raíz del repo
-  desde `main` (todo el repo, sin lista blanca). Los `canonical`/`og:url` aún apuntan aquí.
+- `https://arete.raiatech.com` — **producción**. El DNS de `raiatech.com` está en **Namecheap**,
+  no en Cloudflare: el CNAME hacia el deploy de Pages se añade a mano allí.
+- `https://arete-app.pages.dev` — el proyecto de Cloudflare Pages al que sube `deploy:pages`.
+- `https://luisgonzalezbernal.com/arete/` — **retirado**. GitHub Pages servía la raíz del repo
+  desde `main` (todo, sin lista blanca: tests, evals, notas). Ahora Pages sirve la rama
+  **`gh-pages`**, que solo contiene una redirección a producción conservando la ruta, y un
+  `sw.js` de retirada — sin él, quien instaló la PWA desde ese origen seguiría abriendo la copia
+  cacheada para siempre y no vería nunca la redirección. **No fusiones `gh-pages` con `main`**:
+  son dos sitios distintos y su `sw.js` es lo contrario del de la app.
+
+Los `canonical`/`og:url` de todo el HTML apuntan ya a `arete.raiatech.com`.
 
 ## Quirón (el agente)
 
