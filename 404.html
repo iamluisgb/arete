@@ -6,55 +6,218 @@
 <title>Areté se ha mudado</title>
 <link rel="canonical" href="https://arete.raiatech.com/">
 <meta name="robots" content="noindex">
-<!-- Sin JS, el meta refresh se lleva al menos la portada. Con JS, el script de
-     abajo conserva la ruta y limpia el service worker antes de saltar. -->
-<meta http-equiv="refresh" content="3;url=https://arete.raiatech.com/">
+<!-- Respaldo sin JS. Se retrasa lo suficiente para que el script, si corre,
+     tenga tiempo de leer los datos y llevárselos. -->
+<meta http-equiv="refresh" content="8;url=https://arete.raiatech.com/">
 <style>
   :root{color-scheme:light dark}
+  *{box-sizing:border-box}
   body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;
        font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
-       background:#faf9f7;color:#1c1a17;text-align:center}
+       background:#faf9f7;color:#1c1a17}
   @media (prefers-color-scheme:dark){body{background:#14120f;color:#f0ece6}}
-  h1{font-size:1.5rem;margin:0 0 8px;letter-spacing:-.02em}
-  p{margin:0 0 20px;opacity:.75;max-width:34ch}
-  a{display:inline-block;padding:12px 22px;border-radius:10px;
-    background:#1c1a17;color:#faf9f7;text-decoration:none;font-weight:600}
-  @media (prefers-color-scheme:dark){a{background:#f0ece6;color:#14120f}}
+  main{max-width:38ch;text-align:center}
+  h1{font-size:1.4rem;margin:0 0 10px;letter-spacing:-.02em}
+  p{margin:0 0 18px;opacity:.75}
+  .btn{display:inline-block;padding:12px 22px;border-radius:10px;border:0;cursor:pointer;
+       background:#1c1a17;color:#faf9f7;text-decoration:none;font:inherit;font-weight:600}
+  .btn.sec{background:transparent;color:inherit;border:1px solid currentColor;opacity:.8;
+           font-weight:500;margin-top:10px}
+  @media (prefers-color-scheme:dark){.btn{background:#f0ece6;color:#14120f}}
+  #estado{font-size:.85rem;opacity:.6;min-height:1.5em;margin-top:14px}
+  .oculto{display:none}
 </style>
 </head>
 <body>
 <main>
-  <h1>Areté está ahora en arete.raiatech.com</h1>
-  <p>Te llevo en un momento. Tus datos están en tu dispositivo y siguen ahí: no se pierde nada con el cambio.</p>
-  <a id="ir" href="https://arete.raiatech.com/">Ir a Areté</a>
+  <h1 id="titulo">Areté está ahora en arete.raiatech.com</h1>
+  <p id="texto">Te llevo en un momento.</p>
+  <a class="btn" id="ir" href="https://arete.raiatech.com/">Ir a Areté</a>
+  <div><button class="btn sec oculto" id="descargar" type="button">Descargar mis datos</button></div>
+  <div id="estado"></div>
 </main>
 <script>
 (function () {
+  'use strict';
   var DESTINO = 'https://arete.raiatech.com';
-  // La ruta se conserva: /arete/blog/8-dominios.html no puede acabar en la portada.
-  // Este sitio se sirve como project page, así que todo cuelga de /arete.
-  var ruta = location.pathname.replace(/^\/arete\/?/, '/') || '/';
-  var url = DESTINO + ruta + location.search + location.hash;
-  document.getElementById('ir').href = url;
+  var CLAVE = 'arete';                 // la db entera, en una sola clave
+  var IDB_NAME = 'areteRuns', IDB_STORE = 'runRoutes';
+  var HEAVY = ['route', 'splits', 'hrTimeSeries', 'hrZoneTimes', 'segments'];
+  // Tope del fragmento, en caracteres. Los navegadores aguantan bastante más,
+  // pero Safari es el más estrecho y una URL cortada a la mitad es un traspaso
+  // que falla en silencio. Por encima de esto se ofrece el fichero.
+  var TOPE = 48000;
 
-  // Quien instaló la PWA desde aquí tiene un service worker registrado en ESTE
-  // origen, sirviendo la app cacheada. Sin desregistrarlo seguiría abriendo una
-  // copia congelada del 24-08-2026 para siempre, sin enterarse de que existe un
-  // sitio nuevo. Se retira antes de saltar; si algo falla, se salta igual.
-  var limpiar = Promise.resolve();
-  try {
-    if ('serviceWorker' in navigator) {
-      limpiar = navigator.serviceWorker.getRegistrations()
-        .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
-        .then(function () { return 'caches' in window ? caches.keys() : []; })
-        .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
-        .catch(function () {});
+  var $ = function (id) { return document.getElementById(id); };
+  // La ruta se conserva: /arete/blog/8-dominios.html no puede acabar en la portada.
+  var ruta = location.pathname.replace(/^\/arete\/?/, '/') || '/';
+  var destinoSimple = DESTINO + ruta + location.search + location.hash;
+  $('ir').href = destinoSimple;
+
+  function saltar(url) { location.replace(url || destinoSimple); }
+
+  // ── Leer lo que haya en ESTE origen ────────────────────
+  // Solo se puede desde aquí: el almacenamiento va por origen, y el sitio nuevo
+  // no puede leer este ni con un iframe (los navegadores particionan el
+  // almacenamiento de terceros). Esta visita es la única ventana que hay.
+  function leerDB() {
+    try {
+      var raw = localStorage.getItem(CLAVE);
+      if (!raw) return null;
+      var d = JSON.parse(raw);
+      return d && typeof d === 'object' && Array.isArray(d.workouts) ? d : null;
+    } catch (e) { return null; }
+  }
+
+  // Las rutas GPS pesan y viven en IndexedDB, no en localStorage. Sin esto el
+  // traspaso llevaría las carreras sin su recorrido.
+  function leerRutas() {
+    return new Promise(function (resolve) {
+      if (!('indexedDB' in window)) return resolve({});
+      var req;
+      try { req = indexedDB.open(IDB_NAME); } catch (e) { return resolve({}); }
+      req.onerror = function () { resolve({}); };
+      req.onsuccess = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) { resolve({}); return; }
+        try {
+          var tx = db.transaction(IDB_STORE, 'readonly');
+          var st = tx.objectStore(IDB_STORE);
+          var claves = st.getAllKeys(), valores = st.getAll();
+          tx.oncomplete = function () {
+            var out = {};
+            (claves.result || []).forEach(function (k, i) { out[k] = (valores.result || [])[i]; });
+            resolve(out);
+          };
+          tx.onerror = function () { resolve({}); };
+        } catch (e) { resolve({}); }
+      };
+      // Una base que no existe se crea vacía; da igual, se resuelve a {}.
+      req.onupgradeneeded = function () { try { req.transaction.abort(); } catch (e) {} };
+    });
+  }
+
+  function componer(db, rutas) {
+    if (!db.runningLogs || !db.runningLogs.length) return db;
+    var logs = db.runningLogs.map(function (l) {
+      var pesado = rutas[l.id];
+      if (!pesado) return l;
+      var copia = {};
+      for (var k in l) if (Object.prototype.hasOwnProperty.call(l, k)) copia[k] = l[k];
+      HEAVY.forEach(function (f) { if (pesado[f] !== undefined) copia[f] = pesado[f]; });
+      return copia;
+    });
+    var out = {};
+    for (var k in db) if (Object.prototype.hasOwnProperty.call(db, k)) out[k] = db[k];
+    out.runningLogs = logs;
+    return out;
+  }
+
+  function bytesAb64url(bytes) {
+    var bin = '', CH = 0x8000;   // a trozos: fromCharCode revienta con arrays grandes
+    for (var i = 0; i < bytes.length; i += CH) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
     }
-  } catch (e) {}
-  // Un fallo en la limpieza no puede dejar a nadie atrapado en esta página.
-  var saltar = function () { location.replace(url); };
-  limpiar.then(saltar, saltar);
-  setTimeout(saltar, 2500);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  // [marca][cuerpo] — la marca dice si va comprimido, para que el otro extremo
+  // no tenga que adivinarlo mirando el contenido.
+  function empaquetar(obj) {
+    var json = new TextEncoder().encode(JSON.stringify(obj));
+    var conMarca = function (marca, cuerpo) {
+      var b = new Uint8Array(cuerpo.length + 1);
+      b[0] = marca; b.set(cuerpo, 1);
+      return bytesAb64url(b);
+    };
+    if (typeof CompressionStream !== 'function') {
+      return Promise.resolve(conMarca(0, json));
+    }
+    var origen = new ReadableStream({ start: function (c) { c.enqueue(json); c.close(); } });
+    return new Response(origen.pipeThrough(new CompressionStream('gzip'))).arrayBuffer()
+      .then(function (buf) { return conMarca(1, new Uint8Array(buf)); })
+      .catch(function () { return conMarca(0, json); });
+  }
+
+  function descargar(obj) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'arete-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  // ── Retirar el service worker viejo ────────────────────
+  // Quien instaló la PWA aquí tiene un SW sirviendo la app desde caché. Sin
+  // retirarlo seguiría abriendo una copia congelada y no vería nunca esta página.
+  // Nunca toca localStorage: los datos del atleta se quedan donde están.
+  function retirarSW() {
+    if (!('serviceWorker' in navigator)) return Promise.resolve();
+    return navigator.serviceWorker.getRegistrations()
+      .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
+      .then(function () { return 'caches' in window ? caches.keys() : []; })
+      .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+      .catch(function () {});
+  }
+
+  // ── Orquestación ───────────────────────────────────────
+  var db = leerDB();
+  if (!db) {
+    // Nada que llevarse: la retirada del SW no debe hacer esperar a nadie.
+    retirarSW();
+    setTimeout(function () { saltar(); }, 900);
+    return;
+  }
+
+  $('titulo').textContent = 'Areté se ha mudado — y tus datos se vienen';
+  $('texto').textContent = 'Preparando tu copia…';
+  $('estado').textContent = 'No se borra nada de aquí hasta que lo confirmes allí.';
+
+  var completa = null;
+  Promise.resolve()
+    .then(leerRutas)
+    .then(function (rutas) {
+      completa = componer(db, rutas);
+      return empaquetar(completa);
+    })
+    .then(function (paquete) {
+      return retirarSW().then(function () { return paquete; });
+    })
+    .then(function (paquete) {
+      var n = (completa.workouts || []).length;
+      var c = (completa.runningLogs || []).length;
+      var resumen = n + (n === 1 ? ' entreno' : ' entrenos') + ', ' + c + (c === 1 ? ' carrera' : ' carreras');
+
+      if (paquete.length <= TOPE) {
+        $('texto').textContent = 'Llevo tus datos conmigo (' + resumen + ').';
+        var url = DESTINO + '/app.html#migrar=' + paquete;
+        $('ir').href = url;
+        $('ir').textContent = 'Continuar en Areté';
+        setTimeout(function () { saltar(url); }, 1200);
+        return;
+      }
+
+      // Demasiado para una URL — casi siempre, muchas carreras con recorrido.
+      // Mejor decirlo que mandar una URL cortada que falla en silencio.
+      $('texto').textContent = 'Tienes mucho historial (' + resumen + '), más de lo que cabe en un enlace. '
+        + 'Descarga la copia y súbela en Areté: Más › Ajustes › Importar.';
+      $('estado').textContent = 'Tus datos siguen aquí hasta que los importes allí.';
+      var b = $('descargar');
+      b.classList.remove('oculto');
+      b.addEventListener('click', function () {
+        descargar(completa);
+        $('estado').textContent = 'Descargada. Ahora impórtala en Areté.';
+      });
+    })
+    .catch(function (e) {
+      // Un fallo preparando la copia no puede dejar a nadie encerrado aquí.
+      $('texto').textContent = 'No he podido preparar la copia automáticamente.';
+      $('estado').textContent = 'Usa el botón para descargarla y súbela en Areté: Más › Ajustes › Importar.';
+      var b = $('descargar');
+      b.classList.remove('oculto');
+      b.addEventListener('click', function () { descargar(completa || db); });
+    });
 })();
 </script>
 </body>
