@@ -30,6 +30,16 @@ Las métricas llegan por dos vías y la UI distingue una de otra:
 - **Medidas** — `db.domainTests`, un registro por métrica con su fecha. Caducan (6 semanas los
   tests baratos, 10 los caros). Un test manual **siempre gana** a la derivación.
 
+**Epley no estima por encima de 12 reps** (`REP_CAP`, en `js/domains.js` y en
+[`js/ai/metrics.js`](js/ai/metrics.js)): devuelve `null` y la serie no cuenta. Por encima de ahí
+las fórmulas divergen a doble dígito y el número habla de capacidad de trabajo, no de fuerza
+máxima — un OHP de 45 kg × 20 sale a 75 kg, que para un atleta de 75 kg es 1.00×BW, nivel V. Y
+como la derivación se queda con el **máximo histórico**, una sola serie de volumen fija la
+métrica para siempre. El daño no es un número feo: infla un dominio, el mínimo global se va a
+otro sitio y el perfil deja de señalar la debilidad real, que es lo único que hace. Si por el
+tope no queda ninguna serie estimable de un básico, `unratedLifts()` lo detecta y el perfil lo
+dice — un dominio vacío sin explicación se lee como un fallo de la app.
+
 Un test manual guarda **una fila por métrica, con ids distintos**: el merge de Drive deduplica
 por id y tres McGill con el mismo id se comerían entre ellos.
 

@@ -9,7 +9,7 @@
 import { esc } from '../utils.js';
 import {
   DOMAINS, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE,
-  computeProfile, nextTest, formatMetric, bodyweight,
+  computeProfile, nextTest, formatMetric, bodyweight, unratedLifts, REP_CAP,
 } from '../domains.js';
 import { openTest } from './domain-test.js';
 
@@ -196,11 +196,19 @@ export function renderProfile(db) {
   renderNext(profile);
   $domains.innerHTML = profile.domains.map(d => domainRow(d, profile)).join('');
 
-  // Sin peso corporal los cuatro básicos no tienen ratio y el dominio de fuerza
-  // se queda vacío sin que se entienda por qué. Decirlo, con la salida a mano.
+  // Un dominio vacío sin explicación es peor que un dominio vacío: el atleta no
+  // sabe si le falta un dato o le falta entrenar. Los dos huecos que la app puede
+  // detectar y resolver se dicen aquí, con la salida a mano.
   const sinPeso = bodyweight(db) == null;
+  // El tope de 12 reps de Epley deja fuera al que solo entrena a reps altas. Sin
+  // decirlo, un básico que SÍ está en el historial no aparece y parece un fallo.
+  const sinEstimar = sinPeso ? [] : unratedLifts(db);
+  const banner = (texto) => `<div class="banner banner--neutral"><span class="material-symbols-outlined" aria-hidden="true">info</span><span class="banner-text">${texto}</span></div>`;
+  const lista = sinEstimar.map(l => `<b>${esc(l.toLowerCase())}</b>`).join(', ')
+    .replace(/, ([^,]*)$/, ' y $1');
   $note.innerHTML = `
-    ${sinPeso ? '<div class="banner banner--neutral"><span class="material-symbols-outlined" aria-hidden="true">info</span><span class="banner-text">Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.</span></div>' : ''}
+    ${sinPeso ? banner('Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.') : ''}
+    ${sinEstimar.length ? banner(`Solo tienes series largas de ${lista}. Un 1RM estimado por encima de ${REP_CAP} repeticiones mide resistencia, no fuerza máxima, así que no se calcula. Registra una serie de ${REP_CAP} o menos y el dominio aparece solo.`) : ''}
     <div class="prof-calib">${esc(CALIBRATION_NOTE)}</div>`;
 }
 

@@ -177,10 +177,28 @@ const LIFT_PATTERNS = {
   ohp: /press\s*(militar|de\s*hombro)|overhead|\bohp\b/i,
 };
 
-/** 1RM estimado de Epley — misma fórmula que usa Quirón, sin importarla. */
+/**
+ * Por encima de estas reps un 1RM estimado habla de capacidad de trabajo, no de
+ * fuerza máxima: Epley, Brzycki y Lombardi divergen a doble dígito y la serie
+ * deja de decir nada sobre el máximo. Un OHP de 45 kg x 20 sale a 75 kg — para
+ * un atleta de 75 kg, 1.00xBW, nivel V. Y como la derivación se queda con el
+ * máximo histórico, una sola serie así fija la métrica para siempre.
+ *
+ * Aquí eso no infla un número decorativo: infla un dominio, el mínimo global se
+ * va a otro sitio y el perfil deja de señalar la debilidad real. La regla del
+ * mínimo se sigue aplicando bien sobre un dato que ya venía mentido.
+ */
+export const REP_CAP = 12;
+
+/**
+ * 1RM estimado de Epley — misma fórmula que usa Quirón, sin importarla.
+ * Devuelve null por encima de REP_CAP: no estimar es más honesto que estimar mal,
+ * y es la misma decisión que marca `provisional` un perfil incompleto.
+ */
 function epley(kg, reps) {
   const k = parseFloat(kg), r = parseInt(reps);
   if (!Number.isFinite(k) || k <= 0 || !Number.isFinite(r) || r < 1) return null;
+  if (r > REP_CAP) return null;
   return r === 1 ? k : k * (1 + r / 30);
 }
 
@@ -243,6 +261,32 @@ export function derivedMetrics(db) {
   if (mejor5k) out.run5k = mejor5k;
 
   return out;
+}
+
+/**
+ * Básicos presentes en el historial pero sin ninguna serie estimable: todas por
+ * encima de REP_CAP. Sin esto el dominio de fuerza se vacía en silencio y el
+ * atleta no tiene cómo saber que le falta una serie corta, no un entrenamiento.
+ * @returns {string[]} Etiquetas de los básicos afectados, en el orden de DOMAINS.
+ */
+export function unratedLifts(db) {
+  const visto = {}, estimable = {};
+  for (const w of (db?.workouts || [])) {
+    for (const ex of (w.exercises || [])) {
+      for (const [key, re] of Object.entries(LIFT_PATTERNS)) {
+        if (!re.test(ex.name || '')) continue;
+        for (const s of (ex.sets || [])) {
+          const kg = parseFloat(s.kg), r = parseInt(s.reps);
+          if (!Number.isFinite(kg) || kg <= 0 || !Number.isFinite(r) || r < 1) continue;
+          visto[key] = true;
+          if (r <= REP_CAP) estimable[key] = true;
+        }
+      }
+    }
+  }
+  const etiqueta = Object.fromEntries(
+    DOMAINS.find(d => d.id === 'strength').metrics.map(m => [m.key, m.label]));
+  return Object.keys(etiqueta).filter(k => visto[k] && !estimable[k]).map(k => etiqueta[k]);
 }
 
 /** El test manual más reciente de cada métrica. */

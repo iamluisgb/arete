@@ -3,10 +3,28 @@
 // Nota: los workouts no registran RPE, así que la señal de fatiga se calcula como
 // ratio de carga aguda/crónica (7 días vs media de 28), no por RPE.
 
-/** 1RM estimado — fórmula de Epley: kg × (1 + reps/30). null si datos inválidos. */
+/**
+ * Tope de reps para estimar un 1RM. Ver la nota en `js/domains.js`, que es donde
+ * este límite decide un nivel: por encima de 12 reps la estimación habla de
+ * capacidad de trabajo, no de fuerza máxima.
+ *
+ * Aquí importa por una razón distinta. El SOUL le dice a Quirón que los números
+ * del snapshot ya vienen calculados y que los cite sin recalcularlos — así que un
+ * e1RM inflado se convierte en una cifra que el modelo afirma con confianza. Y el
+ * check `cifras` de los evals lo daría por bueno, porque comprueba la procedencia
+ * de una cifra, no su verdad: el número SÍ sale del snapshot. La única defensa
+ * está aquí, antes de que la cifra exista.
+ */
+export const REP_CAP = 12;
+
+/**
+ * 1RM estimado — fórmula de Epley: kg × (1 + reps/30). null si datos inválidos
+ * o si la serie pasa de REP_CAP: no estimar es más honesto que estimar mal.
+ */
 export function epley(kg, reps) {
   const k = parseFloat(kg), r = parseInt(reps);
   if (!Number.isFinite(k) || k <= 0 || !Number.isFinite(r) || r < 1) return null;
+  if (r > REP_CAP) return null;
   if (r === 1) return k;
   return k * (1 + r / 30);
 }

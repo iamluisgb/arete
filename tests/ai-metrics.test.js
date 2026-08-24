@@ -47,6 +47,35 @@ describe('epley', () => {
     expect(epley(0, 5)).toBeNull();
     expect(epley('abc', 'F')).toBeNull();
   });
+  // Por encima de 12 reps la estimación deja de hablar de fuerza máxima. Aquí el
+  // daño es que el SOUL le dice a Quirón que cite los números del snapshot sin
+  // recalcularlos: un e1RM inflado sale por su boca como un hecho, y el check
+  // `cifras` lo aprueba porque comprueba la procedencia, no la verdad.
+  it('no estima por encima de 12 reps', () => {
+    expect(epley(100, 12)).toBeCloseTo(140, 1);
+    expect(epley(100, 13)).toBeNull();
+    expect(epley(45, 20)).toBeNull();
+  });
+});
+
+describe('e1rmByExercise con series largas', () => {
+  const wk = (date, name, sets) => ({ date, exercises: [{ name, sets }] });
+
+  it('ignora la serie de volumen y se queda con la pesada', () => {
+    const out = e1rmByExercise([
+      wk('2026-07-01', 'Sentadilla', [{ kg: '100', reps: '3' }]),
+      wk('2026-07-02', 'Sentadilla', [{ kg: '90', reps: '15' }]),
+    ], new Date('2026-07-10T12:00:00'));
+    expect(out.Sentadilla.best.rm).toBeCloseTo(110, 1);
+    expect(out.Sentadilla.best.reps).toBe(3);
+  });
+
+  it('un ejercicio entrenado solo a reps altas no aparece', () => {
+    const out = e1rmByExercise([
+      wk('2026-07-01', 'Extensión de tríceps', [{ kg: '20', reps: '20' }]),
+    ], new Date('2026-07-10T12:00:00'));
+    expect(out['Extensión de tríceps']).toBeUndefined();
+  });
 });
 
 describe('workoutTonnage', () => {

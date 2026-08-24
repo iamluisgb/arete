@@ -105,6 +105,50 @@ describe('derivación desde lo ya registrado', () => {
     expect(m.ohp.value).toBe(0.7);
   });
 
+  // Epley por encima de ~12 reps habla de capacidad de trabajo, no de fuerza
+  // máxima. Y como la derivación se queda con el MÁXIMO histórico, una serie de
+  // volumen es exactamente la que gana ese máximo: sin tope, el dominio se infla,
+  // el mínimo global se va a otro sitio y el perfil deja de señalar la debilidad
+  // real. La regla del mínimo seguiría ejecutándose bien sobre un dato mentido.
+  describe('series de muchas reps no estiman un 1RM', () => {
+    it('una serie de más de 12 reps no produce ratio de fuerza', () => {
+      const d = db({
+        bodyLogs: conPeso(75),
+        workouts: [wk('2026-07-02', 'Press Militar', [{ kg: '45', reps: '20' }])],
+      });
+      // Sin tope: 45 × (1 + 20/30) = 75 kg = 1.00×BW = nivel V, con una serie de accesorio.
+      expect(derivedMetrics(d).ohp).toBeUndefined();
+    });
+
+    it('12 reps justas sí cuentan — el tope es inclusivo', () => {
+      const d = db({
+        bodyLogs: conPeso(75),
+        workouts: [wk('2026-07-02', 'Press Militar', [{ kg: '45', reps: '12' }])],
+      });
+      expect(derivedMetrics(d).ohp.value).toBe(0.84);
+    });
+
+    it('una serie larga no puede superar a una pesada real', () => {
+      const d = db({
+        bodyLogs: conPeso(75),
+        workouts: [
+          wk('2026-07-01', 'Sentadilla', [{ kg: '100', reps: '3' }]),   // e1RM 110 kg
+          wk('2026-07-02', 'Sentadilla', [{ kg: '90', reps: '15' }]),   // sin tope: 135 kg
+        ],
+      });
+      const m = derivedMetrics(d);
+      expect(m.squat.value).toBe(1.47);
+      expect(m.squat.date).toBe('2026-07-01');   // la fecha también es la de la serie válida
+    });
+
+    it('el tope no toca las dominadas: son reps contadas, no un 1RM estimado', () => {
+      const d = db({
+        workouts: [wk('2026-07-01', 'Dominada Prono', [{ kg: '', reps: '20' }])],
+      });
+      expect(derivedMetrics(d).pullups.value).toBe(20);
+    });
+  });
+
   it('las dominadas con lastre no cuentan como dominadas de peso corporal', () => {
     const d = db({
       workouts: [

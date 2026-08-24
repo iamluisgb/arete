@@ -110,6 +110,28 @@ describe('cabecera', () => {
     expect(document.getElementById('profNote').textContent).toContain('peso corporal');
   });
 
+  // El tope de 12 reps vacía un básico que SÍ está en el historial. Callarlo lo
+  // convierte en un fallo aparente de la app.
+  it('explica que solo hay series largas de un básico', async () => {
+    const { profile } = await cargar();
+    profile.renderProfile(freshDB({
+      bodyLogs: [{ id: 1, date: '2026-07-01', peso: 75 }],
+      workouts: [{ id: 1, date: '2026-07-02', exercises: [{ name: 'Press Militar', sets: [{ kg: '45', reps: '20' }] }] }],
+    }));
+    const txt = document.getElementById('profNote').textContent;
+    expect(txt).toContain('press militar');
+    expect(txt).toContain('12');
+  });
+
+  it('con una serie corta del mismo básico el aviso desaparece', async () => {
+    const { profile } = await cargar();
+    profile.renderProfile(freshDB({
+      bodyLogs: [{ id: 1, date: '2026-07-01', peso: 75 }],
+      workouts: [{ id: 1, date: '2026-07-02', exercises: [{ name: 'Press Militar', sets: [{ kg: '45', reps: '20' }, { kg: '50', reps: '5' }] }] }],
+    }));
+    expect(document.getElementById('profNote').textContent).not.toContain('series largas');
+  });
+
   it('la calibración se declara en la pantalla, no solo en el blog', async () => {
     const { profile } = await cargar();
     profile.renderProfile(freshDB());
