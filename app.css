@@ -847,6 +847,12 @@ nav button .material-symbols-outlined{font-size:24px}
    la última vez no es ni bueno ni malo: es el dato contra el que comparas. En
    tinta, con la etiqueta en secundario, se lee la comparación sin teñirla. */
 .ex-card .prev-data span{color:var(--color-text-primary);font-weight:600}
+/* El porqué de la carga de hoy. Va en secundario porque es una explicación, no
+   un estado: la única que se tiñe es la descarga, que es la que el atleta tiene
+   que ver antes de cargar la barra con menos peso del que esperaba. */
+.ex-card .prog-why{font-size:var(--fs-xs);color:var(--color-text-secondary);margin-top:6px;line-height:1.45}
+.ex-card .prog-up{color:var(--color-state-success)}
+.ex-card .prog-deload{color:var(--color-state-warning,var(--cat-amber));font-weight:600}
 .prev-badge{display:inline-flex;align-items:center;font-size:var(--fs-2xs);font-weight:700;color:var(--color-text-secondary);background:var(--color-surface-2);border-radius:var(--radius-md);padding:2px 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 .prev-badge--record{color:var(--cat-amber);background:var(--cat-amber-wash)}
 .timer-bar{z-index:var(--z-sticky-timer);background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:var(--radius-lg);padding:10px 16px;display:none;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-4)}

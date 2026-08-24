@@ -79,3 +79,68 @@ describe('populateSessions', () => {
     expect(select.value).toBe('Sesión B');
   });
 });
+
+// La progresión, vista desde la tarjeta. El motor tiene sus propios tests
+// (progression.test.js); lo que se comprueba aquí es que el peso que aparece en
+// el campo es el que decidió la progresión y no una copia de la última vez, y
+// que nunca aparece sin su explicación.
+describe('progresión en el prefill', () => {
+  beforeEach(() => { setupDOM(); vi.resetModules(); });
+
+  const conHistorial = (sets) => ({
+    phase: 1, program: 'arete', workouts: [{
+      id: 1, date: '2026-07-01', session: 'Sesión A', phase: 1, program: 'arete',
+      exercises: [{ name: 'Sentadilla', sets }],
+    }],
+  });
+  const campoKg = () => document.querySelector('[data-ex="0"][data-set="0"][data-field="kg"]');
+
+  it('una sesión cumplida propone el peso subido, no el repetido', async () => {
+    const { loadSessionTemplate, populateSessions } = await import('../js/ui/training.js');
+    const db = conHistorial([{ kg: '100', reps: '5' }, { kg: '100', reps: '5' }, { kg: '100', reps: '5' }]);
+    populateSessions(db);
+    document.getElementById('trainSession').value = 'Sesión A';
+    loadSessionTemplate(db, true);
+    expect(campoKg().value).toBe('105');
+    expect(document.getElementById('exerciseList').textContent).toContain('5 kg más');
+  });
+
+  it('una sesión fallada repite el peso, y lo dice', async () => {
+    const { loadSessionTemplate, populateSessions } = await import('../js/ui/training.js');
+    const db = conHistorial([{ kg: '100', reps: '5' }, { kg: '100', reps: '5' }, { kg: '100', reps: '2' }]);
+    populateSessions(db);
+    document.getElementById('trainSession').value = 'Sesión A';
+    loadSessionTemplate(db, true);
+    expect(campoKg().value).toBe('100');
+    expect(document.getElementById('exerciseList').textContent).toContain('Faltaron reps');
+  });
+
+  it('en hold respeta la rampa de la última vez en vez de aplastarla', async () => {
+    const { loadSessionTemplate, populateSessions } = await import('../js/ui/training.js');
+    const db = conHistorial([{ kg: '60', reps: '5' }, { kg: '80', reps: '5' }, { kg: '100', reps: '2' }]);
+    populateSessions(db);
+    document.getElementById('trainSession').value = 'Sesión A';
+    loadSessionTemplate(db, true);
+    const kg = [0, 1, 2].map(n => document.querySelector(`[data-ex="0"][data-set="${n}"][data-field="kg"]`).value);
+    expect(kg).toEqual(['60', '80', '100']);
+  });
+
+  it('una subida sí pone el mismo peso en todas las series', async () => {
+    const { loadSessionTemplate, populateSessions } = await import('../js/ui/training.js');
+    const db = conHistorial([{ kg: '60', reps: '5' }, { kg: '80', reps: '5' }, { kg: '100', reps: '5' }]);
+    populateSessions(db);
+    document.getElementById('trainSession').value = 'Sesión A';
+    loadSessionTemplate(db, true);
+    const kg = [0, 1, 2].map(n => document.querySelector(`[data-ex="0"][data-set="${n}"][data-field="kg"]`).value);
+    expect(kg).toEqual(['105', '105', '105']);
+  });
+
+  it('sin historial no inventa un peso', async () => {
+    const { loadSessionTemplate, populateSessions } = await import('../js/ui/training.js');
+    const db = { phase: 1, program: 'arete', workouts: [] };
+    populateSessions(db);
+    document.getElementById('trainSession').value = 'Sesión A';
+    loadSessionTemplate(db, true);
+    expect(campoKg().value).toBe('');
+  });
+});

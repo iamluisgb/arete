@@ -7,6 +7,7 @@ import { toast } from './toast.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
 import { pictHtml } from './exercise-pict.js';
+import { nextPrescription } from '../progression.js';
 
 // Re-export for tests
 export { exFmtTime, parseDurationStr, buildTimerConfig };
@@ -446,16 +447,29 @@ function timerBtnHtml(i, mode) {
 }
 
 function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
+  // El prefill copiaba la última sesión tal cual, así que el peso no se movía
+  // solo nunca. La progresión decide el peso de hoy a partir del historial y
+  // dice por qué; si no tiene opinión (`kind: 'off'`, primera vez, un modo sin
+  // objetivo numérico) se cae al comportamiento de siempre.
+  const presc = db ? nextPrescription(db, ex, getActiveProgram()) : { kind: 'off' };
   let sh = `<div class="sets-grid"><div></div><div class="sets-header">Kg</div><div class="sets-header">Reps</div>`;
   for (let s = 0; s < ex.sets; s++) {
     const pK = prevEx?.sets[s]?.kg ?? '';
     const pR = prevEx?.sets[s]?.reps ?? '';
-    const vK = shouldPrefill && pK ? pK : '';
-    const vR = shouldPrefill && pR ? pR : '';
+    // El peso solo se impone cuando de verdad CAMBIA (subida o descarga): ahí es
+    // uno para todas las series. En 'hold' se respeta lo de la última vez serie a
+    // serie, porque aplastarlo convertiría una rampa de 60/80/100 en 100/100/100
+    // — y quien calienta en rampa lo hace a propósito. Las reps solo cuando la
+    // progresión opina (un rango que vuelve al suelo tras subir).
+    const mueveCarga = presc.kind === 'up' || presc.kind === 'deload';
+    const oK = mueveCarga && presc.kg != null ? String(presc.kg) : pK;
+    const oR = presc.reps != null ? String(presc.reps) : pR;
+    const vK = shouldPrefill && oK ? oK : '';
+    const vR = shouldPrefill && oR ? oR : '';
     const cK = vK ? ' prefilled' : '';
     const cR = vR ? ' prefilled' : '';
     const activeClass = s === 0 ? ' active-set' : '';
-    sh += `<button type="button" class="set-label${activeClass}" data-ex="${i}" data-set="${s}">S${s + 1}</button><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${pK || '—'}" value="${vK}" step="0.5" aria-label="Peso serie ${s + 1} de ${esc(ex.name)}" autocomplete="off" inputmode="decimal"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${pR || ex.reps}" value="${vR}" inputmode="numeric" aria-label="Reps serie ${s + 1} de ${esc(ex.name)}" autocomplete="off">`;
+    sh += `<button type="button" class="set-label${activeClass}" data-ex="${i}" data-set="${s}">S${s + 1}</button><input type="number" class="${cK}" data-ex="${i}" data-set="${s}" data-field="kg" placeholder="${oK || '—'}" value="${vK}" step="0.5" aria-label="Peso serie ${s + 1} de ${esc(ex.name)}" autocomplete="off" inputmode="decimal"><input type="text" class="${cR}" data-ex="${i}" data-set="${s}" data-field="reps" placeholder="${oR || ex.reps}" value="${vR}" inputmode="numeric" aria-label="Reps serie ${s + 1} de ${esc(ex.name)}" autocomplete="off">`;
   }
   sh += '</div>';
   let pi = '';
@@ -469,7 +483,10 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
     ) : '';
     pi = `<div class="prev-data">Anterior: ${prevStr}${badge}</div>`;
   }
-  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}</div>`;
+  // Un peso que aparece solo y no se explica se borra. El porqué va siempre.
+  const why = shouldPrefill && presc.why
+    ? `<div class="prog-why prog-${presc.kind}">${esc(presc.why)}</div>` : '';
+  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}${why}</div>`;
 }
 
 function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {

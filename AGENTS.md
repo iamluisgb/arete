@@ -56,6 +56,41 @@ fuerza a fuerza, que es lo que usan "Iniciar sesión" y Quirón. `migrateLastTab
 pestañas viejas (`secStrength`/`secRunning`) — no la borres o los usuarios existentes abrirán la
 app en una sección que ya no existe.
 
+## Progresión: qué peso toca hoy
+
+[`js/progression.js`](js/progression.js) decide la carga de cada ejercicio de series y **dice
+por qué**. Antes el prefill copiaba la última sesión tal cual, así que el peso no se movía solo
+nunca; la regla de subir vivía únicamente en el prompt de Quirón, donde no es determinista ni
+testeable.
+
+Todo es **función pura del historial: nada se escribe de vuelta en un entreno terminado**.
+Corregir una serie mal tecleada arregla el objetivo siguiente al instante, y cambiar el plan no
+obliga a migrar nada, porque no hay contadores guardados que se desincronicen.
+
+Lo que no es obvio y hay que respetar:
+
+- **Areté no guarda la prescripción con el entreno**, así que el historial se juzga contra el
+  objetivo del plan de HOY. Por eso **un estancamiento es fallar al MISMO peso**, no fallar sin
+  más: sin esa condición, cambiar un plan de 3×5 a 3×10 relee todo el histórico como fallado y
+  recibe al atleta con "18 sesiones seguidas — descarga".
+- **La carga registrada manda sobre el nombre.** "Squat" dentro de `kettlebell.json` se
+  clasifica como pesa rusa, pero quien registra 100 kg usa una barra: sin la comprobación
+  (`onBellLadder`) el salto sería de 4 kg y la descarga lo mandaría de 100 kg a 48.
+- **Una pesa rusa sube de pesa en pesa** (`BELLS`), no de 2,5 en 2,5. El programa de kettlebell
+  es real y sus 101 series están todas en un solo bell de 20 kg.
+- **La subida no se cuadra a la rejilla del salto**: 42,5 + 5 son 47,5, no 50. El atleta ya
+  estaba en un peso cargable. El redondeo solo hace falta en la descarga.
+- **Un aguante cronometrado se cuela en el campo de reps** (`2min`, `1min/lado`): sin
+  descartarlo, una plancha se lee como "2 repeticiones", se cumple siempre y el motor le sube
+  el peso a un ejercicio que no lleva peso.
+- El hilo de progresión es **(ejercicio, objetivo de reps)**: una sentadilla es la misma salga
+  en la Sesión A o en la B, pero 3×5 y 3×10 no se mezclan.
+- **No toca los modos que no son de series** (`rounds`, `amrap`, `emom`, `tabata`…): ahí el
+  resultado es un tiempo o un total, y una regla inventada sobre eso sería ruido.
+
+El `por qué` se enseña siempre junto al peso (`.prog-why`). Un número que aparece solo y no se
+explica es un número que se deja de creer — y se borra.
+
 ## Running: se importa, no se trackea
 
 Areté no compite en tracking GPS contra Strava y Garmin. El tracker se ofrece **solo donde el
