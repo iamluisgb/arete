@@ -153,6 +153,35 @@ Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y 
 
 Los `canonical`/`og:url` de todo el HTML apuntan ya a `arete.raiatech.com`.
 
+### Traer los datos del origen viejo
+
+Los datos de cada atleta viven en el **localStorage de su origen**, y el navegador no deja que
+`arete.raiatech.com` lea los de `luisgonzalezbernal.com`. **Un iframe tampoco vale**: Chrome,
+Safari y Firefox particionan el almacenamiento de terceros, así que un iframe al origen viejo
+desde el nuevo ve un cajón vacío, no el de verdad. Es el motivo de que esto no pueda ser
+transparente.
+
+La única ventana es **cuando el atleta abre el sitio viejo como página principal** — que es
+justo lo que pasa al pinchar su marcador. La página de `gh-pages` lee entonces `localStorage`
+**y las rutas GPS de IndexedDB** (`areteRuns`, que es donde vive lo pesado: sin eso las carreras
+llegarían sin recorrido), lo comprime con gzip y lo manda en el **fragmento** de la URL — que no
+viaja al servidor, así que el traspaso no pasa por Cloudflare ni queda en ningún log.
+[`js/migrate-origin.js`](js/migrate-origin.js) es el otro extremo, y corre lo primero en `init()`.
+
+Tres reglas:
+
+1. **El origen viejo nunca borra lo suyo.** Si el traspaso falla, los datos siguen ahí y se
+   puede reintentar. El `sw.js` de retirada borra cachés, nunca `localStorage`.
+2. **El destino nunca sobrescribe en silencio**: con datos ya presentes, pregunta; con la db
+   vacía, importa sin molestar. Reutiliza `applyImport` (el mismo merge que el import de
+   fichero: dos caminos para los mismos datos, una sola forma de equivocarse).
+3. **Por encima de 48.000 caracteres se ofrece un fichero** en vez del enlace. Un historial de
+   140 KB comprime a ~5.300 caracteres, así que el tope tiene ocho veces de margen; solo lo
+   rompería un archivo enorme de recorridos GPS, y una URL cortada falla en silencio.
+
+Quien tuviera **Drive** activado no necesita nada de esto: `arete.raiatech.com` ya está en
+`ALLOWED_ORIGINS` del Worker de auth, así que le basta con reconectar.
+
 ## Quirón (el agente)
 
 Chat con el atleta sobre sus propios datos. Dos capas de contexto, como el agente de

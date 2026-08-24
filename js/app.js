@@ -1,4 +1,5 @@
-import { loadDB, saveDB, setOnSave, setOnQuotaError, setOnExternalChange, exportData, importData, clearAllData } from './data.js';
+import { loadDB, saveDB, setOnSave, setOnQuotaError, setOnExternalChange, exportData, importData, applyImport, clearAllData } from './data.js';
+import { migrateFromHash } from './migrate-origin.js';
 import { splitAndStoreRoutes } from './run-store.js';
 import { loadPrograms, setActiveProgram, getActiveProgram, getPrograms, getProgramList, isBuiltinProgram, validateProgram, importCustomProgram, deleteCustomProgram, getCustomPrograms } from './programs.js';
 import { formatPace, parseRunDuration, formatRunDuration, getPaceZones, getHRZones, ZONE_COLORS } from './ui/running-helpers.js';
@@ -125,6 +126,16 @@ function renderProgramSelector() {
 async function init() {
   initToast();
   initTheme();
+
+  // Datos que llegan del origen viejo (luisgonzalezbernal.com/arete) en el
+  // fragmento de la URL. Va lo primero, antes de que nada dibuje: importar
+  // después obligaría a recargar para que la pantalla dejara de mentir.
+  const migracion = await migrateFromHash(db, { applyImport });
+  if (migracion.status === 'imported') {
+    toast(`Datos traídos de la dirección anterior: ${migracion.detail}`, 'success');
+  } else if (migracion.status === 'invalid') {
+    toast('No he podido leer los datos de la dirección anterior. Exporta una copia allí e impórtala en Ajustes.', 'error');
+  }
 
   // Migrate custom programs from old localStorage key to db
   const oldCustom = localStorage.getItem('customPrograms');

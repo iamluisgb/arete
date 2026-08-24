@@ -293,28 +293,49 @@ export function validateImportData(d) {
   return null;
 }
 
+/**
+ * Fusiona un backup ya parseado en la db y lo guarda.
+ *
+ * Separado de `importData` porque el fichero no es la única vía: la migración
+ * desde el origen viejo (`js/migrate-origin.js`) trae exactamente la misma
+ * estructura por otro camino, y duplicar el merge sería tener dos formas
+ * distintas de equivocarse con los mismos datos.
+ *
+ * @returns {Promise<null|string>} null si fue bien, el motivo si no.
+ */
+export async function applyImport(d, db) {
+  const err = validateImportData(d);
+  if (err) return `Formato no válido: ${err}`;
+  Object.assign(db, mergeDB(db, d));
+  // Las rutas GPS pesan y viven en IndexedDB, no en localStorage.
+  const stripped = await splitAndStoreRoutes(db.runningLogs);
+  db.runningLogs = stripped;
+  saveDB(db);
+  return null;
+}
+
 /** Import and merge a JSON backup from a file input event */
 export function importData(event, db, onSuccess) {
   const f = event.target.files[0];
   if (!f) return;
   const r = new FileReader();
   r.onload = () => {
+    let d;
     try {
-      const d = JSON.parse(r.result);
-      const err = validateImportData(d);
-      if (err) { alert(`Formato no válido: ${err}`); return; }
-      Object.assign(db, mergeDB(db, d));
-      // Split heavy route data to IndexedDB before saving
-      splitAndStoreRoutes(db.runningLogs).then(stripped => {
-        db.runningLogs = stripped;
-        saveDB(db);
-        alert('Datos importados');
-        location.reload();
-      });
+      d = JSON.parse(r.result);
     } catch (e) {
       console.warn('importData failed:', e);
       alert('Error al leer el archivo');
+      return;
     }
+    applyImport(d, db).then(err => {
+      if (err) { alert(err); return; }
+      alert('Datos importados');
+      location.reload();
+    }).catch(e => {
+      console.warn('importData failed:', e);
+      alert('Error al leer el archivo');
+    });
   };
   r.readAsText(f);
 }
