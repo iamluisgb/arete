@@ -163,6 +163,27 @@ también se comería, no aparecen en los fixtures.
 - [ ] Volumen por patrón en el snapshot ([`context.js`](../js/ai/context.js)), **calculado en JS**
       igual que el tonelaje, bajo la regla "cítalo, no lo derives tú".
 
+Decisiones de diseño (spec, decididas antes de codificar — detalle en memoria Engram
+`plan-ontologia/f4`):
+
+- **Motor en módulo propio, no en el generado.** `js/ai/exercise-catalog.js`
+  (hand-authored) importa `EXERCISE_ONTOLOGY`/`resolveExercise`; el build script sigue
+  siendo fuente de datos puros y el contrato F0/F2 no se toca.
+- **`evita` excluye por texto de contraindicaciones**, no solo por nombre: las
+  contraindications del catálogo arrancan con la zona (`Hombro: …`, `Lumbar: …`), así
+  que `evita:['hombro']` saca todo lo que menciona el hombro.
+- **Sustitutos derivados, no rellenados.** El esquema F0 prometía `substitutes[]` pero
+  las filas no lo traen: `explain_exercise` los deriva (variantOf → lift canónico;
+  hermanos del mismo patrón, priorizando el mismo material).
+- **`GATHER_INSTRUCTION` no existe como símbolo:** el punto del plan apunta a las
+  descripciones de `propose_session`/`propose_program` en `tools.js`, que es donde
+  vive hoy la instrucción de qué va en `goal`.
+- **Limitación conocida:** las 8 filas en confianza `media` de F1 no están en el
+  catálogo, así que `find_exercises` no las ofrece. Es fiel a "solo ejercicios del
+  catálogo"; aplicarlas es trabajo de F1 pendiente, no de F4.
+- **Delta de evals declarado:** el snapshot cambia (nuevo bloque VOLUMEN POR PATRÓN).
+  Los fixtures de `db` no cambian; cambia el texto que los evals envían al modelo.
+
 ## F5 — Evals 🟡⭐
 
 - [ ] Check nuevo `catalogo` en [`evals/checks.mjs`](../evals/checks.mjs): todo ejercicio que
