@@ -39,7 +39,23 @@ los puntos 1, 2, 3 y 4 de abajo están cerrados. El 5 sigue abierto.
 
 ## Abierto
 
-6. **Dos temporizadores de descanso viven en paralelo.** `.timer-bar` (la barra de la pestaña
+9. **Advisory de la review nativa de F3 (review-6f2d3b1243e2ecaf, aprobada).** Tres hallazgos
+   no bloqueantes que quedan como trabajo futuro separado (detalle completo en el ledger de
+   gentle-ai; aquí la ubicación y la naturaleza):
+
+   - **R3-001 (WARNING)** — `js/domains.js:182-184`, `liftMetric()`: lo que no está en la
+     ontología devuelve `null` y no cuenta, en silencio. Correcto por decisión D1, pero hasta
+     que F0–F2 llenen la ontología, cualquier ejercicio no sembrado (accesorios, patrones)
+     escapa a la derivación. Se cierra con las fases siguientes del plan.
+   - **R3-002 (WARNING)** — `tests/domains.test.js:402-403`: la regresión sobre el fixture real
+     es `skipIf(!existsSync(REAL))`; en máquinas sin el fixture gitignoreado el test se salta
+     en silencio y la cobertura de regresión desaparece sin aviso.
+   - **R3-003 (SUGGESTION)** — `js/exercise-ontology.js:137-146`: el índice de firmas lanza
+     `Error` en carga de módulo si hay alias duplicado. Es fail-fast deliberado, pero un error
+     de construcción más descriptivo (listar todos los duplicados, no solo el primero) ayudaría
+     al mantenimiento.
+
+6. **Dos temporizadores de descanso viven en paralelo.**** `.timer-bar` (la barra de la pestaña
    Actividad) y el anillo del `.set-runner` cuentan lo mismo con dos implementaciones distintas
    (`js/ui/timer.js` y `js/ui/set-runner.js`). No es un fallo de presentación y no se ha tocado,
    pero es la clase de duplicación que acaba divergiendo.

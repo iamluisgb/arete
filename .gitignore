@@ -22,4 +22,8 @@ evals/runs/
 # incluidos los de Gym visual). Publicarlo dejaría una página rota.
 sesion-fuerza-prototype.html
 
+# Tooling del agente local (pi/gentle) — nunca se versiona
+.pi/
+.playwright-mcp/
+
 dist/
