@@ -186,6 +186,34 @@ function domainRow(d, profile) {
 
 // ── Render y eventos ─────────────────────────────────────
 
+/**
+ * UX-1: llegar a Perfil ya no basta cuando vienes del nivel de Hoy — si hay un
+ * dominio que limita, hay que llevar hasta él. Un resaltado temporal evita que
+ * siete tarjetas iguales se traguen la respuesta al "¿y esto dónde está?".
+ * Sin resaltado si no existe la tarjeta (perfil sin medir: la pantalla ya lo
+ * dice con su banner).
+ */
+let highlightTimer = null;
+export function highlightDomain(id) {
+  if (!id) return;
+  // jsdom no expone CSS.escape; los ids de dominio son slugs, pero no cuesta
+  // cubrir el caso general.
+  const sel = (typeof CSS !== 'undefined' && CSS.escape) ? CSS.escape(id) : id.replace(/[^\w-]/g, '\\$&');
+  const card = document.querySelector(`#profDomains .prof-domain[data-domain="${sel}"]`);
+  if (!card) return;
+  card.classList.remove('domain-highlight');
+  void card.offsetWidth; // reinicia la animación si se vuelve a entrar
+  card.classList.add('domain-highlight');
+  card.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  clearTimeout(highlightTimer);
+  highlightTimer = setTimeout(() => card.classList.remove('domain-highlight'), 1600);
+  // Cualquier interacción con la tarjeta la retira antes de tiempo.
+  card.addEventListener('pointerdown', () => {
+    clearTimeout(highlightTimer);
+    card.classList.remove('domain-highlight');
+  }, { once: true });
+}
+
 export function renderProfile(db) {
   cacheSelectors();
   if (!$radar) return;

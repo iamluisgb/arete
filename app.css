@@ -2140,6 +2140,34 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dash-level-txt b{font:var(--type-body-strong);font-weight:700}
 .dash-level-txt span{font:var(--type-caption);color:var(--color-text-secondary)}
 .dash-level-go{flex-shrink:0;color:var(--color-text-secondary);font-size:22px}
+
+/* UX-1: resaltado temporal del dominio limitante al llegar desde Hoy. Contorno
+   en acento + un halo que se apaga; con prefers-reduced-motion solo queda el
+   contorno (el sistema de movimiento §final: el significado no vive en la
+   animación, vive en el estado). */
+.domain-highlight{outline:2px solid var(--color-accent-text);outline-offset:2px;
+  animation:domain-glow 1.6s ease-out}
+@keyframes domain-glow{0%{box-shadow:0 0 0 8px var(--color-accent-glow)}100%{box-shadow:0 0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){.domain-highlight{animation:none}}
+
+/* UX-2: tarjeta de primeros pasos. Modesta: título, tres pasos, salir. */
+.dash-starter{display:flex;flex-direction:column;gap:var(--sp-3)}
+.dash-starter-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+.dash-starter-title{font:var(--type-body-strong);font-weight:700}
+.dash-starter-dismiss{background:none;border:none;padding:var(--sp-1) var(--sp-2);
+  font:var(--type-caption);color:var(--color-text-secondary);cursor:pointer;
+  border-radius:var(--radius-pill);font-family:var(--font)}
+.dash-starter-dismiss:active{opacity:.7}
+.dash-starter-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-1)}
+.dash-starter-steps button{display:flex;align-items:center;gap:var(--sp-2);width:100%;
+  background:none;border:none;padding:var(--sp-1) 0;text-align:left;cursor:pointer;
+  font:var(--type-body);font-family:var(--font);color:var(--color-text-primary)}
+.dash-starter-steps .material-symbols-outlined{font-size:20px;color:var(--color-text-tertiary)}
+.dash-starter-steps li.done button{color:var(--color-text-secondary)}
+.dash-starter-steps li.done .material-symbols-outlined{color:var(--color-accent-text)}
+
+/* UX-12: salida a Entrenar cuando aún no hay nada en el historial. */
+.dash-empty{display:flex;flex-direction:column;align-items:center;gap:var(--sp-3)}
 /* ── Hoy: bento en una fila, actividad en columna ────────── */
 @media(min-width:1024px){
 /* La quinta fila, vacía, absorbe el alto sobrante: sin ella, la actividad —que

@@ -6,7 +6,7 @@ accessibility, and copy polish — then review, PR, merge, and deploy.
 
 ## Tasks
 
-- [ ] U1: cheap polish — toast aria-live (UX-3), PR celebration focus (UX-4), missing
+- [x] U1: cheap polish — toast aria-live (UX-3), PR celebration focus (UX-4), missing
       accents in copy (UX-13), Quirón silent localStorage failure toast (UX-16).
 - [ ] U2: Hoy + onboarding — limiter line + CTA in dashLevel (UX-1), first-run starter
       card sequence (UX-2), CTA on empty dashboard activity (UX-12).
@@ -21,4 +21,5 @@ accessibility, and copy polish — then review, PR, merge, and deploy.
 
 ## Evidence
 
-(commit ids recorded per unit)
+23f802f — U1 (657/657)
+(more per unit)
