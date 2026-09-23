@@ -33,7 +33,7 @@ abierta sin merge ni deploy** (decisión del usuario: la revisa él).
 - [x] 4. soul.js: SEGURIDAD operativa + ruteo hacia find_exercises.
 - [x] 5. context.js: VOLUMEN POR PATRÓN (28d) en el snapshot + tests.
 - [x] 6. `npm test` verde + delta verificado; commits por unidad.
-- [ ] 7. Review nativa del candidato + PR abierta (SIN merge ni deploy).
+- [x] 7. Review nativa del candidato + PR abierta (SIN merge ni deploy).
 
 ## Evidencia
 
@@ -43,4 +43,4 @@ abierta sin merge ni deploy** (decisión del usuario: la revisa él).
 - Delta de perfil de dominios sobre los 6 fixtures: cero (diff vacío antes/después).
 - Delta de snapshot: el declarado en la spec (nuevo bloque VOLUMEN POR PATRÓN).
 - Labels de espera para las dos tools nuevas en `js/ui/quiron.js` (test lo exigía).
-- Review: lineage `(pendiente)`; PR abierta sin merge — decisión del usuario.
+- Review: lineage `review-570c2a324c119cb5` (tier high, 4 lens, 10 ficheros, 544 líneas) — **APPROVED al primer intento**, autoridad quemada (`gentle-ai.review-acknowledged/v1`, store_revision `a1e81619`). Capturas slot a slot, cero reintentos. 9 hallazgos, todos informativos (SUGGESTION/WARNING): vocabularios duplicados en descripciones de tools, cap de hermanos redundante, predicado de sets sin explicar en metrics.js, `muscle` anyOf, truncamiento de find_exercises sin dead-end, dependencia de precache de la ontología. Trabajo futuro, no reabren el review. PR abierta sin merge — decisión del usuario.
