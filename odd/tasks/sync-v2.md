@@ -77,3 +77,16 @@ reintento ante conflicto.
 - `location.reload()` por storage-event podría eliminarse si la UI reaccionara a
   mutaciones externas del db (hoy es la red de seguridad multi-pestaña).
 - Revisión de las 8 filas en confianza `media` de F1 (pendiente humano, previo).
+
+## Cierre
+- Review nativa RDD: linaje `review-2a1b5eef2c687a19` (risk tier high, 4 lens +
+  refuter + targeted validator). Estado final **APPROVED**, autoridad quemada
+  (ack `29b38549…`, consumed revision `sha256:605fe61b…`).
+- Una corrección acotada (budget 200, usadas 2 diff lines): hallazgo CRITICAL
+  `R4-engine-pending-cycle-unhandled-rejection` (resilience, inferencial) →
+  `runCycle().catch(onError)` en el re-run diferido. Commit `0efef45`.
+  Suite 650/650 tras la corrección.
+- Advisory no bloqueante: 1 SUGGESTION (`R1-drive-query-interpolation`,
+  js/drive.js) + WARNINGs de readability en data.js — follow-ups, no reabren
+  la review.
+- PR #4 abierta contra main SIN mergear: https://github.com/iamluisgb/arete/pull/4
