@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { validateDB, validateImportData, markDeleted, loadDB, saveDB, migrateDB, pruneDeletedIds } from '../js/data.js';
+import { validateDB, validateImportData, markDeleted, loadDB, saveDB, migrateDB, pruneDeletedIds, mergeInto, applyImport, CURRENT_SCHEMA } from '../js/data.js';
 
 beforeEach(() => {
   localStorage.clear();
@@ -25,22 +25,25 @@ describe('validateDB', () => {
 });
 
 describe('markDeleted', () => {
-  it('adds id to deletedIds', () => {
-    const db = { deletedIds: [] };
+  it('creates a tombstone for the id', () => {
+    const db = { tombstones: [] };
     markDeleted(db, 42);
-    expect(db.deletedIds).toContain(42);
+    expect(db.tombstones).toEqual([
+      expect.objectContaining({ uid: '42', deleted: true, coll: 'legacy' }),
+    ]);
   });
 
-  it('does not add duplicate ids', () => {
-    const db = { deletedIds: [42] };
+  it('does not add duplicate tombstones', () => {
+    const db = { tombstones: [] };
     markDeleted(db, 42);
-    expect(db.deletedIds).toEqual([42]);
+    markDeleted(db, 42);
+    expect(db.tombstones).toHaveLength(1);
   });
 
-  it('creates deletedIds array if missing', () => {
+  it('creates tombstones array if missing', () => {
     const db = {};
     markDeleted(db, 1);
-    expect(db.deletedIds).toEqual([1]);
+    expect(db.tombstones).toHaveLength(1);
   });
 });
 
@@ -88,7 +91,7 @@ describe('migrateDB', () => {
     const db = { schemaVersion: 1, program: 'test', workouts: [{ id: 1, exercises: [] }], bodyLogs: [] };
     migrateDB(db);
     expect(db.workouts[0].program).toBe('test');
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 
   it('ensures settings object exists after migration', () => {
@@ -109,28 +112,28 @@ describe('migrateDB', () => {
     const db = { schemaVersion: 6, workouts: [{ id: 1, exercises: [] }], bodyLogs: [] };
     migrateDB(db);
     expect(db.workouts[0].program).toBeUndefined(); // not touched
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 
   it('adds race5k to settings in v2→v3 migration', () => {
     const db = { schemaVersion: 2, workouts: [], bodyLogs: [], settings: { height: 175, age: 32 } };
     migrateDB(db);
     expect(db.settings.race5k).toBe(0);
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 
   it('adds maxHR to settings in v3→v4 migration', () => {
     const db = { schemaVersion: 3, workouts: [], bodyLogs: [], settings: { height: 175, age: 30, race5k: 0 } };
     migrateDB(db);
     expect(db.settings.maxHR).toBe(190); // 220 - 30
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 
   it('crea customSessions en la migración v4→v5', () => {
     const db = { schemaVersion: 4, workouts: [], bodyLogs: [], settings: { maxHR: 190 } };
     migrateDB(db);
     expect(Array.isArray(db.customSessions)).toBe(true);
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 
   it('defaults maxHR to 0 when no age set', () => {
@@ -145,11 +148,11 @@ describe('migrateDB', () => {
     expect(Array.isArray(db.domainTests)).toBe(true);
   });
 
-  it('una db de v1 llega a v6 con todo lo que el perfil necesita', () => {
+  it('una db de v1 llega a la versión actual con todo lo que el perfil necesita', () => {
     const db = { schemaVersion: 1, workouts: [], bodyLogs: [] };
     migrateDB(db);
     expect(Array.isArray(db.domainTests)).toBe(true);
-    expect(db.schemaVersion).toBe(6);
+    expect(db.schemaVersion).toBe(CURRENT_SCHEMA);
   });
 });
 
@@ -197,5 +200,51 @@ describe('saveDB / loadDB roundtrip', () => {
     expect(loaded.workouts).toEqual([]);
     expect(loaded.bodyLogs).toEqual([]);
     expect(loaded.phase).toBe(1);
+  });
+});
+
+describe('mergeInto (sync v2 merge for imports)', () => {
+  const W = (id, updatedAt, extra = {}) => ({ id, uid: String(id), updatedAt, exercises: [], ...extra });
+
+  it('unions legacy documents without uids via backfill + mergeDBv2', () => {
+    const db = { workouts: [W(1, 100)], bodyLogs: [], tombstones: [], stamps: {} };
+    const incoming = { workouts: [{ id: 2, date: '2026-07-02' }], bodyLogs: [] };
+    const merged = mergeInto(db, incoming);
+    expect(merged.workouts.map((w) => w.uid).sort()).toEqual(['1', '2']);
+    // LWW still applies on matching uids.
+    const clashing = mergeInto(db, { workouts: [W(1, 500, { session: 'newer' })] });
+    expect(clashing.workouts).toHaveLength(1);
+    expect(clashing.workouts[0].session).toBe('newer');
+  });
+
+  it('a tombstone on either side deletes the item', () => {
+    const db = {
+      workouts: [W(1, 100)],
+      tombstones: [{ uid: '1', coll: 'workouts', deleted: true, deletedAt: 500, updatedAt: 500 }],
+      stamps: {},
+    };
+    expect(mergeInto(db, { workouts: [W(1, 100)] }).workouts).toEqual([]);
+    const remoteDeleted = mergeInto(
+      { workouts: [W(1, 100)], tombstones: [], stamps: {} },
+      { workouts: [], tombstones: [{ uid: '1', coll: 'workouts', deleted: true, deletedAt: 500, updatedAt: 500 }] }
+    );
+    expect(remoteDeleted.workouts).toEqual([]);
+  });
+
+  it('does not mutate its inputs', () => {
+    const db = { workouts: [{ id: 1, date: '2026-07-01' }], bodyLogs: [], tombstones: [], stamps: {} };
+    const incoming = { workouts: [{ id: 2, date: '2026-07-02' }], bodyLogs: [] };
+    const dbSnap = JSON.stringify(db);
+    const inSnap = JSON.stringify(incoming);
+    mergeInto(db, incoming);
+    expect(JSON.stringify(db)).toBe(dbSnap);
+    expect(JSON.stringify(incoming)).toBe(inSnap);
+  });
+
+  it('applyImport routes through the v2 merge (legacy file, no uids)', async () => {
+    const db = { workouts: [W(1, 100)], bodyLogs: [], tombstones: [], stamps: {}, runningLogs: [] };
+    const err = await applyImport({ workouts: [{ id: 2, date: '2026-07-02', exercises: [] }], bodyLogs: [] }, db);
+    expect(err).toBeNull();
+    expect(db.workouts.map((w) => w.uid).sort()).toEqual(['1', '2']);
   });
 });

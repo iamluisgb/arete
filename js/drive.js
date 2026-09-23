@@ -1,11 +1,21 @@
-import { mergeDB } from './utils.js';
+import { saveDBRaw } from './data.js';
 import { getAllRunRoutes, splitAndStoreRoutes } from './run-store.js';
+import { createSyncEngine, SYNC_FILE_FORMAT, SYNC_FORMAT_VERSION } from './sync/engine.js';
+import { getQuironSyncHooks } from './sync/quiron.js';
 import { connect, disconnect, isConnected, getAccessToken } from './drive-auth.js';
 
-// Google Drive backup/restore sobre la REST API. La autorización (auth-code +
-// PKCE, refresh silencioso vía Worker) vive en drive-auth.js.
+// Google Drive sync sobre la REST API. La autorización (auth-code + PKCE,
+// refresh silencioso vía Worker) vive en drive-auth.js; el ciclo
+// pull → merge → push vive en sync/engine.js. Este módulo es el transporte:
+// lee y escribe arete-backup.json (la db) y arete-quiron.json (la conversación
+// de Quirón, fichero propio desde U3) en appDataFolder, y expone los
+// disparadores que usa app.js. Nada aquí sube a ciegas: toda escritura
+// automática pasa por el motor, que antes fusiona lo que hay en Drive.
 
 const BACKUP_FILENAME = 'arete-backup.json';
+const QUIRON_FILENAME = 'arete-quiron.json';
+const DEVICE_KEY = 'areteDeviceId';
+const SYNC_TS_KEY = 'areteLastSync';
 
 export { connect, isConnected };
 
@@ -24,6 +34,16 @@ export function clearStoredToken() {
 /** ¿Se puede sincronizar sin molestar al usuario? */
 export function hasValidToken() {
   return isConnected();
+}
+
+/** Id estable de este dispositivo: viaja en el wrapper del backup. */
+function deviceId() {
+  let id = localStorage.getItem(DEVICE_KEY);
+  if (!id) {
+    id = crypto.randomUUID ? crypto.randomUUID() : 'dev-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem(DEVICE_KEY, id);
+  }
+  return id;
 }
 
 function ensureAuth() {
@@ -49,11 +69,11 @@ async function driveFetch(request, context) {
   throw new Error(`${context}: ${res.status}`);
 }
 
-async function findBackupFile() {
+async function findDriveFile(filename) {
   const url = 'https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({
     spaces: 'appDataFolder',
     fields: 'files(id,name,modifiedTime)',
-    q: `name='${BACKUP_FILENAME}'`,
+    q: `name='${filename}'`,
     pageSize: '1',
   });
   const res = await driveFetch(
@@ -64,10 +84,10 @@ async function findBackupFile() {
   return data.files && data.files.length > 0 ? data.files[0] : null;
 }
 
-async function uploadFile(content, existingFileId) {
+async function uploadDriveFile(filename, content, existingFileId) {
   const metadata = existingFileId
-    ? { name: BACKUP_FILENAME }
-    : { name: BACKUP_FILENAME, parents: ['appDataFolder'] };
+    ? { name: filename }
+    : { name: filename, parents: ['appDataFolder'] };
 
   const boundary = '---arete_boundary';
   const body =
@@ -94,6 +114,39 @@ async function uploadFile(content, existingFileId) {
   return res.json();
 }
 
+async function findBackupFile() {
+  return findDriveFile(BACKUP_FILENAME);
+}
+
+async function uploadFile(content, existingFileId) {
+  return uploadDriveFile(BACKUP_FILENAME, content, existingFileId);
+}
+
+// Quirón transport (U3): same primitives as the db transport, own file. The
+// conversation has no legacy format — whatever is not our wrapper is garbage
+// and the engine rejects it without overwriting.
+function createQuironTransport() {
+  return {
+    async pull() {
+      const file = await findDriveFile(QUIRON_FILENAME);
+      if (!file) return null;
+      const content = await downloadFile(file.id);
+      let data;
+      try { data = JSON.parse(content); } catch { throw new Error('Fichero de Quirón corrupto (JSON inválido)'); }
+      return { rev: file.modifiedTime, data };
+    },
+    async readMeta() {
+      const file = await findDriveFile(QUIRON_FILENAME);
+      return file ? { rev: file.modifiedTime } : null;
+    },
+    async push(wrapper) {
+      const existing = await findDriveFile(QUIRON_FILENAME);
+      const res = await uploadDriveFile(QUIRON_FILENAME, JSON.stringify(wrapper), existing ? existing.id : null);
+      return { rev: res.modifiedTime || new Date().toISOString() };
+    },
+  };
+}
+
 async function downloadFile(fileId) {
   const res = await driveFetch(
     (token) => fetch(
@@ -105,9 +158,12 @@ async function downloadFile(fileId) {
   return res.text();
 }
 
-/** Upload db to Google Drive appData folder (reconstructs full running logs from IDB) */
+// === Manual backup / restore (user-initiated, Ajustes) ===
+
+/** Upload db to Google Drive appData folder (manual backup, with full routes from IDB) */
 export async function backupToDrive(db) {
-  // Reconstruct full running logs with heavy fields from IndexedDB
+  // Reconstruct full running logs with heavy fields from IndexedDB: la copia
+  // manual es el backup de verdad y lleva las rutas GPS.
   let fullDB = db;
   if (db.runningLogs?.length) {
     const routes = await getAllRunRoutes();
@@ -119,20 +175,27 @@ export async function backupToDrive(db) {
       fullDB = { ...db, runningLogs: fullLogs };
     }
   }
-  const content = JSON.stringify(fullDB, null, 2);
+  const content = JSON.stringify({
+    format: SYNC_FILE_FORMAT,
+    formatVersion: SYNC_FORMAT_VERSION,
+    savedAt: Date.now(),
+    device: deviceId(),
+    db: fullDB,
+  });
   const existing = await findBackupFile();
   await uploadFile(content, existing ? existing.id : null);
   return { success: true, updated: !!existing };
 }
 
-/** Download and parse backup from Drive */
+/** Download and parse backup from Drive (v2 wrapper or legacy v1 payload) */
 export async function restoreFromDrive() {
   const file = await findBackupFile();
   if (!file) return { success: false, reason: 'no_backup' };
   const content = await downloadFile(file.id);
-  let data;
-  try { data = JSON.parse(content); } catch { throw new Error('Backup corrupto (JSON inválido)'); }
-  if (!data.workouts) throw new Error('Formato de backup no valido');
+  let raw;
+  try { raw = JSON.parse(content); } catch { throw new Error('Backup corrupto (JSON inválido)'); }
+  const data = raw && raw.format === SYNC_FILE_FORMAT ? raw.db : raw;
+  if (!data || !data.workouts) throw new Error('Formato de backup no valido');
   return { success: true, data, modifiedTime: file.modifiedTime };
 }
 
@@ -166,76 +229,77 @@ export async function downloadRevision(fileId, revisionId) {
   try { return JSON.parse(content); } catch { throw new Error('Revisión corrupta (JSON inválido)'); }
 }
 
-// === Auto-sync ===
+// === Auto-sync (sync v2) ===
 
-const SYNC_TS_KEY = 'areteLastSync';
-
-function getLocalSyncTime() {
-  return parseInt(localStorage.getItem(SYNC_TS_KEY)) || 0;
-}
-
-function setLocalSyncTime() {
-  localStorage.setItem(SYNC_TS_KEY, Date.now().toString());
-}
-
-let _syncing = false;
-export function isSyncing() { return _syncing; }
-
-/** Auto-backup to Drive without user interaction */
-export async function silentBackup(db) {
-  if (_syncing || !hasValidToken()) return;
-  try {
-    _syncing = true;
-    await backupToDrive(db);
-    setLocalSyncTime();
-    setSyncStatus('ok');
-  } catch (e) {
-    reportSyncError(e, 'silentBackup');
-  } finally {
-    _syncing = false;
-  }
-}
-
-/** Sync local db with Drive on app load (merge if remote is newer) */
-export async function syncOnLoad(db, saveFn) {
-  if (!hasValidToken()) return;
-  try {
-    _syncing = true;
-    setSyncStatus('syncing');
-    const file = await findBackupFile();
-    if (!file) {
-      _syncing = false;
-      await silentBackup(db);
-      return;
-    }
-    const driveTime = new Date(file.modifiedTime).getTime();
-    const localTime = getLocalSyncTime();
-    if (driveTime > localTime) {
+// Transporte real sobre la Drive REST API. La versión (rev) es el modifiedTime
+// del fichero: cambia en cada escritura, que es justo lo que el motor necesita
+// para detectar que otro dispositivo escribió entre su pull y su push.
+function createDriveTransport() {
+  return {
+    async pull() {
+      const file = await findBackupFile();
+      if (!file) return null;
       const content = await downloadFile(file.id);
       let data;
-      try { data = JSON.parse(content); } catch { console.warn('syncOnLoad: corrupt JSON from Drive'); _syncing = false; return; }
-      if (data.workouts) {
-        const merged = mergeDB(db, data);
-        Object.assign(db, merged);
-        // Split heavy route data from synced running logs to IndexedDB
-        if (db.runningLogs?.length) {
-          db.runningLogs = await splitAndStoreRoutes(db.runningLogs);
-        }
-        saveFn(db);
-        setLocalSyncTime();
-        setSyncStatus('ok');
-        _syncing = false;
-        await silentBackup(db);
-        location.reload();
-        return;
-      }
-    }
-    _syncing = false;
-    await silentBackup(db);
-  } catch (e) {
-    reportSyncError(e, 'syncOnLoad');
-    _syncing = false;
-  }
+      try { data = JSON.parse(content); } catch { throw new Error('Backup corrupto (JSON inválido)'); }
+      return { rev: file.modifiedTime, data };
+    },
+    async readMeta() {
+      const file = await findBackupFile();
+      return file ? { rev: file.modifiedTime } : null;
+    },
+    async push(wrapper) {
+      const existing = await findBackupFile();
+      const res = await uploadFile(JSON.stringify(wrapper), existing ? existing.id : null);
+      return { rev: res.modifiedTime || new Date().toISOString() };
+    },
+  };
+}
+
+let engine = null;
+let engineDb = null;
+
+function ensureEngine(db) {
+  if (engine && engineDb === db) return engine;
+  engine = createSyncEngine({
+    transport: createDriveTransport(),
+    getDb: () => db,
+    saveRaw: saveDBRaw,
+    splitRoutes: splitAndStoreRoutes,
+    device: deviceId(),
+    // Quirón (U3): the hooks are read at cycle time, not at engine creation —
+    // the chat UI may register them after the first sync of this session.
+    quiron: {
+      transport: createQuironTransport(),
+      get: () => { const h = getQuironSyncHooks(); return h ? h.get() : undefined; },
+      save: (data) => { const h = getQuironSyncHooks(); if (h) h.save(data); },
+    },
+    onStatus: (s) => {
+      if (s === 'ok') localStorage.setItem(SYNC_TS_KEY, String(Date.now()));
+      setSyncStatus(s);
+    },
+    onError: (e) => reportSyncError(e, 'sync'),
+  });
+  engineDb = db;
+  return engine;
+}
+
+/**
+ * Run one full sync cycle (pull → merge → push) for the app db.
+ * Resolves 'ok' | 'error' | 'locked' | 'busy' | 'off'.
+ */
+export async function syncNow(db) {
+  if (!hasValidToken()) return 'off';
+  return ensureEngine(db).runCycle();
+}
+
+export function isSyncing() {
+  return engine ? engine.isRunning() : false;
+}
+
+/** Diagnosis of the last cycles (degraded badge is a follow-up). */
+export function getSyncDiag() {
+  return engine ? engine.getDiag() : null;
 }
 
 let _syncStatusCb = null;

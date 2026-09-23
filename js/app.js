@@ -3,7 +3,7 @@ import { migrateFromHash } from './migrate-origin.js';
 import { splitAndStoreRoutes } from './run-store.js';
 import { loadPrograms, setActiveProgram, getActiveProgram, getPrograms, getProgramList, isBuiltinProgram, validateProgram, importCustomProgram, deleteCustomProgram, getCustomPrograms } from './programs.js';
 import { formatPace, parseRunDuration, formatRunDuration, getPaceZones, getHRZones, ZONE_COLORS } from './ui/running-helpers.js';
-import { today, mergeDB, esc, trapFocus } from './utils.js';
+import { today, esc, trapFocus } from './utils.js';
 import { DEBOUNCE_BACKUP_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
 import { initTimer } from './ui/timer.js';
 import { initNav, switchTab, switchStrTab, switchTrainMode, updatePhaseUI, updatePhaseDisplay, refreshActiveSection, restoreLastTab } from './ui/nav.js';
@@ -12,7 +12,7 @@ import { isRunnerOpen } from './ui/set-runner.js';
 import { initCalendar } from './ui/calendar.js';
 import { initHistory } from './ui/history.js';
 import { initBody } from './ui/body.js';
-import { connectIfNeeded, isConnected, backupToDrive, silentBackup, syncOnLoad, onSyncStatus, onReconnectNeeded, isSyncing, clearStoredToken } from './drive.js';
+import { connectIfNeeded, isConnected, backupToDrive, syncNow, onSyncStatus, onReconnectNeeded, clearStoredToken } from './drive.js';
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
@@ -26,6 +26,10 @@ import { initSettingsNav, renderSettingsIndex } from './ui/settings.js';
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
 const THEME_KEY = 'areteTheme';
+// Sync v2 triggers (docs/SYNC-V2.md): first pull shortly after load, debounced
+// re-sync after every saveDB, periodic while visible, flush on hide/online.
+const INITIAL_SYNC_DELAY_MS = 1500;
+const SYNC_INTERVAL_MS = 90000;
 
 // --- Theme ---
 function applyTheme(theme) {
@@ -261,9 +265,11 @@ async function init() {
     if (status !== 'syncing') setTimeout(() => syncEl.classList.remove('visible'), SYNC_INDICATOR_MS);
   });
 
-  // Auto-sync: debounced backup on every saveDB
-  const debouncedBackup = debounce((d) => silentBackup(d), DEBOUNCE_BACKUP_MS);
-  setOnSave((d) => { if (isAutoSync() && !isSyncing()) debouncedBackup(d); });
+  // Auto-sync (sync v2): cada saveDB reprograma un ciclo con debounce. El motor
+  // fusiona lo que hay en Drive antes de subir: un guardado nunca sube a ciegas.
+  const canSync = () => isAutoSync() && isConnected();
+  const debouncedSync = debounce(() => { if (canSync()) syncNow(db); }, DEBOUNCE_BACKUP_MS);
+  setOnSave(() => { if (canSync()) debouncedSync(); });
   setOnQuotaError(() => {
     toast('Almacenamiento lleno. Exporta tus datos para no perder información.', 'error');
   });
@@ -280,16 +286,22 @@ async function init() {
     updateSyncUI();
     toast('Google retiró el permiso de Drive. Vuelve a activar la sincronización en Ajustes.', 'error');
   });
-  if (isAutoSync()) syncOnLoad(db, saveDB);
+  // Primer tirón poco después de cargar, sin competir con el arranque.
+  if (isAutoSync()) setTimeout(() => { if (canSync()) syncNow(db); }, INITIAL_SYNC_DELAY_MS);
 
-  // Flush pending backup when leaving, re-sync when returning
+  // Periódico: trae cambios de otros dispositivos, solo con la pestaña visible.
+  setInterval(() => {
+    if (canSync() && document.visibilityState === 'visible') syncNow(db);
+  }, SYNC_INTERVAL_MS);
+
+  // Flush al ocultar la pestaña (el único sync estando oculto) y re-sync al volver.
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && isAutoSync()) {
-      debouncedBackup.flush();
-    } else if (document.visibilityState === 'visible' && isAutoSync() && !isSyncing()) {
-      syncOnLoad(db, saveDB);
-    }
+    if (document.visibilityState === 'hidden') debouncedSync.flush();
+    else if (canSync()) syncNow(db);
   });
+
+  // Recuperada la conexión: intentar un ciclo.
+  window.addEventListener('online', () => { if (canSync()) syncNow(db); });
 
   // Offline indicator
   const offlineBanner = document.getElementById('offlineBanner');

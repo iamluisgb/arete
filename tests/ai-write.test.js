@@ -171,7 +171,8 @@ describe('ingesta de workouts', () => {
     expect(w.exercises[0].name).toBe('Press de Banca');
     undoWorkout(db, { id });
     expect(db.workouts).toHaveLength(0);
-    expect(db.deletedIds).toContain(id);   // no se resucita en un merge
+    // sync v2: una tombstone (no deletedIds) evita que el merge la resucite
+    expect(db.tombstones).toContainEqual(expect.objectContaining({ uid: String(id), coll: 'workouts' }));
   });
 });
 
@@ -212,6 +213,6 @@ describe('ingesta de carreras', () => {
     expect(r.distance).toBe(8.2);
     undoRun(db, { id });
     expect(db.runningLogs).toHaveLength(0);
-    expect(db.deletedIds).toContain(id);
+    expect(db.tombstones).toContainEqual(expect.objectContaining({ uid: String(id), coll: 'runningLogs' }));
   });
 });

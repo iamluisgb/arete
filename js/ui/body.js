@@ -180,7 +180,7 @@ export function cancelBodyEdit(db) {
 
 export function deleteBodyLog(db) {
   confirmDanger($bodyDeleteBtn, () => {
-    markDeleted(db, editingBodyId);
+    markDeleted(db, editingBodyId, 'bodyLogs');
     db.bodyLogs = db.bodyLogs.filter(l => l.id !== editingBodyId);
     saveDB(db);
     toast('Registro eliminado', 'info');
