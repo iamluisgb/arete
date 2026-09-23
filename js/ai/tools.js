@@ -6,6 +6,7 @@
 import { workoutTonnage, epley } from './metrics.js';
 import { nextPrescription } from '../progression.js';
 import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
+import { findExercises, explainExercise } from './exercise-catalog.js';
 
 export const QUIRON_TOOLS = [
   {
@@ -88,6 +89,40 @@ export const QUIRON_TOOLS = [
       parameters: { type: 'object', properties: {} },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'find_exercises',
+      // El catálogo es la fuente de verdad: solo lo que devuelve esta tool existe
+      // para prescribir (F4). Los vocabularios cerrados viajan en la descripción
+      // porque el modelo no ve el módulo generado.
+      description: 'Busca ejercicios del catálogo de Areté. SOLO los ejercicios que devuelve esta tool existen para prescribir: si un ejercicio no sale aquí, no lo inventes. Filtros opcionales combinables. `pattern` es del vocabulario cerrado: hinge (bisagra), squat, lunge, push_h (empuje horizontal), push_v (empuje vertical), pull_h (tirón horizontal), pull_v (tirón vertical), core, loco (locomoción). `equipment` acepta: ninguno, barra, banco, kettlebell, dominadas (pasa ["ninguno"] para "sin material"). `muscle` acepta: pectoral, dorsal, trapecio, espalda media, hombro, bíceps, tríceps, antebrazo, cuádriceps, isquios, glúteo, aductores, gemelos, lumbar, abdominales. `domain` acepta: strength, pull, kb, core, glyco, mobility, cardio. `evita` son términos libres — molestias ("hombro", "rodilla"), material prohibido o ejercicios concretos que quieras excluir.',
+      parameters: {
+        type: 'object',
+        properties: {
+          pattern: { type: 'string', description: 'Patrón del vocabulario cerrado (hinge, squat, lunge, push_h, push_v, pull_h, pull_v, core, loco)' },
+          equipment: { type: 'array', items: { type: 'string' }, description: 'Material requerido, p. ej. ["ninguno"] para sin material o ["barra"] para barra' },
+          muscle: { type: 'array', items: { type: 'string' }, description: 'Músculos objetivo (primary o secondary)' },
+          domain: { type: 'array', items: { type: 'string' }, description: 'Dominios Areté implicados (strength, pull, kb, core, glyco, mobility, cardio)' },
+          evita: { type: 'array', items: { type: 'string' }, description: 'A excluir: molestias ("hombro", "rodilla", "lumbar"), material o ejercicios concretos' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'explain_exercise',
+      description: 'Ficha de un ejercicio del catálogo: patrón, material, musculatura, contraindicaciones, regresión y progresión, y sustitutos del mismo patrón. Úsala SIEMPRE ante una molestia o dolor en la zona que vas a cargar (la regresión o el sustituto van aquí, no los inventes tú) y antes de prescribir un ejercicio que no hayas verificado con find_exercises.',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Nombre (o alias) del ejercicio, p. ej. "press militar", "sentadilla búlgara"' },
+        },
+        required: ['name'],
+      },
+    },
+  },
 ];
 
 // Herramientas de ESCRITURA (Fase 5.0). No mutan la db: registran una PROPUESTA que
@@ -118,7 +153,11 @@ export const QUIRON_WRITE_TOOLS = [
     type: 'function',
     function: {
       name: 'propose_program',
-      description: 'Úsala cuando el atleta pida CREAR o EDITAR un plan de entrenamiento. No emites el plan aquí: describes en `goal` qué plan hay que generar (deporte, días/semana, duración, ejercicios/objetivo, progresión) y la app lo construye y se lo muestra para confirmar. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas objetivo en `goal`.',
+      // El `goal` cita ejercicios RESUELTOS del catálogo (F4): la app genera el JSON
+      // real a partir del goal, así que un nombre libre/inventado se convertiría en
+      // un ejercicio inexistente en el plan del atleta. Lo que no salió de
+      // find_exercises (o del plan activo) no entra en `goal`.
+      description: 'Úsala cuando el atleta pida CREAR o EDITAR un plan de entrenamiento. No emites el plan aquí: describes en `goal` qué plan hay que generar (deporte, días/semana, duración, ejercicios/objetivo, progresión) y la app lo construye y se lo muestra para confirmar. Los ejercicios del `goal` deben ser NOMBRES EXACTOS del catálogo: resuélvelos antes con find_exercises (cambiando filtros si no encuentras lo que buscabas) o tómalos del plan activo — nunca texto libre tipo "trabajo de pierna" ni ejercicios que no estén en el catálogo. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas objetivo en `goal`.',
       parameters: {
         type: 'object',
         properties: {
@@ -133,7 +172,7 @@ export const QUIRON_WRITE_TOOLS = [
     type: 'function',
     function: {
       name: 'propose_session',
-      description: 'Úsala cuando el atleta pida UNA sesión concreta para hacer (hoy, mañana, "algo corto", "una sesión de pierna sin gimnasio"). Es un solo entrenamiento, no un plan de varias semanas: la app la guarda como sesión suya y puede iniciarla al momento. No emites la sesión aquí: describes en `goal` qué hay que generar (objetivo, material disponible, tiempo, cargas de referencia) y la app la construye. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas en `goal`.',
+      description: 'Úsala cuando el atleta pida UNA sesión concreta para hacer (hoy, mañana, "algo corto", "una sesión de pierna sin gimnasio"). Es un solo entrenamiento, no un plan de varias semanas: la app la guarda como sesión suya y puede iniciarla al momento. No emites la sesión aquí: describes en `goal` qué hay que generar (objetivo, material disponible, tiempo, cargas de referencia) y la app la construye. Los ejercicios del `goal` deben ser NOMBRES EXACTOS del catálogo: resuélvelos antes con find_exercises (usando `evita` si el atleta mencionó una molestia) o tómalos del plan activo — nunca texto libre tipo "trabajo de pierna" ni ejercicios que no estén en el catálogo. Consulta antes su e1RM/marca con las tools de lectura para poder decir las cargas en `goal`.',
       parameters: {
         type: 'object',
         properties: {
@@ -216,6 +255,49 @@ export function makeToolExecutor(db, deps = {}) {
   };
 
   return async function execute(name, args = {}) {
+    // ── Catálogo (F4): la fuente de verdad de lo prescribible. Devuelven texto —
+    // igual que el resto de tools de lectura, se vuelca como datos del turno. ──
+    if (name === 'find_exercises') {
+      const { total, exercises } = findExercises({
+        pattern: args.pattern,
+        equipment: args.equipment,
+        muscle: args.muscle,
+        domain: args.domain,
+        evita: args.evita,
+      });
+      if (!exercises.length) {
+        return 'Nada en el catálogo con esos filtros. Prueba a relajar alguno (otro material, otro patrón o sin `evita`) — NO inventes ejercicios fuera del catálogo.';
+      }
+      const lines = exercises.map((n) => {
+        const mus = [...(n.primary ?? []), ...(n.secondary ?? [])].join(', ');
+        const extra = n.variantOf ? ` · variante de ${n.variantOf}` : '';
+        return `${n.name} (patrón ${n.pattern}; material: ${(n.equipment ?? []).join(', ')}; musculatura: ${mus}${extra})`;
+      });
+      const cut = total > exercises.length ? ` (los primeros ${exercises.length} de ${total})` : '';
+      return `CATÁLOGO — ${total} ejercicio(s) coinciden${cut}. SOLO estos existen para prescribir:\n  ${lines.join('\n  ')}`;
+    }
+    if (name === 'explain_exercise') {
+      const q = String(args.name || '').trim();
+      if (!q) return 'ERROR: falta el nombre del ejercicio.';
+      const r = explainExercise(q);
+      if (!r) {
+        return `"${q}" no está en el catálogo de Areté. NO lo prescribas ni inventes sus datos: busca un equivalente con find_exercises y díselo al atleta.`;
+      }
+      const n = r.exercise;
+      const L = [
+        `${n.name} (id ${n.id})`,
+        `  patrón ${n.pattern} · material: ${(n.equipment ?? []).join(', ')} · ${n.unilateral ? 'unilateral' : 'bilateral'} · ${n.mechanic}`,
+        `  musculatura: primary ${[...(n.primary ?? [])].join(', ') || '—'}; secondary ${[...(n.secondary ?? [])].join(', ') || '—'}`,
+        `  dominios: ${(n.domains ?? []).join(', ')}`,
+      ];
+      if (n.variantOf) L.push(`  variante de ${n.variantOf}`);
+      if (n.contraindications?.length) L.push(`  CONTRAINDICACIONES: ${n.contraindications.join(' · ')}`);
+      L.push(`  regresión: ${n.regression || '—'}`);
+      L.push(`  progresión: ${n.progression || '—'}`);
+      L.push(`  sustitutos (mismo patrón): ${r.substitutes.map((s) => s.name).join(', ') || '—'}`);
+      return L.join('\n');
+    }
+
     // ── Escritura: señales de intención (la app genera el dato real y lo confirma) ──
     if (name === 'propose_program') {
       const goal = intent(args.goal, '');
