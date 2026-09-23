@@ -83,11 +83,11 @@ es duplicarlo accesible.
 "Pulsometro" (`js/ui/running.js` strings de FC), "Aerobico" (`running.js updateRodajeUI`).
 Barato y no es solo ortografía: es confianza.
 
-**UX-14. Carga silenciosa en pantallas pesadas.** Calendario, plan de carrera y radar
+**UX-14. Carga silenciosa en pantallas pesadas.** *(Decisión tras auditoría: sin datos de dispositivos lentos no se invierte; los cálculos son locales. Medir primero.)* Calendario, plan de carrera y radar
 renderizan síncrono sin skeleton — en móviles lentos hay un salto de contenido. Bajo
 riesgo porque los cálculos son locales; medir antes de invertir.
 
-**UX-15. `--fs-2xs` a 11 px en móvil.** El token baja a `.6875rem` bajo 640 px
+**UX-15. `--fs-2xs` a 11 px en móvil.** *(Verificado tras auditoría: intencional — el design system declara el suelo de 11px en §1.4 y la escala sube en ≥1024px. Sin cambio.)* El token baja a `.6875rem` bajo 640 px
 (`app.css:693-694`); revisar dónde se usa para metadatos y confirmar que no baja de lo
 razonable (13 px suele ser el suelo práctico).
 
@@ -95,7 +95,7 @@ razonable (13 px suele ser el suelo práctico).
 `saveConvo` no avisa (`js/ui/quiron.js`): la conversación deja de persistirse sin señal.
 **Recomendación:** toast único "no se pudo guardar la conversación (espacio lleno)".
 
-**UX-17. Notificaciones del SW solo cubren descanso y carrera.** Los avisos de
+**UX-17. Notificaciones del SW solo cubren descanso y carrera.** *(Decisión: solo evaluar — el draft ya persiste la sesión y el edge case no justifica el plumbing.)* Los avisos de
 "Descanso"/"¡Tiempo!" y el heartbeat de carrera (`sw.js`) dependen de que el atleta tenga
 la pantalla encendida o la app abierta; nada avisa de "sesión sin guardar" si mata la
 pestaña. Candidato a evaluar, no necesariamente a hacer: el draft ya salva la sesión.
