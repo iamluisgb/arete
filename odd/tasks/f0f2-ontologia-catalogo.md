@@ -43,3 +43,17 @@ de resolución (mediaKey), mismos lifts/variantOf, resolveExercise intacto.
 - 8 filas en confianza 'media' NO aplicadas (sit-ups con barra ×2, windmill bajo,
   sentadilla básica con banda, elevación de piernas, elevación de talones, flexión
   pike, zancada) — esperan revisión humana.
+
+## Review RDD (ciclo cerrado)
+
+- Lineage: `review-09db02bde4b69356` (tier high, 4 lens: risk/resilience/readability/reliability,
+  4307 líneas, presupuesto corrección 200 sin usar). Base: f907e29 (main).
+- Resultado: **approved**; acknowledgement quemado (`gentle-ai.review-acknowledged/v1`,
+  store_revision ea07a167). 17 hallazgos, todos informativos/no bloqueantes (SUGGESTION/WARNING
+  sobre el script de build: cache poisoning teórico, media_key triplicado, filtro de confianza
+  vs doc, ids duplicados como fuente de verdad, fetch sin pin, boot throw en exercise-ontology.js).
+- Incidentes resueltos: (1) routing faltante para risk/resilience/readability → añadidos a
+  models.json/subagents.json con glm5.3-flash; (2) reviewer readability cortó por longitud
+  (stopReason length) → captura por slots individuales; (3) reviewer reliability copió mal el
+  subject_hash (binding_mismatch ×2) → tercer intento correcto.
+- PR: https://github.com/iamluisgb/arete/pull/2 — merge y deploy quedan como decisión humana.
