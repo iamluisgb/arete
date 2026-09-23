@@ -20,7 +20,7 @@ export function render1RMs(db) {
   const prog = getActiveProgram();
   const title = document.getElementById('rmTitle');
   if (prog !== 'arete') {
-    title.textContent = 'Records Personales';
+    title.textContent = 'Récords Personales';
     renderRecords(db, prog);
     return;
   }

@@ -207,10 +207,10 @@ export function initRunning(db) {
     const $typeHrBtn = document.getElementById('runTypeHrBtn');
     if (state === 'connected') {
       $hrBtn.classList.add('connected');
-      $hrBtn.title = `${hrMonitor.deviceName || 'Pulsometro'} conectado`;
+      $hrBtn.title = `${hrMonitor.deviceName || 'Pulsómetro'} conectado`;
       $typeHrBtn.classList.add('hr-connected');
       $typeHrBtn.textContent = `♥ ${hrMonitor.deviceName || 'Conectado'}`;
-      toast(`Pulsometro conectado: ${hrMonitor.deviceName || 'HR'}`);
+      toast(`Pulsómetro conectado: ${hrMonitor.deviceName || 'HR'}`);
     } else if (state === 'connecting') {
       $hrBtn.classList.add('connecting');
     } else {
@@ -944,7 +944,7 @@ function updateTypePanelUI(data) {
 
 function updateRodajeUI() {
   const color = ZONE_COLORS.Z2;
-  $typePanel.innerHTML = `<div class="run-type-zone-bar" style="background:${color}">Z2 <span class="zone-label">· Aerobico</span></div>`;
+  $typePanel.innerHTML = `<div class="run-type-zone-bar" style="background:${color}">Z2 <span class="zone-label">· Aeróbico</span></div>`;
 }
 
 function updateTempoUI(data) {

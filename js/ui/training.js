@@ -1047,7 +1047,7 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
         <div style="font-size:.85rem;font-weight:800;color:var(--color-state-success)">${p.kg}kg</div>
       </div>`
     ).join('');
-    $prCelebration.style.display = 'flex';
+    _openPrCelebration();
   }
 
   $trainNotes.value = '';
@@ -1062,6 +1062,27 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
   if (_editSpec) { _editSpec = null; populateSessions(db); }
   else loadSessionTemplate(db, true);
   toast(wasEditing ? 'Cambios guardados' : 'Sesión guardada');
+}
+
+// ── Celebración de PR ────────────────────────────────────
+// El overlay roba el foco al abrirse: lo manda a su botón principal ("¡Vamos!"),
+// y al cerrarse lo devuelve a quien lo tenía — sin eso, el foco se pierde en
+// <body> y el teclado vuelve a empezar la página de cero.
+// Escape: el handler global de js/app.js solo cubre .modal-overlay.open y
+// .sheet.open; #prCelebration no es ninguno de los dos, así que lleva el suyo.
+let _prPrevFocus = null;
+
+function _openPrCelebration() {
+  _prPrevFocus = document.activeElement;
+  $prCelebration.style.display = 'flex';
+  $prCelebration.querySelector('button')?.focus();
+}
+
+function _closePrCelebration() {
+  if ($prCelebration.style.display === 'none') return;
+  $prCelebration.style.display = 'none';
+  if (_prPrevFocus?.isConnected) _prPrevFocus.focus();
+  _prPrevFocus = null;
 }
 
 // ── Set completion helpers ────────────────────────────────
@@ -1144,7 +1165,11 @@ export function initTraining(db, { onCancelEdit }) {
       clearPrefill();
     }
   });
-  $prCelebration.addEventListener('click', function () { this.style.display = 'none'; });
+  $prCelebration.addEventListener('click', function () { _closePrCelebration(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    _closePrCelebration();
+  });
 
   // Exercise timer event delegation
   initExTimerEvents($exerciseList, (exIdx) => currentSession(db)?.exercises?.[exIdx] || null);

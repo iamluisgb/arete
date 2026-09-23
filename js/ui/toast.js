@@ -13,6 +13,11 @@ export function toast(message, type = 'success', opts) {
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
   el.textContent = message;
+  // Lectores de pantalla: los toasts ocurren fuera del foco y sin ellos no se
+  // enteran. Éxito e info se anuncian al terminar lo que esté sonando (polite);
+  // un error manda (assertive/alert) porque habla de algo que ha fallado ya.
+  el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  el.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
   let timeout;
   if (opts?.action && opts?.onAction) {

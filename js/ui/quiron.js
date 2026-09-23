@@ -61,9 +61,18 @@ function loadConvo() {
     return Array.isArray(c) ? c : [];
   } catch { return []; }
 }
-function saveConvo() {
+// Si localStorage está lleno la conversación es prescindible, pero fallar en
+// silencio se lee como "se guardó": el atleta pierde el histórico sin saberlo.
+// Se avisa una vez por sesión, no en cada mensaje que no llega a disco.
+let _saveFailToasted = false;
+export function saveConvo() {  // exportada para tests
   try { localStorage.setItem(CONVO_KEY, JSON.stringify(convo)); }
-  catch { /* llena: la conversación es prescindible */ }
+  catch {
+    if (!_saveFailToasted) {
+      _saveFailToasted = true;
+      toast('No se pudo guardar la conversación (espacio lleno)', 'error');
+    }
+  }
 }
 
 // ── Sync (U3): la conversación viaja en arete-quiron.json ────────────────────
