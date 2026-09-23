@@ -101,11 +101,52 @@ entrada propia de Areté y seguir.
 
 ## F3 — Arreglar la derivación de dominios 🟢⭐ ← independiente, hazlo aunque pares aquí
 
-- [ ] Sustituir `LIFT_PATTERNS` en [`domains.js`](../js/domains.js) por resolución vía ontología.
-- [ ] Decidir y **documentar** qué hacen las variantes: o cuentan con coeficiente
+### Decisión: las variantes NO cuentan (sin coeficiente)
+
+Dos opciones defendibles y una que no. La elegida: **una variante no alimenta la
+métrica del básico, ni con factor**. Un front squat no es un 0.85× de sentadilla;
+es otro levantamiento, y convertirlo en el básico con un coeficiente es estimar
+dos veces — primero el 1RM con Epley, después la equivalencia entre ejercicios.
+Es exactamente la clase de número decorativo que `REP_CAP` ya sacó de la app:
+"no estimar es más honesto que estimar mal", y aquí lo estimado infla justo donde
+la regla del mínimo castiga.
+
+Lo que sí exige la decisión es que **no dependa de la ortografía**, y eso lo da la
+ontología: cada nodo declara su relación con el básico y la resolución es exacta
+sobre nombres normalizados. Tres reglas operativas:
+
+- **Nodo canónico** (`lift: 'squat'|'deadlift'|'bench'|'ohp'|'pullups'`): alimenta
+  la métrica. Es una lista cerrada — cinco nodos, los que la derivación usa.
+- **Variante** (`variantOf: <métrica>`): comparte patrón con el básico y NO cuenta.
+  Se declara explícitamente en la ontología, no por omisión silenciosa: si mañana
+  se quiere que una variante cuente, se le da nodo canónico y se discute ahí.
+- **Desconocido**: `resolveExercise` devuelve null y no cuenta. No hay fallback de
+  regex ni matching por substring — eso es lo que hacía que "Squat con Salto"
+  colara como sentadilla. Lo que no está en la ontología no cuenta, y se sabe.
+
+**Matching exacto normalizado**: `resolveExercise(name)` reutiliza `mediaKey`
+(tildes, plural, orden de palabras, paréntesis), que vive en la propia ontología y
+`exercise-pict.js` importa — una sola normalización para todo el producto.
+
+**Estado de implementación**: F0–F2 no estaban hechos, así que F3 nace sobre una
+**semilla hand-authored** de la ontología (`js/exercise-ontology.js`): los cinco
+lifts canónicos con sus alias reales y las variantes que aparecen en los datos.
+El módulo generado por F0/F2 debe subsumir la semilla sin cambiar las claves de
+resolución, y hereda del esquema F0 los campos `lift` y `variantOf` aquí
+introducidos.
+
+**Delta sobre el fixture de evals: cero** (verificado con `derivedMetrics` sobre
+los seis fixtures). Las variantes que hoy cuelan por ortografía — `Squat con
+Salto`, `Squat en Rack`, `Deadlift High Pull` en `arete-real` — son series
+ligeras de volumen que nunca fijaron el máximo histórico: dejar de contarlas no
+mueve el perfil. La sentadilla búlgara, el pistol y el RDL, que el regex actual
+también se comería, no aparecen en los fixtures.
+
+- [x] Sustituir `LIFT_PATTERNS` en [`domains.js`](../js/domains.js) por resolución vía ontología.
+- [x] Decidir y **documentar** qué hacen las variantes: o cuentan con coeficiente
       (front squat ≈ 0.85× back squat) o se declara explícitamente que no cuentan.
       Cualquiera de las dos es defendible; lo que no lo es es que dependa de la ortografía.
-- [ ] Test de regresión: los cuatro básicos siguen derivando igual que hoy sobre el fixture.
+- [x] Test de regresión: los cuatro básicos siguen derivando igual que hoy sobre el fixture.
 
 **Hecho cuando:** `npm test` verde y el perfil del fixture no cambia salvo donde se quiso.
 
