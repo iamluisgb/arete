@@ -115,30 +115,7 @@ export function trapFocus(el) {
   };
 }
 
-const safeArr = v => Array.isArray(v) ? v : [];
-
-function mergeById(local, remote, deleted, key = 'id') {
-  const map = new Map();
-  for (const item of local) { if (item?.[key] != null) map.set(item[key], item); }
-  for (const item of remote) { if (item?.[key] != null) map.set(item[key], item); }
-  for (const id of deleted) map.delete(id);
-  return [...map.values()];
-}
-
-/** @param {Object} local - Local DB object
- *  @param {Object} remote - Remote DB object (e.g. from Drive)
- *  @returns {Object} Merged DB */
-export function mergeDB(local, remote) {
-  const localDel = safeArr(local.deletedIds);
-  const remoteDel = safeArr(remote.deletedIds);
-  const allDeleted = [...new Set([...localDel, ...remoteDel])];
-  const merged = { ...remote };
-  merged.workouts = mergeById(safeArr(local.workouts), safeArr(remote.workouts), allDeleted);
-  merged.bodyLogs = mergeById(safeArr(local.bodyLogs), safeArr(remote.bodyLogs), allDeleted);
-  merged.deletedIds = allDeleted;
-  merged.customPrograms = mergeById(safeArr(local.customPrograms), safeArr(remote.customPrograms), [], '_customId');
-  merged.customSessions = mergeById(safeArr(local.customSessions), safeArr(remote.customSessions), allDeleted);
-  merged.runningLogs = mergeById(safeArr(local.runningLogs), safeArr(remote.runningLogs), allDeleted);
-  merged.domainTests = mergeById(safeArr(local.domainTests), safeArr(remote.domainTests), allDeleted);
-  return merged;
-}
+// (The legacy mergeDB lived here until sync v2: it had no stable identity and
+// no tombstones, so two devices silently overwrote each other's edits. All
+// merging now goes through js/sync/merge.js — mergeDBv2 — via mergeInto() in
+// data.js.)

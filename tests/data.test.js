@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { validateDB, validateImportData, markDeleted, loadDB, saveDB, migrateDB, pruneDeletedIds, CURRENT_SCHEMA } from '../js/data.js';
+import { validateDB, validateImportData, markDeleted, loadDB, saveDB, migrateDB, pruneDeletedIds, mergeInto, applyImport, CURRENT_SCHEMA } from '../js/data.js';
 
 beforeEach(() => {
   localStorage.clear();
@@ -200,5 +200,51 @@ describe('saveDB / loadDB roundtrip', () => {
     expect(loaded.workouts).toEqual([]);
     expect(loaded.bodyLogs).toEqual([]);
     expect(loaded.phase).toBe(1);
+  });
+});
+
+describe('mergeInto (sync v2 merge for imports)', () => {
+  const W = (id, updatedAt, extra = {}) => ({ id, uid: String(id), updatedAt, exercises: [], ...extra });
+
+  it('unions legacy documents without uids via backfill + mergeDBv2', () => {
+    const db = { workouts: [W(1, 100)], bodyLogs: [], tombstones: [], stamps: {} };
+    const incoming = { workouts: [{ id: 2, date: '2026-07-02' }], bodyLogs: [] };
+    const merged = mergeInto(db, incoming);
+    expect(merged.workouts.map((w) => w.uid).sort()).toEqual(['1', '2']);
+    // LWW still applies on matching uids.
+    const clashing = mergeInto(db, { workouts: [W(1, 500, { session: 'newer' })] });
+    expect(clashing.workouts).toHaveLength(1);
+    expect(clashing.workouts[0].session).toBe('newer');
+  });
+
+  it('a tombstone on either side deletes the item', () => {
+    const db = {
+      workouts: [W(1, 100)],
+      tombstones: [{ uid: '1', coll: 'workouts', deleted: true, deletedAt: 500, updatedAt: 500 }],
+      stamps: {},
+    };
+    expect(mergeInto(db, { workouts: [W(1, 100)] }).workouts).toEqual([]);
+    const remoteDeleted = mergeInto(
+      { workouts: [W(1, 100)], tombstones: [], stamps: {} },
+      { workouts: [], tombstones: [{ uid: '1', coll: 'workouts', deleted: true, deletedAt: 500, updatedAt: 500 }] }
+    );
+    expect(remoteDeleted.workouts).toEqual([]);
+  });
+
+  it('does not mutate its inputs', () => {
+    const db = { workouts: [{ id: 1, date: '2026-07-01' }], bodyLogs: [], tombstones: [], stamps: {} };
+    const incoming = { workouts: [{ id: 2, date: '2026-07-02' }], bodyLogs: [] };
+    const dbSnap = JSON.stringify(db);
+    const inSnap = JSON.stringify(incoming);
+    mergeInto(db, incoming);
+    expect(JSON.stringify(db)).toBe(dbSnap);
+    expect(JSON.stringify(incoming)).toBe(inSnap);
+  });
+
+  it('applyImport routes through the v2 merge (legacy file, no uids)', async () => {
+    const db = { workouts: [W(1, 100)], bodyLogs: [], tombstones: [], stamps: {}, runningLogs: [] };
+    const err = await applyImport({ workouts: [{ id: 2, date: '2026-07-02', exercises: [] }], bodyLogs: [] }, db);
+    expect(err).toBeNull();
+    expect(db.workouts.map((w) => w.uid).sort()).toEqual(['1', '2']);
   });
 });

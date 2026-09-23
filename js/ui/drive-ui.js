@@ -1,6 +1,6 @@
-import { saveDB } from '../data.js';
+import { saveDB, mergeInto } from '../data.js';
 import { LOCALE, REVISION_PREVIEW_LIMIT } from '../constants.js';
-import { mergeDB, esc } from '../utils.js';
+import { esc } from '../utils.js';
 import { backupToDrive, restoreFromDrive, listRevisions, downloadRevision, connectIfNeeded } from '../drive.js';
 
 /** Bind all Drive-related UI events in the Settings section */
@@ -53,7 +53,7 @@ export function initDriveUI(db) {
         status.className = 'drive-status';
         return;
       }
-      Object.assign(db, mergeDB(db, result.data));
+      Object.assign(db, mergeInto(db, result.data));
       saveDB(db);
       status.textContent = 'Datos restaurados correctamente';
       status.className = 'drive-status drive-success';
@@ -153,7 +153,7 @@ export function initDriveUI(db) {
   document.getElementById('revisionRestoreBtn').addEventListener('click', () => {
     if (!_revData) return;
     if (!confirm('¿Restaurar esta versión? Los datos se fusionarán con los actuales.')) return;
-    Object.assign(db, mergeDB(db, _revData));
+    Object.assign(db, mergeInto(db, _revData));
     saveDB(db);
     location.reload();
   });

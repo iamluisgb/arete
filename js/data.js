@@ -1,4 +1,5 @@
-import { mergeDB, today } from './utils.js';
+import { today } from './utils.js';
+import { mergeDBv2 } from './sync/merge.js';
 import { stripHeavyFields, splitAndStoreRoutes, clearRunStore, getAllRunRoutes } from './run-store.js';
 import { backfillDb, tombstone as makeTombstone, createShadow, stampChanges } from './sync/schema.js';
 
@@ -354,6 +355,19 @@ export function validateImportData(d) {
 }
 
 /**
+ * Fusiona un documento con forma de db (import de fichero, backup viejo,
+ * revisión de Drive) en la db viva con el merge de sync v2: ambos lados se
+ * backfill-ean primero, así un documento legacy sin uid/updatedAt converge
+ * igual que uno nativo (LWW por uid + tombstones). Devuelve un objeto NUEVO;
+ * el llamador lo vuelca sobre la db con Object.assign.
+ */
+export function mergeInto(db, incoming) {
+  const local = backfillDb(JSON.parse(JSON.stringify(db)));
+  const remote = backfillDb(JSON.parse(JSON.stringify(incoming)));
+  return mergeDBv2(local, remote);
+}
+
+/**
  * Fusiona un backup ya parseado en la db y lo guarda.
  *
  * Separado de `importData` porque el fichero no es la única vía: la migración
@@ -366,7 +380,7 @@ export function validateImportData(d) {
 export async function applyImport(d, db) {
   const err = validateImportData(d);
   if (err) return `Formato no válido: ${err}`;
-  Object.assign(db, mergeDB(db, d));
+  Object.assign(db, mergeInto(db, d));
   // Las rutas GPS pesan y viven en IndexedDB, no en localStorage.
   const stripped = await splitAndStoreRoutes(db.runningLogs);
   db.runningLogs = stripped;
