@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v142';
+const CACHE_NAME = 'arete-v143';
 const ASSETS = [
   './',
   './app.html',
@@ -29,6 +29,7 @@ const ASSETS = [
   './js/run-store.js',
   './assets/silence.mp3',
   './js/exercise-media.js',
+  './js/exercise-ontology.js',
   './assets/exercises/banded-squat-peak.webp',
   './assets/exercises/banded-squat-start.webp',
   './assets/exercises/barbell-ab-rollout-peak.webp',
