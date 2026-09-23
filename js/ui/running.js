@@ -1765,7 +1765,7 @@ function cancelEdit(db) {
 
 function deleteRunLog(db, id) {
   if (!id) return;
-  markDeleted(db, id);
+  markDeleted(db, id, 'runningLogs');
   db.runningLogs = (db.runningLogs || []).filter(l => l.id !== id);
   deleteRunRoute(id);
   saveDB(db);

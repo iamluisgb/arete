@@ -110,12 +110,12 @@ describe('applySessionProposal / undo', () => {
     expect(db.customSessions).toHaveLength(0);
   });
 
-  it('borrar deja rastro en deletedIds para que la sync no la resucite', () => {
+  it('borrar deja una tombstone para que la sync no la resucite', () => {
     const db = freshDB();
     const { id } = applySessionProposal(db, session());
     deleteCustomSession(db, id);
     expect(db.customSessions).toHaveLength(0);
-    expect(db.deletedIds).toContain(id);
+    expect(db.tombstones).toContainEqual(expect.objectContaining({ uid: String(id), coll: 'customSessions' }));
   });
 });
 

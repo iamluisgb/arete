@@ -153,7 +153,7 @@ export function undoSessionCommit(db, token) {
 export function deleteCustomSession(db, id) {
   if (!id) return;
   db.customSessions = getCustomSessions(db).filter(s => s.id !== id);
-  markDeleted(db, id);
+  markDeleted(db, id, 'customSessions');
   saveDB(db);
 }
 

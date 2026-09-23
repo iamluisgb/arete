@@ -1,7 +1,13 @@
 import { mergeDB, today } from './utils.js';
 import { stripHeavyFields, splitAndStoreRoutes, clearRunStore, getAllRunRoutes } from './run-store.js';
+import { backfillDb, tombstone as makeTombstone, createShadow, stampChanges } from './sync/schema.js';
 
 const SK = 'arete';
+
+// Shadow of the previous save (docs/SYNC-V2.md · shadow diff): saveDB compares
+// the live db against it to stamp updatedAt/tombstones/stamps without touching
+// every edit call site. Null until the first loadDB/saveDB.
+let _shadow = null;
 
 let _onSave = null;
 let _onQuotaError = null;
@@ -20,9 +26,9 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 7;
 
-const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, domainTests: [], settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
+const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], tombstones: [], stamps: {}, customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, domainTests: [], settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
 
 /** Schema migrations — each takes a db object and mutates it in place */
 const migrations = [
@@ -58,6 +64,23 @@ const migrations = [
   (db) => {
     if (!Array.isArray(db.domainTests)) db.domainTests = [];
   },
+  // v6 → v7: sync v2 (docs/SYNC-V2.md). Identidad estable (uid) y sello de
+  // tiempo (updatedAt) en cada item sincronizable, y los borrados legacy
+  // (deletedIds, sin fecha) se drenan a tombstones con deletedAt = ahora.
+  // Conservador: un edit posterior en otro dispositivo después de la migración
+  // revive el item, que es el fallo tolerable. El backfill solo escribe campos
+  // ausentes, así que la migración es idempotente.
+  (db) => {
+    const now = Date.now();
+    backfillDb(db, now);
+    const tombs = new Set((db.tombstones || []).map((t) => t && t.uid));
+    for (const id of db.deletedIds || []) {
+      const uid = String(id);
+      if (!tombs.has(uid)) db.tombstones.push(makeTombstone(uid, 'legacy', now));
+    }
+    // deletedIds queda congelado como legacy: los tombstones son la única
+    // fuente de verdad del borrado a partir de aquí.
+  },
 ];
 
 /** Run pending migrations on a loaded db object */
@@ -77,8 +100,15 @@ export function loadDB() {
     const d = JSON.parse(localStorage.getItem(SK));
     if (d && d.workouts) {
       const db = { ...DEFAULTS, ...d };
-      return migrateDB(db);
+      // DEFAULTS carries the CURRENT schemaVersion; a stored db without the field
+      // is pre-v1 data and must migrate, so the stored value wins when present
+      // and defaults to 1 when absent.
+      db.schemaVersion = d.schemaVersion || 1;
+      migrateDB(db);
+      _shadow = createShadow(db); // baseline: only edits FROM NOW ON get stamped
+      return db;
     }
+    _shadow = createShadow(DEFAULTS);
     return { ...DEFAULTS };
   } catch (e) {
     console.warn('loadDB: corrupt localStorage data, using defaults', e);
@@ -86,10 +116,13 @@ export function loadDB() {
   }
 }
 
-/** Track a deleted item ID so mergeDB never resurrects it */
-export function markDeleted(db, id) {
-  if (!db.deletedIds) db.deletedIds = [];
-  if (!db.deletedIds.includes(id)) db.deletedIds.push(id);
+/** Track a deleted item so it never resurrects on merge (tombstone). */
+export function markDeleted(db, id, coll = 'legacy') {
+  if (!db.tombstones) db.tombstones = [];
+  const uid = String(id);
+  if (!db.tombstones.some((t) => t && t.uid === uid && t.coll === coll)) {
+    db.tombstones.push(makeTombstone(uid, coll, Date.now()));
+  }
 }
 
 // ── Ingesta de entrenos por Quirón (Fase 5.1) ───────────────────────────────
@@ -137,7 +170,7 @@ export function applyWorkout(db, workout, meta = {}) {
 /** Deshace un applyWorkout */
 export function undoWorkout(db, token) {
   db.workouts = (db.workouts || []).filter(w => w.id !== token.id);
-  markDeleted(db, token.id);
+  markDeleted(db, token.id, 'workouts');
   saveDB(db);
 }
 
@@ -207,7 +240,7 @@ export function applyRun(db, run, meta = {}) {
 /** Deshace un applyRun */
 export function undoRun(db, token) {
   db.runningLogs = (db.runningLogs || []).filter(r => r.id !== token.id);
-  markDeleted(db, token.id);
+  markDeleted(db, token.id, 'runningLogs');
   saveDB(db);
 }
 
@@ -237,6 +270,12 @@ export function getSaveRevision() { return _saveRevision; }
 /** Persist db to localStorage (validates structure first) */
 export function saveDB(db) {
   if (!validateDB(db)) { console.error('saveDB: invalid db, aborting save', db); return; }
+  // Stamp what changed since the previous save: updatedAt on new/edited items,
+  // tombstones for disappeared ones, stamps for scalars/object sub-keys
+  // (docs/SYNC-V2.md · shadow diff). Without a previous save there is nothing
+  // to diff against: the shadow starts here, baseline without stamps.
+  if (_shadow) stampChanges(db, _shadow);
+  _shadow = createShadow(db);
   pruneDeletedIds(db);
   try {
     // Strip heavy fields (route, splits, hrTimeSeries, etc.) from running logs
@@ -252,6 +291,27 @@ export function saveDB(db) {
     return;
   }
   if (_onSave) _onSave(db);
+}
+
+/**
+ * Persist WITHOUT stamping, and refresh the shadow. The sync engine uses this
+ * to apply remote merges: restamping remote items with local now() would
+ * fabricate lost updates against genuinely newer edits on other devices.
+ */
+export function saveDBRaw(db) {
+  if (!validateDB(db)) { console.error('saveDBRaw: invalid db, aborting save', db); return; }
+  try {
+    const dbForStorage = db.runningLogs?.length
+      ? { ...db, runningLogs: db.runningLogs.map(stripHeavyFields) }
+      : db;
+    localStorage.setItem(SK, JSON.stringify(dbForStorage));
+    _saveRevision++;
+  } catch (e) {
+    console.error('saveDBRaw: storage write failed', e);
+    if (_onQuotaError) _onQuotaError(db);
+    return;
+  }
+  _shadow = createShadow(db);
 }
 
 /** Download db as a JSON file (reconstructs full running logs from IDB) */

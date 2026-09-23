@@ -318,7 +318,7 @@ export function initHistory(db, { onEdit }) {
 export function deleteWorkout(db) {
   confirmDanger(document.getElementById('deleteBtn'), () => {
     const deleted = db.workouts.find(w => w.id === detailWorkoutId);
-    markDeleted(db, detailWorkoutId);
+    markDeleted(db, detailWorkoutId, 'workouts');
     db.workouts = db.workouts.filter(w => w.id !== detailWorkoutId);
     saveDB(db);
     closeDetailModal();
