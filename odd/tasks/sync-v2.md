@@ -33,7 +33,7 @@ reintento ante conflicto.
 2. [x] Decisiones D-S2.1–D-S2.11 en engram (id 31)
 3. [x] ODD doc creado
 4. [x] U1: js/sync/merge.js + js/sync/schema.js + tests de propiedad + migración v7 (data.js) + stamping en saveDB + markDeleted→tombstone — commit `85fcef2`
-5. [ ] U2: js/sync/engine.js (pull→merge→push, etag, fingerprint canonicalJson, 412→backoff+jitter, locks, triggers, diag) + drive.js delega + app.js cablea + applyImport/drive-ui pasan a mergeDBv2 → eliminar mergeDB legacy de utils.js
+5. [x] U2: js/sync/engine.js (pull→merge→push, fingerprint canonicalJson, 412→backoff+jitter, locks, triggers, diag) + drive.js transport + app.js cablea + applyImport/drive-ui via mergeInto → mergeDB legacy eliminado — commit `3d9cf67`
 6. [ ] U3: Quirón en sync (fichero propio arete-quiron.json, LWW por mensaje) + tests
 7. [ ] U4: sw.js bump (precache js/sync/*) + docs/SYNC-V2.md
 8. [ ] npm test verde completo + escenarios: lost-update explícito, tombstones entre dispositivos, 412
@@ -41,6 +41,13 @@ reintento ante conflicto.
 10. [ ] PR abierta SIN merge (revisión humana)
 
 ## Evidence
+- U2 `3d9cf67`: engine con ciclo pull→merge→push, transport Drive en drive.js
+  (rev = modifiedTime, wrapper v2, v1 backfill), triggers en app.js, 17+6 tests
+  nuevos con los escenarios obligatorios. Suite completa 616/616. Verificación
+  independiente (gentle-ai-verify): 7/7 ítems sin discrepancias. Endurecimientos
+  del writer: purge de tombstones FUERA del ciclo (un push nunca debilita los
+  deletes remotos) y guard isEmptyState (una instalación fresca no siembra un
+  backup vacío).
 - U1 `85fcef2` (rama `feat/sync-v2`): merge LWW conmutativo/idempotente +
   schema (backfill, tombstones, stamps, shadow-diff) + migración v7 +
   markDeleted→tombstone en los 5 call sites + `saveDBRaw`. `npm test` 600/600.
