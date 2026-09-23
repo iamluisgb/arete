@@ -348,7 +348,7 @@ export function createSyncEngine(opts) {
     // finished cycle may not carry it.
     if (pendingChange) {
       pendingChange = false;
-      setTimeout(() => { runCycle(); }, 0);
+      setTimeout(() => { runCycle().catch(onError); }, 0);
     }
     return lastResult;
   }
