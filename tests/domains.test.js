@@ -2,9 +2,12 @@
 // dominio es el mínimo de sus métricas, el nivel global es el mínimo de los
 // dominios— son la tesis del producto: si se rompen, el producto miente.
 import { describe, it, expect } from 'vitest';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   DOMAINS, METRICS, levelFor, bodyweight, derivedMetrics, latestTests,
-  computeProfile, nextTest, formatMetric, daysSince,
+  computeProfile, nextTest, formatMetric, daysSince, unratedLifts,
 } from '../js/domains.js';
 
 const HOY = new Date('2026-08-04T12:00:00');
@@ -156,6 +159,48 @@ describe('derivación desde lo ya registrado', () => {
       ],
     });
     expect(derivedMetrics(d).pullups.value).toBe(12);
+  });
+
+  // Decisión de F3 (PLAN-ONTOLOGIA.md): las variantes NO alimentan al básico,
+  // ni con coeficiente. Antes lo decidía la ortografía: /squat/ se comía
+  // "Squat con Salto" y una búlgara pesada fijaba la métrica para siempre.
+  describe('las variantes no alimentan al básico', () => {
+    const variantes = ['Sentadilla Frontal', 'Front Squat', 'Sentadilla Búlgara',
+      'Sentadilla 1 Pierna', 'Squat con Salto', 'Squat en Rack',
+      'PM Rumano', 'Deadlift High Pull', 'Push Press', 'Press en el Suelo'];
+
+    it('una variante pesada sola no produce métrica', () => {
+      for (const nombre of variantes) {
+        const d = db({
+          bodyLogs: conPeso(75),
+          workouts: [wk('2026-07-02', nombre, [{ kg: '200', reps: '1' }])],
+        });
+        const m = derivedMetrics(d);
+        expect(Object.keys(m).filter(k => k !== 'run5k'), nombre).toEqual([]);
+      }
+    });
+
+    it('con el canónico presente, el máximo sale solo del canónico', () => {
+      const d = db({
+        bodyLogs: conPeso(100),
+        workouts: [
+          wk('2026-07-01', 'Sentadilla', [{ kg: '120', reps: '1' }]),
+          wk('2026-07-02', 'Front Squat', [{ kg: '200', reps: '1' }]),   // mayor, pero variante
+          wk('2026-07-03', 'Peso Muerto', [{ kg: '160', reps: '1' }]),
+          wk('2026-07-04', 'PM Rumano', [{ kg: '250', reps: '1' }]),
+        ],
+      });
+      const m = derivedMetrics(d);
+      expect(m.squat.value).toBe(1.2);
+      expect(m.deadlift.value).toBe(1.6);
+    });
+
+    it('unratedLifts tampoco ve variantes: no pide serie corta de algo que no es el básico', () => {
+      const d = db({
+        workouts: [wk('2026-07-01', 'Sentadilla Frontal', [{ kg: '60', reps: '15' }])],
+      });
+      expect(unratedLifts(d)).toEqual([]);
+    });
   });
 
   it('normaliza a 5.000 m exactos y se queda con la mejor', () => {
@@ -348,5 +393,23 @@ describe('presentación', () => {
     expect(daysSince(null, HOY)).toBeNull();
     expect(daysSince('no-es-fecha', HOY)).toBeNull();
     expect(daysSince('2026-08-01', HOY)).toBe(3);
+  });
+});
+
+// Regresión de F3 sobre el fixture real (gitignoreado: si no existe, se salta).
+// Fija la derivación entera: si la ontología o el motor cambian un número sin
+// querer, esto lo canta antes que un eval. Delta esperado: CERO — ver
+// PLAN-ONTOLOGIA.md, F3 (las variantes que dejaron de contar nunca fijaron máximo).
+const REAL = join(dirname(fileURLToPath(import.meta.url)), '../evals/fixtures/arete-real.json');
+describe.skipIf(!existsSync(REAL))('regresión sobre el fixture real', () => {
+  it('los derivados son exactamente los de antes de la ontología', () => {
+    const real = JSON.parse(readFileSync(REAL, 'utf8'));
+    expect(derivedMetrics(real)).toEqual({
+      squat: { value: 1.73, date: '2026-04-07' },
+      bench: { value: 1.25, date: '2026-03-26' },
+      deadlift: { value: 1.93, date: '2026-04-20' },
+      ohp: { value: 0.8, date: '2026-03-16' },
+      pullups: { value: 16, date: '2026-02-13' },
+    });
   });
 });

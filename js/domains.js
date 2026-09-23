@@ -1,5 +1,8 @@
 // ── Los 7 dominios del Atleta Híbrido ────────────────────
 //
+import { resolveExercise } from './exercise-ontology.js';
+
+//
 // La tesis del producto vivía solo en `blog/8-dominios.html`: la app abría con
 // cuatro anillos genéricos y no mencionaba los dominios ni una vez. Este módulo
 // es esa tesis hecha código, y es la fuente de verdad del perfil.
@@ -169,13 +172,16 @@ export function bodyweight(db) {
   return conPeso.length ? parseFloat(conPeso[0].peso) : null;
 }
 
-/** Los cuatro básicos por nombre, tolerando cómo los escriben los planes. */
-const LIFT_PATTERNS = {
-  squat: /sentadilla|squat/i,
-  deadlift: /peso\s*muerto|deadlift/i,
-  bench: /press\s*(de\s*)?banca|bench/i,
-  ohp: /press\s*(militar|de\s*hombro)|overhead|\bohp\b/i,
-};
+/**
+ * Métrica de fuerza que alimenta un ejercicio, resuelta vía la ontología
+ * (js/exercise-ontology.js), o null si el nombre no resuelve o es una variante
+ * declarada (`variantOf`). Las variantes no cuentan — decisión y reglas en
+ * PLAN-ONTOLOGIA.md, F3: lo que no está en la ontología no cuenta, sin substring
+ * ni fallback de regex.
+ */
+function liftMetric(name) {
+  return resolveExercise(name)?.lift ?? null;
+}
 
 /**
  * Por encima de estas reps un 1RM estimado habla de capacidad de trabajo, no de
@@ -215,16 +221,16 @@ export function derivedMetrics(db) {
   let mejorPullups = null;
   for (const w of (db?.workouts || [])) {
     for (const ex of (w.exercises || [])) {
-      const nombre = ex.name || '';
-      for (const [key, re] of Object.entries(LIFT_PATTERNS)) {
-        if (!re.test(nombre)) continue;
+      const metric = liftMetric(ex.name || '');
+      // e1RM de los básicos: mejor estimación histórica de cada uno.
+      if (metric && metric !== 'pullups') {
         for (const s of (ex.sets || [])) {
           const rm = epley(s.kg, s.reps);
-          if (rm != null && (!mejor[key] || rm > mejor[key].rm)) mejor[key] = { rm, date: w.date };
+          if (rm != null && (!mejor[metric] || rm > mejor[metric].rm)) mejor[metric] = { rm, date: w.date };
         }
       }
       // Dominadas: la mejor serie de reps, sin lastre (kg vacío o 0).
-      if (/dominada|pull[-\s]?up/i.test(nombre)) {
+      if (metric === 'pullups') {
         for (const s of (ex.sets || [])) {
           const kg = parseFloat(s.kg) || 0;
           const reps = parseInt(s.reps);
@@ -273,14 +279,13 @@ export function unratedLifts(db) {
   const visto = {}, estimable = {};
   for (const w of (db?.workouts || [])) {
     for (const ex of (w.exercises || [])) {
-      for (const [key, re] of Object.entries(LIFT_PATTERNS)) {
-        if (!re.test(ex.name || '')) continue;
-        for (const s of (ex.sets || [])) {
-          const kg = parseFloat(s.kg), r = parseInt(s.reps);
-          if (!Number.isFinite(kg) || kg <= 0 || !Number.isFinite(r) || r < 1) continue;
-          visto[key] = true;
-          if (r <= REP_CAP) estimable[key] = true;
-        }
+      const metric = liftMetric(ex.name || '');
+      if (!metric || metric === 'pullups') continue;   // las dominadas son reps, no un 1RM
+      for (const s of (ex.sets || [])) {
+        const kg = parseFloat(s.kg), r = parseInt(s.reps);
+        if (!Number.isFinite(kg) || kg <= 0 || !Number.isFinite(r) || r < 1) continue;
+        visto[metric] = true;
+        if (r <= REP_CAP) estimable[metric] = true;
       }
     }
   }
