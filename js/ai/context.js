@@ -8,7 +8,7 @@ import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/r
 import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
-  lastStrengthSessions, lastRuns, periodStats, runIntensitySplit,
+  lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
 } from './metrics.js';
 
 /** "+12%" · "-4%" · "s/ref" cuando no hay periodo anterior con el que comparar. */
@@ -110,6 +110,19 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   const lr = loadRatio(db, ref);
   if (lr.ratio != null) {
     L.push(`CARGA 7d vs media 28d: ratio ${lr.ratio} (${lr.ratio > 1.3 ? 'pico de carga — precaución' : lr.ratio < 0.8 ? 'semana suave' : 'rango normal'})`);
+  }
+
+  // Volumen por patrón de movimiento (28d) — calculado en JS vía la ontología (F4).
+  //
+  // El tonelaje dice CUÁNTO, esto dice DÓNDE. Sin este bloque, "¿qué estoy
+  // trabajando?" o "¿me falta tirón?" obligarían al modelo a clasificar ejercicios
+  // a ojo: exactamente el hueco donde inventa. Misma regla que los TOTALES: si la
+  // cifra se puede citar, no se deriva. "Sin clasificar" visible = fila pendiente
+  // del catálogo, no un agujero silencioso.
+  const pv = patternVolume(db.workouts, 28, ref);
+  if (pv.length) {
+    L.push('VOLUMEN POR PATRÓN (28 días, series de fuerza — cítalo, no lo clasifiques tú):');
+    L.push('  ' + pv.map(([p, sets]) => `${p} ${sets}`).join(' · '));
   }
 
   // e1RM por ejercicio (mejor histórico + mejor de los últimos 30 días)

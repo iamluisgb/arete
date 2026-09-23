@@ -154,6 +154,8 @@ const TOOL_LABELS = {
   get_body_logs: 'mirando tu peso y medidas',
   get_domain_profile: 'mirando tu perfil de dominios',
   get_program_detail: 'mirando tu plan',
+  find_exercises: 'consultando el catálogo',
+  explain_exercise: 'mirando la ficha del ejercicio',
   get_next_prescription: 'calculando qué peso te toca',
   propose_program: 'preparando tu plan',
   propose_session: 'preparando la sesión',
