@@ -3,7 +3,11 @@
 // modelo las pide, se ejecutan en local y una segunda vuelta streamea la respuesta con
 // los resultados dentro. Retiró al protocolo de dos fases heredado de bookreader
 // (recolección no-streaming que terminaba en "LISTO" + llamada aparte para responder).
-// La conversación vive en localStorage 'areteQuiron', fuera de la db sincronizada.
+// La conversación vive en localStorage 'areteQuiron', fuera de la db sincronizada,
+// pero SÍ se sincroniza: fichero propio en Drive (arete-quiron.json, U3) con LWW por
+// mensaje a través de sync/quiron.js + el ciclo del motor. Cada mensaje lleva
+// uid/ts/updatedAt; el merge devuelve la conversación fusionada por hooks y aquí se
+// aplica y repinta (sin tocar un turno en curso).
 
 import * as LLM from '../ai/llm.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
@@ -21,6 +25,7 @@ import {
 } from '../sessions.js';
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
+import { setQuironSyncHooks } from '../sync/quiron.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
 import { toast } from './toast.js';
 
@@ -59,6 +64,42 @@ function loadConvo() {
 function saveConvo() {
   try { localStorage.setItem(CONVO_KEY, JSON.stringify(convo)); }
   catch { /* llena: la conversación es prescindible */ }
+}
+
+// ── Sync (U3): la conversación viaja en arete-quiron.json ────────────────────
+
+// Sello de un mensaje NUEVO: identidad global + LWW. Los mensajes legacy sin
+// sello los rellena el motor con uids derivados del contenido (sync/quiron.js).
+function newMsgStamp() {
+  const ts = Date.now();
+  return {
+    uid: crypto.randomUUID ? crypto.randomUUID() : 'm-' + ts.toString(36) + '-' + Math.random().toString(36).slice(2, 10),
+    ts,
+    updatedAt: ts,
+  };
+}
+
+// El motor entrega la conversación fusionada. Solo se aplica fuera de un turno:
+// sustituir `convo` mientras streamea perdería los mensajes en vuelo (el motor
+// fusionó una foto anterior de la conversación); el ciclo siguiente converge.
+function applyQuironSync(data) {
+  if (!data || !Array.isArray(data.convo) || busy) return;
+  const changedConvo = JSON.stringify(data.convo) !== JSON.stringify(convo);
+  convo = data.convo;
+  if (changedConvo) {
+    saveConvo();
+    if (els.msgs) renderConvo();
+    window.dispatchEvent(new CustomEvent('arete-quiron-updated'));
+  }
+  if (Array.isArray(data.archive)) saveArchive(data.archive);
+}
+
+// Una propuesta vive dentro de su mensaje: al cambiarla (aplicar/descartar/
+// deshacer), el mensaje queda más nuevo que su copia remota. Sin esto, un
+// discard perdería contra la copia sin descartar en el empate de updatedAt.
+function touchProposalOwner(p) {
+  const m = convo.find((msg) => Array.isArray(msg.proposals) && msg.proposals.includes(p));
+  if (m) m.updatedAt = Date.now();
 }
 
 // ── Archivo de conversaciones (local, fuera del backup de Drive) ────────────
@@ -249,9 +290,11 @@ async function send(db, text, opts = {}) {
   if (showSetupIfNeeded()) return;
   if (!navigator.onLine) { toast('Quirón necesita conexión', 'error'); return; }
 
-  convo.push(opts.label ? { role: 'user', content: q, label: opts.label } : { role: 'user', content: q });
+  const userMsg = { role: 'user', content: q, ...newMsgStamp() };
+  if (opts.label) userMsg.label = opts.label;
+  convo.push(userMsg);
   appendBubble('user', mdLite(opts.label || q));
-  if (opts.dataBlob) convo.push({ role: 'data', content: opts.dataBlob });
+  if (opts.dataBlob) convo.push({ role: 'data', content: opts.dataBlob, ...newMsgStamp() });
   updateChips();
   saveConvo();
   els.input.value = '';
@@ -349,7 +392,7 @@ async function send(db, text, opts = {}) {
       });
     }
     if (gathered.length) {
-      convo.push({ role: 'data', content: gathered.join('\n\n') });
+      convo.push({ role: 'data', content: gathered.join('\n\n'), ...newMsgStamp() });
       history.push(...toApiMessages([convo[convo.length - 1]]));
     }
 
@@ -386,7 +429,7 @@ async function send(db, text, opts = {}) {
       }
       const proseText = proseParts.filter(Boolean).join('\n\n') || 'Listo para revisar.';
       bubble.innerHTML = mdLite(proseText);
-      const msg = { role: 'assistant', content: proseText, proposals: built };
+      const msg = { role: 'assistant', content: proseText, proposals: built, ...newMsgStamp() };
       convo.push(msg);
       saveConvo();
       for (const p of built) els.msgs.appendChild(renderProposalCard(db, p, msg));
@@ -397,7 +440,7 @@ async function send(db, text, opts = {}) {
     // 2b) La respuesta ya viene streameada del bucle de arriba: aquí solo se persiste.
     if (!full.trim()) { bubble.remove(); toast('Respuesta vacía del modelo', 'error'); }
     else {
-      convo.push({ role: 'assistant', content: full });
+      convo.push({ role: 'assistant', content: full, ...newMsgStamp() });
       saveConvo();
       if (truncated) {
         const btn = document.createElement('button');
@@ -652,7 +695,7 @@ async function handleImage(db, file) {
     const { sport, workout, run, prose } = await ingestFromImage(db, file, abortCtrl.signal);
     bubble.innerHTML = mdLite(prose);
     const p = { type: 'workout', sport, workout, run, id: `pr_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
-    const msg = { role: 'assistant', content: prose, proposals: [p] };
+    const msg = { role: 'assistant', content: prose, proposals: [p], ...newMsgStamp() };
     convo.push(msg);
     saveConvo();
     els.msgs.appendChild(renderWorkoutCard(db, p, msg));
@@ -683,12 +726,13 @@ function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
   paint();
   // Descartar es una decisión, no un "ocultar": si no se persiste, la propuesta
   // reaparece al reabrir el panel (renderConvo repinta desde la conversación).
-  discardBtn.addEventListener('click', () => { p.discarded = true; saveConvo(); card.remove(); });
+  discardBtn.addEventListener('click', () => { p.discarded = true; touchProposalOwner(p); saveConvo(); card.remove(); });
   applyBtn.addEventListener('click', () => {
     if (p.applied) return;
     let token;
     try { token = doApply(); } catch (e) { toast('No se pudo aplicar: ' + e.message, 'error'); return; }
     p.applied = true;
+    touchProposalOwner(p);
     saveConvo();
     paint();
     onProgramsChanged();
@@ -697,6 +741,7 @@ function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
       onAction: () => {
         doUndo(token);
         p.applied = false;
+        touchProposalOwner(p);
         saveConvo();
         paint();
         onProgramsChanged();
@@ -812,7 +857,7 @@ function renderSessionCard(db, p, msg) {
     card.classList.toggle('applied', !!p.applied);
   };
   paint();
-  discardBtn.addEventListener('click', () => { p.discarded = true; saveConvo(); card.remove(); });
+  discardBtn.addEventListener('click', () => { p.discarded = true; touchProposalOwner(p); saveConvo(); card.remove(); });
 
   // Guardar es idempotente: la primera vez crea la suelta, después reutiliza su id.
   const ensureSaved = () => {
@@ -821,6 +866,7 @@ function renderSessionCard(db, p, msg) {
     const { id } = applySessionProposal(db, p.session, { taken, sourceTs: p.ts });
     p.applied = true;
     p.sessionId = id;
+    touchProposalOwner(p);
     saveConvo();
     paint();
     onProgramsChanged();
@@ -835,6 +881,7 @@ function renderSessionCard(db, p, msg) {
       onAction: () => {
         undoSessionCommit(db, { id });
         p.applied = false; p.sessionId = null;
+        touchProposalOwner(p);
         saveConvo(); paint(); onProgramsChanged();
         toast('Sesión descartada', 'info');
       },
@@ -1131,6 +1178,10 @@ export function initQuiron(db, opts = {}) {
   convo = loadConvo();
   renderConvo();
   initSettingsUI();
+
+  // Sync (U3): el motor fusiona arete-quiron.json y entrega el resultado aquí.
+  // Se leen en cada ciclo, no al registrarse, por si el motor corre antes.
+  setQuironSyncHooks({ get: () => ({ convo, archive: loadArchive() }), save: applyQuironSync });
 
   els.fab.addEventListener('click', openPanel);
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);

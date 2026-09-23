@@ -1,16 +1,19 @@
 import { saveDBRaw } from './data.js';
 import { getAllRunRoutes, splitAndStoreRoutes } from './run-store.js';
 import { createSyncEngine, SYNC_FILE_FORMAT, SYNC_FORMAT_VERSION } from './sync/engine.js';
+import { getQuironSyncHooks } from './sync/quiron.js';
 import { connect, disconnect, isConnected, getAccessToken } from './drive-auth.js';
 
 // Google Drive sync sobre la REST API. La autorización (auth-code + PKCE,
 // refresh silencioso vía Worker) vive en drive-auth.js; el ciclo
 // pull → merge → push vive en sync/engine.js. Este módulo es el transporte:
-// lee y escribe arete-backup.json en appDataFolder y expone los disparadores
-// que usa app.js. Nada aquí sube a ciegas: toda escritura automática pasa por
-// el motor, que antes fusiona lo que hay en Drive.
+// lee y escribe arete-backup.json (la db) y arete-quiron.json (la conversación
+// de Quirón, fichero propio desde U3) en appDataFolder, y expone los
+// disparadores que usa app.js. Nada aquí sube a ciegas: toda escritura
+// automática pasa por el motor, que antes fusiona lo que hay en Drive.
 
 const BACKUP_FILENAME = 'arete-backup.json';
+const QUIRON_FILENAME = 'arete-quiron.json';
 const DEVICE_KEY = 'areteDeviceId';
 const SYNC_TS_KEY = 'areteLastSync';
 
@@ -66,11 +69,11 @@ async function driveFetch(request, context) {
   throw new Error(`${context}: ${res.status}`);
 }
 
-async function findBackupFile() {
+async function findDriveFile(filename) {
   const url = 'https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({
     spaces: 'appDataFolder',
     fields: 'files(id,name,modifiedTime)',
-    q: `name='${BACKUP_FILENAME}'`,
+    q: `name='${filename}'`,
     pageSize: '1',
   });
   const res = await driveFetch(
@@ -81,10 +84,10 @@ async function findBackupFile() {
   return data.files && data.files.length > 0 ? data.files[0] : null;
 }
 
-async function uploadFile(content, existingFileId) {
+async function uploadDriveFile(filename, content, existingFileId) {
   const metadata = existingFileId
-    ? { name: BACKUP_FILENAME }
-    : { name: BACKUP_FILENAME, parents: ['appDataFolder'] };
+    ? { name: filename }
+    : { name: filename, parents: ['appDataFolder'] };
 
   const boundary = '---arete_boundary';
   const body =
@@ -109,6 +112,39 @@ async function uploadFile(content, existingFileId) {
     body,
   }), 'Error al subir backup');
   return res.json();
+}
+
+async function findBackupFile() {
+  return findDriveFile(BACKUP_FILENAME);
+}
+
+async function uploadFile(content, existingFileId) {
+  return uploadDriveFile(BACKUP_FILENAME, content, existingFileId);
+}
+
+// Quirón transport (U3): same primitives as the db transport, own file. The
+// conversation has no legacy format — whatever is not our wrapper is garbage
+// and the engine rejects it without overwriting.
+function createQuironTransport() {
+  return {
+    async pull() {
+      const file = await findDriveFile(QUIRON_FILENAME);
+      if (!file) return null;
+      const content = await downloadFile(file.id);
+      let data;
+      try { data = JSON.parse(content); } catch { throw new Error('Fichero de Quirón corrupto (JSON inválido)'); }
+      return { rev: file.modifiedTime, data };
+    },
+    async readMeta() {
+      const file = await findDriveFile(QUIRON_FILENAME);
+      return file ? { rev: file.modifiedTime } : null;
+    },
+    async push(wrapper) {
+      const existing = await findDriveFile(QUIRON_FILENAME);
+      const res = await uploadDriveFile(QUIRON_FILENAME, JSON.stringify(wrapper), existing ? existing.id : null);
+      return { rev: res.modifiedTime || new Date().toISOString() };
+    },
+  };
 }
 
 async function downloadFile(fileId) {
@@ -231,6 +267,13 @@ function ensureEngine(db) {
     saveRaw: saveDBRaw,
     splitRoutes: splitAndStoreRoutes,
     device: deviceId(),
+    // Quirón (U3): the hooks are read at cycle time, not at engine creation —
+    // the chat UI may register them after the first sync of this session.
+    quiron: {
+      transport: createQuironTransport(),
+      get: () => { const h = getQuironSyncHooks(); return h ? h.get() : undefined; },
+      save: (data) => { const h = getQuironSyncHooks(); if (h) h.save(data); },
+    },
     onStatus: (s) => {
       if (s === 'ok') localStorage.setItem(SYNC_TS_KEY, String(Date.now()));
       setSyncStatus(s);

@@ -9,40 +9,56 @@ vi.mock('../js/drive-auth.js', () => ({
 }));
 
 // ── Fake Drive REST API ──────────────────────────────────────────────────────
-// One appDataFolder file (arete-backup.json) served through a mocked fetch.
+// One appDataFolder file per dataset: the db in arete-backup.json, the
+// Quirón conversation in its own file (U3). The list endpoint HONORS the
+// q=name filter: findDriveFile trusts the server to filter and takes
+// files[0], so a fake that ignores q would serve the wrong file to the
+// Quirón transport.
 
 function fakeDrive(initialContent) {
-  const state = {
-    id: initialContent ? 'file1' : null,
-    content: initialContent || null,
-    modifiedTime: '2026-01-01T00:00:00.000Z',
-  };
-  const calls = { list: 0, download: 0, upload: 0 };
+  const files = new Map(); // name -> { id, content, modifiedTime }
+  if (initialContent) {
+    files.set('arete-backup.json', { id: 'file1', content: initialContent, modifiedTime: '2026-01-01T00:00:00.000Z' });
+  }
+  const calls = { list: 0, download: 0, upload: 0, uploads: [] };
+  let uploadSeq = 0;
   const fetchMock = vi.fn(async (url, opts = {}) => {
     const u = String(url);
     if (u.includes('/upload/drive/v3/files')) {
       calls.upload++;
-      // multipart body: metadata part, then the JSON content part
+      // multipart body: metadata part (file name), then the JSON content part
+      const meta = JSON.parse(
+        opts.body.split('Content-Type: application/json; charset=UTF-8\r\n\r\n')[1].split('\r\n--')[0]
+      );
       const content = JSON.parse(
         opts.body.split('Content-Type: application/json\r\n\r\n')[1].split('\r\n--')[0]
       );
-      state.content = JSON.stringify(content);
-      state.id = state.id || 'file-new-1';
-      state.modifiedTime = new Date(Date.UTC(2026, 0, 1, 0, 0, 0, calls.upload * 1000)).toISOString();
-      return { ok: true, status: 200, json: async () => ({ id: state.id, modifiedTime: state.modifiedTime }) };
+      const idInUrl = u.match(/upload\/drive\/v3\/files\/([^?]+)/);
+      const existing = idInUrl && [...files.values()].find((f) => f.id === idInUrl[1]);
+      const rec = existing || { id: 'file-new-' + (++uploadSeq) };
+      rec.content = JSON.stringify(content);
+      rec.modifiedTime = new Date(Date.UTC(2026, 0, 1, 0, 0, 0, calls.upload * 1000)).toISOString();
+      files.set(meta.name, rec);
+      calls.uploads.push(meta.name);
+      return { ok: true, status: 200, json: async () => ({ id: rec.id, modifiedTime: rec.modifiedTime }) };
     }
     if (u.includes('/drive/v3/files/') && u.includes('alt=media')) {
       calls.download++;
-      return { ok: true, status: 200, text: async () => state.content };
+      const id = u.split('/drive/v3/files/')[1].split('?')[0];
+      const rec = [...files.values()].find((f) => f.id === id);
+      return { ok: true, status: 200, text: async () => (rec ? rec.content : '') };
     }
     if (u.includes('/drive/v3/files?')) {
       calls.list++;
+      const q = new URL(u).searchParams.get('q') || '';
+      const wanted = (q.match(/name='([^']+)'/) || [])[1];
+      const listing = [...files.entries()]
+        .filter(([name, f]) => f.content != null && (!wanted || name === wanted))
+        .map(([name, f]) => ({ id: f.id, name, modifiedTime: f.modifiedTime }));
       return {
         ok: true,
         status: 200,
-        json: async () => ({
-          files: state.content ? [{ id: state.id, name: 'arete-backup.json', modifiedTime: state.modifiedTime }] : [],
-        }),
+        json: async () => ({ files: listing }),
       };
     }
     return { ok: false, status: 404, json: async () => ({}), text: async () => '' };
@@ -50,8 +66,11 @@ function fakeDrive(initialContent) {
   return {
     fetchMock,
     calls,
-    state,
-    getWrapper: () => (state.content ? JSON.parse(state.content) : null),
+    getWrapper: (name = 'arete-backup.json') => {
+      const rec = files.get(name);
+      return rec && rec.content ? JSON.parse(rec.content) : null;
+    },
+    setFile: (name, content) => files.set(name, { id: 'file-' + name, content, modifiedTime: '2026-01-02T00:00:00.000Z' }),
   };
 }
 
@@ -180,5 +199,81 @@ describe('drive.js — syncNow (engine wiring end to end)', () => {
     expect(diag.history).toHaveLength(1);
     expect(diag.history[0]).toMatchObject({ result: 'ok' });
     expect(drive.isSyncing()).toBe(false);
+  });
+});
+
+// ── Quirón transport (U3): own Drive file, hooks read at cycle time ──────────
+
+describe('drive.js — Quirón transport (own file, end to end)', () => {
+  const QM = (uid, content, ts) => ({ uid, role: 'user', content, ts, updatedAt: ts });
+
+  async function loadDriveWithHooks(localState) {
+    const { drive, data } = await loadModules();
+    const { setQuironSyncHooks } = await import('../js/sync/quiron.js');
+    const local = { data: localState || { convo: [], archive: [] } };
+    setQuironSyncHooks({
+      get: () => structuredClone(local.data),
+      save: (d) => { local.data = structuredClone(d); },
+    });
+    return { drive, data, local };
+  }
+
+  it('the conversation is pushed to its own arete-quiron.json file, wrapped', async () => {
+    const fake = fakeDrive(null);
+    global.fetch = fake.fetchMock;
+    const { drive, data, local } = await loadDriveWithHooks({
+      convo: [QM('m1', 'hola', 100)], archive: [],
+    });
+
+    expect(await drive.syncNow(data.loadDB())).toBe('ok');
+
+    // The db backup file was seeded AND the conversation got its own file.
+    expect(fake.getWrapper().format).toBe('arete-sync');
+    const qFile = fake.getWrapper('arete-quiron.json');
+    expect(qFile.format).toBe('arete-quiron');
+    expect(qFile.formatVersion).toBe(1);
+    expect(qFile.data.convo.map((m) => m.uid)).toEqual(['m1']);
+    // The db backup must not contain the conversation.
+    expect(fake.getWrapper().db.convo).toBeUndefined();
+    expect(drive.getSyncDiag().quiron.lastResult).toBe('ok');
+
+    // Second cycle with unchanged state: no further upload of either file.
+    const uploadsAfterFirst = fake.calls.uploads.length;
+    expect(await drive.syncNow(data.loadDB())).toBe('ok');
+    expect(fake.calls.uploads.length).toBe(uploadsAfterFirst);
+    expect(local.data.convo[0].uid).toBe('m1');
+  });
+
+  it('a remote conversation is merged into the local one through the hooks', async () => {
+    const fake = fakeDrive(null);
+    fake.setFile('arete-quiron.json', JSON.stringify({
+      format: 'arete-quiron', formatVersion: 1, savedAt: 1, device: 'other',
+      data: { convo: [QM('r1', 'desde el móvil', 200)], archive: [] },
+    }));
+    global.fetch = fake.fetchMock;
+    const { drive, data, local } = await loadDriveWithHooks({
+      convo: [QM('l1', 'desde la tablet', 100)], archive: [],
+    });
+
+    expect(await drive.syncNow(data.loadDB())).toBe('ok');
+
+    // The local hooks saw the union, sorted by (ts, uid).
+    expect(local.data.convo.map((m) => m.uid)).toEqual(['l1', 'r1']);
+    // And the pushed wrapper carries both.
+    expect(fake.getWrapper('arete-quiron.json').data.convo.map((m) => m.uid).sort())
+      .toEqual(['l1', 'r1']);
+  });
+
+  it('without hooks registered the Quirón phase is skipped, db still syncs', async () => {
+    const fake = fakeDrive(null);
+    global.fetch = fake.fetchMock;
+    vi.resetModules();
+    const drive = await import('../js/drive.js');
+    const data = await import('../js/data.js');
+
+    expect(await drive.syncNow(data.loadDB())).toBe('ok');
+    expect(fake.getWrapper('arete-quiron.json')).toBeNull(); // never seeded
+    expect(fake.getWrapper().format).toBe('arete-sync');     // db seeded normally
+    expect(drive.getSyncDiag().quiron.lastResult).toBeNull();
   });
 });

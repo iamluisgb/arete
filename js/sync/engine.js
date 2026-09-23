@@ -13,11 +13,21 @@
 // ifAvailable — a tab that can't take the lock skips silently (another tab is
 // already syncing). Browsers without navigator.locks just run unlocked.
 //
+// Quirón (U3): the chat conversation lives in its OWN Drive file
+// (arete-quiron.json) and rides the SAME cycle — same lock, same diag stream,
+// same retry rules — in a phase that runs right after the db push. A Quirón
+// failure never fails the db cycle: the conversation is prescindible and its
+// degradation is tracked separately (getDiag().quiron).
+//
 // The transport is injectable ({ pull, readMeta, push }) so tests can mock
-// Drive without touching the network. js/drive.js builds the real one.
+// Drive without touching the network. js/drive.js builds the real ones (one
+// per file). An optional opts.quiron { transport, get, save } enables the
+// Quirón phase; hooks may be registered later (drive.js reads the registry on
+// every cycle via its adapter).
 
 import { mergeDBv2, canonicalJson } from './merge.js';
 import { SYNC_KEYS, backfillDb } from './schema.js';
+import { QUIRON_FILE_FORMAT, QUIRON_FORMAT_VERSION, mergeQuiron, backfillQuiron, isEmptyQuiron } from './quiron.js';
 import { stripHeavyFields } from '../run-store.js';
 
 export const SYNC_FILE_FORMAT = 'arete-sync';
@@ -107,6 +117,11 @@ export function createSyncEngine(opts) {
   const random = opts.random || Math.random;
   const onStatus = opts.onStatus || (() => {});
   const onError = opts.onError || (() => {});
+  // Quirón phase (optional): own transport (arete-quiron.json) + UI hooks.
+  const quiron = opts.quiron || null;
+  let qLastResult = null;
+  let qLastError = null;
+  let qFailures = 0;
 
   let running = false;
   let pendingChange = false; // a save happened while a cycle was in flight
@@ -173,8 +188,8 @@ export function createSyncEngine(opts) {
     };
   }
 
-  // One full cycle, with the emulated-412 retry loop around the push phase.
-  async function cycle() {
+  // One full db cycle, with the emulated-412 retry loop around the push phase.
+  async function dbCycle() {
     let st = await pullAndMerge();
     for (let attempt = 0; ; attempt++) {
       // Before pushing, check the remote did not move since our pull. If it
@@ -202,6 +217,94 @@ export function createSyncEngine(opts) {
     }
   }
 
+  // ── Quirón phase (U3): same rules, own file ───────────────────────────────
+
+  function quironPayload(data) {
+    return {
+      format: QUIRON_FILE_FORMAT,
+      formatVersion: QUIRON_FORMAT_VERSION,
+      savedAt: Date.now(),
+      device,
+      data,
+    };
+  }
+
+  // The quiron file has no legacy format (it is new): anything that is not our
+  // wrapper is garbage and must not be merged, let alone overwritten.
+  function payloadQuironData(data) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+    if (data.format !== QUIRON_FILE_FORMAT) return null;
+    return data.data && typeof data.data === 'object' && !Array.isArray(data.data) ? data.data : null;
+  }
+
+  // PULL + merge for the conversation. Re-reads the live local state on every
+  // call, so a message sent mid-retry is still included in the next merge.
+  async function pullMergeQuiron() {
+    const localRaw = quiron.get() || {};
+    const before = canonicalJson(backfillQuiron(localRaw));
+    const remote = await quiron.transport.pull();
+    let merged = backfillQuiron(localRaw);
+    let remoteData = null;
+    if (remote) {
+      remoteData = payloadQuironData(remote.data);
+      if (!remoteData) throw new Error('Remote Quirón file is corrupt');
+      merged = mergeQuiron(localRaw, remoteData);
+    }
+    return { remote, remoteData, merged, before };
+  }
+
+  async function quironCycle() {
+    let st = await pullMergeQuiron();
+    if (canonicalJson(st.merged) !== st.before) quiron.save(st.merged);
+    for (let attempt = 0; ; attempt++) {
+      // Same emulated-412 as the db file: re-read the remote metadata before
+      // pushing; if it moved since our pull, back off and re-pull/re-merge.
+      const meta = await quiron.transport.readMeta();
+      const remoteRev = meta ? meta.rev : null;
+      if (remoteRev !== (st.remote ? st.remote.rev : null)) {
+        if (attempt >= MAX_RETRIES) {
+          const e = new Error('Remote Quirón file kept changing (conflict after max retries)');
+          e.code = 412;
+          throw e;
+        }
+        await sleep(RETRY_BASE_MS * (attempt + 1) + random() * RETRY_JITTER_MS);
+        st = await pullMergeQuiron();
+        if (canonicalJson(st.merged) !== st.before) quiron.save(st.merged);
+        continue;
+      }
+      // No-op push: what we would push is (canonically) what is already there.
+      if (st.remoteData && canonicalJson(st.merged) === canonicalJson(backfillQuiron(st.remoteData))) {
+        return { pushed: false };
+      }
+      // No remote file and nothing to say: don't seed Drive with an empty file.
+      if (!st.remote && isEmptyQuiron(st.merged)) return { pushed: false };
+      await quiron.transport.push(quironPayload(st.merged));
+      return { pushed: true };
+    }
+  }
+
+  // The Quirón phase runs INSIDE the db cycle (same lock, same diag stream)
+  // right after the db push — even when the db push was a no-op, the chat may
+  // have changed. Its failure is recorded but never fails the db cycle.
+  async function cycle() {
+    const dbRes = await dbCycle();
+    let quironError = null;
+    if (quiron && typeof quiron.get === 'function' && quiron.get() !== undefined) {
+      try {
+        await quironCycle();
+        qLastResult = 'ok';
+        qLastError = null;
+        qFailures = 0;
+      } catch (e) {
+        quironError = String((e && e.message) || e).slice(0, 200);
+        qLastResult = 'error';
+        qLastError = quironError;
+        qFailures++;
+      }
+    }
+    return { ...dbRes, quironError };
+  }
+
   async function runWithLock(fn) {
     if (!locks || typeof locks.request !== 'function') return fn();
     return locks.request(SYNC_LOCK_NAME, { ifAvailable: true }, (lock) => (lock ? fn() : 'locked'));
@@ -225,7 +328,7 @@ export function createSyncEngine(opts) {
       lastError = null;
       lastCycleAt = Date.now();
       consecutiveFailures = 0;
-      record('ok', `pulled:${r.pulled} pushed:${r.pushed}`);
+      record('ok', `pulled:${r.pulled} pushed:${r.pushed}` + (r.quironError ? ` quiron:${r.quironError}` : ''));
       onStatus('ok');
     } catch (e) {
       lastResult = 'error';
@@ -258,6 +361,8 @@ export function createSyncEngine(opts) {
       lastCycleAt,
       consecutiveFailures,
       history: history.slice(),
+      // Quirón degrades separately: its failures never touch the db counters.
+      quiron: { lastResult: qLastResult, lastError: qLastError, consecutiveFailures: qFailures },
     };
   }
 

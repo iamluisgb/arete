@@ -34,13 +34,29 @@ reintento ante conflicto.
 3. [x] ODD doc creado
 4. [x] U1: js/sync/merge.js + js/sync/schema.js + tests de propiedad + migración v7 (data.js) + stamping en saveDB + markDeleted→tombstone — commit `85fcef2`
 5. [x] U2: js/sync/engine.js (pull→merge→push, fingerprint canonicalJson, 412→backoff+jitter, locks, triggers, diag) + drive.js transport + app.js cablea + applyImport/drive-ui via mergeInto → mergeDB legacy eliminado — commit `3d9cf67`
-6. [ ] U3: Quirón en sync (fichero propio arete-quiron.json, LWW por mensaje) + tests
+6. [x] U3: Quirón en sync (fichero propio arete-quiron.json, LWW por mensaje) + tests
 7. [ ] U4: sw.js bump (precache js/sync/*) + docs/SYNC-V2.md
 8. [ ] npm test verde completo + escenarios: lost-update explícito, tombstones entre dispositivos, 412
 9. [ ] Native review RDD
 10. [ ] PR abierta SIN merge (revisión humana)
 
 ## Evidence
+- U3 (sin commitear, pendiente del commit de work-unit): `js/sync/quiron.js`
+  (backfillQuiron determinista con uids FNV-1a por (role,content,ocurrencia),
+  ts=0 para el legado, sin Date.now; mergeQuiron conmutativo/idempotente — LWW
+  por mensaje con desempate stableStringify, archivo por id con cap 15;
+  hooks registry setQuironSyncHooks/getQuironSyncHooks). engine.js: fase
+  quironCycle dentro del ciclo, justo tras el push de la db (corre también en
+  no-op), reintento 412 con el mismo backoff, diag separado (getDiag().quiron)
+  y fallo de Quirón no tira el ciclo de la db. drive.js: createQuironTransport
+  (arete-quiron.json, wrapper estricto — sin formato legacy, basura → error
+  sin pisar) + parametrización findDriveFile/uploadDriveFile. js/ui/quiron.js:
+  mensajes nuevos sellados al crearse, touchProposalOwner en las 6 mutaciones
+  de propuesta, applyQuironSync con busy-guard + evento 'arete-quiron-updated',
+  hooks registrados en initQuiron. Tests: tests/sync-quiron.test.js (31: 200
+  semillas property tests, backfill legado, escenarios A/B, 412, corrupto,
+  no-siembra, hooks UI jsdom) + 3 de integración en tests/drive.test.js (fake
+  Drive multi-fichero con filtro q). Suite completa 650/650.
 - U2 `3d9cf67`: engine con ciclo pull→merge→push, transport Drive en drive.js
   (rev = modifiedTime, wrapper v2, v1 backfill), triggers en app.js, 17+6 tests
   nuevos con los escenarios obligatorios. Suite completa 616/616. Verificación
