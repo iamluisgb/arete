@@ -144,3 +144,45 @@ describe('progresión en el prefill', () => {
     expect(campoKg().value).toBe('');
   });
 });
+
+// UX-6: validación de serie al teclear. Vacío vale (serie opcional), número >= 0
+// vale; el resto pinta .set-invalid. Un aguante cronometrado ('2min') convive con
+// los kilos en el campo de reps y parseFloat lo da por válido.
+describe('validateSetInput (UX-6)', () => {
+  beforeEach(() => {
+    setupDOM();
+    vi.resetModules();
+  });
+
+  const mkInput = (v) => {
+    const inp = document.createElement('input');
+    inp.value = v;
+    return inp;
+  };
+
+  it('acepta vacío, número, coma decimal y aguante cronometrado', async () => {
+    const { validateSetInput } = await import('../js/ui/training.js');
+    for (const v of ['', '42.5', '42,5', '0', '2min']) {
+      const inp = mkInput(v);
+      expect(validateSetInput(inp), `valor ${JSON.stringify(v)}`).toBe(true);
+      expect(inp.classList.contains('set-invalid')).toBe(false);
+    }
+  });
+
+  it('marca inválido lo no numérico y lo negativo, y limpia al corregir', async () => {
+    const { validateSetInput } = await import('../js/ui/training.js');
+    const inp = mkInput('abc');
+    expect(validateSetInput(inp)).toBe(false);
+    expect(inp.classList.contains('set-invalid')).toBe(true);
+    expect(inp.getAttribute('title')).toBe('Valor no válido');
+
+    inp.value = '-5';
+    expect(validateSetInput(inp)).toBe(false);
+    expect(inp.classList.contains('set-invalid')).toBe(true);
+
+    inp.value = '8';
+    expect(validateSetInput(inp)).toBe(true);
+    expect(inp.classList.contains('set-invalid')).toBe(false);
+    expect(inp.hasAttribute('title')).toBe(false);
+  });
+});

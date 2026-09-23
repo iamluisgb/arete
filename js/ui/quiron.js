@@ -55,6 +55,34 @@ let busy = false;
 let abortCtrl = null;
 let els = {};
 
+// ── Errores legibles (UX-5) ──────────────────────────────────────────────────
+// El mensaje crudo del proveedor ("Failed to fetch", "invalid_api_key") no le
+// dice nada al atleta. Clasificamos por inspección del texto — cada proveedor
+// redacta distinto, por eso el patrón es amplio y case-insensitive — y
+// conservamos el detalle original: con BYOK es lo único que diagnosticas.
+const ERROR_CLASSES = [
+  { re: /fetch|networkerror|failed to fetch|err_|network/i,
+    text: 'Quirón no pudo contactar al proveedor. Revisa la conexión e inténtalo de nuevo.' },
+  { re: /\b402\b|quota|insufficient|credit/i,
+    text: 'El proveedor rechazó la petición: sin cuota o crédito disponible.' },
+  { re: /\b401\b|\b403\b|unauthorized|invalid api key|invalid_api_key/i,
+    text: 'La clave del proveedor no es válida o expiró. Revisala en Ajustes.' },
+  { re: /\blength\b|context length|too long|maximum context/i,
+    text: 'La respuesta cortó por longitud. Usa el botón Continuar respuesta.' },
+  { re: /timeout|timed out|etimedout|econnaborted/i,
+    text: 'El proveedor tardó demasiado. Inténtalo de nuevo.' },
+];
+
+/** Clasifica un error de Quirón en un mensaje legible.
+ *  @returns {{text: string, matched: boolean}} `matched` indica si cayó en una
+ *  clase conocida (el detalle crudo solo se añade ahí; el fallback conserva
+ *  `e.message` tal cual, que es lo útil depurando BYOK). */
+export function friendlyQuironError(e) {
+  const msg = String(e?.message || e || '');
+  const hit = ERROR_CLASSES.find(c => c.re.test(msg));
+  return hit ? { text: hit.text, matched: true } : { text: 'No se pudo completar la respuesta: ' + msg, matched: false };
+}
+
 function loadConvo() {
   try {
     const c = JSON.parse(localStorage.getItem(CONVO_KEY));
@@ -464,7 +492,9 @@ async function send(db, text, opts = {}) {
     if (e.name === 'AbortError') {
       bubble.innerHTML = '<span class="q-err">— detenido —</span>';
     } else {
-      bubble.innerHTML = `<span class="q-err">${esc(e.message)}</span>`;
+      const fe = friendlyQuironError(e);
+      bubble.innerHTML = `<span class="q-err">${esc(fe.text)}</span>`
+        + (fe.matched ? ` <small class="q-err-detail">${esc(e.message)}</small>` : '');
     }
     // El turno quedó sin respuesta: quita el user (y data) finales para reintentar limpio
     while (convo.length && convo[convo.length - 1].role !== 'assistant') convo.pop();
@@ -710,9 +740,13 @@ async function handleImage(db, file) {
     els.msgs.appendChild(renderWorkoutCard(db, p, msg));
     els.msgs.scrollTop = els.msgs.scrollHeight;
   } catch (e) {
-    bubble.innerHTML = e.name === 'AbortError'
-      ? '<span class="q-err">— detenido —</span>'
-      : `<span class="q-err">${esc(e.message)}</span>`;
+    if (e.name === 'AbortError') {
+      bubble.innerHTML = '<span class="q-err">— detenido —</span>';
+    } else {
+      const fe = friendlyQuironError(e);
+      bubble.innerHTML = `<span class="q-err">${esc(fe.text)}</span>`
+        + (fe.matched ? ` <small class="q-err-detail">${esc(e.message)}</small>` : '');
+    }
   } finally {
     setBusy(false);
     abortCtrl = null;
@@ -739,7 +773,10 @@ function wireProposalActions(card, p, applyLabel, successMsg, doApply, doUndo) {
   applyBtn.addEventListener('click', () => {
     if (p.applied) return;
     let token;
-    try { token = doApply(); } catch (e) { toast('No se pudo aplicar: ' + e.message, 'error'); return; }
+    try { token = doApply(); } catch (e) {
+      const fe = friendlyQuironError(e);
+      toast('No se pudo aplicar: ' + fe.text + (fe.matched ? ' — ' + e.message : ''), 'error'); return;
+    }
     p.applied = true;
     touchProposalOwner(p);
     saveConvo();
@@ -884,7 +921,10 @@ function renderSessionCard(db, p, msg) {
 
   saveBtn.addEventListener('click', () => {
     let id;
-    try { id = ensureSaved(); } catch (e) { toast('No se pudo guardar: ' + e.message, 'error'); return; }
+    try { id = ensureSaved(); } catch (e) {
+      const fe = friendlyQuironError(e);
+      toast('No se pudo guardar: ' + fe.text + (fe.matched ? ' — ' + e.message : ''), 'error'); return;
+    }
     toast('Guardada en Fuerza → Plan → Tus sesiones', 'success', {
       action: 'Deshacer',
       onAction: () => {
@@ -899,7 +939,10 @@ function renderSessionCard(db, p, msg) {
 
   card.querySelector('.q-prop-start').addEventListener('click', () => {
     let id;
-    try { id = ensureSaved(); } catch (e) { toast('No se pudo guardar: ' + e.message, 'error'); return; }
+    try { id = ensureSaved(); } catch (e) {
+      const fe = friendlyQuironError(e);
+      toast('No se pudo guardar: ' + fe.text + (fe.matched ? ' — ' + e.message : ''), 'error'); return;
+    }
     closePanel();
     onStartSession(sessionRef(id), p.session?.name || '');
   });

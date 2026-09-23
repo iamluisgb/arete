@@ -109,3 +109,114 @@ describe('celebración de PR: foco y cierre', () => {
     expect(document.activeElement).toBe($saveBtn);
   });
 });
+
+// UX-6: feedback inmediato en las series — solo pinta, no bloquea el guardado.
+describe('feedback inline de series (UX-6)', () => {
+  const repsInput = () =>
+    document.querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="reps"]');
+
+  it("'abc' marca .set-invalid, luego '42.5' lo limpia, y vacío también", async () => {
+    const db = freshDB();
+    await cargarSesion(db);
+    const inp = repsInput();
+
+    inp.value = 'abc';
+    inp.dispatchEvent(new Event('focusout', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(true);
+    expect(inp.getAttribute('title')).toBe('Valor no válido');
+
+    inp.value = '42.5';
+    inp.dispatchEvent(new Event('focusout', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(false);
+    expect(inp.hasAttribute('title')).toBe(false);
+
+    // Re-marcado y corregido tecleando (input), sin blur.
+    inp.value = 'zz';
+    inp.dispatchEvent(new Event('focusout', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(true);
+    inp.value = '9';
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(false);
+
+    inp.value = '';
+    inp.dispatchEvent(new Event('focusout', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(false);
+  });
+
+  it("change (teclado sin blur) también valida", async () => {
+    const db = freshDB();
+    await cargarSesion(db);
+    const inp = repsInput();
+
+    inp.value = 'x';
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(true);
+
+    inp.value = '5';
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(inp.classList.contains('set-invalid')).toBe(false);
+  });
+
+  it('marca negativo y deja el valor intacto (no bloquea ni reescribe)', async () => {
+    const db = freshDB();
+    await cargarSesion(db);
+    const kg = document.querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="kg"]');
+
+    kg.value = '-5';
+    kg.dispatchEvent(new Event('focusout', { bubbles: true }));
+    expect(kg.classList.contains('set-invalid')).toBe(true);
+    expect(kg.value).toBe('-5');
+  });
+});
+
+// UX-7: el borrador es posicional; si no encaja con el plan se descarta avisando.
+describe('borrador descartado por mismatch (UX-7)', () => {
+  const DRAFT_KEY = 'arete_sessionDraft';
+
+  it('cuenta de series distinta: toast y no restaura', async () => {
+    const db = freshDB();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      session: 'Sesión A', date: '2026-07-01', notes: '',
+      values: ['5'], checks: [], ts: Date.now(),
+    }));
+    const t = await cargarSesion(db); // hay draft: se muestra el formulario directamente
+
+    // populateSessions con expand dispara restoreDraft tras renderizar.
+    t.populateSessions(db, { expand: true });
+
+    const toasts = [...document.querySelectorAll('#toastContainer .toast')];
+    expect(toasts.some(x => x.textContent.includes('no encaja con el plan actual'))).toBe(true);
+    // No restauró el valor posicional en una serie equivocada.
+    const kg = document.querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="kg"]');
+    expect(kg.value).toBe('');
+  });
+
+  it('borrador de otra sesión: toast al intentar restaurarlo', async () => {
+    const db = freshDB();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      session: 'Sesión B', date: '', notes: '',
+      values: ['5', '3', '50', '5'], checks: [], ts: Date.now(),
+    }));
+    const t = await cargarSesion(db); // sesión distinta: sin draft visible
+
+    t.populateSessions(db, { expand: true });
+
+    const toasts = [...document.querySelectorAll('#toastContainer .toast')];
+    expect(toasts.some(x => x.textContent.includes('no encaja con el plan actual'))).toBe(true);
+  });
+
+  it('borrador que encaja: restaura y NO avisa de mismatch', async () => {
+    const db = freshDB();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      session: 'Sesión A', date: '2026-07-01', notes: 'nota',
+      values: ['50', '5', '60', '5'], checks: [], ts: Date.now(),
+    }));
+    const t = await cargarSesion(db);
+    t.populateSessions(db, { expand: true });
+
+    const toasts = [...document.querySelectorAll('#toastContainer .toast')];
+    expect(toasts.some(x => x.textContent.includes('no encaja con el plan actual'))).toBe(false);
+    const kg = document.querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="kg"]');
+    expect(kg.value).toBe('50');
+  });
+});
