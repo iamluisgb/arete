@@ -1,0 +1,2414 @@
+[
+  {
+    "id": "one-arm-kb-swing",
+    "source": "fedb",
+    "fedb": "One-Arm_Kettlebell_Swings",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Lumbalgia o hernia activa: sin balísticos de cadera"
+    ],
+    "regression": "Swing a dos manos con pesa ligera",
+    "progression": "Swing a una mano más pesado o snatch",
+    "arete": "1 kettlebell mano swing",
+    "aliases": [
+      "Swing 1 Mano"
+    ]
+  },
+  {
+    "id": "kb-single-leg-deadlift",
+    "source": "fedb",
+    "fedb": "Kettlebell_One-Legged_Deadlift",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Lumbalgia: exigir cadera cuadrada y columna neutra"
+    ],
+    "regression": "RDL a una pierna sin peso, apoyado en pared",
+    "progression": "Más peso o a una mano y una pierna",
+    "arete": "1 kettlebell muerto peso pierna",
+    "aliases": [
+      "Deadlift con 1 Pierna"
+    ]
+  },
+  {
+    "id": "plancha",
+    "source": "fedb",
+    "fedb": "Plank",
+    "confianza": "confirmada",
+    "pattern": "core",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro o lumbar en fase aguda"
+    ],
+    "regression": "Plancha con rodillas apoyadas",
+    "progression": "Plancha con lastre o un pie levantado",
+    "arete": "abdominal plancha",
+    "aliases": [
+      "Plancha Abdominal"
+    ]
+  },
+  {
+    "id": "bench",
+    "source": "fedb",
+    "fedb": "Barbell_Bench_Press_-_Medium_Grip",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "barra",
+      "banco"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "lift": "bench",
+    "aliases": [
+      "Press Banca",
+      "Press de Banca",
+      "Bench Press",
+      "Bench",
+      "banca pre"
+    ],
+    "contraindications": [
+      "Hombro: escápulas retraídas y pies fijos siempre"
+    ],
+    "regression": "Press con mancuernas o en máquina",
+    "progression": "Banca en pausa o con lastre",
+    "nota": "nodo canónico de la semilla F3, enriquecido con fedb",
+    "arete": "banca pre"
+  },
+  {
+    "id": "curl-barra",
+    "source": "fedb",
+    "fedb": "Barbell_Curl",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Codo: sin balancear el torso ni extender la lumbar"
+    ],
+    "regression": "Curl con mancuernas o banda",
+    "progression": "Curl estricto más pesado o en banco Scott",
+    "nota": "flexión de codo: se clasifica pull vertical sagital",
+    "arete": "barra curl",
+    "aliases": [
+      "Curl con Barra"
+    ]
+  },
+  {
+    "id": "leg-raise-barra",
+    "source": "fedb",
+    "fedb": "Hanging_Leg_Raise",
+    "confianza": "confirmada",
+    "pattern": "core",
+    "equipment": [
+      "dominadas"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: agarre firme y hombros activos"
+    ],
+    "regression": "Elevación de rodillas colgado",
+    "progression": "Toes-to-bar",
+    "arete": "barra elevacion pierna",
+    "aliases": [
+      "Elev. Piernas a Barra"
+    ]
+  },
+  {
+    "id": "remo-barra",
+    "source": "fedb",
+    "fedb": "Bent_Over_Barbell_Row",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength",
+      "pull"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Lumbar: columna neutra, torso a 45° o menos"
+    ],
+    "regression": "Remo con apoyo de pecho en banco",
+    "progression": "Remo pesado con pausa en el pecho",
+    "arete": "barra remo",
+    "aliases": [
+      "Remo con Barra"
+    ]
+  },
+  {
+    "id": "clean",
+    "source": "fedb",
+    "fedb": "Clean",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca y codo: la recepción se aprende con peso bajo"
+    ],
+    "regression": "Clean con palo o tubo ligero",
+    "progression": "Clean colgado o desde bloques",
+    "arete": "clean",
+    "aliases": [
+      "Clean",
+      "Cleans"
+    ]
+  },
+  {
+    "id": "kb-dead-clean",
+    "source": "fedb",
+    "fedb": "Kettlebell_Dead_Clean",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Agarre: la parada muerta castiga cadera y agarre"
+    ],
+    "regression": "Dead stop con pesa ligera",
+    "progression": "Clean continuo colgado",
+    "arete": "clean dead kettlebell",
+    "aliases": [
+      "Dead Clean"
+    ]
+  },
+  {
+    "id": "flexion-diamante",
+    "source": "fedb",
+    "fedb": "Push-Ups_-_Close_Triceps_Position",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca: codos pegados, sin abrir"
+    ],
+    "regression": "Flexión de rodillas con manos juntas",
+    "progression": "Diamante con pies elevados",
+    "arete": "diamante flexion",
+    "aliases": [
+      "Flexiones diamante"
+    ]
+  },
+  {
+    "id": "flexion-inclinada",
+    "source": "fedb",
+    "fedb": "Incline_Push-Up",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: mano a la altura del pecho"
+    ],
+    "regression": "Flexión de rodillas",
+    "progression": "Flexión estándar en suelo",
+    "arete": "flexion inclinada",
+    "aliases": [
+      "Flexiones inclinadas"
+    ]
+  },
+  {
+    "id": "hspu",
+    "source": "fedb",
+    "fedb": "Handstand_Push-Ups",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca y cuello: requiere base de handstand sólida"
+    ],
+    "regression": "Pike push-up con pies en el suelo",
+    "progression": "HSPU con déficit",
+    "arete": "flexion mano",
+    "aliases": [
+      "Flexiones de manos"
+    ]
+  },
+  {
+    "id": "flexion-palmada",
+    "source": "fedb",
+    "fedb": "Plyo_Push-up",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength",
+      "glyco"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca: absorber el impacto con codos semiflexionados"
+    ],
+    "regression": "Flexión explosiva con manos al suelo",
+    "progression": "Palmada con pies elevados",
+    "arete": "flexion palmada",
+    "aliases": [
+      "Flexiones con Palmada",
+      "Flexiones con palmada"
+    ]
+  },
+  {
+    "id": "fondo",
+    "source": "fedb",
+    "fedb": "Parallel_Bar_Dip",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "dominadas"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: no bajar por debajo del dolor; leve inclinación al frente"
+    ],
+    "regression": "Fondo en banco o asistido con goma",
+    "progression": "Fondo con lastre",
+    "arete": "fondo",
+    "aliases": [
+      "Fondos"
+    ]
+  },
+  {
+    "id": "fondo-banco",
+    "source": "fedb",
+    "fedb": "Bench_Dips",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "banco"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: mantener la espalda cerca del banco"
+    ],
+    "regression": "Fondo en banco con rodillas flexionadas",
+    "progression": "Fondo en paralelas completas",
+    "arete": "fondo paralela",
+    "aliases": [
+      "Fondos Paralelas"
+    ]
+  },
+  {
+    "id": "front-squat",
+    "source": "fedb",
+    "fedb": "Front_Squat_Clean_Grip",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "variantOf": "squat",
+    "aliases": [
+      "Sentadilla Frontal",
+      "Front Squat",
+      "frontal sentadilla"
+    ],
+    "contraindications": [
+      "Muñeca y hombro: codos altos siempre"
+    ],
+    "regression": "Goblet squat o frontal con dos mancuernas",
+    "progression": "Frontal con más peso o sin soporte de codos",
+    "nota": "variante declarada de la semilla F3, enriquecida con fedb",
+    "arete": "frontal sentadilla"
+  },
+  {
+    "id": "remo-invertido",
+    "source": "fedb",
+    "fedb": "Inverted_Row",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "equipment": [
+      "dominadas"
+    ],
+    "domains": [
+      "pull",
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: escápulas activas, cadera sin caer"
+    ],
+    "regression": "Remo invertido con rodillas flexionadas",
+    "progression": "Pies elevados o lastre en el pecho",
+    "arete": "invertido remo",
+    "aliases": [
+      "Remo invertido"
+    ]
+  },
+  {
+    "id": "kb-windmill",
+    "source": "fedb",
+    "fedb": "Kettlebell_Windmill",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "mobility"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Hombro inestable: rango corto y mirar la pesa"
+    ],
+    "regression": "Windmill sin peso o con vasito",
+    "progression": "Windmill con doble KB",
+    "arete": "kettlebell molino",
+    "aliases": [
+      "Windmill"
+    ]
+  },
+  {
+    "id": "kb-pistol",
+    "source": "fedb",
+    "fedb": "Kettlebell_Pistol_Squat",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Rodilla: profundidad solo con control"
+    ],
+    "regression": "Pistol sin peso o asistido",
+    "progression": "Pistol con doble KB",
+    "nota": "contraparte lastrada de pistol sentadilla",
+    "arete": "kettlebell pistol",
+    "aliases": [
+      "Pistol"
+    ]
+  },
+  {
+    "id": "kb-remo",
+    "source": "fedb",
+    "fedb": "One-Arm_Kettlebell_Row",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "pull"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Lumbar: espalda plana y paralela al suelo"
+    ],
+    "regression": "Remo con apoyo en banco o rodilla",
+    "progression": "Remo pesado con pausa",
+    "arete": "kettlebell remo",
+    "aliases": [
+      "Row"
+    ]
+  },
+  {
+    "id": "renegade-row",
+    "source": "fedb",
+    "fedb": "Alternating_Renegade_Row",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "pull",
+      "core"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Hombro: muñeca bajo hombro, cadera sin rotar"
+    ],
+    "regression": "Renegade con pesas ligeras y pies anchos",
+    "progression": "Renegade más pesado o con push-up",
+    "arete": "kettlebell remo renegade",
+    "aliases": [
+      "Renegade Row"
+    ]
+  },
+  {
+    "id": "kb-snatch",
+    "source": "fedb",
+    "fedb": "One-Arm_Kettlebell_Snatch",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Muñeca: recepción suave, sin golpear el antebrazo"
+    ],
+    "regression": "Swing a una mano alto",
+    "progression": "Snatch continuo (S&S) o con más peso",
+    "arete": "kettlebell snatch",
+    "aliases": [
+      "Snatch",
+      "Snatch (KB)",
+      "Snatches (KB)"
+    ]
+  },
+  {
+    "id": "kb-thruster",
+    "source": "fedb",
+    "fedb": "Kettlebell_Thruster",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Hombro: movilidad overhead suficiente antes de cargar"
+    ],
+    "regression": "Sentadilla y press por separado",
+    "progression": "Thruster continuo o con más peso",
+    "nota": "sentadilla + press: agrupa con las sentadillas",
+    "arete": "kettlebell thruster",
+    "aliases": [
+      "Thruster",
+      "Thruster (KB)",
+      "Thrusters (KB)"
+    ]
+  },
+  {
+    "id": "kb-turco",
+    "source": "fedb",
+    "fedb": "Kettlebell_Turkish_Get-Up_Lunge_style",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "mobility"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Hombro: mantener la pesa sobre el codo toda la subida"
+    ],
+    "regression": "Get-up por mitades (hasta el puente y volver)",
+    "progression": "Get-up con más peso",
+    "nota": "get-up: total-body, sin patrón propio en el vocabulario cerrado",
+    "arete": "kettlebell turco",
+    "aliases": [
+      "Levantamiento Turco"
+    ]
+  },
+  {
+    "id": "kb-jump-squat-alias",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "domains": [
+      "glyco"
+    ],
+    "nota": "el alias \"Squat con Salto\" resuelve al nodo jump-squat (semilla); la clave KB exacta queda sin nodo hasta revisión",
+    "arete": "kettlebell salto sentadilla",
+    "aliases": [
+      "Squat con Salto"
+    ]
+  },
+  {
+    "id": "ohp",
+    "source": "fedb",
+    "fedb": "Barbell_Shoulder_Press",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "lift": "ohp",
+    "aliases": [
+      "Press Militar",
+      "Press de Hombro",
+      "Overhead Press",
+      "OHP",
+      "militar pre"
+    ],
+    "contraindications": [
+      "Lumbar: glúteos y abdomen apretados, sin arquear"
+    ],
+    "regression": "Press con mancuernas de pie o sentado",
+    "progression": "Militar más pesado o estricto sin impulso",
+    "nota": "nodo canónico de la semilla F3, enriquecido con fedb",
+    "arete": "militar pre"
+  },
+  {
+    "id": "deadlift",
+    "source": "fedb",
+    "fedb": "Barbell_Deadlift",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "lift": "deadlift",
+    "aliases": [
+      "Peso Muerto",
+      "Deadlift",
+      "muerto peso"
+    ],
+    "contraindications": [
+      "Lumbar: barra cerca del cuerpo, columna neutra"
+    ],
+    "regression": "Deadlift con mancuernas o desde bloques",
+    "progression": "Más peso o déficit",
+    "nota": "nodo canónico de la semilla F3, enriquecido con fedb",
+    "arete": "muerto peso"
+  },
+  {
+    "id": "romanian-deadlift",
+    "source": "fedb",
+    "fedb": "Stiff-Legged_Barbell_Deadlift",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "variantOf": "deadlift",
+    "aliases": [
+      "PM Rumano",
+      "Peso Muerto Rumano",
+      "Romanian Deadlift",
+      "RDL",
+      "muerto peso rumano"
+    ],
+    "contraindications": [
+      "Isquios y lumbar: rango donde la columna siga neutra"
+    ],
+    "regression": "RDL con mancuernas o rango corto",
+    "progression": "RDL más pesado o a una pierna",
+    "nota": "fedb la llama Stiff-Legged: mismo patrón de bisagra con rango similar",
+    "arete": "muerto peso rumano"
+  },
+  {
+    "id": "push-press",
+    "source": "fedb",
+    "fedb": "Push_Press",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "variantOf": "ohp",
+    "aliases": [
+      "Push Press",
+      "pre push"
+    ],
+    "contraindications": [
+      "Lumbar: el impulso es corto, sin convertirlo en flexión de rodillas previa"
+    ],
+    "regression": "Press militar estricto (sin impulso)",
+    "progression": "Push press más pesado o jerk",
+    "arete": "pre push"
+  },
+  {
+    "id": "jump-squat",
+    "source": "fedb",
+    "fedb": "Freehand_Jump_Squat",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "glyco"
+    ],
+    "unilateral": false,
+    "variantOf": "squat",
+    "aliases": [
+      "Sentadilla con Salto",
+      "Sentadillas con Salto",
+      "Squat con Salto",
+      "Jump Squat",
+      "salto sentadilla",
+      "Sentadilla con salto",
+      "Sentadillas con salto"
+    ],
+    "contraindications": [
+      "Rodilla: aterrizar con rodillas flexionadas"
+    ],
+    "regression": "Sentadilla con extensión de talones sin despegar",
+    "progression": "Jump squat con lastre",
+    "nota": "variante declarada de la semilla F3, enriquecida con fedb",
+    "arete": "salto sentadilla"
+  },
+  {
+    "id": "jump-lunge",
+    "source": "fedb",
+    "fedb": "Scissors_Jump",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "glyco"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Rodilla: controlar el aterrizaje, ambas rodillas a 90°"
+    ],
+    "regression": "Zancada alternada sin salto",
+    "progression": "Zancada con salto y lastre",
+    "arete": "salto zancada",
+    "aliases": [
+      "Zancadas con salto"
+    ]
+  },
+  {
+    "id": "squat",
+    "source": "fedb",
+    "fedb": "Barbell_Squat",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "lift": "squat",
+    "aliases": [
+      "Sentadilla",
+      "Sentadillas",
+      "Sentadilla trasera",
+      "Back Squat",
+      "Squat",
+      "Squats",
+      "sentadilla"
+    ],
+    "contraindications": [
+      "Rodilla y lumbar: profundidad con técnica, no hasta el dolor"
+    ],
+    "regression": "Sentadilla a cajón o goblet",
+    "progression": "Más peso o sentadilla frontal",
+    "nota": "nodo canónico de la semilla F3, enriquecido con fedb",
+    "arete": "sentadilla"
+  },
+  {
+    "id": "situps",
+    "source": "fedb",
+    "fedb": "Sit-Up",
+    "confianza": "confirmada",
+    "pattern": "core",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Cervical: no tirar del cuello con las manos"
+    ],
+    "regression": "Crunch corto",
+    "progression": "Sit-up con peso al pecho",
+    "arete": "sit ups",
+    "aliases": [
+      "Sit-ups"
+    ]
+  },
+  {
+    "id": "zancada-barra",
+    "source": "fedb",
+    "fedb": "Barbell_Lunge",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Rodilla: rodilla delantera sobre el tobillo"
+    ],
+    "regression": "Zancada en sitio sin peso",
+    "progression": "Zancada caminando con barra",
+    "arete": "barra zancada",
+    "aliases": [
+      "Desplantes con Barra"
+    ]
+  },
+  {
+    "id": "curl-invertido",
+    "source": "fedb",
+    "fedb": "Reverse_Barbell_Curl",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Antebrazo y codo: prono exige menos peso que el supino"
+    ],
+    "regression": "Curl invertido con mancuerna o banda",
+    "progression": "Curl invertido más pesado o en Scott",
+    "arete": "curl invertido",
+    "aliases": [
+      "Curl Invertido"
+    ]
+  },
+  {
+    "id": "encogimiento",
+    "source": "fedb",
+    "fedb": "Crunches",
+    "confianza": "confirmada",
+    "pattern": "core",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Cervical: no tirar de la cabeza"
+    ],
+    "regression": "Crunch parcial con brazos cruzados al pecho",
+    "progression": "Crunch con peso al pecho",
+    "arete": "encogimiento",
+    "aliases": [
+      "Encogimientos"
+    ]
+  },
+  {
+    "id": "escalador",
+    "source": "fedb",
+    "fedb": "Mountain_Climbers",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca: hombros sobre las muñecas todo el tiempo"
+    ],
+    "regression": "Escalador lento con pausa en cada paso",
+    "progression": "Escalador cruzado o a máxima velocidad",
+    "arete": "escalador",
+    "aliases": [
+      "Escaladores",
+      "Mountain Climbers"
+    ]
+  },
+  {
+    "id": "floor-press",
+    "source": "fedb",
+    "fedb": "Alternating_Floor_Press",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "variantOf": "bench",
+    "aliases": [
+      "Press en el Suelo",
+      "Floor Press",
+      "kettlebell pre suelo"
+    ],
+    "contraindications": [
+      "Hombro: el suelo limita el rango — no forzarlo"
+    ],
+    "regression": "Press en suelo con mancuernas",
+    "progression": "Floor press con más peso o en pausa",
+    "nota": "variante declarada de la semilla F3, enriquecida con fedb",
+    "arete": "kettlebell pre suelo"
+  },
+  {
+    "id": "pistol-asistida",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "isquios"
+    ],
+    "mechanic": "compound",
+    "variantOf": "squat",
+    "contraindications": [
+      "Rodilla: flexión profunda solo sin dolor"
+    ],
+    "regression": "Pistol a cajón o sujetando un marco",
+    "progression": "Pistol completo sin ayuda",
+    "arete": "asistida pistol sentadilla",
+    "aliases": [
+      "Pistol squat asistida"
+    ]
+  },
+  {
+    "id": "bottoms-up-press",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": true,
+    "primary": [
+      "hombro"
+    ],
+    "secondary": [
+      "tríceps",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "variantOf": "ohp",
+    "contraindications": [
+      "Muñeca y hombro: la pesa invertida exige control total"
+    ],
+    "regression": "Press normal con pesa ligera",
+    "progression": "Bottom-up más pesado o caminando",
+    "arete": "bottom flexion kettlebell up",
+    "aliases": [
+      "Flexión Bottom-Up"
+    ]
+  },
+  {
+    "id": "bulgarian-split-squat",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "isquios"
+    ],
+    "mechanic": "compound",
+    "variantOf": "squat",
+    "aliases": [
+      "Sentadilla Búlgara",
+      "Bulgarian Split Squat",
+      "bulgara sentadilla"
+    ],
+    "contraindications": [
+      "Rodilla: el peso casi todo en la pierna adelantada"
+    ],
+    "regression": "Búlgara sin peso o con apoyo de manos",
+    "progression": "Búlgara con mancuernas",
+    "nota": "fedb no la tiene: entrada propia (semilla F3)",
+    "arete": "bulgara sentadilla"
+  },
+  {
+    "id": "burpee",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Muñeca y hombro: cuidado con el impacto al caer"
+    ],
+    "regression": "Step-back sin flexión ni salto",
+    "progression": "Burpee completo con salto",
+    "arete": "burpee",
+    "aliases": [
+      "Burpees"
+    ]
+  },
+  {
+    "id": "burpee-clean-press",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "cardio",
+      "kb"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "hombro"
+    ],
+    "secondary": [
+      "isquios",
+      "tríceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Fatiga: no degradar la bisagra del clean"
+    ],
+    "regression": "Burpee + clean sin press",
+    "progression": "Añadir peso o rondas",
+    "arete": "burpee clean kettlebell pre",
+    "aliases": [
+      "Burpee & Clean & Press"
+    ]
+  },
+  {
+    "id": "burpee-completo",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Impacto: tobillos y muñecas sanos"
+    ],
+    "regression": "Burpee sin flexión",
+    "progression": "Burpee con tuck jump",
+    "arete": "burpee completo",
+    "aliases": [
+      "Burpee completo"
+    ]
+  },
+  {
+    "id": "burpee-flexion",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Muñeca en la flexión desde el suelo"
+    ],
+    "regression": "Burpee estándar",
+    "progression": "Burpee completo",
+    "arete": "burpee flexion",
+    "aliases": [
+      "Burpee con flexión"
+    ]
+  },
+  {
+    "id": "burpee-sin-salto",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps"
+    ],
+    "secondary": [
+      "pectoral"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Rodilla: control en la extensión"
+    ],
+    "regression": "Step-back sin salto ya es la regresión",
+    "progression": "Añadir el salto final",
+    "arete": "burpee salto sin",
+    "aliases": [
+      "Burpee sin salto"
+    ]
+  },
+  {
+    "id": "burpee-tecnica",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps"
+    ],
+    "secondary": [
+      "pectoral"
+    ],
+    "mechanic": "compound",
+    "contraindications": [],
+    "regression": "Descomponer en fases",
+    "progression": "Burpee a velocidad completa",
+    "arete": "burpee tecnica",
+    "aliases": [
+      "Burpee (técnica)"
+    ]
+  },
+  {
+    "id": "kb-clean-press",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "hombro"
+    ],
+    "secondary": [
+      "isquios",
+      "tríceps"
+    ],
+    "mechanic": "compound",
+    "variantOf": "ohp",
+    "contraindications": [
+      "Hombro: muñeca neutra en rack antes de presionar"
+    ],
+    "regression": "Clean y press por separado",
+    "progression": "Clean & jerk o más peso",
+    "nota": "equivalente con barra en fedb: Clean and Press; el compuesto KB es del método",
+    "arete": "clean kettlebell pre",
+    "aliases": [
+      "Clean & Press",
+      "Clean & Press (KB)"
+    ]
+  },
+  {
+    "id": "kb-clean-push-press",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "hombro"
+    ],
+    "secondary": [
+      "cuádriceps",
+      "tríceps"
+    ],
+    "mechanic": "compound",
+    "variantOf": "ohp",
+    "contraindications": [
+      "Lumbar: impulso corto, sin inclinar el torso"
+    ],
+    "regression": "Clean & press (sin impulso de piernas)",
+    "progression": "Push press más pesado",
+    "nota": "candidato fedb: One-Arm Kettlebell Push Press (sin el clean previo)",
+    "arete": "clean kettlebell pre push",
+    "aliases": [
+      "Clean & Push Press"
+    ]
+  },
+  {
+    "id": "kb-dead-snatch",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": true,
+    "primary": [
+      "isquios",
+      "hombro"
+    ],
+    "secondary": [
+      "glúteo",
+      "dorsal"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Muñeca: practicar la recepción sin peso"
+    ],
+    "regression": "Snatch desde el hang (alta parada)",
+    "progression": "Snatch continuo",
+    "arete": "dead kettlebell snatch",
+    "aliases": [
+      "Dead Snatch"
+    ]
+  },
+  {
+    "id": "pullup",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "equipment": [
+      "dominadas"
+    ],
+    "domains": [
+      "pull"
+    ],
+    "unilateral": false,
+    "lift": "pullups",
+    "aliases": [
+      "Dominada",
+      "Dominadas",
+      "Dominada Prono",
+      "Dominada Supino",
+      "Dominada Supina",
+      "Pull-up",
+      "Pull-ups",
+      "Chin-up",
+      "Chin-ups",
+      "dominada"
+    ],
+    "primary": [
+      "dorsal"
+    ],
+    "secondary": [
+      "bíceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Hombro: sin balanceo ni impulso"
+    ],
+    "regression": "Dominada negativa o asistida con goma",
+    "progression": "Dominada con lastre",
+    "nota": "fedb no tiene la dominada estricta estándar: solo Chin-Up (supino) y asistidas",
+    "arete": "dominada"
+  },
+  {
+    "id": "dominada-kb",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "pull"
+    ],
+    "unilateral": false,
+    "primary": [
+      "dorsal"
+    ],
+    "secondary": [
+      "bíceps"
+    ],
+    "mechanic": "compound",
+    "variantOf": "pullups",
+    "aliases": [],
+    "contraindications": [
+      "Hombro: la KB entre las piernas no debe balancear"
+    ],
+    "regression": "Dominada sin lastre",
+    "progression": "Más lastre o repeticiones",
+    "nota": "dominada lastrada con KB; el alias genérico \"Dominada\" ya resuelve al canónico y no se duplica",
+    "arete": "dominada kettlebell"
+  },
+  {
+    "id": "dominada-negativa",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "equipment": [
+      "dominadas"
+    ],
+    "domains": [
+      "pull"
+    ],
+    "unilateral": false,
+    "primary": [
+      "dorsal"
+    ],
+    "secondary": [
+      "bíceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Codo: la excéntrica larga carga los flexores"
+    ],
+    "regression": "Salto y resistir 3 segundos",
+    "progression": "Alargar la excéntrica o quitar asistencia",
+    "arete": "dominada negativa",
+    "aliases": [
+      "Dominada negativa"
+    ]
+  },
+  {
+    "id": "flexion-estandar",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "primary": [
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps",
+      "hombro"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Hombro: codos a 45°, no abiertos"
+    ],
+    "regression": "Flexión inclinada (manos en banco)",
+    "progression": "Flexión con pies elevados o lastre",
+    "nota": "fedb no tiene la flexión estándar: solo variantes",
+    "arete": "estandar flexion",
+    "aliases": [
+      "Flexiones estándar"
+    ]
+  },
+  {
+    "id": "flexion",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "primary": [
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps",
+      "hombro"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Hombro: core firme para no arquear"
+    ],
+    "regression": "Flexión de rodillas",
+    "progression": "Flexión estándar completa",
+    "arete": "flexion",
+    "aliases": [
+      "Flexiones"
+    ]
+  },
+  {
+    "id": "flexion-kb-palmada",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps",
+      "hombro"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Muñeca: aterrizar con codos semiflexionados"
+    ],
+    "regression": "Flexión explosiva sin despegar manos",
+    "progression": "Palmada sin peso o con más altura",
+    "nota": "la palmada con KB en una mano exige potencia asimétrica El alias \"Flexión con Palmada\" normaliza igual que el de la palmada sin peso: queda en ese nodo.",
+    "arete": "flexion kettlebell palmada",
+    "aliases": []
+  },
+  {
+    "id": "flexion-rodillas",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_h",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "primary": [
+      "pectoral"
+    ],
+    "secondary": [
+      "tríceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Lumbar: línea recta cabeza-talón también de rodillas"
+    ],
+    "regression": "Flexión inclinada contra pared o banco",
+    "progression": "Flexión estándar",
+    "arete": "flexion rodilla",
+    "aliases": [
+      "Flexiones rodillas"
+    ]
+  },
+  {
+    "id": "jumping-jacks",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "gemelos"
+    ],
+    "secondary": [
+      "hombro"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Tobillo: aterrizar en puntas, rodillas suaves"
+    ],
+    "regression": "Step jack sin salto",
+    "progression": "Jack con sentadilla o comba",
+    "arete": "jack jumping",
+    "aliases": [
+      "Jumping Jacks"
+    ]
+  },
+  {
+    "id": "kb-lateral-lunge",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "aductores"
+    ],
+    "secondary": [
+      "glúteo"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Aductores y rodilla: calentar y bajar con control"
+    ],
+    "regression": "Lateral sin peso",
+    "progression": "Lateral con más peso o goblet",
+    "arete": "kettlebell lateral zancada",
+    "aliases": [
+      "Desplante Lateral"
+    ]
+  },
+  {
+    "id": "kb-deadlift-maleta",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": true,
+    "primary": [
+      "glúteo",
+      "lumbar"
+    ],
+    "secondary": [
+      "isquios",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "variantOf": "deadlift",
+    "contraindications": [
+      "Lumbar: hombros nivelados, sin inclinación lateral"
+    ],
+    "regression": "Maleta con carga ligera por lado",
+    "progression": "Maleta más pesada o caminando (carry)",
+    "nota": "candidato fedb: One-Arm Side Deadlift (con barra)",
+    "arete": "kettlebell maleta muerto peso",
+    "aliases": [
+      "Deadlift Maleta"
+    ]
+  },
+  {
+    "id": "kb-deadlift",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": false,
+    "primary": [
+      "glúteo",
+      "isquios"
+    ],
+    "secondary": [
+      "lumbar"
+    ],
+    "mechanic": "compound",
+    "variantOf": "deadlift",
+    "contraindications": [
+      "Lumbar: columna neutra, pesa cerca del cuerpo"
+    ],
+    "regression": "Deadlift con mancuerna entre los pies",
+    "progression": "Doble KB o peso muerto con barra",
+    "nota": "fedb no tiene el deadlift de KB a dos manos El alias \"Deadlift\" queda en el canónico (barra): no se duplica.",
+    "arete": "kettlebell muerto peso",
+    "aliases": []
+  },
+  {
+    "id": "kb-deadlift-sumo",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "aductores",
+      "lumbar"
+    ],
+    "mechanic": "compound",
+    "variantOf": "deadlift",
+    "contraindications": [
+      "Rodilla: alineada con los pies, sin colapsar"
+    ],
+    "regression": "Sumo sin peso o con mancuerna",
+    "progression": "Sumo con doble KB o barra",
+    "nota": "candidato fedb: Sumo Deadlift (con barra)",
+    "arete": "kettlebell muerto peso sumo",
+    "aliases": [
+      "Deadlift Sumo"
+    ]
+  },
+  {
+    "id": "kb-ocho-zancada",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "core"
+    ],
+    "unilateral": true,
+    "primary": [
+      "glúteo",
+      "abdominales"
+    ],
+    "secondary": [
+      "cuádriceps"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Lumbar: pecho erguido, el ocho no dobla la columna"
+    ],
+    "regression": "Ocho entre las piernas sin zancada",
+    "progression": "Ocho con paso y más peso",
+    "arete": "kettlebell ocho zancada",
+    "aliases": [
+      "Desplante en Ocho"
+    ]
+  },
+  {
+    "id": "kb-power-swing",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "glúteo",
+      "isquios"
+    ],
+    "secondary": [
+      "lumbar",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Lumbar: bisagra seca, el power no sube los brazos"
+    ],
+    "regression": "Swing ruso a la altura del pecho",
+    "progression": "Power swing más pesado o continuo",
+    "nota": "swing con énfasis en el snap de cadera; fedb no lo distingue",
+    "arete": "kettlebell power swing",
+    "aliases": [
+      "Power Swing"
+    ]
+  },
+  {
+    "id": "kb-press",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "push_v",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": true,
+    "primary": [
+      "hombro"
+    ],
+    "secondary": [
+      "tríceps",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "variantOf": "ohp",
+    "contraindications": [
+      "Lumbar: sin arquear; muñeca neutra sobre el codo"
+    ],
+    "regression": "Press con mancuerna o a dos manos",
+    "progression": "Press militar o con más peso",
+    "nota": "fedb solo tiene variantes del press KB (Alternating, Arnold, Seesaw)",
+    "arete": "kettlebell pre",
+    "aliases": [
+      "Press"
+    ]
+  },
+  {
+    "id": "kb-jump-lunge",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "glyco",
+      "kb"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "gemelos"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Rodilla: aterrizar suave, ambas rodillas a 90°"
+    ],
+    "regression": "Zancada alternada sin salto",
+    "progression": "Salto continuo o con más peso",
+    "arete": "kettlebell salto zancada",
+    "aliases": [
+      "Desplante con Salto"
+    ]
+  },
+  {
+    "id": "kb-sentadilla",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "isquios"
+    ],
+    "mechanic": "compound",
+    "variantOf": "squat",
+    "contraindications": [
+      "Rodilla: profundidad sin dolor"
+    ],
+    "regression": "Sentadilla corporal",
+    "progression": "Goblet más pesado o doble KB frontal",
+    "nota": "POSO CONFLICTO: nombre = sentadilla KB (goblet), pero el tip habla de banco y pie delantero — posible split squat. Revisar la ilustración. fedb sí tiene Goblet Squat. El alias \"Squat\" queda en el canónico (barra): no se duplica.",
+    "arete": "kettlebell sentadilla",
+    "aliases": []
+  },
+  {
+    "id": "kb-swing",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "glúteo",
+      "isquios"
+    ],
+    "secondary": [
+      "lumbar",
+      "dorsal"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Lumbar: bisagra, no sentadilla; rodillas suaves"
+    ],
+    "regression": "Swing ruso con pesa ligera",
+    "progression": "Swing pesado o a una mano",
+    "nota": "fedb solo tiene el swing a una mano (One-Arm Kettlebell Swings); el estándar S&S es a dos manos",
+    "arete": "kettlebell swing",
+    "aliases": [
+      "Swing",
+      "Swing (KB)",
+      "Swings (KB)"
+    ]
+  },
+  {
+    "id": "kb-zancada",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "lunge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "isquios"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Rodilla: rodilla delantera sobre el tobillo"
+    ],
+    "regression": "Zancada en sitio sin peso",
+    "progression": "Zancada caminando con dos KBs",
+    "nota": "candidato fedb: Dumbbell Lunges (con mancuernas)",
+    "arete": "kettlebell zancada",
+    "aliases": [
+      "Desplante"
+    ]
+  },
+  {
+    "id": "plancha-lateral",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "core",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": true,
+    "primary": [
+      "abdominales"
+    ],
+    "secondary": [
+      "hombro",
+      "glúteo"
+    ],
+    "mechanic": "static",
+    "contraindications": [
+      "Hombro: codo exactamente bajo el hombro"
+    ],
+    "regression": "Plancha lateral de rodillas",
+    "progression": "Con elevación de cadera o remo",
+    "nota": "fedb no tiene la plancha lateral (solo Push Up to Side Plank)",
+    "arete": "lateral plancha",
+    "aliases": [
+      "Plancha Lateral"
+    ]
+  },
+  {
+    "id": "pm-unilateral",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "hinge",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "primary": [
+      "glúteo",
+      "isquios"
+    ],
+    "secondary": [
+      "lumbar",
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "variantOf": "deadlift",
+    "contraindications": [
+      "Lumbar: cadera cuadrada, sin abrir hacia el lado libre"
+    ],
+    "regression": "PM a una pierna con apoyo",
+    "progression": "Unilateral con más peso o a una mano",
+    "nota": "candidato fedb: One-Arm Side Deadlift",
+    "arete": "muerto peso unilateral",
+    "aliases": [
+      "PM Unilateral"
+    ]
+  },
+  {
+    "id": "salto",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "loco",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "cardio",
+      "glyco"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "gemelos"
+    ],
+    "secondary": [
+      "glúteo"
+    ],
+    "mechanic": "compound",
+    "contraindications": [
+      "Tobillo y rodilla: aterrizar suave, rodillas flexionadas"
+    ],
+    "regression": "Salto a cajón bajo",
+    "progression": "Tuck jump o salto continuo",
+    "arete": "salto",
+    "aliases": [
+      "Saltos"
+    ]
+  },
+  {
+    "id": "deadlift-high-pull",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "unilateral": false,
+    "primary": [
+      "trapecio",
+      "isquios"
+    ],
+    "secondary": [
+      "hombro",
+      "cuádriceps"
+    ],
+    "mechanic": "compound",
+    "variantOf": "deadlift",
+    "aliases": [
+      "Deadlift High Pull",
+      "High Pull",
+      "high kettlebell muerto peso pull"
+    ],
+    "contraindications": [
+      "Hombro: codo por encima de la mano, sin tirar con el bíceps"
+    ],
+    "regression": "High pull con tubo o banda",
+    "progression": "High pull más pesado",
+    "nota": "entrada propia (semilla F3); fedb: Kettlebell Sumo High Pull es la variante sumo, el High Pull de Areté sale del dead stop",
+    "arete": "high kettlebell muerto peso pull"
+  },
+  {
+    "id": "pistol-squat",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "domains": [
+      "strength"
+    ],
+    "nota": "resuelta por el nodo pistol-squat (semilla, alias \"Sentadilla 1 Pierna\")",
+    "arete": "1 pierna sentadilla",
+    "aliases": [
+      "Sentadilla 1 pierna",
+      "Sentadilla 1 Pierna",
+      "1 Pierna Sentadilla"
+    ]
+  },
+  {
+    "id": "pullup",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "domains": [
+      "pull"
+    ],
+    "nota": "resuelve por el canónico pullup",
+    "arete": "dominada prona",
+    "aliases": [
+      "Dominada pronas",
+      "Dominadas pronas"
+    ]
+  },
+  {
+    "id": "pullup",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "domains": [
+      "pull"
+    ],
+    "nota": "resuelve por el canónico pullup",
+    "arete": "dominada prono",
+    "aliases": [
+      "Dominada Prono"
+    ]
+  },
+  {
+    "id": "pullup",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "domains": [
+      "pull"
+    ],
+    "nota": "resuelve por el canónico pullup (el canónico lleva el alias Chin-up)",
+    "arete": "dominada supina",
+    "aliases": [
+      "Dominada supinas"
+    ]
+  },
+  {
+    "id": "pullup",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "pull_v",
+    "domains": [
+      "pull"
+    ],
+    "nota": "resuelve por el canónico pullup",
+    "arete": "dominada supino",
+    "aliases": [
+      "Dominada Supino"
+    ]
+  },
+  {
+    "id": "deadlift-high-pull",
+    "source": "alias",
+    "confianza": "confirmada",
+    "pattern": "pull_h",
+    "domains": [
+      "kb"
+    ],
+    "nota": "el alias \"High Pull\" resuelve al nodo deadlift-high-pull (semilla)",
+    "arete": "high kettlebell pull",
+    "aliases": [
+      "High Pull",
+      "High Pull (KB)"
+    ]
+  },
+  {
+    "id": "rack-squat",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "domains": [
+      "strength",
+      "kb"
+    ],
+    "nota": "entrada propia (semilla F3): rack unilateral con una KB; fedb no la tiene",
+    "arete": "kettlebell rack sentadilla",
+    "aliases": [
+      "Squat en Rack",
+      "Sentadilla en Rack",
+      "Squat Rack (KB)",
+      "kettlebell rack sentadilla"
+    ],
+    "equipment": [
+      "kettlebell"
+    ],
+    "unilateral": false,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "abdominales"
+    ],
+    "mechanic": "compound",
+    "variantOf": "squat",
+    "contraindications": [
+      "Lumbar: resistir la inclinación hacia el lado de la pesa"
+    ],
+    "regression": "Squat en rack sin peso",
+    "progression": "Rack con más peso o doble KB"
+  },
+  {
+    "id": "pistol-squat",
+    "source": "propia",
+    "confianza": "confirmada",
+    "pattern": "squat",
+    "domains": [
+      "strength"
+    ],
+    "nota": "variante declarada de la semilla F3; fedb no tiene el pistol libre (solo KB y Smith)",
+    "arete": "pistol sentadilla",
+    "aliases": [
+      "Pistol Squat",
+      "Sentadilla Pistol",
+      "Pistol squat",
+      "Sentadilla pistol",
+      "pistol sentadilla",
+      "Sentadilla 1 Pierna",
+      "1 Pierna Sentadilla"
+    ],
+    "equipment": [
+      "ninguno"
+    ],
+    "unilateral": true,
+    "primary": [
+      "cuádriceps",
+      "glúteo"
+    ],
+    "secondary": [
+      "isquios"
+    ],
+    "mechanic": "compound",
+    "variantOf": "squat",
+    "contraindications": [
+      "Rodilla: flexión profunda solo sin dolor"
+    ],
+    "regression": "Pistol a cajón o asistido",
+    "progression": "Pistol con KB como contrapeso"
+  },
+  {
+    "id": "situps-barra",
+    "source": "fedb",
+    "fedb": "Sit-Up",
+    "confianza": "media",
+    "pattern": "core",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Cervical: no tirar de la cabeza con las manos"
+    ],
+    "regression": "Sit-up sin anclaje",
+    "progression": "Sit-up con disco al pecho",
+    "nota": "sit-up con pies anclados bajo barra: el Sit-Up de fedb es sin carga ni anclaje. Revisar.",
+    "arete": "abdominal barra",
+    "aliases": [
+      "Sit-up con Barra"
+    ]
+  },
+  {
+    "id": "situps-barra-2",
+    "source": "fedb",
+    "fedb": "Sit-Up",
+    "confianza": "media",
+    "pattern": "core",
+    "equipment": [
+      "barra"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Cervical: no tirar del cuello con las manos"
+    ],
+    "regression": "Sit-up sin anclaje",
+    "progression": "Sit-up con disco al pecho",
+    "nota": "igual que abdominal barra: el anclaje con barra no está en fedb. Revisar.",
+    "arete": "barra sit ups",
+    "aliases": [
+      "Sit-ups con Barra"
+    ]
+  },
+  {
+    "id": "windmill-bajo",
+    "source": "fedb",
+    "fedb": "Kettlebell_Windmill",
+    "confianza": "media",
+    "pattern": "hinge",
+    "equipment": [
+      "kettlebell"
+    ],
+    "domains": [
+      "kb",
+      "mobility"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Hombro inestable: rango corto"
+    ],
+    "regression": "Windmill sin peso",
+    "progression": "Windmill completo",
+    "nota": "windmill bajo: pesa en la mano que baja; fedb no distingue la variante. Revisar.",
+    "arete": "bajo kettlebell molino",
+    "aliases": [
+      "Windmill Bajo"
+    ]
+  },
+  {
+    "id": "sentadilla-basica",
+    "source": "fedb",
+    "fedb": "Bodyweight_Squat",
+    "confianza": "media",
+    "pattern": "squat",
+    "equipment": [
+      "goma"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Rodilla: empujar contra la banda, no dejarlas caer"
+    ],
+    "regression": "Sentadilla a cajón",
+    "progression": "Sentadilla con peso o goblet",
+    "nota": "sentadilla corporal con mini-banda de abducción; fedb la lista sin banda. Revisar.",
+    "arete": "basica sentadilla",
+    "aliases": [
+      "Sentadilla básica"
+    ]
+  },
+  {
+    "id": "elevacion-piernas",
+    "source": "fedb",
+    "fedb": "Flat_Bench_Lying_Leg_Raise",
+    "confianza": "media",
+    "pattern": "core",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "core"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Lumbar: manos bajo las caderas si hay molestia"
+    ],
+    "regression": "Rodillas flexionadas (tuck)",
+    "progression": "Colgado en barra",
+    "nota": "elevación de piernas en suelo; fedb la lista en banco plano. Revisar.",
+    "arete": "elevacion pierna",
+    "aliases": [
+      "Elevación de piernas"
+    ]
+  },
+  {
+    "id": "elevacion-talones",
+    "source": "fedb",
+    "fedb": "Standing_Calf_Raises",
+    "confianza": "media",
+    "pattern": "squat",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "primary": [
+      "gemelos"
+    ],
+    "mechanic": "isolation",
+    "contraindications": [
+      "Tobillo: rango completo sin rebote"
+    ],
+    "regression": "Elevación con apoyo de una mano",
+    "progression": "Elevación a una pierna o con lastre",
+    "nota": "fedb la lista en máquina; en Areté es sin peso. Revisar.",
+    "arete": "elevacion talon",
+    "aliases": [
+      "Elevación Talones"
+    ]
+  },
+  {
+    "id": "flexion-pike",
+    "source": "fedb",
+    "fedb": "Handstand_Push-Ups",
+    "confianza": "media",
+    "pattern": "push_v",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": false,
+    "contraindications": [
+      "Muñeca: cadera alta, hombros sobre las manos"
+    ],
+    "regression": "Pike con pies en banco bajo",
+    "progression": "Handstand push-up completo",
+    "nota": "la pike es la regresión del HSPU; fedb no la distingue. Revisar.",
+    "arete": "flexion pike",
+    "aliases": [
+      "Pike push-ups"
+    ]
+  },
+  {
+    "id": "zancada",
+    "source": "fedb",
+    "fedb": "Bodyweight_Walking_Lunge",
+    "confianza": "media",
+    "pattern": "lunge",
+    "equipment": [
+      "ninguno"
+    ],
+    "domains": [
+      "strength"
+    ],
+    "unilateral": true,
+    "contraindications": [
+      "Rodilla: rodilla delantera sobre el tobillo"
+    ],
+    "regression": "Zancada con apoyo",
+    "progression": "Zancada con lastre",
+    "nota": "la zancada de Areté es alternada en sitio; fedb lista la caminada. Revisar.",
+    "arete": "zancada",
+    "aliases": [
+      "Desplantes",
+      "Zancadas"
+    ]
+  }
+]

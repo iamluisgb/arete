@@ -27,3 +27,7 @@ sesion-fuerza-prototype.html
 .playwright-mcp/
 
 dist/
+
+# cache de datos de build (free-exercise-db, ~1-2MB): se baja solo, no se versiona
+tools/cache/
+tools/__pycache__/
