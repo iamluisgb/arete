@@ -10,6 +10,7 @@ import { describe, it, expect } from 'vitest';
 
 import { findExercises, explainExercise } from '../js/ai/exercise-catalog.js';
 import { makeToolExecutor, QUIRON_TOOLS } from '../js/ai/tools.js';
+import { patternVolume } from '../js/ai/metrics.js';
 import { buildSnapshot } from '../js/ai/context.js';
 
 const REF = new Date('2026-07-16T12:00:00');
@@ -191,3 +192,36 @@ describe('tools find_exercises / explain_exercise', () => {
   });
 });
 
+describe('patternVolume', () => {
+  it('suma sets por patrón solo dentro de la ventana, y los no resueltos van a "sin clasificar"', () => {
+    const pv = patternVolume(DB.workouts, 28, REF);
+    const get = (p) => pv.find(([pat]) => pat === p)?.[1] ?? 0;
+    expect(get('squat')).toBe(3);      // 07-14, 3 series
+    expect(get('push_h')).toBe(2);     // 07-14, 2 series
+    expect(get('sin clasificar')).toBe(2); // 07-13, curl inventado ×2 series
+    expect(pv.length).toBe(3);
+    // La sesión del 01/06 (a 45 días) no entra.
+    expect(pv.length === 3 && get('squat') === 3).toBe(true);
+  });
+
+  it('orden determinista: más series primero, empates alfabéticos', () => {
+    const pv = patternVolume(DB.workouts, 28, REF);
+    for (let i = 1; i < pv.length; i++) {
+      expect(pv[i - 1][1]).toBeGreaterThanOrEqual(pv[i][1]);
+    }
+  });
+});
+
+describe('buildSnapshot: volumen por patrón', () => {
+  it('incluye el bloque VOLUMEN POR PATRÓN calculado en JS', () => {
+    const snap = buildSnapshot(DB, {}, REF);
+    expect(snap).toContain('VOLUMEN POR PATRÓN');
+    expect(snap).toContain('no lo clasifiques tú');
+    expect(snap).toMatch(/squat 3 · push_h 2 · sin clasificar 2/);
+  });
+
+  it('sin entrenamientos no incluye el bloque', () => {
+    const snap = buildSnapshot({ settings: {}, workouts: [], runningLogs: [], bodyLogs: [] }, {}, REF);
+    expect(snap).not.toContain('VOLUMEN POR PATRÓN');
+  });
+});

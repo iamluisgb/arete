@@ -3,6 +3,8 @@
 // Nota: los workouts no registran RPE, así que la señal de fatiga se calcula como
 // ratio de carga aguda/crónica (7 días vs media de 28), no por RPE.
 
+import { resolveExercise } from '../exercise-ontology.js';
+
 /**
  * Tope de reps para estimar un 1RM. Ver la nota en `js/domains.js`, que es donde
  * este límite decide un nivel: por encima de 12 reps la estimación habla de
@@ -159,6 +161,33 @@ export function periodStats(db, days = 7, ref = new Date()) {
   const prev = bucket(days, days * 2);
   const pct = (a, b) => (b > 0 ? Math.round(((a - b) / b) * 100) : null);
   return { current: cur, previous: prev, tonnageDeltaPct: pct(cur.tonnage, prev.tonnage), kmDeltaPct: pct(cur.km, prev.km) };
+}
+
+/**
+ * Series de fuerza por patrón de movimiento en los últimos `days` días (F4).
+ *
+ * El snapshot ya dice cuánto tonelaje se movió, pero no DÓNDE se movió: ante "¿qué
+ * estoy trabajando?" o "¿me falta tirón?" el modelo tendría que clasificar cada
+ * ejercicio a ojo — justo el hueco donde inventa. Igual que el tonelaje, se calcula
+ * aquí en JS y el snapshot se limita a citarlo ("cítalo, no lo derives tú").
+ *
+ * Un ejercicio que la ontología no resuelve va a "sin clasificar": nombrarlo explícitamente
+ * es mejor que descontarlo en silencio — si aparece, es señal de que el catálogo
+ * necesita la fila, no de que haya que escondérselo al modelo.
+ */
+export function patternVolume(workouts = [], days = 28, ref = new Date()) {
+  const byPattern = {};
+  for (const w of workouts) {
+    if (daysAgo(w.date, ref) >= days) continue;
+    for (const ex of (w.exercises || [])) {
+      const sets = (ex.sets || []).filter((s) => s.kg || s.reps).length;
+      if (!sets) continue;
+      const pattern = resolveExercise(ex.name)?.pattern ?? 'sin clasificar';
+      byPattern[pattern] = (byPattern[pattern] || 0) + sets;
+    }
+  }
+  // Más cargado primero; empates por nombre para que el orden sea determinista.
+  return Object.entries(byPattern).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 
 // Clasificación de tipo de carrera en fácil (Z1-Z2) vs calidad (Z3+) para el 80/20.
