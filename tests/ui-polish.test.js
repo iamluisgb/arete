@@ -206,6 +206,8 @@ describe('borrador descartado por mismatch (UX-7)', () => {
   });
 
   it('borrador que encaja: restaura y NO avisa de mismatch', async () => {
+    // isolation: la suite puede dejar toasts de casos anteriores
+    document.getElementById('toastContainer')?.replaceChildren();
     const db = freshDB();
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
       session: 'Sesión A', date: '2026-07-01', notes: 'nota',

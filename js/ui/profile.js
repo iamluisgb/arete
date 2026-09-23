@@ -214,6 +214,28 @@ export function highlightDomain(id) {
   }, { once: true });
 }
 
+/**
+ * UX-11: el radar es role="img" — un lector de pantalla no saca los niveles
+ * de él. La tabla equivalente, oculta visualmente (.sr-only), repite los
+ * mismos datos que las tarjetas de abajo: mismas filas, mismo perfil, sin
+ * recálculo. Solo los dominios medidos, que es lo que el radar dibuja; un
+ * dominio sin medir no es un nivel 0 (ver computeProfile) y la tabla no
+ * miente tampoco.
+ */
+function renderRadarTable(profile) {
+  const el = document.getElementById('profRadarTable');
+  if (!el) return;
+  const rows = profile.domains
+    .filter(d => d.level > 0)
+    .map(d => `<tr><td>${esc(d.name)}</td><td>${ROMAN[d.level]}</td><td>${d.stale ? 'Caducado' : ''}</td></tr>`)
+    .join('');
+  el.innerHTML = `<table>
+    <caption>Nivel por dominio</caption>
+    <thead><tr><th scope="col">Dominio</th><th scope="col">Nivel</th><th scope="col">Estado</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
 export function renderProfile(db) {
   cacheSelectors();
   if (!$radar) return;
@@ -221,6 +243,7 @@ export function renderProfile(db) {
 
   renderHead(profile);
   renderRadar(profile);
+  renderRadarTable(profile);
   renderNext(profile);
   $domains.innerHTML = profile.domains.map(d => domainRow(d, profile)).join('');
 

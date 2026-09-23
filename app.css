@@ -2754,3 +2754,9 @@ a:hover{opacity:.8}
    Los inputs de serie no llevan borde, así que el estado se pinta con fondo de
    lavado + anillo interior; ambos tokens son theme-aware. */
 .ex-card input.set-invalid{background:var(--color-danger-wash);box-shadow:inset 0 0 0 1.5px var(--color-state-danger)}
+
+/* UX-8: diagnóstico de sincronización (Copia de seguridad) */
+.sync-diag-body{font:var(--type-caption);color:var(--color-text-secondary)}
+.sync-diag-line{margin:0 0 var(--sp-1)}
+.sync-diag-error{color:var(--color-state-danger);word-break:break-word}
+.sync-diag-list{margin:var(--sp-2) 0 0;padding-left:var(--sp-3);list-style:disc}
