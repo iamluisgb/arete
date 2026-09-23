@@ -63,13 +63,20 @@ describe('resolveExercise', () => {
     }
   });
 
-  it('todo nodo declara patrón del vocabulario cerrado y lift o variantOf', () => {
+  it('todo nodo declara patrón del vocabulario cerrado; lift y variantOf se excluyen', () => {
     const PATTERNS = new Set(['hinge', 'squat', 'lunge', 'push_h', 'push_v',
       'pull_h', 'pull_v', 'carry', 'core', 'loco']);
     for (const e of EXERCISE_ONTOLOGY) {
       expect(PATTERNS.has(e.pattern), e.id).toBe(true);
-      expect(Boolean(e.lift) !== Boolean(e.variantOf), e.id).toBe(true);
+      expect(!(e.lift && e.variantOf), e.id).toBe(true);
     }
+  });
+
+  it('delta cero: solo los cinco canónicos de la semilla llevan lift', () => {
+    // js/domains.js alimenta liftMetric() de .lift: un nodo nuevo con lift
+    // cambiaría métricas sin registrar ningún entreno nuevo
+    const lifts = EXERCISE_ONTOLOGY.filter(e => e.lift).map(e => e.id).sort();
+    expect(lifts).toEqual(['bench', 'deadlift', 'ohp', 'pullup', 'squat']);
   });
 
   it('exercise-pict reutiliza la misma normalización — una sola fuente de verdad', () => {
