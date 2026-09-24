@@ -280,7 +280,11 @@ function lineaModelo() {
 
 /** N1b: descanso con la próxima sesión calculada del plan (scheduleAll). */
 function estadoDescanso(db) {
-  const proxima = scheduleAll(db, new Date())[0];
+  // Invariante fijado por review: schedulePlan solo proyecta hacia adelante
+  // desde ref, así que aquí no puede aparecer una fecha pasada. El filtro es
+  // explícito para que "próxima" nunca muestre algo vencido.
+  const hoy = today();
+  const proxima = scheduleAll(db, new Date()).find(e => e.date > hoy);
   const detalle = proxima
     ? `Descanso — próxima: ${esc(proxima.session)}, ${fechaCorta(proxima.date)}`
     : 'Hoy toca descanso';
@@ -486,9 +490,13 @@ async function onScheduleClick(e) {
   if (e.target.closest('[data-sched-calendar]')) {
     const cal = document.getElementById('calFold');
     if (cal) {
-      const nav = await import('./nav.js');
-      nav.switchStrTab('strHistory', _schedDb);
-      cal.setAttribute('open', '');
+      try {
+        const nav = await import('./nav.js');
+        nav.switchStrTab('strHistory', _schedDb);
+        // Solo se abre el plegado si la navegación no falló: sin esto, un
+        // fallo de switchStrTab dejaría un rejection sin manejar.
+        cal.setAttribute('open', '');
+      } catch {}
     }
     return;
   }

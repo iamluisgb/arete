@@ -368,6 +368,19 @@ describe('tarjeta "Hoy" unificada — ronda 3 (N1–N6)', () => {
     expect(document.getElementById('calFold').hasAttribute('open')).toBe(true);
   });
 
+  it('N3: si switchStrTab falla, no hay rejection ni fold abierto (R3-002)', async () => {
+    const nav = await import('../js/ui/nav.js');
+    nav.switchStrTab.mockImplementation(() => { throw new Error('boom'); });
+    const db = seedSchedDb();
+    const dash = await dashboardConSched(db);
+    document.body.insertAdjacentHTML('beforeend', `
+      <details id="calFold"><summary>Calendario</summary></details>`);
+    dash.renderDashboard(db);
+    const link = document.querySelector('[data-sched-calendar]');
+    await expect((async () => { link.click(); await tick(); })()).resolves.toBeUndefined();
+    expect(document.getElementById('calFold').hasAttribute('open')).toBe(false);
+  });
+
   it('N6: descanso y completado explican el modelo con enlace a Ajustes', async () => {
     const isoHoy = new Date().getDay() || 7;
     const anchors = TODOS_LOS_DIAS.filter(d => d !== isoHoy);

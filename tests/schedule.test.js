@@ -206,6 +206,20 @@ describe('scheduleAll / scheduleDay', () => {
     const dia = scheduleDay(db, '2026-01-05', LUN_5);
     expect(dia.map(e => e.session).sort()).toEqual(['Series', 'Sesión A']);
   });
+
+  // Invariante fijado por review (R3-001, ronda 3): schedulePlan proyecta solo
+  // hacia adelante desde ref, incluso con sesiones atrasadas en cola. El
+  // dashboard usa esto para la etiqueta "próxima" del descanso.
+  it('scheduleAll nunca devuelve fechas anteriores a ref, ni con atrasadas', () => {
+    const db = seedDb({
+      settings: { schedule: { arete: { anchors: [1, 3] }, running: { anchors: [2] } } },
+      workouts: [{ date: '2025-12-29', session: 'Sesión vieja', program: 'arete' }],
+    });
+    const hoy = new Date('2026-01-12T12:00:00'); // lunes, con anclas perdidas atrás
+    const out = scheduleAll(db, hoy);
+    expect(out.length).toBeGreaterThan(0);
+    for (const e of out) expect(e.date >= '2026-01-12').toBe(true);
+  });
 });
 
 describe('scheduleOverdue (D1: saltar no pierde ni esconde)', () => {

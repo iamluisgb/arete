@@ -167,3 +167,7 @@ flake preexistente bajo paralelismo (verde aislado y en 2/2 corridas completas).
   de schedule (dashboard.js:242-247), posible doble conteo en ventana de
   atrasadas (schedule.js:185-203), default de ref en scheduleDay
   (schedule.js:180-182), slice UTC en snapshot (context.js:45-57).
+Review 1 (review-6964733523194246) escaló con R3-001/R3-002 (causalidad
+desconocida). R3-001: invariante forward-only de scheduleAll era implícito →
+filtro explícito en estadoDescanso + test que lo fija. R3-002: handler N3 sin
+try/catch → try/catch + test de la ruta de fallo. Hardening: `+2 tests` (803).
