@@ -30,6 +30,34 @@ Las métricas llegan por dos vías y la UI distingue una de otra:
 - **Medidas** — `db.domainTests`, un registro por métrica con su fecha. Caducan (6 semanas los
   tests baratos, 10 los caros). Un test manual **siempre gana** a la derivación.
 
+```mermaid
+flowchart TD
+    subgraph DER["Derivadas — salen solas de lo registrado"]
+        SER["Series de los cuatro básicos"] --> CAP{"¿Más de 12 reps?<br/>REP_CAP"}
+        CAP -->|"sí"| NUL["Epley devuelve null:<br/>la serie no cuenta"]
+        NUL -.->|"ningún básico estimable"| UNR["unratedLifts() lo avisa<br/>en el perfil"]
+        CAP -->|"no"| EP["e1RM por Epley<br/>máximo histórico"]
+        BW["Peso más reciente<br/>de bodyLogs"] --> RAT["Ratio al peso corporal"]
+        EP --> RAT
+        RAT --> MD["Métrica derivada"]
+        PU["Dominadas sin lastre<br/>del historial"] --> MD
+        RUN["Mejor 5K<br/>de runningLogs"] --> MD
+    end
+
+    subgraph MEDS["Medidas — db.domainTests"]
+        TEST["Una fila por métrica,<br/>con su fecha e id propio"] --> CAD{"¿Caducado?<br/>6 semanas los baratos · 10 los caros"}
+        CAD -->|"no"| MM["Métrica medida"]
+    end
+
+    CAD -.->|"sí: vale la derivada"| MD
+    MD --> VAL["Valor de la métrica"]
+    MM -->|"el test manual siempre gana"| VAL
+    VAL --> DOM["Nivel del dominio =<br/>mínimo de sus métricas"]
+    DOM --> Q{"¿Dominio medido?"}
+    Q -->|"sí"| GLO["Nivel global =<br/>mínimo de los dominios medidos"]
+    Q -->|"no"| PROV["No cuenta como nivel 0:<br/>el perfil se marca provisional"]
+```
+
 **Epley no estima por encima de 12 reps** (`REP_CAP`, en `js/domains.js` y en
 [`js/ai/metrics.js`](js/ai/metrics.js)): devuelve `null` y la serie no cuenta. Por encima de ahí
 las fórmulas divergen a doble dígito y el número habla de capacidad de trabajo, no de fuerza
