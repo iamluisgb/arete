@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 vi.mock('../js/ui/nav.js', () => ({
   switchTrainMode: vi.fn(),
   switchTab: vi.fn(),
+  switchStrTab: vi.fn(),
 }));
 vi.mock('../js/ui/training.js', () => ({
   requestStartSession: vi.fn(),
@@ -267,5 +268,123 @@ describe('tarjeta "Toca hoy" — ronda 2 (F1–F4)', () => {
   it('F4: si el run de la semana ya tiene sesión, no hay hint de fantasma', async () => {
     await dashboardConSched(seedSchedDb({ runningLogs: [{ date: hoyStr(), session: 'Series', distance: 5 }] }));
     expect(document.querySelector('.dash-sched-ghost')).toBeNull();
+  });
+});
+
+// ── Ronda 3: tarjeta "Hoy" unificada (N1–N6) ────────────────────────────────
+// Estados en orden de prioridad: sesiones de hoy agrupadas por plan →
+// atrasadas → descanso con próxima → plan completado; feature apagada.
+describe('tarjeta "Hoy" unificada — ronda 3 (N1–N6)', () => {
+  it('N1: agrupa las sesiones de hoy por plan, con cabecera por grupo', async () => {
+    await dashboardConSched(seedSchedDb());
+    const grupos = [...document.querySelectorAll('#dashSchedule .dash-sched-grupo')];
+    // Fuerza y carrera de hoy, más el grupo de atrasadas (anclas todos los días).
+    expect(grupos).toHaveLength(3);
+    expect(grupos[0].querySelector('.dash-sched-grupo-head').textContent).toContain('Fuerza');
+    expect(grupos[1].querySelector('.dash-sched-grupo-head').textContent).toContain('Carrera');
+    expect(grupos[0].querySelector('[data-sched-start="arete"]')?.dataset.schedSession).toBe('Sesión A');
+    expect(grupos[1].querySelector('[data-sched-start="running"]')?.dataset.schedSession).toBe('Series');
+  });
+
+  it('N1: las atrasadas van después de las de hoy, con botón honesto y marca', async () => {
+    await dashboardConSched(seedSchedDb());
+    const atrasadas = [...document.querySelectorAll('.dash-sched-row--atrasada')];
+    expect(atrasadas.length).toBeGreaterThan(0);
+    expect(atrasadas[0].querySelector('[data-sched-start]')).toBeTruthy();
+    expect(atrasadas[0].textContent).toContain('atrasada');
+  });
+
+  it('N1: día de descanso anuncia la próxima sesión con día y fecha', async () => {
+    const isoHoy = new Date().getDay() || 7;
+    const anchors = TODOS_LOS_DIAS.filter(d => d !== isoHoy);
+    await dashboardConSched(seedSchedDb({
+      settings: { schedule: { arete: { anchors }, running: { anchors } } },
+    }));
+    const card = document.querySelector('#dashSchedule .dash-sched-card');
+    expect(card.textContent).toContain('Descanso');
+    expect(card.textContent).toContain('próxima:');
+    expect(card.textContent).toContain('Sesión A');
+    // Sin filas de hoy: la única fila con botón que podría aparecer es una
+    // atrasada (grupo aparte), nunca una sesión programada para hoy.
+    const filasHoy = [...document.querySelectorAll('#dashSchedule .dash-sched-row:not(.dash-sched-row--atrasada)')];
+    expect(filasHoy).toHaveLength(0);
+  });
+
+  it('N1: cola vacía para los dos planes muestra el estado "Plan completado"', async () => {
+    const hechos = ['Sesión A', 'Sesión B', 'Sesión C'].map(session => ({
+      date: hoyStr(), session, program: 't-fuerza', phase: 1, exercises: [],
+    }));
+    const runs = ['Series', 'Rodaje'].map(session => ({ date: hoyStr(), session, program: 't-run' }));
+    await dashboardConSched(seedSchedDb({ workouts: hechos, runningLogs: runs }));
+    expect(document.querySelector('#dashSchedule .dash-sched-card').textContent).toContain('Plan completado');
+  });
+
+  it('N1: sin plan activo ni sesiones hechas, la tarjeta calla (no felicita)', async () => {
+    const dash = await cargar();
+    dash.renderDashboard(freshDB());
+    expect(document.querySelector('#dashSchedule .dash-sched-card')).toBeNull();
+  });
+
+  it('N1: con los dos planes apagados (anchors []) sigue el estado de config', async () => {
+    await dashboardConSched(seedSchedDb({
+      settings: { schedule: { arete: { anchors: [] }, running: { anchors: [] } } },
+    }));
+    expect(document.querySelector('#dashSchedule').textContent).toContain('Configurar en Ajustes');
+  });
+
+  it('N2: el pie lleva CTAs etiquetados y navegan a Entrenar en su modo', async () => {
+    const nav = await import('../js/ui/nav.js');
+    const db = seedSchedDb();
+    await dashboardConSched(db);
+    const pieFuerza = document.querySelector('[data-sched-train="arete"]');
+    const pieRun = document.querySelector('[data-sched-train="running"]');
+    expect(pieFuerza.textContent).toContain('Fuerza · Fuerza test');
+    expect(pieFuerza.textContent).toContain('Fase I');
+    expect(pieRun.textContent).toContain('Carrera · Run test');
+    expect(pieRun.textContent).toContain('Semana 1');
+    pieRun.click();
+    await tick();
+    expect(nav.switchTrainMode).toHaveBeenCalledWith('run', db);
+  });
+
+  it('N3: sin sección de calendario, la línea de atrasadas queda como texto', async () => {
+    await dashboardConSched(seedSchedDb());
+    expect(document.querySelector('[data-sched-calendar]')).toBeNull();
+    expect(document.querySelector('.dash-sched-overdue').textContent).toContain('atrasadas');
+  });
+
+  it('N3: con calendario, la línea de atrasadas enlaza y navega al Historial plegado', async () => {
+    const nav = await import('../js/ui/nav.js');
+    const db = seedSchedDb();
+    const dash = await dashboardConSched(db);
+    document.body.insertAdjacentHTML('beforeend', `
+      <details id="calFold"><summary>Calendario</summary><div id="calendarPanel"></div></details>`);
+    dash.renderDashboard(db);
+    const link = document.querySelector('[data-sched-calendar]');
+    expect(link).toBeTruthy();
+    link.click();
+    await tick();
+    expect(nav.switchStrTab).toHaveBeenCalledWith('strHistory', db);
+    expect(document.getElementById('calFold').hasAttribute('open')).toBe(true);
+  });
+
+  it('N6: descanso y completado explican el modelo con enlace a Ajustes', async () => {
+    const isoHoy = new Date().getDay() || 7;
+    const anchors = TODOS_LOS_DIAS.filter(d => d !== isoHoy);
+    await dashboardConSched(seedSchedDb({
+      settings: { schedule: { arete: { anchors }, running: { anchors } } },
+    }));
+    let modelo = document.querySelector('.dash-sched-modelo');
+    expect(modelo.textContent).toContain('Si se te cae un día, la sesión pasa al siguiente día que entrenas');
+    expect(modelo.querySelector('[data-sched-settings]')).toBeTruthy();
+
+    const hechos = ['Sesión A', 'Sesión B', 'Sesión C'].map(session => ({
+      date: hoyStr(), session, program: 't-fuerza', phase: 1, exercises: [],
+    }));
+    const runs = ['Series', 'Rodaje'].map(session => ({ date: hoyStr(), session, program: 't-run' }));
+    await dashboardConSched(seedSchedDb({ workouts: hechos, runningLogs: runs }));
+    modelo = document.querySelector('.dash-sched-modelo');
+    expect(modelo.textContent).toContain('Si se te cae un día');
+    expect(modelo.querySelector('[data-sched-settings]')).toBeTruthy();
   });
 });

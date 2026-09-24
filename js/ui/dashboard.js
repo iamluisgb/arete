@@ -3,7 +3,7 @@ import { ROMAN as ROMAN_FASE } from '../constants.js';
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
 import { getProgramById, getRunningProgram } from '../programs.js';
-import { scheduleDay, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
+import { scheduleDay, scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
@@ -219,6 +219,8 @@ const SCHED_HINT_KEY = 'areteSchedHintDismissed';
 const DIAS_CORTOS = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 const NOMBRE_PLAN = { [PLAN_STRENGTH]: 'fuerza', [PLAN_RUNNING]: 'running' };
 
+const NOMBRE_VISIBLE = { [PLAN_STRENGTH]: 'Fuerza', [PLAN_RUNNING]: 'Carrera' };
+
 /** Fila de una sesión de hoy con su botón de arranque directo (F1). */
 function filaSched(e) {
   return `<div class="dash-sched-row">
@@ -226,6 +228,87 @@ function filaSched(e) {
     <span class="dash-sched-name">${esc(e.session)}</span>
     <button type="button" class="btn btn--secondary btn--sm" data-sched-start="${e.plan}" data-sched-session="${esc(e.session)}">Empezar</button>
   </div>`;
+}
+
+/** Fila atrasada (N1): mismo arranque honesto, con la marca de lo que venció. */
+function filaAtrasada(e) {
+  return `<div class="dash-sched-row dash-sched-row--atrasada">
+    <span class="material-symbols-outlined dash-act-icon" aria-hidden="true">${ICONO_PLAN[e.plan]}</span>
+    <span class="dash-sched-name">${esc(e.session)}</span>
+    <span class="dash-sched-tag">atrasada</span>
+    <button type="button" class="btn btn--secondary btn--sm" data-sched-start="${e.plan}" data-sched-session="${esc(e.session)}">Empezar</button>
+  </div>`;
+}
+
+/** Cabecera de grupo por plan (N1): icono de dominio + nombre del plan. */
+function cabeceraGrupo(plan) {
+  return `<div class="dash-sched-grupo-head">
+    <span class="material-symbols-outlined" aria-hidden="true">${ICONO_PLAN[plan]}</span>
+    ${NOMBRE_VISIBLE[plan]}
+  </div>`;
+}
+
+/**
+ * Bloque de atrasadas (N1/N3): las acumuladas van después de las de hoy, con
+ * su propio grupo y botones honestos. La línea-cabecera enlaza al calendario
+ * (N3) cuando existe la sección: los días perdidos ya se marcan ahí (F4), así
+ * que el enlace es la affordance, no el texto.
+ */
+function bloqueAtrasadas(atrasadas) {
+  if (!atrasadas.length) return '';
+  const texto = atrasadas.length === 1 ? '1 sesión atrasada' : `${atrasadas.length} sesiones atrasadas`;
+  const hayCalendario = Boolean(document.getElementById('calFold'));
+  const linea = hayCalendario
+    ? `<button type="button" class="dash-sched-overdue dash-sched-overdue-link" data-sched-calendar>${texto} — se re-acomodan solas</button>`
+    : `<div class="dash-sched-overdue">${texto} — se re-acomodan solas</div>`;
+  return `<div class="dash-sched-grupo">${linea}${atrasadas.map(filaAtrasada).join('')}</div>`;
+}
+
+/** "vie 13 ago" a partir de 'YYYY-MM-DD', para la próxima sesión del descanso. */
+function fechaCorta(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  // DIAS_CORTOS es ISO (1=lun); getDay() es 0=dom.
+  const dia = DIAS_CORTOS[(d.getDay() + 6) % 7];
+  return `${dia} ${d.getDate()} ${d.toLocaleDateString('es', { month: 'short' })}`;
+}
+
+/** N6: el modelo en una línea, con puerta a Ajustes, en descanso y todo hecho. */
+function lineaModelo() {
+  return `<div class="dash-sched-modelo">Si se te cae un día, la sesión pasa al siguiente día que entrenas.
+    <button type="button" class="dash-sched-hint-link" data-sched-settings>Ajustes</button></div>`;
+}
+
+/** N1b: descanso con la próxima sesión calculada del plan (scheduleAll). */
+function estadoDescanso(db) {
+  const proxima = scheduleAll(db, new Date())[0];
+  const detalle = proxima
+    ? `Descanso — próxima: ${esc(proxima.session)}, ${fechaCorta(proxima.date)}`
+    : 'Hoy toca descanso';
+  return `<div class="dash-sched-note">${detalle}</div>${lineaModelo()}`;
+}
+
+/** N1c: cola vacía para los dos planes y hay sesiones hechas → plan completado. */
+function estadoCompletado() {
+  return `<div class="dash-sched-note dash-sched-done"><span class="material-symbols-outlined" aria-hidden="true">task_alt</span> Plan completado</div>${lineaModelo()}`;
+}
+
+/**
+ * Pie de la tarjeta (N2): CTAs etiquetados con contexto, degradación de los
+ * botones genéricos Fuerza/Running que antes competían con la tarjeta.
+ * Reusan la misma navegación a Entrenar que los botones de arranque.
+ */
+function pieTarjeta(db) {
+  const links = [];
+  const prog = getProgramById(db.program || 'arete');
+  if (prog) {
+    const roman = ROMAN_FASE[db.phase - 1] || db.phase || '?';
+    links.push(`<button type="button" class="dash-sched-pie-link" data-sched-train="${PLAN_STRENGTH}">Fuerza · ${esc(prog._meta?.name || db.program)} Fase ${roman}</button>`);
+  }
+  const run = getRunningProgram(db.runningProgram || '');
+  if (run) {
+    links.push(`<button type="button" class="dash-sched-pie-link" data-sched-train="${PLAN_RUNNING}">Carrera · ${esc(run._meta?.name || db.runningProgram)} Semana ${db.runningWeek || 1}</button>`);
+  }
+  return links.length ? `<div class="dash-sched-pie">${links.join('')}</div>` : '';
 }
 
 /**
@@ -289,7 +372,7 @@ function renderSchedule(db) {
   if (!$el) return;
   _schedDb = db;
 
-  // Sin anclas configuradas (feature apagada) el estado es otro: en vez de
+  // (d) Sin anclas configuradas (feature apagada) el estado es otro: en vez de
   // callar, se ofrece la puerta de entrada a Ajustes.
   const cfg = getScheduleConfig(db);
   if (!cfg.arete.anchors.length && !cfg.running.anchors.length) {
@@ -307,27 +390,44 @@ function renderSchedule(db) {
   const pendientes = pendingCount(db);
   const totalPend = pendientes[PLAN_STRENGTH] + pendientes[PLAN_RUNNING];
 
-  // Configurado pero sin nada que decir (todo hecho, sin programa): no
-  // ensuciamos el dashboard con una tarjeta vacía.
-  if (!deHoy.length && !atrasadas.length && !totalPend) {
+  // N1: la tarjeta responde en orden de prioridad. Primero las sesiones de
+  // hoy, agrupadas por plan con su cabecera; sin nada para hoy, descanso con
+  // la próxima; y sin cola ni atrasadas, el plan está completado. Si además
+  // no hay sesiones hechas del plan activo no hay "completado" que mostrar:
+  // es un atleta sin contenido en su fase/semana y la tarjeta calla (como
+  // siempre hizo) en vez de felicitar a quien recién abre la app.
+  let cuerpo = null;
+  if (deHoy.length) {
+    cuerpo = [PLAN_STRENGTH, PLAN_RUNNING]
+      .map(plan => ({ plan, items: deHoy.filter(e => e.plan === plan) }))
+      .filter(g => g.items.length)
+      .map(g => `<div class="dash-sched-grupo">${cabeceraGrupo(g.plan)}${g.items.map(filaSched).join('')}</div>`)
+      .join('');
+  } else if (totalPend) {
+    cuerpo = estadoDescanso(db);
+  } else {
+    const hizoFuerza = db.workouts.some(w => (w.program || 'arete') === (db.program || 'arete'));
+    const hizoRunning = (db.runningLogs || []).some(l => (l.program || '') === (db.runningProgram || ''));
+    if (hizoFuerza || hizoRunning) cuerpo = estadoCompletado();
+  }
+
+  // Configurado pero sin nada que decir (sin plan activo): no ensuciamos el
+  // dashboard con una tarjeta vacía.
+  if (!cuerpo) {
     $el.innerHTML = '';
     return;
   }
 
-  const filas = deHoy.map(filaSched).join('');
-  const descanso = deHoy.length ? '' : '<div class="dash-sched-note">Hoy toca descanso</div>';
-  const atraso = atrasadas.length
-    ? `<div class="dash-sched-overdue">${atrasadas.length === 1
-      ? '1 sesión atrasada'
-      : `${atrasadas.length} sesiones atrasadas`} — se re-acomodan solas</div>`
-    : '';
+  const atraso = bloqueAtrasadas(atrasadas);
   const pend = totalPend ? `<div class="dash-sched-pending">${totalPend} pendiente${totalPend > 1 ? 's' : ''} en cola</div>` : '';
   const contexto = lineaContexto(db);
 
   $el.innerHTML = `<div class="dash-card dash-sched-card">
-    <div class="dash-card-label">Toca hoy</div>
-    ${filas}${descanso}${atraso}${pend}${hintRunsFantasma(db)}${hintDefaults(db)}
-    ${contexto ? `<div class="dash-sched-context">${esc(contexto)}</div>` : ''}
+    <div class="dash-sched-head">
+      <div class="dash-card-label">Toca hoy</div>
+      ${contexto ? `<div class="dash-sched-context">${esc(contexto)}</div>` : ''}
+    </div>
+    ${cuerpo}${atraso}${pend}${hintRunsFantasma(db)}${hintDefaults(db)}${pieTarjeta(db)}
   </div>`;
 }
 
@@ -368,6 +468,28 @@ async function onScheduleClick(e) {
     nav.switchTrainMode('run', _schedDb);
     const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
     if (trainBtn) nav.switchTab(trainBtn, _schedDb);
+    return;
+  }
+  // N2: el pie lleva a Entrenar en el modo del plan correspondiente, por la
+  // misma ruta que los botones de arranque.
+  const pie = e.target.closest('[data-sched-train]');
+  if (pie) {
+    const nav = await import('./nav.js');
+    nav.switchTrainMode(pie.dataset.schedTrain === PLAN_RUNNING ? 'run' : 'str', _schedDb);
+    const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
+    if (trainBtn) nav.switchTab(trainBtn, _schedDb);
+    return;
+  }
+  // N3: la línea de atrasadas navega al calendario, donde los días perdidos
+  // ya están marcados. El calendario vive en Entrenar → Fuerza → Historial,
+  // dentro de un <details> plegado: se cambia de pestaña y se abre.
+  if (e.target.closest('[data-sched-calendar]')) {
+    const cal = document.getElementById('calFold');
+    if (cal) {
+      const nav = await import('./nav.js');
+      nav.switchStrTab('strHistory', _schedDb);
+      cal.setAttribute('open', '');
+    }
     return;
   }
   if (e.target.closest('[data-sched-settings]')) {

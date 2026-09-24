@@ -258,8 +258,8 @@ async function init() {
     const p = computeProfile(db);
     if (p.limitedBy) highlightDomain(p.limitedBy.id);
   });
-  document.getElementById('dashStartBtn')?.addEventListener('click', () => goEntrenar('str'));
-  document.getElementById('dashStartRunBtn')?.addEventListener('click', () => goEntrenar('run'));
+  // Los CTAs genéricos del dashboard murieron con la ronda 3: la tarjeta "Hoy"
+  // es la única superficie y sus CTAs de pie llevan a Entrenar.
 
   // UX-2 y UX-12: delegación en contenedores estáticos — renderDashboard
   // reescribe su innerHTML en cada visita y un listener directo moriría.
@@ -271,7 +271,8 @@ async function init() {
     }
     const step = e.target.closest('[data-starter-tab]');
     if (!step) return;
-    // La sesión se abre en modo fuerza, igual que #dashStartBtn.
+    // La sesión se abre en modo fuerza, igual que los CTAs de pie de la
+    // tarjeta "Hoy".
     if (step.dataset.starterTab === 'secTrain') return goEntrenar('str');
     const tabBtn = document.querySelector(`nav button[data-sec="${step.dataset.starterTab}"]`);
     if (tabBtn) switchTab(tabBtn, db);
