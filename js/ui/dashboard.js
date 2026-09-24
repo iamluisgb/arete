@@ -1,6 +1,7 @@
-import { esc } from '../utils.js';
+import { esc, today } from '../utils.js';
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
+import { scheduleDay, scheduleOverdue, pendingCount, getScheduleConfig, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
@@ -197,9 +198,107 @@ function renderStarter(db) {
   </div>`;
 }
 
+// ── Programación de hoy (D4a) ───────────────────────────────────────────────
+// Qué toca hoy por plan, con atajo directo a Entrenar, más lo atrasado y las
+// pendientes acumuladas de la cola. La lógica vive en schedule.js; aquí solo
+// se pinta y se navega.
+
+// La db del último render: los listeners van montados una vez sobre el
+// contenedor estático (renderDashboard reescribe el innerHTML en cada visita)
+// y leen la db corriente al hacer clic.
+let _schedDb = null;
+let _schedBound = false;
+
+const ICONO_PLAN = { [PLAN_STRENGTH]: 'fitness_center', [PLAN_RUNNING]: 'directions_run' };
+const MODO_PLAN = { [PLAN_STRENGTH]: 'str', [PLAN_RUNNING]: 'run' };
+
+/** Fila de una sesión de hoy con su botón de arranque directo. */
+function filaSched(e) {
+  return `<div class="dash-sched-row">
+    <span class="material-symbols-outlined dash-act-icon" aria-hidden="true">${ICONO_PLAN[e.plan]}</span>
+    <span class="dash-sched-name">${esc(e.session)}</span>
+    <button type="button" class="btn btn--secondary btn--sm" data-sched-start="${e.plan}">Empezar</button>
+  </div>`;
+}
+
+function renderSchedule(db) {
+  const $el = document.getElementById('dashSchedule');
+  if (!$el) return;
+  _schedDb = db;
+
+  // Sin anclas configuradas (feature apagada) el estado es otro: en vez de
+  // callar, se ofrece la puerta de entrada a Ajustes.
+  const cfg = getScheduleConfig(db);
+  if (!cfg.arete.anchors.length && !cfg.running.anchors.length) {
+    $el.innerHTML = `<div class="dash-card dash-sched-card dash-sched-empty">
+      <div class="dash-card-label">Programación semanal</div>
+      <p class="dash-sched-note">Organiza tu semana: elige en qué días entrenas y las sesiones se reparten solas.</p>
+      <button type="button" class="btn btn--secondary btn--sm" data-sched-settings>Configurar en Ajustes</button>
+    </div>`;
+    return;
+  }
+
+  const hoy = today();
+  const deHoy = scheduleDay(db, hoy, new Date());
+  const atrasadas = scheduleOverdue(db);
+  const pendientes = pendingCount(db);
+  const totalPend = pendientes[PLAN_STRENGTH] + pendientes[PLAN_RUNNING];
+
+  // Configurado pero sin nada que decir (todo hecho, sin programa): no
+  // ensuciamos el dashboard con una tarjeta vacía.
+  if (!deHoy.length && !atrasadas.length && !totalPend) {
+    $el.innerHTML = '';
+    return;
+  }
+
+  const filas = deHoy.map(filaSched).join('');
+  const descanso = deHoy.length ? '' : '<div class="dash-sched-note">Hoy toca descanso</div>';
+  const atraso = atrasadas.length
+    ? `<div class="dash-sched-overdue">${atrasadas.length === 1
+      ? '1 sesión atrasada'
+      : `${atrasadas.length} sesiones atrasadas`} — se re-acomodan solas</div>`
+    : '';
+  const pend = totalPend ? `<div class="dash-sched-pending">${totalPend} pendiente${totalPend > 1 ? 's' : ''} en cola</div>` : '';
+
+  $el.innerHTML = `<div class="dash-card dash-sched-card">
+    <div class="dash-card-label">Toca hoy</div>
+    ${filas}${descanso}${atraso}${pend}
+  </div>`;
+}
+
+async function onScheduleClick(e) {
+  if (!_schedDb) return;
+  const start = e.target.closest('[data-sched-start]');
+  if (start) {
+    // Misma puerta que los CTA de abajo: al modo del plan y a Entrenar.
+    const nav = await import('./nav.js');
+    nav.switchTrainMode(MODO_PLAN[start.dataset.schedStart] || 'str', _schedDb);
+    const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
+    if (trainBtn) nav.switchTab(trainBtn, _schedDb);
+    return;
+  }
+  if (e.target.closest('[data-sched-settings]')) {
+    const nav = await import('./nav.js');
+    const settings = await import('./settings.js');
+    const setBtn = document.querySelector('nav button[data-sec="secSettings"]');
+    if (setBtn) nav.switchTab(setBtn, _schedDb);
+    settings.openSettingsPage('setSchedule');
+  }
+}
+
+function bindScheduleActions() {
+  if (_schedBound) return;
+  const $el = document.getElementById('dashSchedule');
+  if (!$el) return;
+  _schedBound = true;
+  $el.addEventListener('click', onScheduleClick);
+}
+
 export function renderDashboard(db) {
   renderLevel(db);
   renderStarter(db);
+  bindScheduleActions();
+  renderSchedule(db);
   const weekStart = getWeekStart();
   const weekWorkouts = db.workouts.filter(w => new Date(w.date + 'T12:00:00') >= weekStart);
 

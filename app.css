@@ -2816,3 +2816,32 @@ a:hover{opacity:.8}
 .sync-diag-line{margin:0 0 var(--sp-1)}
 .sync-diag-error{color:var(--color-state-danger);word-break:break-word}
 .sync-diag-list{margin:var(--sp-2) 0 0;padding-left:var(--sp-3);list-style:disc}
+
+/* Programación semanal (D3/D4): días ancla en Ajustes, tarjeta de hoy en el
+   dashboard y sesiones futuras en el calendario. */
+.sched-anchors{display:flex;flex-wrap:wrap;gap:var(--sp-2);padding:var(--sp-2) 0}
+.sched-anchor{display:inline-flex;align-items:center;gap:var(--sp-1);padding:var(--sp-1) var(--sp-3);
+  border:1px solid var(--color-border);border-radius:999px;cursor:pointer;
+  font:var(--type-body);color:var(--color-text-secondary);user-select:none;transition:all var(--dur-base)}
+.sched-anchor input{accent-color:var(--color-accent-text);margin:0}
+.sched-anchor.on{border-color:var(--color-accent-text);color:var(--color-text);font-weight:600}
+
+.dash-sched{margin-top:var(--sp-4)}
+.dash-sched-card{display:flex;flex-direction:column;gap:var(--sp-2)}
+.dash-sched-empty{align-items:flex-start}
+.dash-sched-row{display:flex;align-items:center;gap:var(--sp-2)}
+.dash-sched-row .dash-act-icon{font-size:20px;color:var(--color-text-tertiary)}
+.dash-sched-name{flex:1;font:var(--type-body-strong);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dash-sched-note{margin:0;font:var(--type-body);color:var(--color-text-secondary)}
+.dash-sched-overdue{font:var(--type-caption);color:var(--color-state-danger)}
+.dash-sched-pending{font:var(--type-caption);color:var(--color-text-tertiary)}
+
+/* Día futuro programado: contorno punteado (planeado) vs círculo lleno
+   (hecho, .has-workout). La etiqueta va bajo el número, recortada. */
+.cal-grid .cal-day.has-sched{flex-direction:column;gap:1px;padding:4px 2px;
+  outline:1.5px dashed var(--color-accent-soft);outline-offset:-3px}
+.cal-grid .cal-day.today.has-sched{outline-color:var(--color-text-tertiary)}
+.cal-day-num{line-height:1}
+.cal-day-sched{font-size:8px;line-height:1.1;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;color:var(--color-text-secondary)}
+.cal-grid .cal-day.has-workout .cal-day-sched{color:var(--color-on-fill)}
