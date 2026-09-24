@@ -81,6 +81,23 @@ CTAs genéricos como están), eliminación de caminos duplicados de semana.
 Verificación independiente: PASS 7/7, 790/790 tests (50 archivos). Nota:
 js/app.js no requirió cambios (requestStartSession ya era export de training.js).
 
+## Review nativa (ronda 2)
+
+- Primer lineage `review-1592515a9f6e2c71`: reviewer relability detectó hallazgo
+  CRÍTICO determinista (registrado como R3-001): `hintDefaults` llamaba a
+  `localStorage.getItem` sin guarda → ReferenceError en WebView restringidos →
+  dashboard en blanco. Escalada `native_stop_required` (causalidad desconocida),
+  lineage terminado.
+- Fix: guarda try/catch en lectura (dashboard.js:254) y escritura del dismiss
+  (:358), patrón ya existente del starter flag; test de regresión con stub de
+  localStorage lanzador. Commit `371ebc4`. Suite: 791/791.
+- Segundo lineage `review-88454b66b33666ad` (mismo candidato + fix): APPROVED
+  con 6 hallazgos informativos NO bloqueantes (trabajo futuro):
+  R3-001→downgraded (WARNING, dashboard.js:355-366), R3-002 settings.js:124-128,
+  R3-003 dashboard.js:355-371, R3-004 calendar.js:73-81, R3-005
+  calendar.js:150-171 (WARNING), R3-006 schedule.js:203-215 (SUGGESTION).
+  `acknowledge-approved` ejecutado, autoridad quemada.
+
 ## Evidencia de commits
 
 - `03c16c1` feat(schedule): add pure weekly scheduler with anchor days
