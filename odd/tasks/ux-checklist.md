@@ -30,3 +30,13 @@ accessibility, and copy polish — then review, PR, merge, and deploy.
 23f802f — U1 (657/657)
 (more per unit)
 U2 commit pending — see next
+
+## Close (2026-09-24)
+- Native review: lineage `review-835719973a49fc71`, risk medium, APPROVED with one
+  lens captured (review-reliability, 4 WARNINGs: quiron classifier order, toast
+  import, repeat mismatch toast, GPS probe) — authority burned (ack consumed
+  revision `sha256:3e7dc873…`).
+- PR #5 merged (`721dcfe`), deployed via deploy:pages — build.json confirms
+  `721dcfe00e11752160deff40254de1032d0a8935`, sw v147.
+- Known risk: one order-dependent flake seen twice in cold first runs of the full
+  suite (draft mismatch toast case); 6 consecutive green runs after hardening.
