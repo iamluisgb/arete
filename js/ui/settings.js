@@ -1,7 +1,7 @@
 import { formatDate, esc } from '../utils.js';
 import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
-import { getScheduleConfig } from '../schedule.js';
+import { getScheduleConfig, schedulePlan } from '../schedule.js';
 import { saveDB } from '../data.js';
 import * as LLM from '../ai/llm.js';
 import { isConnected, getSyncDiag } from '../drive.js';
@@ -110,6 +110,29 @@ export function renderScheduleAnchors(db) {
       return `<label class="sched-anchor${on ? ' on' : ''}">` +
         `<input type="checkbox" data-plan="${plan}" value="${dia}"${on ? ' checked' : ''}> ${nombre}</label>`;
     }).join('');
+  }
+  renderSchedulePreview(db);
+}
+
+const PREVIEW_IDS = [['arete', 'schedPreviewArete'], ['running', 'schedPreviewRunning']];
+
+/**
+ * Mini-preview por plan (F3): la próxima sesión que saldrá de la cola, leída
+ * del scheduler real. Sin ella, mover un checkbox no dice qué consecuencia
+ * tuvo — la fecha de la próxima sesión es la consecuencia.
+ */
+export function renderSchedulePreview(db) {
+  const cfg = getScheduleConfig(db);
+  for (const [plan, sel] of PREVIEW_IDS) {
+    const el = document.getElementById(sel);
+    if (!el) continue;
+    if (!cfg[plan].anchors.length) { el.textContent = 'Programación apagada para este plan'; continue; }
+    const proxima = schedulePlan(db, plan)[0];
+    if (!proxima) { el.textContent = 'Nada pendiente en la cola'; continue; }
+    const d = new Date(proxima.date + 'T12:00:00');
+    const dia = DIAS_SEMANA[(d.getDay() || 7) - 1].toLowerCase();
+    const fecha = d.toLocaleDateString('es', { day: 'numeric', month: 'short' });
+    el.textContent = `Próxima: ${proxima.session} — ${dia} ${fecha}`;
   }
 }
 
