@@ -2,7 +2,7 @@ import { MESES } from '../constants.js';
 import { esc } from '../utils.js';
 import { showDetail } from './history.js';
 import { renderHistory, currentPlanFilter } from './history.js';
-import { scheduleAll, PLAN_STRENGTH } from '../schedule.js';
+import { scheduleAll, scheduleMissed, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 let calViewDate = new Date();
 let _calLanded = false;
@@ -58,21 +58,60 @@ if (typeof matchMedia !== 'undefined') {
   matchMedia(DOS_COLUMNAS).addEventListener('change', syncCalendarFold);
 }
 
+const ICONO_PLAN = { [PLAN_STRENGTH]: 'fitness_center', [PLAN_RUNNING]: 'directions_run' };
+
+/** La programación respeta el filtro de plan del historial: la de fuerza se ve
+ *  con su plan o en "Todos"; la de running, solo en "Todos" (el filtro lista
+ *  planes de fuerza). Compartido por futuros y perdidos. */
+function visibleSegunFiltro(plan, db, pf) {
+  return plan === PLAN_STRENGTH ? (!pf || pf === (db.program || 'arete')) : !pf;
+}
+
 /**
- * Sesiones programadas (D4b) por día futuro, respetando el filtro de plan del
- * historial: el calendario de fuerza enseña la programación de fuerza (y la de
- * running solo en "Todos", porque el filtro lista planes de fuerza); el pasado
- * lo manda el historial, como siempre. Horizonte ~4 semanas.
+ * Sesiones programadas (D4b) por día futuro: la entrada guarda el plan para
+ * pintar un chip por plan con su icono (F4). Horizonte ~4 semanas.
  */
 function programadoPorDia(db, todayStr, horizonStr, pf) {
   const byDay = {};
   for (const e of scheduleAll(db)) {
     if (e.date < todayStr) continue;
     if (e.date > horizonStr) break;   // scheduleAll viene ordenado por fecha
-    if (e.plan === PLAN_STRENGTH ? (pf && pf !== (db.program || 'arete')) : !!pf) continue;
-    (byDay[e.date] ||= []).push(e.session);
+    if (!visibleSegunFiltro(e.plan, db, pf)) continue;
+    (byDay[e.date] ||= []).push(e);
   }
   return byDay;
+}
+
+/**
+ * Anclas pasados perdidos (F4): días que prometían una sesión que sigue en
+ * cola. Ventana de 62 días: cubre el mes visible anterior; más atrás el
+ * historial ya mandó y reabrir heridas viejas no ayuda a nadie.
+ */
+function perdidosPorDia(db, pf) {
+  const byDay = {};
+  for (const e of scheduleMissed(db, new Date(), 62)) {
+    if (!visibleSegunFiltro(e.plan, db, pf)) continue;
+    (byDay[e.date] ||= []).push(e);
+  }
+  return byDay;
+}
+
+/**
+ * Chips de sesión para un día (F4): UNO por plan, con el icono del dominio y
+ * la primera sesión (×N si el plan trae más de una ese día). `missed` tacha:
+ * es un ancla pasado que se perdió, no una cita futura.
+ */
+function chipsDia(entries, missed = false) {
+  const porPlan = new Map();
+  for (const e of entries) {
+    if (!porPlan.has(e.plan)) porPlan.set(e.plan, []);
+    porPlan.get(e.plan).push(e.session);
+  }
+  return [...porPlan.entries()].map(([plan, sesiones]) =>
+    `<span class="cal-chip${missed ? ' cal-chip--missed' : ''}" data-plan="${plan}">` +
+    `<span class="material-symbols-outlined" aria-hidden="true">${ICONO_PLAN[plan]}</span>` +
+    `${esc(sesiones[0])}${sesiones.length > 1 ? ` ×${sesiones.length}` : ''}</span>`
+  ).join('');
 }
 
 /** Render the monthly calendar grid with workout indicators */
@@ -91,6 +130,7 @@ export function renderCalendar(db) {
   hz.setDate(hz.getDate() + 27);
   const horizonStr = `${hz.getFullYear()}-${String(hz.getMonth() + 1).padStart(2, '0')}-${String(hz.getDate()).padStart(2, '0')}`;
   const programado = programadoPorDia(db, todayStr, horizonStr, pf);
+  const perdidos = perdidosPorDia(db, pf);
   const vm = new Date(calViewDate.getFullYear(), calViewDate.getMonth(), 1);
   let html = '';
   const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -107,17 +147,24 @@ export function renderCalendar(db) {
   for (let e = 0; e < fd; e++) html += '<div class="cal-day empty">·</div>';
   for (let d = 1; d <= dim; d++) {
     const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const hw = wd[ds], sched = programado[ds], it = ds === todayStr;
+    const hw = wd[ds], sched = programado[ds], lost = perdidos[ds], it = ds === todayStr;
     let c = 'cal-day';
     if (hw) c += ' has-workout';
     if (sched) c += ' has-sched';
+    if (lost) c += ' cal-day--missed';
     if (it) c += ' today';
     const dataAttr = hw ? ` data-date="${ds}"` : '';
-    // Un día futuro programado muestra la sesión bajo el número; con más de
-    // una, " +N". El título lleva la lista completa para el tooltip.
+    // Día futuro programado: un chip por plan (F4), con la lista completa en el
+    // title. Día pasado perdido: lo mismo, tachado — se ve lo que se cayó sin
+    // confundirlo con una cita de adelante.
+    const title = sched
+      ? ` title="${esc(sched.map(e => e.session).join(' · '))}"`
+      : lost ? ` title="Sesión perdida: ${esc(lost.map(e => e.session).join(' · '))}"` : '';
     const inner = sched
-      ? `<span class="cal-day-num">${d}</span><span class="cal-day-sched" title="${esc(sched.join(' · '))}">${esc(sched[0])}${sched.length > 1 ? ` +${sched.length - 1}` : ''}</span>`
-      : `${d}`;
+      ? `<span class="cal-day-num">${d}</span><span class="cal-day-sched"${title}>${chipsDia(sched)}</span>`
+      : lost
+        ? `<span class="cal-day-num">${d}</span><span class="cal-day-sched cal-day-sched--missed"${title}>${chipsDia(lost, true)}</span>`
+        : `${d}`;
     html += `<div class="${c}"${dataAttr}>${inner}</div>`;
   }
   html += '</div></div>';
