@@ -747,6 +747,10 @@
           <input type="text" id="quironVisionModel" placeholder="qwen3.6" autocomplete="off" autocapitalize="off" spellcheck="false">
           <span class="field-hint">Para leer capturas de entrenos. Con nan se usa qwen3.6 por defecto; en otros proveedores, indica un modelo con visión.</span>
         </label>
+        <label class="field"><span class="field-label">Modelo de transcripción</span>
+          <input type="text" id="quironSttModel" placeholder="whisper-1" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="field-hint">Para dictarle por voz a Quirón. Indica un modelo de voz → texto de tu proveedor; sin él, el dictado usa el reconocedor del navegador.</span>
+        </label>
       </details>
 
       <button class="btn btn--secondary" type="button" id="quironTestBtn">Probar conexión</button>
@@ -1191,6 +1195,7 @@
     <button id="quironAttachBtn" aria-label="Cargar entreno desde captura" title="Cargar entreno desde captura"><span class="material-symbols-outlined">add_a_photo</span></button>
     <input type="file" id="quironImageInput" accept="image/*" hidden>
     <textarea id="quironInput" rows="1" placeholder="Pregunta a tu coach…" enterkeyhint="send"></textarea>
+    <button id="quironMicBtn" aria-label="Dictar" title="Dictar"><span class="material-symbols-outlined">mic</span></button>
     <button id="quironSendBtn" aria-label="Enviar"><span class="material-symbols-outlined">arrow_upward</span></button>
   </div>
 </div>
