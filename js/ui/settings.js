@@ -1,6 +1,8 @@
 import { formatDate, esc } from '../utils.js';
 import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
+import { getScheduleConfig } from '../schedule.js';
+import { saveDB } from '../data.js';
 import * as LLM from '../ai/llm.js';
 import { isConnected, getSyncDiag } from '../drive.js';
 
@@ -81,6 +83,47 @@ function renderRecords(db, prog) {
   }).join('')}</div>`;
 }
 
+// ── Programación semanal: días ancla por plan ──────────────────────────────
+// Cada plan (fuerza / running) reparte sus sesiones pendientes entre los días
+// ancla que el atleta marque. Es un checkbox por día: el estado vive en
+// db.settings.schedule, que viaja con el sync existente por ser parte de
+// db.settings. Persistimos por saveDB, el mismo camino que el resto de Ajustes.
+
+const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const LETRA_DIA = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const PLANES_ANCLA = [['arete', 'schedAnchorsArete'], ['running', 'schedAnchorsRunning']];
+
+/** Resumen corto de anclas: "L·X·V" — para el estado de la fila del índice. */
+function resumenAnclas(anchors) {
+  return anchors.map(n => LETRA_DIA[n - 1]).join('·');
+}
+
+/** Pinta los checkboxes Lun..Dom de cada plan según db.settings.schedule. */
+export function renderScheduleAnchors(db) {
+  const cfg = getScheduleConfig(db);
+  for (const [plan, sel] of PLANES_ANCLA) {
+    const el = document.getElementById(sel);
+    if (!el) continue;
+    el.innerHTML = DIAS_SEMANA.map((nombre, i) => {
+      const dia = i + 1;
+      const on = cfg[plan].anchors.includes(dia);
+      return `<label class="sched-anchor${on ? ' on' : ''}">` +
+        `<input type="checkbox" data-plan="${plan}" value="${dia}"${on ? ' checked' : ''}> ${nombre}</label>`;
+    }).join('');
+  }
+}
+
+/** Guarda los anclas de un plan tras un cambio de checkbox. */
+function guardarAnclas(db, plan, contenedor) {
+  if (!db.settings || typeof db.settings !== 'object') db.settings = {};
+  const anchors = [...contenedor.querySelectorAll('input[type="checkbox"]:checked')]
+    .map(cb => parseInt(cb.value))
+    .filter(n => n >= 1 && n <= 7)
+    .sort((a, b) => a - b);
+  db.settings.schedule = { ...(db.settings.schedule || {}), [plan]: { anchors } };
+  saveDB(db);
+}
+
 // ── Ajustes: índice y subpáginas ────────────────────────────────────────────
 //
 // Ajustes dejó de ser una lista plana de 1300px para ser un índice de filas que
@@ -128,6 +171,14 @@ export function renderSettingsIndex(db) {
   setStatus('setPlansStatus',
     customs ? `${customs} propio${customs > 1 ? 's' : ''}` : 'Solo los incluidos',
     { off: !customs });
+
+  // Programación semanal: qué días ancla tiene cada plan, en una línea.
+  const sched = getScheduleConfig(db);
+  const partes = [
+    sched.arete.anchors.length ? `Fuerza ${resumenAnclas(sched.arete.anchors)}` : null,
+    sched.running.anchors.length ? `Running ${resumenAnclas(sched.running.anchors)}` : null,
+  ].filter(Boolean);
+  setStatus('setScheduleStatus', partes.length ? partes.join(' · ') : 'Sin configurar', { off: !partes.length });
 
   if (LLM.isDemo()) {
     // La demo no es un proveedor de la lista y su alias de modelo no le dice nada a
@@ -237,6 +288,16 @@ export function initSettingsNav(db) {
   if (!sec) return;
   sec.dataset.setpage = 'setIndex';
   watchSyncStatus();
+  renderScheduleAnchors(db);
+  // Cambios de anclas: un checkbox escribe db.settings.schedule y persiste por
+  // el camino de siempre. Re-render para sincronizar el resaltado .on.
+  sec.addEventListener('change', (e) => {
+    const cb = e.target.closest('input[type="checkbox"][data-plan]');
+    if (!cb) return;
+    guardarAnclas(db, cb.dataset.plan, cb.closest('.sched-anchors'));
+    renderScheduleAnchors(db);
+    renderSettingsIndex(db);
+  });
   sec.addEventListener('click', (e) => {
     const target = e.target.closest('[data-setpage]');
     if (!target) return;

@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
 
 export const CURRENT_SCHEMA = 7;
 
-const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], tombstones: [], stamps: {}, customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, domainTests: [], settings: { height: 175, age: 32, race5k: 0, maxHR: 0 } };
+const DEFAULTS = { schemaVersion: CURRENT_SCHEMA, program: 'arete', phase: 1, workouts: [], bodyLogs: [], deletedIds: [], tombstones: [], stamps: {}, customPrograms: [], customSessions: [], runningLogs: [], runningProgram: '', runningWeek: 1, runningGoal: { type: 'km', target: 0, enabled: false }, domainTests: [], settings: { height: 175, age: 32, race5k: 0, maxHR: 0, schedule: { arete: { anchors: [1, 3, 5] }, running: { anchors: [2, 4, 7] } } } };
 
 /** Schema migrations — each takes a db object and mutates it in place */
 const migrations = [

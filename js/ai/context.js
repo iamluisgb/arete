@@ -6,6 +6,7 @@
 
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
+import { scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig } from '../schedule.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
@@ -39,6 +40,40 @@ export function domainSummary(db, ref = new Date()) {
 }
 
 /**
+ * Bloque compacto de programación semanal para el snapshot (D4c): qué toca hoy,
+ * qué toca mañana, qué quedó atrasado y cuánto hay en cola. Todo sale calculado
+ * de schedule.js; el modelo lo cita, no lo deriva. Se añade al snapshot, así
+ * que estimateTokens —que mide el string final— sigue siendo fiel.
+ */
+export function scheduleBlock(db, ref = new Date()) {
+  const cfg = getScheduleConfig(db);
+  if (!cfg.arete.anchors.length && !cfg.running.anchors.length) return [];
+  const cita = (e) => `${e.plan === 'running' ? 'running' : 'fuerza'} "${e.session}"`;
+
+  const hoy = ref.toISOString().slice(0, 10);
+  const manana = new Date(ref.getTime() + 86400000).toISOString().slice(0, 10);
+  const deHoy = scheduleAll(db, ref).filter(e => e.date === hoy);
+  const deManana = scheduleAll(db, ref).filter(e => e.date === manana);
+  const atrasadas = scheduleOverdue(db, ref);
+  const pend = pendingCount(db);
+
+  // Sin sesiones que citar ni cola que contar, el bloque sería ruido.
+  const totalPend = pend.arete + pend.running;
+  if (!deHoy.length && !deManana.length && !atrasadas.length && !totalPend) return [];
+
+  const lines = ['PROGRAMACIÓN SEMANAL (calculada por la app — cítala tal cual):'];
+  lines.push(`  Hoy (${hoy}): ${deHoy.length ? deHoy.map(cita).join(' · ') : 'día libre / descanso'}`);
+  if (deManana.length) lines.push(`  Mañana (${manana}): ${deManana.map(cita).join(' · ')}`);
+  if (atrasadas.length) lines.push(`  ATRASADAS (día ancla ya pasado, siguen pendientes): ${atrasadas.map(e => `${cita(e)} del ${e.date}`).join(' · ')}`);
+  const cola = [
+    pend.arete ? `fuerza ${pend.arete}` : null,
+    pend.running ? `running ${pend.running}` : null,
+  ].filter(Boolean);
+  if (cola.length) lines.push(`  Cola de pendientes: ${cola.join(' · ')}`);
+  return lines;
+}
+
+/**
  * @param {Object} db  la db de la app
  * @param {Object} prog  contexto de programas: { name, phaseName, sessionNames, runProgramName, runWeek }
  * @param {Date} ref  fecha de referencia (tests)
@@ -66,6 +101,9 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   if (prog.name) p.push(`fuerza: ${prog.name}${prog.phaseName ? ` — fase "${prog.phaseName}"` : ''}${prog.sessionNames?.length ? ` (sesiones: ${prog.sessionNames.join(', ')})` : ''}`);
   if (prog.runProgramName) p.push(`running: ${prog.runProgramName}${prog.runWeek ? ` — semana ${prog.runWeek}` : ''}`);
   if (p.length) L.push(`PROGRAMA ACTIVO: ${p.join(' | ')}`);
+
+  // Programación semanal: hoy / mañana / atrasadas / cola. Solo si hay anclas.
+  L.push(...scheduleBlock(db, ref));
 
   // Perfil de los 7 dominios — el núcleo del producto (ver AGENTS.md y js/domains.js).
   //

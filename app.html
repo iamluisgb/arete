@@ -123,6 +123,9 @@
     <button class="btn btn--lg dash-cta" type="button" id="dashStartBtn"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Fuerza</button>
     <button class="btn btn--lg btn--secondary dash-cta dash-cta-run" type="button" id="dashStartRunBtn"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Running</button>
   </div>
+  <!-- Programación de hoy (D4a): qué toca hoy por plan, pendientes acumuladas
+       y atajos directos. El contenido lo pinta dashboard.js desde schedule.js. -->
+  <section class="dash-sched" id="dashSchedule" aria-label="Programación de hoy"></section>
   <section class="dash-activity" id="dashActivity">
     <h3 class="group-title">Actividad reciente</h3>
     <div class="dash-activity-scroll" id="dashActivityList"></div>
@@ -538,6 +541,14 @@
         <span class="listrow-status" id="setPlansStatus"></span>
         <span class="listrow-chevron" aria-hidden="true">›</span>
       </button>
+      <button class="listrow listrow--action" type="button" data-setpage="setSchedule">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        <span class="listrow-main">Programación semanal</span>
+        <span class="listrow-status" id="setScheduleStatus"></span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </button>
     </div>
   </section>
 
@@ -683,6 +694,35 @@
     </button>
     <input type="file" id="importProgramFile" accept=".json" hidden>
     <p class="panel-note"><a href="blog/crear-plan.html">¿No tienes un plan? Aprende a crear uno</a></p>
+  </div>
+</div>
+
+<!-- ── SUBPÁGINA · PROGRAMACIÓN SEMANAL ─────────────────────────────────
+     Cola de sesiones + días ancla (D1/D3): la n-ésima sesión pendiente cae en
+     el n-ésimo día ancla de la semana. Sin días fijos por sesión: si un día se
+     cae, todo se re-acomoda solo. Cada plan con sus propios anclas; el estado
+     vive en db.settings.schedule y viaja con el sync. -->
+<div class="set-page" id="setSchedule" aria-label="Programación semanal">
+  <div class="set-subhead">
+    <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="page-head-txt">
+      <h2 class="page-title" tabindex="-1">Programación semanal</h2>
+      <p class="page-sub">Elige en qué días sueles entrenar: las sesiones pendientes se reparten entre esos días</p>
+    </div>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Fuerza</h4>
+    <div class="sched-anchors" id="schedAnchorsArete" role="group" aria-label="Días ancla de fuerza"></div>
+    <p class="panel-note">Si un día se te cae, la sesión pasa al siguiente día ancla. Desmarca todos para no programar fuerza.</p>
+  </div>
+
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Running</h4>
+    <div class="sched-anchors" id="schedAnchorsRunning" role="group" aria-label="Días ancla de running"></div>
+    <p class="panel-note">Lo mismo para las sesiones de la semana activa de tu plan de carrera.</p>
   </div>
 </div>
 

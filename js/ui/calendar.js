@@ -1,6 +1,8 @@
 import { MESES } from '../constants.js';
+import { esc } from '../utils.js';
 import { showDetail } from './history.js';
 import { renderHistory, currentPlanFilter } from './history.js';
+import { scheduleAll, PLAN_STRENGTH } from '../schedule.js';
 
 let calViewDate = new Date();
 let _calLanded = false;
@@ -56,6 +58,23 @@ if (typeof matchMedia !== 'undefined') {
   matchMedia(DOS_COLUMNAS).addEventListener('change', syncCalendarFold);
 }
 
+/**
+ * Sesiones programadas (D4b) por día futuro, respetando el filtro de plan del
+ * historial: el calendario de fuerza enseña la programación de fuerza (y la de
+ * running solo en "Todos", porque el filtro lista planes de fuerza); el pasado
+ * lo manda el historial, como siempre. Horizonte ~4 semanas.
+ */
+function programadoPorDia(db, todayStr, horizonStr, pf) {
+  const byDay = {};
+  for (const e of scheduleAll(db)) {
+    if (e.date < todayStr) continue;
+    if (e.date > horizonStr) break;   // scheduleAll viene ordenado por fecha
+    if (e.plan === PLAN_STRENGTH ? (pf && pf !== (db.program || 'arete')) : !!pf) continue;
+    (byDay[e.date] ||= []).push(e.session);
+  }
+  return byDay;
+}
+
 /** Render the monthly calendar grid with workout indicators */
 export function renderCalendar(db) {
   const panel = document.getElementById('calendarPanel');
@@ -67,6 +86,11 @@ export function renderCalendar(db) {
   const filtered = pf ? db.workouts.filter(w => (w.program || 'arete') === pf) : db.workouts;
   const wd = {};
   filtered.forEach(w => { if (!wd[w.date]) wd[w.date] = []; wd[w.date].push(w.session); });
+  // Programación futura: sesiones pendientes sobre los días ancla (D1).
+  const hz = new Date(now);
+  hz.setDate(hz.getDate() + 27);
+  const horizonStr = `${hz.getFullYear()}-${String(hz.getMonth() + 1).padStart(2, '0')}-${String(hz.getDate()).padStart(2, '0')}`;
+  const programado = programadoPorDia(db, todayStr, horizonStr, pf);
   const vm = new Date(calViewDate.getFullYear(), calViewDate.getMonth(), 1);
   let html = '';
   const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -83,12 +107,18 @@ export function renderCalendar(db) {
   for (let e = 0; e < fd; e++) html += '<div class="cal-day empty">·</div>';
   for (let d = 1; d <= dim; d++) {
     const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const hw = wd[ds], it = ds === todayStr;
+    const hw = wd[ds], sched = programado[ds], it = ds === todayStr;
     let c = 'cal-day';
     if (hw) c += ' has-workout';
+    if (sched) c += ' has-sched';
     if (it) c += ' today';
     const dataAttr = hw ? ` data-date="${ds}"` : '';
-    html += `<div class="${c}"${dataAttr}>${d}</div>`;
+    // Un día futuro programado muestra la sesión bajo el número; con más de
+    // una, " +N". El título lleva la lista completa para el tooltip.
+    const inner = sched
+      ? `<span class="cal-day-num">${d}</span><span class="cal-day-sched" title="${esc(sched.join(' · '))}">${esc(sched[0])}${sched.length > 1 ? ` +${sched.length - 1}` : ''}</span>`
+      : `${d}`;
+    html += `<div class="${c}"${dataAttr}>${inner}</div>`;
   }
   html += '</div></div>';
   panel.innerHTML = html;
