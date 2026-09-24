@@ -232,6 +232,26 @@ describe('tarjeta "Toca hoy" — ronda 2 (F1–F4)', () => {
     expect(localStorage.getItem('areteSchedHintDismissed')).toBe('1');
   });
 
+  it('F3 (R3-001): localStorage roto no rompe el render de la tarjeta', async () => {
+    // Regresión del hallazgo crítico de review: en WebView restringidos o con
+    // almacenamiento denegado, leer/escribir localStorage puede lanzar. La
+    // tarjeta debe renderizar degradada, sin hint, nunca en blanco.
+    const dash = await cargar();
+    const programs = await import('../js/programs.js');
+    const deny = () => { throw new Error('localStorage denegado'); };
+    const desc = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    Object.defineProperty(window, 'localStorage', { configurable: true, get: deny });
+    const db = seedSchedDb({ settings: {} });
+    try {
+      expect(() => { programs.reindexCustomPrograms(db); dash.renderDashboard(db); }).not.toThrow();
+      expect(document.querySelector('#dashSchedule .dash-card')).toBeTruthy();
+      // Con almacenamiento denegado no se puede leer el flag de descartado:
+      // el hint se muestra (degradación visible) en vez de blankear la tarjeta.
+    } finally {
+      if (desc) Object.defineProperty(window, 'localStorage', desc);
+    }
+  });
+
   it('F3: con anclas configuradas no hay hint', async () => {
     await dashboardConSched(seedSchedDb());
     expect(document.querySelector('.dash-sched-hint')).toBeNull();

@@ -251,7 +251,11 @@ function lineaContexto(db) {
  * no un olvido). Descartable; el estado vive en localStorage.
  */
 function hintDefaults(db) {
-  if (localStorage.getItem(SCHED_HINT_KEY) === '1') return '';
+  // Guarda de entorno: en WebView restringidos o SSR localStorage puede no
+  // existir o lanzar; sin el hint el dashboard sigue sirviendo su contenido.
+  let dismissed = null;
+  try { dismissed = localStorage.getItem(SCHED_HINT_KEY); } catch {}
+  if (dismissed === '1') return '';
   const defaults = usesDefaultAnchors(db);
   const cfg = getScheduleConfig(db);
   const partes = [PLAN_STRENGTH, PLAN_RUNNING]
@@ -355,7 +359,7 @@ async function onScheduleClick(e) {
   }
   if (e.target.closest('[data-sched-hint-dismiss]')) {
     // F3: descartar el hint de defaults no toca la config, solo el aviso.
-    localStorage.setItem(SCHED_HINT_KEY, '1');
+    try { localStorage.setItem(SCHED_HINT_KEY, '1'); } catch {}
     renderSchedule(_schedDb);
     return;
   }
