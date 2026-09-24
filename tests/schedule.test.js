@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 import {
   SCHEDULE_DEFAULTS, getScheduleConfig, buildQueue, pendingCount,
   schedulePlan, scheduleAll, scheduleDay, scheduleOverdue,
+  scheduleMissed, usesDefaultAnchors,
 } from '../js/schedule.js';
 import { reindexCustomPrograms } from '../js/programs.js';
 
@@ -234,5 +235,54 @@ describe('scheduleOverdue (D1: saltar no pierde ni esconde)', () => {
     const over = scheduleOverdue(db, LUN_5);
     expect(over.map(e => e.date)).toEqual(['2025-12-22', '2025-12-29']);
     expect(over.map(e => e.session)).toEqual(['Sesión A', 'Sesión B']);
+  });
+});
+
+describe('scheduleMissed (ventana configurable para el calendario)', () => {
+  it('con la ventana por defecto coincide con scheduleOverdue', () => {
+    const db = seedDb({ settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } } });
+    expect(scheduleMissed(db, '2026-01-19')).toEqual(scheduleOverdue(db, '2026-01-19'));
+  });
+
+  it('una ventana larga alcanza anclas perdidos fuera de las 2 semanas del dashboard', () => {
+    const db = seedDb({ settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } } });
+    // ref lunes 16 de feb: con la ventana de serie (14 días) la cola entera
+    // (A, B, C) cae en los lunes 02, 09 y 16 — solo los dos primeros cuentan
+    // como perdidos. Con 62 días el calendario alcanza hasta el 22 de dic.
+    const corta = scheduleMissed(db, '2026-02-16').map(e => e.date);
+    const larga = scheduleMissed(db, '2026-02-16', 62).map(e => e.date);
+    expect(corta).toEqual(['2026-02-02', '2026-02-09']);
+    expect(larga).toEqual(['2025-12-22', '2025-12-29', '2026-01-05']);
+  });
+
+  it('una sesión ya hecha no se marca como perdida aunque su ancla esté en la ventana', () => {
+    const db = seedDb({
+      settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } },
+      workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }],
+    });
+    const sesiones = scheduleMissed(db, '2026-02-16', 62).map(e => e.session);
+    expect(sesiones).not.toContain('Sesión A');
+  });
+});
+
+describe('usesDefaultAnchors (F3: hint de defaults sin config)', () => {
+  it('sin config guardada, ambos planes usan defaults', () => {
+    expect(usesDefaultAnchors(seedDb({ settings: {} }))).toEqual({ arete: true, running: true });
+  });
+
+  it('config guardada (aunque sean los mismos días) no es default', () => {
+    const db = seedDb({ settings: { schedule: { arete: { anchors: [1, 3, 5] } } } });
+    expect(usesDefaultAnchors(db)).toEqual({ arete: false, running: true });
+  });
+
+  it('un array vacío explícito NO cuenta como default: el plan está apagado a propósito', () => {
+    const db = seedDb({ settings: { schedule: { running: { anchors: [] } } } });
+    expect(usesDefaultAnchors(db)).toEqual({ arete: true, running: false });
+  });
+
+  it('no muta la db', () => {
+    const db = seedDb({ settings: {} });
+    usesDefaultAnchors(db);
+    expect(db.settings.schedule).toBeUndefined();
   });
 });

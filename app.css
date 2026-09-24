@@ -2845,3 +2845,34 @@ a:hover{opacity:.8}
 .cal-day-sched{font-size:8px;line-height:1.1;max-width:100%;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;color:var(--color-text-secondary)}
 .cal-grid .cal-day.has-workout .cal-day-sched{color:var(--color-on-fill)}
+
+/* ── Ronda 2 · Fixes de UX de programación semanal ───────────────────────── */
+
+/* Línea de contexto del plan activo, bajo la tarjeta "Toca hoy" (F2). */
+.dash-sched-context{font:var(--type-caption);color:var(--color-text-tertiary)}
+
+/* Hint de anclas de fábrica, descartable (F3), y aviso de runs sin sesión
+   asignada (F4): líneas discretas, no modales. */
+.dash-sched-hint,.dash-sched-ghost{display:flex;align-items:center;gap:var(--sp-1);
+  font:var(--type-caption);color:var(--color-text-secondary)}
+.dash-sched-hint-link{background:none;border:none;padding:0;cursor:pointer;
+  font:inherit;font-weight:600;color:var(--color-accent-text);text-decoration:underline}
+.dash-sched-hint-dismiss{background:none;border:none;padding:0 2px;cursor:pointer;
+  font:inherit;font-weight:700;color:var(--color-text-tertiary);line-height:1}
+
+/* Día pasado con ancla perdido (F4): contorno punteado rojo y chip tachado,
+   distinto del punteado acento de los días futuros programados. */
+.cal-grid .cal-day.cal-day--missed{outline-color:var(--color-state-danger)}
+.cal-chip{display:inline-flex;align-items:center;gap:1px;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.cal-chip .material-symbols-outlined{font-size:7px;line-height:1}
+.cal-chip--missed,.cal-day-sched--missed{text-decoration:line-through;
+  color:var(--color-state-danger)}
+
+/* Nota de consecuencia inline en los modales de elección (F2): qué pasa al
+   confirmar, dicho antes de confirmar y sin confirm() nativo. */
+.modal-note{margin:0 0 var(--sp-2);font:var(--type-caption);color:var(--color-text-secondary)}
+
+/* Mini-preview de la próxima sesión en Ajustes → Programación semanal (F3). */
+.sched-preview{margin:calc(var(--sp-1)*-1) 0 var(--sp-2);font:var(--type-caption);
+  font-weight:600;color:var(--color-accent-text)}

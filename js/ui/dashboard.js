@@ -1,7 +1,9 @@
 import { esc, today } from '../utils.js';
+import { ROMAN as ROMAN_FASE } from '../constants.js';
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
-import { scheduleDay, scheduleOverdue, pendingCount, getScheduleConfig, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
+import { getProgramById, getRunningProgram } from '../programs.js';
+import { scheduleDay, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
@@ -210,14 +212,75 @@ let _schedDb = null;
 let _schedBound = false;
 
 const ICONO_PLAN = { [PLAN_STRENGTH]: 'fitness_center', [PLAN_RUNNING]: 'directions_run' };
-const MODO_PLAN = { [PLAN_STRENGTH]: 'str', [PLAN_RUNNING]: 'run' };
 
-/** Fila de una sesión de hoy con su botón de arranque directo. */
+// F3: el hint de defaults se descarta una vez y no vuelve (hasta que se
+// borre el flag). Misma convención de clave que el resto del dashboard.
+const SCHED_HINT_KEY = 'areteSchedHintDismissed';
+const DIAS_CORTOS = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+const NOMBRE_PLAN = { [PLAN_STRENGTH]: 'fuerza', [PLAN_RUNNING]: 'running' };
+
+/** Fila de una sesión de hoy con su botón de arranque directo (F1). */
 function filaSched(e) {
   return `<div class="dash-sched-row">
     <span class="material-symbols-outlined dash-act-icon" aria-hidden="true">${ICONO_PLAN[e.plan]}</span>
     <span class="dash-sched-name">${esc(e.session)}</span>
-    <button type="button" class="btn btn--secondary btn--sm" data-sched-start="${e.plan}">Empezar</button>
+    <button type="button" class="btn btn--secondary btn--sm" data-sched-start="${e.plan}" data-sched-session="${esc(e.session)}">Empezar</button>
+  </div>`;
+}
+
+/**
+ * Línea de contexto del plan activo (F2): qué se está siguiendo ahora mismo,
+ * leído de la db — "Areté · Fase II — 5K · Semana 3". Sin ella, la tarjeta
+ * anuncia sesiones sin decir de qué plan vienen.
+ */
+function lineaContexto(db) {
+  const partes = [];
+  const prog = getProgramById(db.program || 'arete');
+  if (prog) {
+    const roman = ROMAN_FASE[db.phase - 1] || db.phase || '?';
+    partes.push(`${prog._meta?.name || db.program} · Fase ${roman}`);
+  }
+  const run = getRunningProgram(db.runningProgram || '');
+  if (run) partes.push(`${run._meta?.name || db.runningProgram} · Semana ${db.runningWeek || 1}`);
+  return partes.join(' — ');
+}
+
+/**
+ * Hint de anclas de fábrica (F3): visible solo mientras algún plan use los
+ * defaults por falta de config (un `anchors: []` explícito es una decisión,
+ * no un olvido). Descartable; el estado vive en localStorage.
+ */
+function hintDefaults(db) {
+  // Guarda de entorno: en WebView restringidos o SSR localStorage puede no
+  // existir o lanzar; sin el hint el dashboard sigue sirviendo su contenido.
+  let dismissed = null;
+  try { dismissed = localStorage.getItem(SCHED_HINT_KEY); } catch {}
+  if (dismissed === '1') return '';
+  const defaults = usesDefaultAnchors(db);
+  const cfg = getScheduleConfig(db);
+  const partes = [PLAN_STRENGTH, PLAN_RUNNING]
+    .filter(plan => defaults[plan] && cfg[plan].anchors.length)
+    .map(plan => `${NOMBRE_PLAN[plan]} ${cfg[plan].anchors.map(a => DIAS_CORTOS[a - 1]).join('·')}`);
+  if (!partes.length) return '';
+  return `<div class="dash-sched-hint">Estamos usando los días de siempre (${esc(partes.join(' · '))}).
+    <button type="button" class="dash-sched-hint-link" data-sched-settings>Cámbialos en Ajustes</button>
+    <button type="button" class="dash-sched-hint-dismiss" data-sched-hint-dismiss aria-label="Descartar aviso">×</button>
+  </div>`;
+}
+
+/**
+ * Runs GPS fantasma (F4): carreras de esta semana guardadas sin nombre de
+ * sesión no consumen cola, así que la sesión sigue apareciendo pendiente.
+ * El hint lo explica y lleva a donde se puede asignar.
+ */
+function hintRunsFantasma(db) {
+  const hayPendientes = pendingCount(db)[PLAN_RUNNING] > 0;
+  const desde = getWeekStart();
+  const corrioSinSesion = (db.runningLogs || []).some(l =>
+    !l.session && new Date((l.date || '') + 'T12:00:00') >= desde);
+  if (!hayPendientes || !corrioSinSesion) return '';
+  return `<div class="dash-sched-ghost">¿Corriste y no se registró la sesión? Asignala desde tus carreras
+    <button type="button" class="dash-sched-hint-link" data-sched-ghost>Ir a carreras</button>
   </div>`;
 }
 
@@ -259,10 +322,12 @@ function renderSchedule(db) {
       : `${atrasadas.length} sesiones atrasadas`} — se re-acomodan solas</div>`
     : '';
   const pend = totalPend ? `<div class="dash-sched-pending">${totalPend} pendiente${totalPend > 1 ? 's' : ''} en cola</div>` : '';
+  const contexto = lineaContexto(db);
 
   $el.innerHTML = `<div class="dash-card dash-sched-card">
     <div class="dash-card-label">Toca hoy</div>
-    ${filas}${descanso}${atraso}${pend}
+    ${filas}${descanso}${atraso}${pend}${hintRunsFantasma(db)}${hintDefaults(db)}
+    ${contexto ? `<div class="dash-sched-context">${esc(contexto)}</div>` : ''}
   </div>`;
 }
 
@@ -270,9 +335,37 @@ async function onScheduleClick(e) {
   if (!_schedDb) return;
   const start = e.target.closest('[data-sched-start]');
   if (start) {
-    // Misma puerta que los CTA de abajo: al modo del plan y a Entrenar.
+    const db = _schedDb;
+    const session = start.dataset.schedSession;
     const nav = await import('./nav.js');
-    nav.switchTrainMode(MODO_PLAN[start.dataset.schedStart] || 'str', _schedDb);
+    const irAEntrenar = (modo) => {
+      nav.switchTrainMode(modo, db);
+      const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
+      if (trainBtn) nav.switchTab(trainBtn, db);
+    };
+    if (start.dataset.schedStart === PLAN_RUNNING) {
+      // F1: la sesión exacta de hoy, por la misma ruta que "Iniciar esta
+      // sesión" del plan de running (segmentos guiados + atribución).
+      irAEntrenar('run');
+      const running = await import('./running.js');
+      running.startPlanSessionFromName(db, session);
+    } else {
+      // F1: requestStartSession preselecciona la sesión anunciada y avisa si
+      // hay un entreno a medias, en vez de caer en la rotación implícita.
+      const training = await import('./training.js');
+      training.requestStartSession(db, session, db.phase, { onStarted: () => irAEntrenar('str') });
+    }
+    return;
+  }
+  if (e.target.closest('[data-sched-hint-dismiss]')) {
+    // F3: descartar el hint de defaults no toca la config, solo el aviso.
+    try { localStorage.setItem(SCHED_HINT_KEY, '1'); } catch {}
+    renderSchedule(_schedDb);
+    return;
+  }
+  if (e.target.closest('[data-sched-ghost]')) {
+    const nav = await import('./nav.js');
+    nav.switchTrainMode('run', _schedDb);
     const trainBtn = document.querySelector('nav button[data-sec="secTrain"]');
     if (trainBtn) nav.switchTab(trainBtn, _schedDb);
     return;
