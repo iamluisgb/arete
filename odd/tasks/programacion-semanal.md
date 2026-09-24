@@ -46,6 +46,41 @@ días ancla por semana, de modo que si un día se cae, todo se re-acomoda.
 - Quirón responde correctamente a "¿qué toca hoy/mañana?" vía snapshot.
 - Suite completa en verde.
 
+## Ronda 2 — Fixes de UX (post auditoría)
+
+Auditoría experta read-only identificó 5 fricciones. Fixes autorizados:
+
+- **F1 (crítico)**: "Empezar" en la tarjeta "Toca hoy" preselecciona exactamente
+  la sesión anunciada, vía requestStartSession (training.js) en vez de la
+  rotación implícita.
+- **F2**: línea de contexto del plan activo bajo la tarjeta ("Areté · Fase II —
+  5K · Sem 3") + aviso de consecuencia en los modales de cambio de
+  programa/fase/semana (reset silencioso → mensaje inline).
+- **F3**: hint descartable cuando se usan defaults sin configurar (flag en
+  localStorage) + mini-preview en setSchedule ("Próxima: <sesión> — <día>").
+- **F4**: calendario marca los anclas pasados perdidos (día con sesión que
+  reaparece hoy) + chips por plan con icono en días multi-sesión + hint de
+  asignación para runs GPS sin sesión que dejan la cola en fantasma.
+- **F5**: vocabulario consolidado: "Plan" (qué sigues) vs "Programación semanal"
+  (cuándo). Renombres de copy: "Seleccionar Programa" → "Elegir plan de
+  fuerza", "Programa de Running" → "Elegir plan de carrera", customs → "Tus
+  planes". Sin cambios de IA estructurales.
+
+Fuera de alcance ronda 2: rediseño de tarjeta única "Hoy" (north-star, deja los
+CTAs genéricos como están), eliminación de caminos duplicados de semana.
+
+## Evidencia de commits (ronda 2)
+
+- `df4a28e` feat(schedule): usesDefaultAnchors + scheduleMissed (+7 tests)
+- `61c186f` feat(ui): honest start buttons + plan context + hints (+7 tests)
+- `bba07ff` feat(ui): missed anchors + per-plan chips en calendario
+- `ea4e620` feat(settings): preview en vivo de anclas
+- `9f90e2f` feat(ui): avisos de consecuencia + vocabulario Plan/Programación
+- `e5b749e` chore(sw): cache v152
+
+Verificación independiente: PASS 7/7, 790/790 tests (50 archivos). Nota:
+js/app.js no requirió cambios (requestStartSession ya era export de training.js).
+
 ## Evidencia de commits
 
 - `03c16c1` feat(schedule): add pure weekly scheduler with anchor days
