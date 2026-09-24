@@ -220,6 +220,39 @@ streameada con las herramientas puestas** (`chatAgent` en [`js/ai/llm.js`](js/ai
 el snapshot basta, ahí acaba; si el modelo pide herramientas, se ejecutan en local y una
 segunda vuelta streamea la respuesta con los resultados dentro.
 
+```mermaid
+sequenceDiagram
+    actor A as Atleta
+    participant UI as js/ui/quiron.js
+    participant CTX as js/ai/context.js
+    participant AG as chatAgent · js/ai/llm.js
+    participant P as Proveedor LLM
+    participant T as js/ai/tools.js
+
+    A->>UI: escribe la pregunta
+    UI->>CTX: buildSnapshot y windowConversation
+    CTX-->>UI: snapshot y últimos HISTORY_MSGS, sin volcados data de turnos anteriores
+    opt la estimación supera TOKEN_GUARD
+        UI->>A: ¿Envío igualmente?
+        A-->>UI: confirma, o el turno se cancela
+    end
+    UI->>AG: system con snapshot, historial y tools
+    AG->>P: 1ª vuelta streameada con las tools puestas
+    alt el snapshot basta
+        P-->>AG: tokens de la respuesta
+        AG-->>A: streaming, fin del turno
+    else el modelo pide tool_calls
+        P-->>AG: tool_calls
+        AG->>T: execute en local, sin red
+        T-->>AG: volcados de lectura
+        AG->>P: 2ª vuelta streameada con los resultados
+        P-->>AG: tokens de la respuesta
+        AG-->>A: streaming
+        UI->>UI: guarda los volcados como mensaje role data del turno
+        Note over UI,CTX: en el turno siguiente windowConversation los descarta, y el modelo puede volver a pedirlos
+    end
+```
+
 **Demo sin API key.** "Configura tu proveedor y consigue una clave" antes de haber visto
 lo que hace el coach es pedir trabajo por adelantado, y ahí se cae casi todo el mundo. El
 botón *Probar Quirón* pide un token al **gateway de bookreader**
