@@ -537,7 +537,7 @@
         <span class="listrow-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         </span>
-        <span class="listrow-main">Mis planes</span>
+        <span class="listrow-main">Tus planes</span>
         <span class="listrow-status" id="setPlansStatus"></span>
         <span class="listrow-chevron" aria-hidden="true">›</span>
       </button>
@@ -672,13 +672,13 @@
 </div>
 
 <!-- ── SUBPÁGINA · MIS PLANES ──────────────────────────────────────────────── -->
-<div class="set-page" id="setPlans" aria-label="Mis planes">
+<div class="set-page" id="setPlans" aria-label="Tus planes">
   <div class="set-subhead">
     <button class="set-back" type="button" data-setpage="setIndex" aria-label="Volver a Ajustes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <div class="page-head-txt">
-      <h2 class="page-title" tabindex="-1">Mis planes</h2>
+      <h2 class="page-title" tabindex="-1">Tus planes</h2>
       <p class="page-sub">Los planes propios que has importado, además de los que trae Areté</p>
     </div>
   </div>
@@ -716,12 +716,14 @@
   <div class="panel panel--rows">
     <h4 class="panel-title">Fuerza</h4>
     <div class="sched-anchors" id="schedAnchorsArete" role="group" aria-label="Días ancla de fuerza"></div>
+    <p class="sched-preview" id="schedPreviewArete" aria-live="polite"></p>
     <p class="panel-note">Si un día se te cae, la sesión pasa al siguiente día ancla. Desmarca todos para no programar fuerza.</p>
   </div>
 
   <div class="panel panel--rows">
     <h4 class="panel-title">Running</h4>
     <div class="sched-anchors" id="schedAnchorsRunning" role="group" aria-label="Días ancla de running"></div>
+    <p class="sched-preview" id="schedPreviewRunning" aria-live="polite"></p>
     <p class="panel-note">Lo mismo para las sesiones de la semana activa de tu plan de carrera.</p>
   </div>
 </div>
@@ -877,19 +879,23 @@
 </div>
 
 </div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Seleccionar Programa</h3>
+<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Elegir plan de fuerza</h3>
+  <p class="modal-note">Al cambiar de plan la fase vuelve a la primera y la cola de sesiones pendientes se recalcula.</p>
   <div id="programOptions"></div>
   <button class="btn btn-outline" id="programModalClose">Cerrar</button>
 </div></div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="phaseModalTitle" id="phaseModal"><div class="modal"><h3 id="phaseModalTitle">Seleccionar Fase</h3>
+  <p class="modal-note">Al cambiar de fase las sesiones pendientes se recalculan con la fase elegida.</p>
   <div id="phaseOptions"></div>
   <button class="btn btn-outline">Cerrar</button>
 </div></div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Programa de Running</h3>
+<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Elegir plan de carrera</h3>
+  <p class="modal-note">Al cambiar de plan vuelves a la Semana 1 y la cola de sesiones pendientes se recalcula.</p>
   <div id="runProgramOptions"></div>
   <button class="btn btn-outline" id="runProgramModalClose">Cerrar</button>
 </div></div>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runWeekModalTitle" id="runWeekModal"><div class="modal"><h3 id="runWeekModalTitle">Seleccionar Semana</h3>
+  <p class="modal-note">Las sesiones pendientes se recalculan con la semana elegida.</p>
   <div id="runWeekOptions"></div>
   <button class="btn btn-outline" id="runWeekModalClose">Cerrar</button>
 </div></div>
