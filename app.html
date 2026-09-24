@@ -115,16 +115,10 @@
       <div class="dash-streak-sub" id="dashStreakSub">Empieza hoy</div>
     </div>
   </section>
-  <!-- Una sola acción primaria. Las dos hacen exactamente lo mismo que antes;
-       lo que cambia es que dejan de gritar igual de fuerte. La carrera conserva
-       su color de dominio en el icono, que es donde el color informa sin
-       convertirse en un segundo acento a pantalla completa. -->
-  <div class="dash-cta-group">
-    <button class="btn btn--lg dash-cta" type="button" id="dashStartBtn"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Fuerza</button>
-    <button class="btn btn--lg btn--secondary dash-cta dash-cta-run" type="button" id="dashStartRunBtn"><span class="material-symbols-outlined" aria-hidden="true">directions_run</span> Running</button>
-  </div>
-  <!-- Programación de hoy (D4a): qué toca hoy por plan, pendientes acumuladas
-       y atajos directos. El contenido lo pinta dashboard.js desde schedule.js. -->
+  <!-- Programación de hoy (D4a/N1): la tarjeta única "Hoy" es la única
+       superficie de acción del dashboard: qué toca, atrasadas, descanso y el
+       pie con los CTAs etiquetados por plan (N2). Los botones genéricos
+       Fuerza/Running que vivían aquí se degradaron a ese pie. -->
   <section class="dash-sched" id="dashSchedule" aria-label="Programación de hoy"></section>
   <section class="dash-activity" id="dashActivity">
     <h3 class="group-title">Actividad reciente</h3>
@@ -302,6 +296,9 @@
     <div id="progressHistory"></div>
   </div>
   <div class="str-panel" id="strPlan">
+    <!-- N4: la cola de pendientes de la fase activa, visible donde se elige el
+         plan. La pinta training.js con buildQueue. -->
+    <p class="plan-queue" id="strPlanQueue" hidden></p>
     <div id="strPlanCustom"></div>
     <div class="str-plan-header">
       <select id="strPlanPhase" class="str-plan-select"></select>
@@ -417,14 +414,11 @@
     <div id="runStatsPanel"></div>
   </div>
 
-  <!-- TAB 4: Plan (programas estructurados) -->
+  <!-- TAB 4: Plan (programas estructurados). N5: la semana se elige solo
+       desde el chip de contexto (runWeekContext + modal); acá se lee. La cola
+       de la semana activa la pinta running.js con buildQueue. -->
   <div class="run-panel" id="runPlan">
-    <div class="run-context-bar" id="runContextBar">
-      <div class="row mb">
-        <div><label>Semana</label><select id="runWeekSelect"></select></div>
-        <div style="display:none"><label>Sesión</label><select id="runSessionSelect"></select></div>
-      </div>
-    </div>
+    <p class="plan-queue" id="runPlanQueue" hidden></p>
     <div id="runSegments"></div>
   </div>
 </div>

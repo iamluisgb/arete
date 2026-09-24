@@ -1753,9 +1753,8 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
    "elige". Ahora Fuerza es la primaria y Carrera la secundaria; hacen lo mismo
    que hacían. El color de dominio de la carrera sobrevive en su icono, que es
    donde informa sin convertirse en un segundo acento a pantalla completa. */
-.dash-cta-group{display:flex;gap:var(--gap-stack);margin-bottom:var(--gap-group)}
-.dash-cta{flex:1;font-weight:800}
-.dash-cta-run .material-symbols-outlined{color:var(--color-domain-running)}
+/* La tarjeta "Hoy" unificada (N1) absorbió los CTAs genéricos en su pie:
+   .dash-cta-group ya no existe. */
 .dash-activity{margin-bottom:var(--gap-group)}
 .dash-activity-scroll{display:flex;gap:var(--gap-stack);overflow-x:auto;
   padding-bottom:var(--sp-2);-ms-overflow-style:none;scrollbar-width:none}
@@ -2232,7 +2231,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 #secDashboard.active{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
   grid-template-rows:auto auto auto auto auto 1fr;gap:0 var(--gap-section);align-items:start}
 .dash-greeting{grid-column:1/-1}
-#dashLevel,.dash-week-title,.dash-bento,.dash-cta-group{grid-column:1}
+#dashLevel,.dash-week-title,.dash-bento{grid-column:1}
 .dash-activity{grid-column:2;grid-row:2/-1}
 .dash-activity>.group-title{margin-top:0}
 /* Deja de ser carrusel: con ratón no hay swipe y la barra estaba oculta, así
@@ -2835,6 +2834,39 @@ a:hover{opacity:.8}
 .dash-sched-note{margin:0;font:var(--type-body);color:var(--color-text-secondary)}
 .dash-sched-overdue{font:var(--type-caption);color:var(--color-state-danger)}
 .dash-sched-pending{font:var(--type-caption);color:var(--color-text-tertiary)}
+
+/* ── Ronda 3 · Tarjeta "Hoy" unificada (N1–N6) ───────────────────────────── */
+
+/* Cabecera de la tarjeta (N1): título y contexto del plan en una línea. */
+.dash-sched-head{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap}
+
+/* Grupos por plan (N1): cabecera con icono de dominio + filas de sesión. */
+.dash-sched-grupo{display:flex;flex-direction:column;gap:var(--sp-1)}
+.dash-sched-grupo-head{display:flex;align-items:center;gap:var(--sp-1);
+  font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);
+  text-transform:uppercase;letter-spacing:.04em}
+.dash-sched-grupo-head .material-symbols-outlined{font-size:14px}
+
+/* Atrasadas (N1/N3): marca en la fila y línea-cabecera enlazada al calendario
+   cuando existe la sección. */
+.dash-sched-tag{font:var(--type-caption);color:var(--color-state-danger)}
+.dash-sched-overdue-link{background:none;border:none;padding:0;cursor:pointer;
+  font:inherit;text-align:left;text-decoration:underline}
+
+/* Descanso y plan completado (N1), y la línea que explica el modelo (N6). */
+.dash-sched-done{display:flex;align-items:center;gap:var(--sp-1);font-weight:600}
+.dash-sched-done .material-symbols-outlined{font-size:18px;color:var(--color-accent-text)}
+.dash-sched-modelo{font:var(--type-caption);color:var(--color-text-tertiary)}
+
+/* Pie de la tarjeta (N2): CTAs etiquetados por plan, degradación de los
+   botones genéricos Fuerza/Running que antes competían con la tarjeta. */
+.dash-sched-pie{display:flex;gap:var(--sp-3);flex-wrap:wrap;
+  border-top:1px solid var(--color-border);padding-top:var(--sp-2)}
+.dash-sched-pie-link{background:none;border:none;padding:0;cursor:pointer;
+  font:var(--type-caption);font-weight:600;color:var(--color-accent-text)}
+
+/* Cola de pendientes en el Plan tab de Entrenar (N4): discreta, una línea. */
+.plan-queue{margin:0 0 var(--sp-2);font:var(--type-caption);color:var(--color-text-tertiary)}
 
 /* Día futuro programado: contorno punteado (planeado) vs círculo lleno
    (hecho, .has-workout). La etiqueta va bajo el número, recortada. */
