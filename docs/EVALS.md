@@ -16,6 +16,20 @@ Integridad de la batería en `tests/evals-battery.test.js`. Salidas en `evals/ru
 Variables: `EVAL_MODEL` (default `deepseek-v4-flash`) · `EVAL_RUN` (nombre del run).
 Filtros: `node evals/run.mjs --smoke`, `--archetype=novato`, o ids sueltos.
 
+```mermaid
+flowchart LR
+    SY["evals/fixtures/synth.mjs<br/>atletas sintéticos con _eval.ref fija"] -->|"npm run eval:fixture"| FX["Fixtures versionados<br/>hibrido · novato · corredor · molestia"]
+    SC["evals/scenarios.mjs<br/>la batería"] --> RUN
+    FX --> RUN["run.mjs genera<br/>~30 ejecuciones, paga llamadas"]
+    SMOKE["npm run eval:smoke<br/>~20 ejecuciones, los 4 arquetipos"] -.->|"--smoke"| RUN
+    RUN --> OUT["evals/runs/ · un directorio por run<br/>gitignored"]
+    OUT -->|"npm run eval:check<br/>sin pagar llamadas"| CHK["check.mjs comprueba<br/>lógica en checks.mjs"]
+    CHK --> DUR{"¿Falla un check duro?<br/>ruteo, cifras, carga, pr…"}
+    DUR -->|"sí"| CAPN["Capa el run"]
+    DUR -->|"no"| OKR["Nota del run"]
+    CHK --> BL["Checks blandos<br/>vocabulario, esperado/prohibido:<br/>informan, no capan"]
+```
+
 ## Los cuatro arquetipos
 
 La batería está organizada **por arquetipo, no por feature**, como las baterías por
