@@ -62,3 +62,10 @@ días ancla por semana, de modo que si un día se cae, todo se re-acomoda.
 - Observaciones menores no bloqueantes: riesgo de renombrar sesión implícito
   (documentado en header de schedule.js como match por nombre) y motivo del
   import dinámico en dashboard no explicitado en comentario.
+- Review nativa: lineage `review-90b2671bb7c8dda1`, tier medium, lente
+  `review-reliability` → **APPROVED** (authority burned). 5 hallazgos
+  informativos no bloqueantes como trabajo futuro: filtro por prefijo en
+  calendario para running (calendar.js:61-71), render no atómico de la tarjeta
+  de schedule (dashboard.js:242-247), posible doble conteo en ventana de
+  atrasadas (schedule.js:185-203), default de ref en scheduleDay
+  (schedule.js:180-182), slice UTC en snapshot (context.js:45-57).
