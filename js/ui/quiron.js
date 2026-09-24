@@ -1335,17 +1335,25 @@ export function initQuiron(db, opts = {}) {
   // Enviar espera al dictado: con el motor del proveedor la transcripción llega AL SOLTAR,
   // así que leer el textarea antes de que `mic.stop()` resuelva mandaría el turno sin el
   // último tramo dictado (o sin nada). Vale para el botón y para Enter.
-  els.send.addEventListener('click', async () => {
-    if (busy) { abortCtrl?.abort(); return; }
-    await mic?.stop();
+  //
+  // La espera es una sección exclusiva (`micPending`): un segundo click o Enter durante la
+  // transcripción en vuelo (segundos, con red) no entra a esperar ni dispara su propio
+  // `send` — el envío de R3-001, antes cubierto solo por el chequeo interno de `send`.
+  let micPending = false;
+  async function submitFromComposer() {
+    if (busy || micPending) return;
+    micPending = true;
+    try { await mic?.stop(); } finally { micPending = false; }
     send(db, els.input.value);
+  }
+  els.send.addEventListener('click', () => {
+    if (busy) { abortCtrl?.abort(); return; }
+    submitFromComposer();
   });
-  els.input.addEventListener('keydown', async (e) => {
+  els.input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (busy) return;
-      await mic?.stop();
-      send(db, els.input.value);
+      submitFromComposer();
     }
   });
   els.input.addEventListener('input', autoGrow);
