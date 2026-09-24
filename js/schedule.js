@@ -145,6 +145,17 @@ export function pendingCount(db) {
   };
 }
 
+/**
+ * ¿Qué planes están usando los anclas de fábrica (F3)? Un plan cae a defaults
+ * cuando no hay config guardada para él; un `anchors: []` explícito NO cuenta
+ * como default: es el plan apagado a propósito y no merece hint.
+ */
+export function usesDefaultAnchors(db) {
+  const raw = db?.settings?.schedule || {};
+  const sinConfig = (plan) => !Array.isArray(raw[plan]?.anchors);
+  return { [PLAN_STRENGTH]: sinConfig(PLAN_STRENGTH), [PLAN_RUNNING]: sinConfig(PLAN_RUNNING) };
+}
+
 // ── Cálculo de fechas (D1) ──────────────────────────────────────────────────
 
 /**
@@ -186,18 +197,27 @@ export function scheduleDay(db, dateStr, ref = new Date()) {
 }
 
 /**
- * Sesiones ATRASADAS: programadas en un día ancla ya pasado y que siguen en la
- * cola de pendientes (D1 — saltar un día no las pierde, pero tampoco las
- * esconde). Mira hacia atrás OVERDUE_LOOKBACK días desde ref.
+ * Anclas pasados perdidos con ventana configurable: programados en un día ancla
+ * ya pasado y que siguen en la cola de pendientes (D1 — saltar un día no las
+ * pierde, pero tampoco las esconde). Mira hacia atrás `lookbackDays` desde ref.
  */
-export function scheduleOverdue(db, ref = new Date()) {
+export function scheduleMissed(db, ref = new Date(), lookbackDays = OVERDUE_LOOKBACK) {
   const hoy = toISO(normDate(ref));
   const pendientes = {
     [PLAN_STRENGTH]: new Set(buildQueue(db, PLAN_STRENGTH)),
     [PLAN_RUNNING]: new Set(buildQueue(db, PLAN_RUNNING)),
   };
   const desde = normDate(ref);
-  desde.setDate(desde.getDate() - OVERDUE_LOOKBACK);
-  return scheduleAll(db, desde, { horizonDays: OVERDUE_LOOKBACK })
+  desde.setDate(desde.getDate() - lookbackDays);
+  return scheduleAll(db, desde, { horizonDays: lookbackDays })
     .filter(e => e.date < hoy && pendientes[e.plan].has(e.session));
+}
+
+/**
+ * Sesiones ATRASADAS para el dashboard: misma cuenta, con la ventana corta de
+ * siempre (14 días). El calendario usa scheduleMissed directamente porque
+ * navega por meses y necesita mirar más atrás.
+ */
+export function scheduleOverdue(db, ref = new Date()) {
+  return scheduleMissed(db, ref);
 }
