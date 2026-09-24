@@ -2150,8 +2150,14 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 @keyframes domain-glow{0%{box-shadow:0 0 0 8px var(--color-accent-glow)}100%{box-shadow:0 0 0 0 transparent}}
 @media(prefers-reduced-motion:reduce){.domain-highlight{animation:none}}
 
-/* UX-2: tarjeta de primeros pasos. Modesta: título, tres pasos, salir. */
-.dash-starter{display:flex;flex-direction:column;gap:var(--sp-3)}
+/* UX-2: tarjeta de primeros pasos. Modesta: título, tres pasos, salir.
+   stretch: .dash-card centra a sus hijos (los anillos del bento lo quieren),
+   pero esta tarjeta es un formulario de pasos — cabeza a la izquierda, salir
+   a la derecha, pasos ocupando el ancho. Y margin-top porque en el grid de
+   desktop el row-gap es 0 y en móvil el flujo es de bloques: sin ella se pega
+   a la tarjeta de nivel y con radius+sombra parece cortada. */
+.dash-starter{display:flex;flex-direction:column;gap:var(--sp-3);align-items:stretch;
+  margin-top:var(--gap-stack)}
 .dash-starter-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
 .dash-starter-title{font:var(--type-body-strong);font-weight:700}
 .dash-starter-dismiss{background:none;border:none;padding:var(--sp-1) var(--sp-2);
