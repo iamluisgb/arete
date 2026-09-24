@@ -16,7 +16,8 @@ import { renderRunHistory as _renderRunHistory } from './running-history.js';
 import { openShareEditor } from './share-editor.js';
 import { renderRunProgress as _renderRunProgress } from './running-progress.js';
 import { initRunCalendar, renderRunCalendar } from './running-calendar.js';
-import { populateRunWeeks as _populateRunWeeks, populateRunSessions as _populateRunSessions, loadRunSessionTemplate as _loadRunSessionTemplate, renderAllWeekSessions as _renderAllWeekSessions, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar } from './running-plan.js';
+import { populateRunWeeks as _populateRunWeeks, renderAllWeekSessions as _renderAllWeekSessions, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar } from './running-plan.js';
+import { buildQueue, PLAN_RUNNING } from '../schedule.js';
 
 // Re-export for backward compatibility
 export { formatPace, formatRunDuration, parseRunDuration, parseSegDuration, segModeToRunType };
@@ -120,7 +121,7 @@ let $pauseBtn, $stopBtn, $autoPauseBtn, $hrBtn, $hrMetric, $hrValue;
 let $uiLock, $uiLockProgress;
 let $goalCard, $goalBody, $goalArc, $goalCurrent, $goalUnit, $goalTarget, $goalSessions;
 let $prsGrid;
-let $weekSelect, $sessionSelect, $segments;
+let $segments;
 let $historyFilter, $historyList;
 let $weeklyChart, $paceChart, $statsPanel;
 let $typePanel, $typeBadge;
@@ -148,8 +149,6 @@ function cacheSelectors() {
   $goalTarget = document.getElementById('runGoalTarget');
   $goalSessions = document.getElementById('runGoalSessions');
   $prsGrid = document.getElementById('runPrsGrid');
-  $weekSelect = document.getElementById('runWeekSelect');
-  $sessionSelect = document.getElementById('runSessionSelect');
   $segments = document.getElementById('runSegments');
   $historyFilter = document.getElementById('runHistoryFilter');
   $historyList = document.getElementById('runHistoryList');
@@ -404,13 +403,8 @@ export function initRunning(db) {
     });
   });
 
-  // Plan tab: week selector
-  $weekSelect.addEventListener('change', () => {
-    db.runningWeek = parseInt($weekSelect.value) || 1;
-    saveDB(db);
-    renderAllWeekSessions(db);
-    updateRunContextBar(db);
-  });
+  // Plan tab: la semana se elige desde el chip de contexto (N5); acá solo se
+  // repueblan las sesiones de la semana activa y la cola visible (N4).
 
   // Running program context bar
   document.getElementById('runProgramContext').addEventListener('click', () => {
@@ -448,8 +442,7 @@ export function initRunning(db) {
       saveDB(db);
       document.getElementById('runWeekModal').classList.remove('open');
       updateRunContextBar(db);
-      $weekSelect.value = item.dataset.week;
-      populateRunSessions(db);
+      populateRunWeeks(db);
     }
   });
   document.getElementById('runWeekModalClose').addEventListener('click', () =>
@@ -823,7 +816,7 @@ function saveGpsRun(db) {
     date: today(),
     session: document.getElementById('runSumSession').value || '',
     program: db.runningProgram || '',
-    week: parseInt($weekSelect?.value) || 0,
+    week: db.runningWeek || 0,
     type: document.getElementById('runSumType').value || 'libre',
     distance: result.distance || 0,
     duration: result.duration || 0,
@@ -1599,7 +1592,7 @@ function saveImportedRun(db, act) {
     date: act.date || today(),
     session: '',
     program: db.runningProgram || '',
-    week: parseInt($weekSelect?.value) || 0,
+    week: db.runningWeek || 0,
     // El fichero no dice qué clase de sesión era: 'libre' es lo honesto, y el
     // atleta lo reclasifica desde el detalle si quiere.
     type: 'libre',
@@ -1708,7 +1701,7 @@ function saveManualLog(db) {
     date: document.getElementById('runDate').value || today(),
     session: '',
     program: db.runningProgram || '',
-    week: parseInt($weekSelect?.value) || 0,
+    week: db.runningWeek || 0,
     type: document.getElementById('runType').value,
     distance: distance || 0,
     duration: duration || 0,
@@ -2064,10 +2057,22 @@ function notifyDomainChange(db, newLog) {
 
 // ── Delegated functions (from sub-modules) ───────────────
 
-function populateRunWeeks(db) { _populateRunWeeks(db, $weekSelect, $sessionSelect, $segments); }
-function populateRunSessions(db) { _populateRunSessions(db, $weekSelect, $sessionSelect, $segments); }
-function loadRunSessionTemplate(db) { _loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segments); }
-function renderAllWeekSessions(db) { _renderAllWeekSessions(db, $weekSelect, $segments); }
+/** N5: repuebla el Plan tab (sesiones de la semana activa) + cola (N4). */
+function populateRunWeeks(db) {
+  _populateRunWeeks(db, $segments);
+  renderRunPlanQueue(db);
+}
+
+/** N4: "Cola: A → B → C" con las primeras pendientes de la semana activa. */
+function renderRunPlanQueue(db) {
+  const $el = document.getElementById('runPlanQueue');
+  if (!$el) return;
+  const cola = buildQueue(db, PLAN_RUNNING).slice(0, 3);
+  $el.hidden = !cola.length;
+  $el.textContent = cola.length ? `Cola: ${cola.join(' → ')}` : '';
+}
+
+function renderAllWeekSessions(db) { _renderAllWeekSessions(db, String(db.runningWeek || 1), $segments); }
 
 export function renderRunHistory(db, dateFilter) { _renderRunHistory(db, $historyFilter, $historyList, dateFilter); }
 export function renderRunProgress(db) { _renderRunProgress(db, $weeklyChart, $paceChart, $statsPanel); }
