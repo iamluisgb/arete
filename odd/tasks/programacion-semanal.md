@@ -171,3 +171,14 @@ Review 1 (review-6964733523194246) escaló con R3-001/R3-002 (causalidad
 desconocida). R3-001: invariante forward-only de scheduleAll era implícito →
 filtro explícito en estadoDescanso + test que lo fija. R3-002: handler N3 sin
 try/catch → try/catch + test de la ruta de fallo. Hardening: `+2 tests` (803).
+
+## Evidencia de review (ronda 3)
+
+- `review-6964733523194246`: escalada por R3-001/R3-002 (causalidad desconocida,
+  terminal). Resuelta con hardening `f4d7093` + 2 tests de regresión.
+- `review-6ef2bb6994dd9527`: **APROBADA**, autoridad quemada. 4 hallazgos
+  informativos no bloqueantes (follow-ups):
+  - R3-001 WARNING js/ui/dashboard.js:417-421
+  - R3-002 WARNING js/ui/dashboard.js:459-467
+  - R3-003 SUGGESTION js/ui/running.js:2070-2078
+  - R3-004 SUGGESTION js/ui/training.js:1141-1143
