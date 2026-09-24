@@ -98,6 +98,52 @@ js/app.js no requirió cambios (requestStartSession ya era export de training.js
   calendar.js:150-171 (WARNING), R3-006 schedule.js:203-215 (SUGGESTION).
   `acknowledge-approved` ejecutado, autoridad quemada.
 
+## Ronda 3 — Tarjeta "Hoy" unificada (norte de la auditoría)
+
+Lo que queda de la auditoría tras las rondas 1–2. Todo es capa UI/IA, sin
+retoques al scheduler.
+
+- **N1 (norte)**: una sola tarjeta "Hoy" en el dashboard que responde en orden
+  de prioridad: sesiones de hoy → atrasadas → día de descanso → sin
+  configurar/apagado. Filas agrupadas por plan con cabecera de plan. Los CTAs
+  genéricos Fuerza/Running desaparecen del dashboard y quedan degradados a un
+  enlace de pie dentro de la tarjeta.
+- **N2**: el pie de la tarjeta lleva CTAs etiquetados con contexto ("Fuerza ·
+  Areté Fase II" / "Carrera · Semana 3") que llevan a Entrenar en el modo
+  correcto.
+- **N3**: la línea de atrasadas enlaza al calendario (los días perdidos ya se
+  marcan desde F4), en vez de solo texto "se re-acomodan solas".
+- **N4**: la cola de sesiones pendientes se hace visible en el Plan tab de
+  Entrenar ("Cola: A → B → C") para ambos planes, dando hogar visible al
+  acoplamiento fase/semana ↔ programación.
+- **N5**: se elimina el camino duplicado de selección de semana (el <select> del
+  Plan tab); queda el chip+modal como único camino.
+- **N6**: la tarjeta "Hoy" explica el modelo en una línea en sitio ("si se te
+  cae un día, la sesión pasa al siguiente día que entrenas") con enlace a
+  Ajustes, en los estados descanso/todo hecho.
+
+Estados explícitos exigidos por el norte: sesión(es) de hoy (con botones que
+arrancan lo anunciado, heredado de F1), atrasadas acumuladas, descanso con
+fecha de la próxima sesión, todo completado, y feature apagada (vacío
+existente).
+
+Fuera de alcance ronda 3: cambios de datos, push/ICS, flujo nuevo de asignación
+para runs GPS.
+
+## Evidencia de commits (ronda 3)
+
+- `987a497` feat(ui): tarjeta Hoy unificada (N1, N2, N3, N6) (+10 tests)
+- `6bdf5af` feat(ui): cola visible en Plan tab de fuerza (N4)
+- `3ca31d0` refactor(ui): camino único de semana en running (N5) + cola running
+- `d91ac18` chore(ui): fuera CTAs muertos, sw v153
+
+Post-worker del padre: eliminados listeners muertos de app.js; N3 apuntando al
+calendario real (#calFold, switchStrTab strHistory). Limpieza: comentario
+obsoleto y saveDB sin uso en running-plan.js.
+
+Verificación independiente: PASS 8/8, 801/801 tests. Nota: ui-polish.test.js
+flake preexistente bajo paralelismo (verde aislado y en 2/2 corridas completas).
+
 ## Evidencia de commits
 
 - `03c16c1` feat(schedule): add pure weekly scheduler with anchor days
@@ -121,3 +167,18 @@ js/app.js no requirió cambios (requestStartSession ya era export de training.js
   de schedule (dashboard.js:242-247), posible doble conteo en ventana de
   atrasadas (schedule.js:185-203), default de ref en scheduleDay
   (schedule.js:180-182), slice UTC en snapshot (context.js:45-57).
+Review 1 (review-6964733523194246) escaló con R3-001/R3-002 (causalidad
+desconocida). R3-001: invariante forward-only de scheduleAll era implícito →
+filtro explícito en estadoDescanso + test que lo fija. R3-002: handler N3 sin
+try/catch → try/catch + test de la ruta de fallo. Hardening: `+2 tests` (803).
+
+## Evidencia de review (ronda 3)
+
+- `review-6964733523194246`: escalada por R3-001/R3-002 (causalidad desconocida,
+  terminal). Resuelta con hardening `f4d7093` + 2 tests de regresión.
+- `review-6ef2bb6994dd9527`: **APROBADA**, autoridad quemada. 4 hallazgos
+  informativos no bloqueantes (follow-ups):
+  - R3-001 WARNING js/ui/dashboard.js:417-421
+  - R3-002 WARNING js/ui/dashboard.js:459-467
+  - R3-003 SUGGESTION js/ui/running.js:2070-2078
+  - R3-004 SUGGESTION js/ui/training.js:1141-1143

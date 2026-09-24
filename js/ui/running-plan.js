@@ -1,50 +1,26 @@
 import { esc } from '../utils.js';
 import { getRunningProgramList, getRunningPhases } from '../programs.js';
-import { saveDB } from '../data.js';
 import { ZONE_COLORS, ZONE_LABELS, parseSegDistance, parseSegDuration, estimateZone, getPaceZones } from './running-helpers.js';
 
-// ── Plan tab (programs) ──────────────────────────────────
+// ── Plan tab (programs) ──────────────────────────────
+// N5: el <select> de semana del Plan tab se eliminó; el chip de contexto
+// (runWeekContext) + modal es el único camino de selección. Este módulo solo
+// pinta las sesiones de la semana activa (db.runningWeek).
 
 let _onStartSession = null;
 export function setOnStartSession(fn) { _onStartSession = fn; }
 
-export function populateRunWeeks(db, $weekSelect, $sessionSelect, $segments) {
+/** Repuebla el Plan tab con las sesiones de la semana activa. */
+export function populateRunWeeks(db, $segments) {
   const programs = getRunningProgramList();
   if (programs.length === 0) {
-    $weekSelect.innerHTML = '<option value="">Sin programa</option>';
-    if ($sessionSelect) $sessionSelect.innerHTML = '<option value="">—</option>';
     $segments.innerHTML = '<div class="empty-state">No hay programas de running disponibles</div>';
     return;
   }
 
   const progId = db.runningProgram || programs[0].id;
   db.runningProgram = progId;
-  const phases = getRunningPhases(progId);
-  const weekKeys = Object.keys(phases).sort((a, b) => parseInt(a) - parseInt(b));
-
-  $weekSelect.innerHTML = weekKeys.map(k =>
-    `<option value="${k}" ${parseInt(k) === db.runningWeek ? 'selected' : ''}>${phases[k].name || 'Semana ' + k}</option>`
-  ).join('');
-
-  renderAllWeekSessions(db, $weekSelect, $segments);
-}
-
-export function populateRunSessions(db, $weekSelect, $sessionSelect, $segments) {
-  const progId = db.runningProgram;
-  const phases = getRunningPhases(progId);
-  const week = phases[$weekSelect.value];
-  if (!week || !week.sessions) {
-    $sessionSelect.innerHTML = '<option value="">—</option>';
-    $segments.innerHTML = '';
-    return;
-  }
-
-  const sessionNames = Object.keys(week.sessions);
-  $sessionSelect.innerHTML = sessionNames.map(s =>
-    `<option value="${esc(s)}">${esc(s)}</option>`
-  ).join('');
-
-  loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segments);
+  renderAllWeekSessions(db, String(db.runningWeek || 1), $segments);
 }
 
 function parsePaceToSec(pace) {
@@ -121,30 +97,10 @@ function renderSegmentCards(segs, db) {
   }).join('');
 }
 
-export function loadRunSessionTemplate(db, $weekSelect, $sessionSelect, $segments) {
+export function renderAllWeekSessions(db, weekKey, $segments) {
   const progId = db.runningProgram;
   const phases = getRunningPhases(progId);
-  const week = phases[$weekSelect.value];
-  if (!week) { $segments.innerHTML = ''; return; }
-
-  const sessionName = $sessionSelect.value;
-  const segs = week.sessions?.[sessionName];
-  if (!segs || segs.length === 0) { $segments.innerHTML = ''; return; }
-
-  $segments.innerHTML = buildSegmentBar(segs, db) + renderSegmentCards(segs, db);
-
-  $segments.innerHTML += `<button class="btn run-seg-start-btn" id="runSegStartBtn" style="width:100%;margin-top:8px">Iniciar esta sesión</button>`;
-  document.getElementById('runSegStartBtn').addEventListener('click', () => {
-    const runType = inferRunType(segs);
-    const sessionLabel = $sessionSelect.value || '';
-    _onStartSession?.(segs, runType, sessionLabel, db);
-  });
-}
-
-export function renderAllWeekSessions(db, $weekSelect, $segments) {
-  const progId = db.runningProgram;
-  const phases = getRunningPhases(progId);
-  const week = phases[$weekSelect.value];
+  const week = phases[String(weekKey)];
   if (!week?.sessions) { $segments.innerHTML = '<div class="empty-state">No hay sesiones en esta semana</div>'; return; }
 
   const sessionNames = Object.keys(week.sessions);

@@ -8,6 +8,7 @@ import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopE
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
 import { pictHtml } from './exercise-pict.js';
 import { nextPrescription } from '../progression.js';
+import { buildQueue, PLAN_STRENGTH } from '../schedule.js';
 
 // Re-export for tests
 export { exFmtTime, parseDurationStr, buildTimerConfig };
@@ -1136,8 +1137,23 @@ function _updateActiveSet() {
 }
 
 /** Initialize training section: cache selectors and bind events */
+// ── Cola visible en el Plan tab (N4) ─────────────────────
+// La programación reparte las sesiones pendientes de la fase activa, pero el
+// acoplamiento fase ↔ cola era invisible en Entrenar. Esta línea muestra las
+// primeras pendientes en orden declarado; se oculta si el plan está al día.
+export function renderPlanQueue(db) {
+  const $el = document.getElementById('strPlanQueue');
+  if (!$el) return;
+  const cola = buildQueue(db, PLAN_STRENGTH).slice(0, 3);
+  $el.hidden = !cola.length;
+  $el.textContent = cola.length ? `Cola: ${cola.join(' → ')}` : '';
+}
+
 export function initTraining(db, { onCancelEdit }) {
   cacheSelectors();
+
+  // N4: la cola se refresca en el mismo evento que re-renderiza el Plan tab.
+  document.querySelector('.str-tab[data-str="strPlan"]')?.addEventListener('click', () => renderPlanQueue(db));
 
   $exerciseList.addEventListener('input', (e) => {
     e.target.classList.remove('prefilled');
