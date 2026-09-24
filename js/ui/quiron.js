@@ -10,6 +10,7 @@
 // aplica y repinta (sin tocar un turno en curso).
 
 import * as LLM from '../ai/llm.js';
+import { attachMic, micAvailable } from '../ai/mic.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
 import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
@@ -1018,6 +1019,41 @@ function autoGrow() {
   els.input.style.height = Math.min(els.input.scrollHeight, 120) + 'px';
 }
 
+// ── Dictado (voz → texto) ───────────────────────────────────────────────────
+// El motor y la barra viven en js/ai/mic.js; aquí solo el cableado propio de Quirón.
+
+let mic = null;
+
+// Vocabulario para sesgar la transcripción: programa activo, fase y ejercicios de la fase
+// actual. Es justo donde caen los nombres propios que Whisper se inventa ("press banca" →
+// "Press de Banca"), y sale gratis: todo está ya cargado en memoria.
+function micPrompt(db) {
+  if (!db) return '';
+  const pc = progContext(db);
+  const exercises = [...new Set(
+    Object.values(getPrograms()[db.phase]?.sessions || {})
+      .flat().map(e => e?.name).filter(Boolean)
+  )];
+  return [pc.name, pc.phaseName, ...exercises].filter(Boolean).join('. ');
+}
+
+function initMic() {
+  if (!els.mic) return;
+  mic = attachMic({
+    input: els.input,
+    btn: els.mic,
+    getPrompt: () => micPrompt(dbRef),
+    onError: (msg) => toast(msg, 'error'),
+  });
+  updateMicVisibility();
+}
+
+// El motor del navegador es una capacidad del dispositivo (estática); el del proveedor
+// entra y sale con el modelo de transcripción de Ajustes, así que se repinta al guardar.
+function updateMicVisibility() {
+  if (els.mic) els.mic.style.display = micAvailable() ? '' : 'none';
+}
+
 // Quirón dejó de ser un FAB flotante y es un destino de la navegación: la sexta
 // entrada del rail en escritorio, la sexta pestaña abajo en móvil. Abrirlo lo
 // marca como el destino activo, igual que cualquier otra sección — es lo que
@@ -1084,6 +1120,7 @@ function fillSettingsUI() {
   els.setKey.value = LLM.isDemo() ? '' : LLM.getKey();
   els.setModel.value = LLM.getModel();
   els.setVisionModel.value = LLM.getVisionModelSetting();
+  els.setSttModel.value = LLM.getSttModel();
   fillModelOptions(preset?.id);
   paintDemoUI();
 }
@@ -1105,7 +1142,7 @@ function initSettingsUI() {
     fillModelOptions(p?.id);
     persistSettings();
   });
-  for (const el of [els.setBaseUrl, els.setKey, els.setModel, els.setVisionModel]) {
+  for (const el of [els.setBaseUrl, els.setKey, els.setModel, els.setVisionModel, els.setSttModel]) {
     el.addEventListener('change', persistSettings);
   }
   els.setTest.addEventListener('click', async () => {
@@ -1128,8 +1165,20 @@ function initSettingsUI() {
           visionNote = ` · visión ✗ (${visionModel}): ${e.message}`;
         }
       }
-      els.setStatus.textContent = `✓ Conexión correcta (${text.ms} ms)${visionNote}`;
-      els.setStatus.className = visionNote.includes('✗') ? 'drive-status' : 'drive-status drive-success';
+      // El slot de dictado se prueba aparte y con una llamada DE SU TIPO: transcribir un
+      // WAV de silencio. Es la única forma de saber que el endpoint y el id existen.
+      let sttNote = '';
+      const sttModel = els.setSttModel.value.trim();
+      if (sttModel) {
+        try {
+          await LLM.probeModel({ kind: 'stt', baseUrl: els.setBaseUrl.value, key: els.setKey.value, model: sttModel });
+          sttNote = ` · dictado ✓ (${sttModel})`;
+        } catch (e) {
+          sttNote = ` · dictado ✗ (${sttModel}): ${e.message}`;
+        }
+      }
+      els.setStatus.textContent = `✓ Conexión correcta (${text.ms} ms)${visionNote}${sttNote}`;
+      els.setStatus.className = visionNote.includes('✗') || sttNote.includes('✗') ? 'drive-status' : 'drive-status drive-success';
     } catch (e) {
       els.setStatus.textContent = e.message;
       els.setStatus.className = 'drive-status drive-error';
@@ -1158,8 +1207,10 @@ function persistSettings() {
   LLM.setBaseUrl(els.setBaseUrl.value);
   LLM.setModel(els.setModel.value);
   LLM.setVisionModel(els.setVisionModel.value);
+  LLM.setSttModel(els.setSttModel.value);
   showSetupIfNeeded();
   paintDemoUI();
+  updateMicVisibility();   // el dictado por proveedor entra y sale con este modelo
   renderSettingsIndex(dbRef);   // la fila "Quirón" del índice dice proveedor y modelo
 }
 
@@ -1210,6 +1261,8 @@ export function initQuiron(db, opts = {}) {
     setModel: document.getElementById('quironModel'),
     setModelList: document.getElementById('quironModelList'),
     setVisionModel: document.getElementById('quironVisionModel'),
+    setSttModel: document.getElementById('quironSttModel'),
+    mic: document.getElementById('quironMicBtn'),
     setTest: document.getElementById('quironTestBtn'),
     setStatus: document.getElementById('quironAiStatus'),
     // Demo self-service: bloque de Ajustes + botón de la pantalla de bienvenida.
@@ -1230,6 +1283,7 @@ export function initQuiron(db, opts = {}) {
   convo = loadConvo();
   renderConvo();
   initSettingsUI();
+  initMic();
 
   // Sync (U3): el motor fusiona arete-quiron.json y entrega el resultado aquí.
   // Se leen en cada ciclo, no al registrarse, por si el motor corre antes.
@@ -1278,12 +1332,21 @@ export function initQuiron(db, opts = {}) {
     }
   });
 
-  els.send.addEventListener('click', () => {
+  // Enviar espera al dictado: con el motor del proveedor la transcripción llega AL SOLTAR,
+  // así que leer el textarea antes de que `mic.stop()` resuelva mandaría el turno sin el
+  // último tramo dictado (o sin nada). Vale para el botón y para Enter.
+  els.send.addEventListener('click', async () => {
     if (busy) { abortCtrl?.abort(); return; }
+    await mic?.stop();
     send(db, els.input.value);
   });
-  els.input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!busy) send(db, els.input.value); }
+  els.input.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (busy) return;
+      await mic?.stop();
+      send(db, els.input.value);
+    }
   });
   els.input.addEventListener('input', autoGrow);
 

@@ -1883,6 +1883,56 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 #quironAttachBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 #quironAttachBtn .material-symbols-outlined{font-size:24px}
 #quironAttachBtn:active{opacity:.6}
+/* ── Dictado (barra estilo WhatsApp) ──────────────────────
+   Ocupa el hueco del textarea mientras se graba, con su mismo alto para que el
+   composer no dé un salto al entrar y salir. */
+.mic-bar{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-xl);background:var(--color-surface-1)}
+#quironInput.is-recording{display:none}
+#quironMicBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+#quironMicBtn .material-symbols-outlined{font-size:24px}
+#quironMicBtn.is-on{color:#e53935}
+#quironMicBtn:disabled{opacity:.5;cursor:default}
+/* Papelera: solo con el motor del proveedor (ver mic.js): con el del navegador el texto ya
+   está escrito en el textarea y "descartar" no podría deshacer nada. */
+.mic-bar-cancel{display:none;align-items:center;padding:2px;border:0;background:none;color:var(--color-text-secondary);cursor:pointer;flex-shrink:0}
+.mic-bar-cancel .material-symbols-outlined{font-size:20px}
+.mic-bar.is-provider .mic-bar-cancel{display:inline-flex}
+.mic-bar-cancel:hover{color:#e53935}
+/* Punto latiendo: rojo aunque el acento no lo sea — grabando es grabando, y es el código
+   de color que todo el mundo ya tiene aprendido. */
+.mic-bar-dot{width:9px;height:9px;flex-shrink:0;border-radius:50%;background:#e53935;animation:micDot 1.3s ease-in-out infinite}
+@keyframes micDot{50%{opacity:.25}}
+.mic-bar-time{font-variant-numeric:tabular-nums;font-size:var(--fs-sm);color:var(--color-text-primary)}
+/* Vúmetro: solo con el motor del proveedor, que es el único que da stream que medir.
+   Se enciende de dentro afuera, como un vúmetro de verdad. */
+.mic-bar-level{display:none;align-items:center;gap:2px;flex:1;min-width:0}
+.mic-bar.is-provider .mic-bar-level{display:flex}
+.mic-bar-level i{flex:1;height:4px;border-radius:2px;background:var(--color-border-subtle);transition:height 80ms linear,background-color 80ms linear}
+.mic-bar-level i.on{height:14px;background:var(--color-accent-text)}
+.mic-bar-hint{font-size:var(--fs-xs);color:var(--color-text-secondary);white-space:nowrap}
+.mic-bar.is-provider .mic-bar-hint{display:none}
+/* Parar: la acción principal mientras grabas, y por eso es lo único con acento en la barra.
+   Va a la DERECHA (margin-left:auto), enfrente de la papelera: destructivo a un extremo,
+   confirmar al otro. */
+.mic-bar-stop{margin-left:auto;flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--color-accent-text);color:var(--color-on-fill);cursor:pointer}
+.mic-bar-stop .material-symbols-outlined{font-size:18px}
+/* Transcribiendo: la barra se queda (el texto tarda en llegar y un textarea vacío hace
+   pensar que el audio se perdió); cronómetro, vúmetro y botones se van y el punto rojo
+   pasa a spinner. */
+.mic-bar.is-busy .mic-bar-cancel,
+.mic-bar.is-busy .mic-bar-stop,
+.mic-bar.is-busy .mic-bar-time,
+.mic-bar.is-busy .mic-bar-level{display:none}
+.mic-bar.is-provider.is-busy .mic-bar-hint{display:block}
+.mic-bar.is-busy .mic-bar-dot{width:14px;height:14px;background:none;border:2px solid var(--color-border-subtle);border-top-color:var(--color-accent-text);animation:micSpin .7s linear infinite}
+@keyframes micSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  .mic-bar-dot{animation:none}
+  .mic-bar-level i{transition:none}
+  /* Aquí el movimiento SÍ se quita, pero la espera tiene que seguir viéndose viva: el
+     spinner deja de girar y late en opacidad, que no es movimiento. */
+  .mic-bar.is-busy .mic-bar-dot{animation:micDot 1.6s ease-in-out infinite}
+}
 .q-img-chip{display:inline-flex;align-items:center;gap:6px}
 .q-img-chip .material-symbols-outlined{font-size:18px;vertical-align:middle}
 /* ══ Ilustraciones de ejercicio ══════════════════════════

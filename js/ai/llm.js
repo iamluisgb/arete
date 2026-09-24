@@ -148,6 +148,13 @@ export function getVisionModel() {
 }
 export function hasVision() { return getVisionModel().length > 0; }
 
+// Modelo de TRANSCRIPCIÓN (voz → texto, para dictarle por voz a Quirón). Sin valor
+// por defecto por proveedor: el dictado por proveedor solo entra si el usuario
+// configura uno (D1); si no, se cae al reconocedor del navegador.
+export function getSttModel()  { return (get('areteAiSttModel', '') || '').trim(); }
+export function setSttModel(m) { set('areteAiSttModel', (m || '').trim()); }
+export function hasStt()       { return getSttModel().length > 0; }
+
 // ---- Cola de llamadas: prioridad + serialización solo donde hace falta -------
 // Antes se serializaban TODAS las llamadas con una cadena de promesas, por un límite
 // de nan que ya no existe. Dos problemas, los mismos que arregló bookreader:
@@ -509,42 +516,111 @@ async function _chatVision({ image, prompt, maxTokens = 2048, signal }) {
   return (await res.json()).choices?.[0]?.message?.content || '';
 }
 
+// TRANSCRIPCIÓN (voz → texto) contra `/audio/transcriptions`, formato OpenAI. Va
+// FUERA de la cola: el usuario espera mirando la barra, y encolarlo detrás de una
+// generación larga lo dejaría mirando «Transcribiendo…» un minuto.
+//
+// `prompt` es la pieza que justifica todo esto: el modelo lo usa para SESGAR el
+// vocabulario, y Quirón lo tiene antes de que el atleta hable (programa activo y
+// ejercicios de la fase actual, ver micPrompt en quiron.js).
+export async function transcribe({ blob, prompt = '', language = '', signal } = {}) {
+  const key = getKey().trim();
+  if (!key) throw new Error('Falta la API key. Configúrala en Ajustes → Quirón.');
+  const model = getSttModel();
+  if (!model) throw new Error('No hay modelo de transcripción configurado. Configúralo en Ajustes → Quirón.');
+
+  const form = new FormData();
+  // El nombre importa: algunos proveedores deciden el formato por la extensión del fichero.
+  form.append('file', blob, `audio.${extFor(blob.type)}`);
+  form.append('model', model);
+  if (prompt) form.append('prompt', prompt.slice(0, 900));   // el límite de Whisper son 224 tokens
+  if (language) form.append('language', language);
+
+  // Sin `Content-Type`: lo pone el navegador con el `boundary` del multipart.
+  const res = await fetchRetrying(`${getBaseUrl()}/audio/transcriptions`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${key}` },
+    body: form,
+    signal,
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    if (res.status === 401) throw new Error('API key inválida (401).');
+    if (res.status === 404) throw new Error('El proveedor no ofrece transcripción, o el modelo no existe.');
+    throw new Error(`Error al transcribir (${res.status}). ${apiErrMsg(body)}`);
+  }
+  const json = await res.json().catch(() => ({}));
+  return (json.text || '').trim();
+}
+
+function extFor(mime) {
+  const m = String(mime || '');
+  if (m.includes('webm')) return 'webm';
+  if (m.includes('ogg')) return 'ogg';
+  if (m.includes('mp4') || m.includes('m4a') || m.includes('aac')) return 'm4a';
+  if (m.includes('wav')) return 'wav';
+  return 'webm';
+}
+
 // ---- Probar un slot de modelo ----------------------------------------------
-// Hay DOS slots (texto y visión) y los dos son texto libre: un id mal escrito no se
-// nota al guardar, se nota mucho después y en otro sitio. `hasVision()` solo mira que
-// la cadena no esté vacía, así que un typo deja la ingesta por captura "activada" y
-// fallando justo cuando el atleta le hace la foto a su entreno. Esto —traído de
+// Hay TRES slots (texto, visión y transcripción) y los tres son texto libre: un id mal
+// escrito no se nota al guardar, se nota mucho después y en otro sitio. `hasVision()` solo
+// mira que la cadena no esté vacía, así que un typo deja la ingesta por captura "activada"
+// y fallando justo cuando el atleta le hace la foto a su entreno. Esto —traído de
 // bookreader— convierte ese fallo diferido en una respuesta inmediata: se prueba cada
 // slot con una llamada mínima DEL TIPO QUE LE CORRESPONDE.
-//
-// Usa los valores del FORMULARIO (aún sin guardar): se prueba antes de comprometerse.
 
 // PNG de 1×1 transparente: la imagen más pequeña posible para comprobar que el modelo
 // acepta contenido multimodal. Da igual qué conteste; lo que se prueba es que no
 // rechace la forma de la petición.
 const PIXEL_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-/** kind: 'text' | 'vision'. Devuelve { ok, ms }; lanza con un mensaje legible. */
+// WAV de silencio (PCM 16 bit mono). Vale para verificar el endpoint y el id del modelo:
+// si transcribe a cadena vacía, es un éxito — lo que se prueba es que la llamada no revienta.
+function silentWav(ms = 300, rate = 16000) {
+  const n = Math.floor(rate * ms / 1000);
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE');
+  str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, n * 2, true);
+  return new Blob([buf], { type: 'audio/wav' });   // el cuerpo ya es todo ceros = silencio
+}
+
+// kind: 'text' | 'vision' | 'stt'. Devuelve { ok, ms }; lanza con un mensaje legible.
 export async function probeModel({ kind = 'text', model, baseUrl, key, signal } = {}) {
   const b = (baseUrl != null ? baseUrl : getBaseUrl()).trim().replace(/\/+$/, '');
   const k = (key != null ? key : getKey()).trim();
-  const m = String(model != null ? model : (kind === 'vision' ? getVisionModel() : getModel())).trim();
+  const m = String(model != null ? model : (kind === 'vision' ? getVisionModel() : kind === 'stt' ? getSttModel() : getModel())).trim();
   if (!b) throw new Error('Falta la Base URL.');
   if (!k) throw new Error('Falta la API key.');
   if (!m) throw new Error('Falta el id del modelo.');
 
   const t0 = Date.now();
-  const content = kind === 'vision'
-    ? [{ type: 'text', text: 'ok?' }, { type: 'image_url', image_url: { url: PIXEL_PNG } }]
-    : 'ok?';
   let res;
   try {
-    res = await fetch(`${b}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${k}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: m, messages: [{ role: 'user', content }], stream: false, max_tokens: 5 }),
-      signal,
-    });
+    if (kind === 'stt') {
+      // El slot de voz se prueba transcribiendo un WAV mínimo de silencio: es la única
+      // forma de saber que el endpoint existe y el id es de un modelo de transcripción.
+      const form = new FormData();
+      form.append('file', silentWav(), 'probe.wav');
+      form.append('model', m);
+      res = await fetch(`${b}/audio/transcriptions`, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${k}` }, body: form, signal,
+      });
+    } else {
+      const content = kind === 'vision'
+        ? [{ type: 'text', text: 'ok?' }, { type: 'image_url', image_url: { url: PIXEL_PNG } }]
+        : 'ok?';
+      res = await fetch(`${b}/chat/completions`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${k}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: m, messages: [{ role: 'user', content }], stream: false, max_tokens: 5 }),
+        signal,
+      });
+    }
   } catch (e) {
     if (e.name === 'AbortError') throw e;
     // "Failed to fetch" no le dice nada a nadie; casi siempre es CORS o la URL mal.

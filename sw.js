@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arete-v148';
+const CACHE_NAME = 'arete-v149';
 const ASSETS = [
   './',
   './app.html',
@@ -184,6 +184,8 @@ const ASSETS = [
   './js/sync/quiron.js',
   './js/ui/quiron.js',
   './js/ai/llm.js',
+  './js/ai/dictation-engine.js',
+  './js/ai/mic.js',
   './js/ai/metrics.js',
   './js/ai/context.js',
   './js/ai/tools.js',
