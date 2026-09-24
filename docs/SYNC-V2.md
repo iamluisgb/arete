@@ -61,6 +61,28 @@ se drenan en la migración v7 con `coll: 'legacy'`.
 
 ## El ciclo (`createSyncEngine`)
 
+```mermaid
+flowchart TD
+    TR["Trigger: arranque, debounce tras saveDB,<br/>cada 90 s visible, flush"] --> LOCK{"Web Lock 'arete-sync'<br/>ifAvailable"}
+    LOCK -->|"ocupado"| SKIP["Otra pestaña sincroniza:<br/>se salta el ciclo"]
+    LOCK -->|"conseguido"| PULL["Pull de arete-backup.json<br/>y de su revisión"]
+    PULL --> MERGE
+    subgraph PURA["js/sync/merge.js — función pura"]
+        MERGE["mergeDBv2: local ⊕ remoto<br/>LWW por uid · tombstones por colección"]
+        PROP["Conmutativo e idempotente<br/>A⊕B == B⊕A · A⊕A == A"]
+        MERGE --- PROP
+    end
+    MERGE --> REV{"¿Cambió la revisión remota<br/>desde el pull?"}
+    REV -->|"sí: 412 emulado"| RET{"¿Quedan reintentos?<br/>máx. 3"}
+    RET -->|"sí, backoff 300ms·n + jitter"| PULL
+    RET -->|"no"| ERR["Error 412 en el diagnóstico"]
+    REV -->|"no"| FP{"¿Huella igual a la remota?"}
+    FP -->|"sí"| NOOP["No-op: no se sube nada"]
+    FP -->|"no"| PUSH["Push del resultado"]
+    PUSH --> QF["Fase Quirón sobre arete-quiron.json<br/>mismo lock, mismo reintento"]
+    NOOP --> QF
+```
+
 1. **Pull** del fichero remoto (`arete-backup.json`). Payload v1 (sin `format`)
    se acepta: backfill antes de mezclar. JSON corrupto → error diagnosticado,
    nunca se pisa a ciegas.
