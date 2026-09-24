@@ -2,7 +2,7 @@ import { formatDate, esc } from '../utils.js';
 import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
 import * as LLM from '../ai/llm.js';
-import { isConnected } from '../drive.js';
+import { isConnected, getSyncDiag } from '../drive.js';
 
 function normLift(name) {
   const n = name.toLowerCase();
@@ -20,7 +20,7 @@ export function render1RMs(db) {
   const prog = getActiveProgram();
   const title = document.getElementById('rmTitle');
   if (prog !== 'arete') {
-    title.textContent = 'Records Personales';
+    title.textContent = 'Récords Personales';
     renderRecords(db, prog);
     return;
   }
@@ -93,8 +93,8 @@ const AUTOSYNC_KEY = 'areteAutoSync';
 const SYNC_TS_KEY = 'areteLastSync';
 
 /** "hace 2 h", "ayer", "12 mar" — la precisión que importa decrece con la edad. */
-function timeAgo(ts) {
-  const min = Math.floor((Date.now() - ts) / 60000);
+function timeAgo(ts, now = Date.now()) {
+  const min = Math.floor((now - ts) / 60000);
   if (min < 1) return 'ahora mismo';
   if (min < 60) return `hace ${min} min`;
   const h = Math.floor(min / 60);
@@ -152,12 +152,75 @@ export function renderSettingsIndex(db) {
   }
 }
 
+// ── UX-8: diagnóstico de sincronización ───────────────────────────────────
+//
+// La fila del índice dice hace cuánto fue la última copia; este bloque dice
+// por qué falla cuando falla. El motor de sync (sync/engine.js) lleva la
+// cuenta: resultado del último ciclo, error, fallos consecutivos y una
+// historia corta de ciclos. Aquí solo se pinta — nada se calcula dos veces.
+
+/**
+ * Markup del diagnóstico, puro para que sea testeable: `now` entra como
+ * parámetro y nada lee el DOM. `diag` es lo que devuelve getSyncDiag()
+ * (js/drive.js), o null si el motor no llegó a arrancar.
+ */
+export function formatSyncDiag(diag, now = Date.now()) {
+  if (!diag) return '<p class="sync-diag-line">Sin actividad de sincronización</p>';
+  const lines = [];
+  if (!diag.lastCycleAt) {
+    lines.push('<p class="sync-diag-line">Sin ciclos aún</p>');
+  } else {
+    const result = diag.lastResult === 'ok' ? 'OK' : 'error';
+    lines.push(`<p class="sync-diag-line">Último ciclo: ${result} · ${esc(timeAgo(diag.lastCycleAt, now))}</p>`);
+  }
+  if (diag.lastError) lines.push(`<p class="sync-diag-line sync-diag-error">${esc(diag.lastError)}</p>`);
+  if (diag.consecutiveFailures > 0) {
+    lines.push(`<p class="sync-diag-line">${diag.consecutiveFailures} fallos seguidos</p>`);
+  }
+  const hist = (diag.history || []).slice(0, 3);
+  if (hist.length) {
+    lines.push(`<ul class="sync-diag-list">${hist.map(h => {
+      const result = h.result === 'ok' ? 'OK' : 'error';
+      // El detalle solo importa en los errores: en los OK es "pulled:0 pushed:1".
+      const detalle = h.result !== 'ok' && h.detail ? ` — ${esc(h.detail)}` : '';
+      return `<li>${result} · ${esc(timeAgo(h.at, now))}${detalle}</li>`;
+    }).join('')}</ul>`);
+  }
+  return lines.join('');
+}
+
+/** Pinta el diagnóstico en el bloque plegado de la subpágina de copia. */
+export function renderSyncDiag() {
+  const el = document.getElementById('syncDiagBody');
+  if (!el) return;
+  el.innerHTML = formatSyncDiag(getSyncDiag());
+}
+
+// drive.js expone UN solo slot onSyncStatus y app.js lo usa para el indicador
+// de la cabecera: suscribirnos aquí lo pisaría en silencio. El indicador
+// cambia en cada transición del motor ('syncing'/'ok'/'error'), así que
+// observarlo equivale al callback sin tocar drive.js ni app.js. Sin intervalos.
+let _diagObserver = null;
+function watchSyncStatus() {
+  if (_diagObserver) return;
+  const ind = document.getElementById('syncIndicator');
+  if (!ind || typeof MutationObserver === 'undefined') return;
+  _diagObserver = new MutationObserver(() => {
+    // Solo interesa si el bloque está en pantalla; innerHTML vacío no molesta.
+    if (document.getElementById('setBackup')?.classList.contains('active')) renderSyncDiag();
+  });
+  _diagObserver.observe(ind, { attributes: true, attributeFilter: ['class'], childList: true, characterData: true });
+}
+
 /** Muestra una subpágina de Ajustes (o el índice) y lleva el foco a su título. */
 export function openSettingsPage(id) {
   const sec = document.getElementById('secSettings');
   if (!sec) return;
   sec.querySelectorAll('.set-page').forEach(p => p.classList.toggle('active', p.id === id));
   sec.dataset.setpage = id;
+  // El diagnóstico se refresca al entrar: si refrescara en cada ciclo, pintaría
+  // una subpágina que nadie está mirando.
+  if (id === 'setBackup') renderSyncDiag();
   // El scroll es de la ventana, no del panel: sin esto entras a una subpágina
   // corta por la mitad, con el scroll heredado del índice.
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -173,6 +236,7 @@ export function initSettingsNav(db) {
   const sec = document.getElementById('secSettings');
   if (!sec) return;
   sec.dataset.setpage = 'setIndex';
+  watchSyncStatus();
   sec.addEventListener('click', (e) => {
     const target = e.target.closest('[data-setpage]');
     if (!target) return;

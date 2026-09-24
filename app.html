@@ -64,6 +64,9 @@
     <p class="dash-greeting-quote" id="dashQuote"></p>
   </section>
   <button class="dash-level" id="dashLevel" type="button"></button>
+  <!-- Primeros pasos (UX-2): solo para una db esencialmente nueva; el contenido
+       lo pinta dashboard.js y desaparece al completar los pasos u ocultarla. -->
+  <div id="dashStarter"></div>
   <h3 class="group-title dash-week-title">Esta semana</h3>
   <section class="dash-bento" aria-label="Resumen de la semana">
     <div class="dash-card" id="dashVolume">
@@ -375,6 +378,9 @@
         </button>
       </div>
     </div>
+    <!-- UX-9: donde estaría el botón del tracker, en el navegador se dice por
+         qué no está. Un botón que desaparece sin explicación parece un fallo. -->
+    <p class="run-import-hint" id="runGpsNote" hidden>El GPS en vivo solo está en la app instalada. Importa tu GPX o registra la carrera a mano.</p>
     <div class="run-import-hint" id="runImportHint"></div>
   </div>
 
@@ -434,6 +440,10 @@
     <div class="prof-limited" id="profLimited"></div>
   </div>
   <div class="radar-wrap"><svg id="profRadar" viewBox="0 0 300 300" role="img" aria-labelledby="profRadarTitle"><title id="profRadarTitle">Radar de los 7 dominios</title></svg></div>
+  <!-- UX-11: el radar es role="img" y un lector de pantalla no saca los
+       niveles de él. La tabla equivalente, oculta visualmente, con los mismos
+       datos que las tarjetas de abajo. -->
+  <div id="profRadarTable" class="sr-only"></div>
   <div class="prof-next" id="profNext"></div>
   <h3 class="group-title prof-domains-title">7 dominios</h3>
   <div id="profDomains"></div>
@@ -772,6 +782,12 @@
       <button class="toggle-btn listrow-control" type="button" id="autoSyncBtn" role="switch" aria-checked="false" aria-labelledby="autoSyncLabel"></button>
     </div>
     <div id="driveStatus" class="drive-status" role="status" aria-live="polite"></div>
+    <!-- UX-8: el diagnóstico del motor de sync, plegado. La fila del índice dice
+         hace cuánto fue la última copia; esto dice por qué falla cuando falla. -->
+    <details class="set-advanced sync-diag" id="syncDiag">
+      <summary>Diagnóstico de sincronización</summary>
+      <div id="syncDiagBody" class="sync-diag-body"></div>
+    </details>
     <button class="listrow listrow--action" type="button" id="driveBackupBtn">
       <span class="listrow-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>

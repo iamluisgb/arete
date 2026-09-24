@@ -16,11 +16,12 @@ import { connectIfNeeded, isConnected, backupToDrive, syncNow, onSyncStatus, onR
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
-import { renderDashboard } from './ui/dashboard.js';
-import { initProfile } from './ui/profile.js';
+import { renderDashboard, dismissStarter } from './ui/dashboard.js';
+import { initProfile, highlightDomain } from './ui/profile.js';
 import { initQuiron } from './ui/quiron.js';
 import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
 import { initRail, toggleRail } from './ui/rail.js';
+import { computeProfile } from './domains.js';
 import { initSettingsNav, renderSettingsIndex } from './ui/settings.js';
 
 const db = loadDB();
@@ -248,12 +249,37 @@ async function init() {
     switchTrainMode(mode, db);
     switchTab(btn, db);
   };
+  // UX-1: el nivel no solo lleva a Perfil — si hay un dominio que limita,
+  // lo señala. Sin perfil medido no hay destino concreto: switchTab basta.
   document.getElementById('dashLevel')?.addEventListener('click', () => {
     const btn = document.querySelector('nav button[data-sec="secProfile"]');
-    if (btn) switchTab(btn, db);
+    if (!btn) return;
+    switchTab(btn, db);
+    const p = computeProfile(db);
+    if (p.limitedBy) highlightDomain(p.limitedBy.id);
   });
   document.getElementById('dashStartBtn')?.addEventListener('click', () => goEntrenar('str'));
   document.getElementById('dashStartRunBtn')?.addEventListener('click', () => goEntrenar('run'));
+
+  // UX-2 y UX-12: delegación en contenedores estáticos — renderDashboard
+  // reescribe su innerHTML en cada visita y un listener directo moriría.
+  document.getElementById('dashStarter')?.addEventListener('click', (e) => {
+    if (e.target.closest('[data-starter-dismiss]')) {
+      dismissStarter();
+      renderDashboard(db);
+      return;
+    }
+    const step = e.target.closest('[data-starter-tab]');
+    if (!step) return;
+    // La sesión se abre en modo fuerza, igual que #dashStartBtn.
+    if (step.dataset.starterTab === 'secTrain') return goEntrenar('str');
+    const tabBtn = document.querySelector(`nav button[data-sec="${step.dataset.starterTab}"]`);
+    if (tabBtn) switchTab(tabBtn, db);
+  });
+  document.getElementById('dashActivityList')?.addEventListener('click', (e) => {
+    if (e.target.closest('#dashEmptyStart')) goEntrenar('str');
+  });
+
   document.getElementById('appVersion').textContent = `Versión ${APP_VERSION}`;
   bindEvents();
 

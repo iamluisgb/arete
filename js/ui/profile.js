@@ -186,6 +186,56 @@ function domainRow(d, profile) {
 
 // ── Render y eventos ─────────────────────────────────────
 
+/**
+ * UX-1: llegar a Perfil ya no basta cuando vienes del nivel de Hoy — si hay un
+ * dominio que limita, hay que llevar hasta él. Un resaltado temporal evita que
+ * siete tarjetas iguales se traguen la respuesta al "¿y esto dónde está?".
+ * Sin resaltado si no existe la tarjeta (perfil sin medir: la pantalla ya lo
+ * dice con su banner).
+ */
+let highlightTimer = null;
+export function highlightDomain(id) {
+  if (!id) return;
+  // jsdom no expone CSS.escape; los ids de dominio son slugs, pero no cuesta
+  // cubrir el caso general.
+  const sel = (typeof CSS !== 'undefined' && CSS.escape) ? CSS.escape(id) : id.replace(/[^\w-]/g, '\\$&');
+  const card = document.querySelector(`#profDomains .prof-domain[data-domain="${sel}"]`);
+  if (!card) return;
+  card.classList.remove('domain-highlight');
+  void card.offsetWidth; // reinicia la animación si se vuelve a entrar
+  card.classList.add('domain-highlight');
+  card.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  clearTimeout(highlightTimer);
+  highlightTimer = setTimeout(() => card.classList.remove('domain-highlight'), 1600);
+  // Cualquier interacción con la tarjeta la retira antes de tiempo.
+  card.addEventListener('pointerdown', () => {
+    clearTimeout(highlightTimer);
+    card.classList.remove('domain-highlight');
+  }, { once: true });
+}
+
+/**
+ * UX-11: el radar es role="img" — un lector de pantalla no saca los niveles
+ * de él. La tabla equivalente, oculta visualmente (.sr-only), repite los
+ * mismos datos que las tarjetas de abajo: mismas filas, mismo perfil, sin
+ * recálculo. Solo los dominios medidos, que es lo que el radar dibuja; un
+ * dominio sin medir no es un nivel 0 (ver computeProfile) y la tabla no
+ * miente tampoco.
+ */
+function renderRadarTable(profile) {
+  const el = document.getElementById('profRadarTable');
+  if (!el) return;
+  const rows = profile.domains
+    .filter(d => d.level > 0)
+    .map(d => `<tr><td>${esc(d.name)}</td><td>${ROMAN[d.level]}</td><td>${d.stale ? 'Caducado' : ''}</td></tr>`)
+    .join('');
+  el.innerHTML = `<table>
+    <caption>Nivel por dominio</caption>
+    <thead><tr><th scope="col">Dominio</th><th scope="col">Nivel</th><th scope="col">Estado</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
 export function renderProfile(db) {
   cacheSelectors();
   if (!$radar) return;
@@ -193,6 +243,7 @@ export function renderProfile(db) {
 
   renderHead(profile);
   renderRadar(profile);
+  renderRadarTable(profile);
   renderNext(profile);
   $domains.innerHTML = profile.domains.map(d => domainRow(d, profile)).join('');
 

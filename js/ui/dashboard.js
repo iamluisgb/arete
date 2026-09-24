@@ -141,8 +141,65 @@ function renderLevel(db) {
     <span class="material-symbols-outlined dash-level-go">chevron_right</span>`;
 }
 
+/**
+ * La tarjeta de primeros pasos (UX-2). Solo una db esencialmente nueva la
+ * merece: sin sesiones de fuerza NI running. Un veterano con 2/7 dominios
+ * medidos no vuelve a verla, aunque su perfil siga provisional — la condición
+ * es el historial vacío, no el perfil incompleto.
+ */
+const STARTER_KEY = 'areteStarterDismissed';
+
+export function isStarterDismissed() {
+  try {
+    return JSON.parse(localStorage.getItem(STARTER_KEY)) === true;
+  } catch {
+    return false;
+  }
+}
+
+export function dismissStarter() {
+  try { localStorage.setItem(STARTER_KEY, JSON.stringify(true)); } catch {}
+}
+
+const starterSteps = (db) => [
+  { label: 'Registra tu peso corporal', tab: 'secBody', done: (db.bodyLogs || []).length > 0 },
+  { label: 'Haz tu primer test', tab: 'secProfile', done: (db.domainTests || []).length > 0 },
+  { label: 'Registra tu primera sesión', tab: 'secTrain', done: db.workouts.length > 0 },
+];
+
+export function shouldShowStarter(db) {
+  if (db.workouts.length || (db.runningLogs || []).length) return false;
+  if (isStarterDismissed()) return false;
+  if (!computeProfile(db).provisional) return false;
+  return starterSteps(db).some(s => !s.done);
+}
+
+function renderStarter(db) {
+  const $el = document.getElementById('dashStarter');
+  if (!$el) return;
+  if (!shouldShowStarter(db)) {
+    $el.innerHTML = '';
+    return;
+  }
+  const paso = (s, i) => `
+    <li class="${s.done ? 'done' : ''}">
+      <button type="button" data-starter-tab="${s.tab}">
+        <span class="material-symbols-outlined" aria-hidden="true">${s.done ? 'check_circle' : 'radio_button_unchecked'}</span>
+        ${esc(s.label)}
+      </button>
+    </li>`;
+  $el.innerHTML = `<div class="dash-card dash-starter" role="region" aria-label="Primeros pasos">
+    <div class="dash-starter-head">
+      <span class="dash-starter-title">Empieza por aquí</span>
+      <button type="button" class="dash-starter-dismiss" data-starter-dismiss>Ocultar</button>
+    </div>
+    <ol class="dash-starter-steps">${starterSteps(db).map(paso).join('')}</ol>
+  </div>`;
+}
+
 export function renderDashboard(db) {
   renderLevel(db);
+  renderStarter(db);
   const weekStart = getWeekStart();
   const weekWorkouts = db.workouts.filter(w => new Date(w.date + 'T12:00:00') >= weekStart);
 
@@ -216,7 +273,8 @@ export function renderDashboard(db) {
   if (!listEl) return;
 
   if (!allActivity.length) {
-    listEl.innerHTML = '<div class="dash-empty">Sin actividad aún</div>';
+    listEl.innerHTML = `<div class="dash-empty">Sin actividad aún
+      <button type="button" class="btn btn--secondary btn--sm dash-empty-cta" id="dashEmptyStart">Empezar una sesión</button></div>`;
     return;
   }
 

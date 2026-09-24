@@ -207,10 +207,10 @@ export function initRunning(db) {
     const $typeHrBtn = document.getElementById('runTypeHrBtn');
     if (state === 'connected') {
       $hrBtn.classList.add('connected');
-      $hrBtn.title = `${hrMonitor.deviceName || 'Pulsometro'} conectado`;
+      $hrBtn.title = `${hrMonitor.deviceName || 'Pulsómetro'} conectado`;
       $typeHrBtn.classList.add('hr-connected');
       $typeHrBtn.textContent = `♥ ${hrMonitor.deviceName || 'Conectado'}`;
-      toast(`Pulsometro conectado: ${hrMonitor.deviceName || 'HR'}`);
+      toast(`Pulsómetro conectado: ${hrMonitor.deviceName || 'HR'}`);
     } else if (state === 'connecting') {
       $hrBtn.classList.add('connecting');
     } else {
@@ -944,7 +944,7 @@ function updateTypePanelUI(data) {
 
 function updateRodajeUI() {
   const color = ZONE_COLORS.Z2;
-  $typePanel.innerHTML = `<div class="run-type-zone-bar" style="background:${color}">Z2 <span class="zone-label">· Aerobico</span></div>`;
+  $typePanel.innerHTML = `<div class="run-type-zone-bar" style="background:${color}">Z2 <span class="zone-label">· Aeróbico</span></div>`;
 }
 
 function updateTempoUI(data) {
@@ -1042,15 +1042,28 @@ function initIntervalState() {
 
 // ── Session-level tracking ───────────────────────────────
 
+/**
+ * UX-10: el color del tramo comunica la zona, y el color solo no se lee sin
+ * verlo (ni en un lector de pantalla). La zona va como texto oculto dentro del
+ * tramo: cero cambio visual, y el nombre no se trunca para hacer sitio.
+ */
+export function sessionSegMarkup(seg, { current, done }) {
+  const zone = seg.zone || 'Z2';
+  const color = ZONE_COLORS[zone] || ZONE_COLORS.Z2;
+  const cls = current ? 'active' : done ? 'done' : '';
+  return `<div class="run-session-seg ${cls}" style="background:${color}">${esc(seg.name.substring(0, 12))}<span class="sr-only"> ${esc(zone)}</span></div>`;
+}
+
 function renderSessionProgress() {
   const $progress = document.getElementById('runSessionProgress');
   if (!sessionState || !activeSegments) { $progress.style.display = 'none'; return; }
   $progress.style.display = '';
-  $progress.innerHTML = activeSegments.map((seg, i) => {
-    const color = ZONE_COLORS[seg.zone] || ZONE_COLORS.Z2;
-    const cls = i === sessionState.currentIdx ? 'active' : sessionState.completed[i] ? 'done' : '';
-    return `<div class="run-session-seg ${cls}" style="background:${color}">${esc(seg.name.substring(0, 12))}</div>`;
-  }).join('');
+  $progress.innerHTML = activeSegments.map((seg, i) =>
+    sessionSegMarkup(seg, {
+      current: i === sessionState.currentIdx,
+      done: sessionState.completed[i],
+    })
+  ).join('');
 }
 
 function updateProgressBarHighlight() {
@@ -1493,15 +1506,29 @@ function renderZoneBars(container, zoneTimes) {
 // `db.runningLogs`, así que una carrera importada vale exactamente igual que
 // una medida por la app.
 
+/**
+ * UX-9: el tracker se ofrece solo donde el SO deja medirlo de verdad. En el
+ * navegador, donde estaría el botón, una nota muda dice qué sí se puede
+ * hacer. La nota vive una vez en app.html (oculta por defecto): los
+ * re-renders del panel solo la muestran o la esconden, nunca la duplican.
+ */
+export function updateGpsAvailability() {
+  const can = canTrackRuns();
+  const $gps = document.getElementById('runGpsActions');
+  if ($gps) $gps.hidden = !can;
+  const $note = document.getElementById('runGpsNote');
+  if ($note) $note.hidden = can;
+}
+
 function initImport(db) {
   const $btn = document.getElementById('runImportBtn');
   const $file = document.getElementById('runImportFile');
-  const $gps = document.getElementById('runGpsActions');
   const $hint = document.getElementById('runImportHint');
   if (!$btn || !$file) return;
 
-  // El tracker solo donde el sistema operativo deja medir de verdad.
-  if ($gps) $gps.hidden = !canTrackRuns();
+  // El tracker solo donde el sistema operativo deja medir de verdad; donde no,
+  // en su sitio se explica qué sí se puede hacer (UX-9).
+  updateGpsAvailability();
   // Con ratón el fichero está en el disco y se puede arrastrar; se dice.
   const canDrop = matchMedia('(pointer:fine)').matches;
   if ($hint) {

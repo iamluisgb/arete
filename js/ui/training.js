@@ -84,6 +84,11 @@ function clearDraft() {
   clearTimeout(_draftTimer);
 }
 
+// UX-7: el borrador es posicional (valores por índice de input). Si la sesión
+// o el número de ejercicios cambiaron, restaurarlo escribiría valores en series
+// equivocadas; se descarta y se avisa en vez de hacerlo en silencio.
+const DRAFT_MISMATCH_MSG = 'El borrador anterior no encaja con el plan actual: se descartó';
+
 function restoreDraft() {
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
@@ -91,9 +96,9 @@ function restoreDraft() {
     const draft = JSON.parse(raw);
     // Discard drafts older than 12 hours
     if (Date.now() - draft.ts > 12 * 60 * 60 * 1000) { clearDraft(); return false; }
-    if (draft.session !== $trainSession.value) return false;
+    if (draft.session !== $trainSession.value) { toast(DRAFT_MISMATCH_MSG, 'info'); return false; }
     const inputs = $exerciseList.querySelectorAll('input');
-    if (inputs.length !== draft.values.length) return false;
+    if (inputs.length !== draft.values.length) { toast(DRAFT_MISMATCH_MSG, 'info'); return false; }
     draft.values.forEach((v, i) => {
       if (v) { inputs[i].value = v; inputs[i].classList.remove('prefilled'); }
     });
@@ -444,6 +449,20 @@ function _renderRunnerCta() {
 
 function timerBtnHtml(i, mode) {
   return `<button class="ex-timer-btn" data-ex-timer="${i}" data-timer-mode="${mode}">▶ Iniciar timer</button><div class="ex-timer-zone" data-ex="${i}"></div>`;
+}
+
+// UX-6: feedback inmediato en las series, no solo al guardar. No bloquea ni
+// reescribe nada — solo pinta — para que el guardado siga siendo la única
+// validación con consecuencias. Un aguante cronometrado ('2min') convive aquí
+// con los kilos: parseFloat lo da por válido y eso es lo que se quiere.
+export function validateSetInput(inp) {  // exportada para tests
+  const raw = String(inp.value).trim().replace(/,/g, '.');
+  const num = parseFloat(raw);
+  const invalid = raw !== '' && (Number.isNaN(num) || num < 0);
+  inp.classList.toggle('set-invalid', invalid);
+  if (invalid) inp.setAttribute('title', 'Valor no válido');
+  else inp.removeAttribute('title');
+  return !invalid;
 }
 
 function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
@@ -1047,7 +1066,7 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
         <div style="font-size:.85rem;font-weight:800;color:var(--color-state-success)">${p.kg}kg</div>
       </div>`
     ).join('');
-    $prCelebration.style.display = 'flex';
+    _openPrCelebration();
   }
 
   $trainNotes.value = '';
@@ -1062,6 +1081,27 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
   if (_editSpec) { _editSpec = null; populateSessions(db); }
   else loadSessionTemplate(db, true);
   toast(wasEditing ? 'Cambios guardados' : 'Sesión guardada');
+}
+
+// ── Celebración de PR ────────────────────────────────────
+// El overlay roba el foco al abrirse: lo manda a su botón principal ("¡Vamos!"),
+// y al cerrarse lo devuelve a quien lo tenía — sin eso, el foco se pierde en
+// <body> y el teclado vuelve a empezar la página de cero.
+// Escape: el handler global de js/app.js solo cubre .modal-overlay.open y
+// .sheet.open; #prCelebration no es ninguno de los dos, así que lleva el suyo.
+let _prPrevFocus = null;
+
+function _openPrCelebration() {
+  _prPrevFocus = document.activeElement;
+  $prCelebration.style.display = 'flex';
+  $prCelebration.querySelector('button')?.focus();
+}
+
+function _closePrCelebration() {
+  if ($prCelebration.style.display === 'none') return;
+  $prCelebration.style.display = 'none';
+  if (_prPrevFocus?.isConnected) _prPrevFocus.focus();
+  _prPrevFocus = null;
 }
 
 // ── Set completion helpers ────────────────────────────────
@@ -1101,8 +1141,19 @@ export function initTraining(db, { onCancelEdit }) {
 
   $exerciseList.addEventListener('input', (e) => {
     e.target.classList.remove('prefilled');
+    // UX-6: si el campo quedó marcado como inválido, un valor válido lo limpia
+    // al teclear, sin esperar a que salga del campo.
+    if (e.target.matches?.('.sets-grid input') && e.target.classList.contains('set-invalid')) validateSetInput(e.target);
     scheduleDraft();
   }, true);
+  // UX-6: feedback de serie inválida al salir del campo (focusout sí burbujea,
+  // blur no) y al confirmar con teclado sin llegar a desenfocar. Solo pinta:
+  // no frena el guardado ni toca valores.
+  const onSetBlur = (e) => {
+    if (e.target.matches?.('.sets-grid input')) validateSetInput(e.target);
+  };
+  $exerciseList.addEventListener('focusout', onSetBlur);
+  $exerciseList.addEventListener('change', onSetBlur);
   // Marcar una serie es SIEMPRE un acto explícito: el CTA del runner o el tap en
   // la etiqueta. Antes también se auto-marcaba al salir del input, así que había
   // dos mecanismos con reglas distintas (uno ignoraba el prefill, el otro no) y
@@ -1144,7 +1195,11 @@ export function initTraining(db, { onCancelEdit }) {
       clearPrefill();
     }
   });
-  $prCelebration.addEventListener('click', function () { this.style.display = 'none'; });
+  $prCelebration.addEventListener('click', function () { _closePrCelebration(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    _closePrCelebration();
+  });
 
   // Exercise timer event delegation
   initExTimerEvents($exerciseList, (exIdx) => currentSession(db)?.exercises?.[exIdx] || null);

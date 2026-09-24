@@ -1,8 +1,26 @@
-import { describe, it, expect } from 'vitest';
-import { parseSegDuration, segModeToRunType } from '../js/ui/running.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const { canTrackRunsMock } = vi.hoisted(() => ({ canTrackRunsMock: vi.fn() }));
+vi.mock('../js/platform.js', () => ({ canTrackRuns: canTrackRunsMock }));
+
+import { parseSegDuration, segModeToRunType, updateGpsAvailability, sessionSegMarkup } from '../js/ui/running.js';
 import { parseSegDistance } from '../js/ui/running-helpers.js';
 
+const HTML = readFileSync(resolve(process.cwd(), 'app.html'), 'utf-8');
+
+/** Inyecta el panel de entrenar real de app.html: el bloque GPS y la nota viven
+ *  ahí, y si alguien mueve un id el fallo sale aquí y no en producción. */
+function setupRunTrain() {
+  const doc = new DOMParser().parseFromString(HTML, 'text/html');
+  document.body.innerHTML = '';
+  document.body.appendChild(doc.getElementById('runActivity').cloneNode(true));
+}
+
 // ── parseSegDistance ──────────────────────────────────────
+
+beforeEach(() => { canTrackRunsMock.mockReset(); });
 
 describe('parseSegDistance', () => {
   it('parses meters', () => {
@@ -102,5 +120,62 @@ describe('segModeToRunType', () => {
   it('defaults to rodaje for unknown mode/zone', () => {
     expect(segModeToRunType({ mode: 'other' })).toBe('rodaje');
     expect(segModeToRunType({})).toBe('rodaje');
+  });
+});
+
+// ── UX-9: el GPS que no está, explicado ──────────────────
+//
+// En el navegador el tracker se oculta (watchPosition se estrangula en segundo
+// plano). Un botón que desaparece sin explicación parece un fallo: donde
+// estaría, una nota muda dice qué sí se puede hacer.
+
+describe('UX-9: nota de GPS en el navegador', () => {
+  it('sin soporte GPS: la nota se ve con la copia exacta y el bloque GPS queda oculto', () => {
+    setupRunTrain();
+    canTrackRunsMock.mockReturnValue(false);
+    updateGpsAvailability();
+    const nota = document.getElementById('runGpsNote');
+    expect(nota.hidden).toBe(false);
+    expect(nota.textContent.trim())
+      .toBe('El GPS en vivo solo está en la app instalada. Importa tu GPX o registra la carrera a mano.');
+    expect(document.getElementById('runGpsActions').hidden).toBe(true);
+  });
+
+  it('con soporte GPS: la nota no aparece y el bloque GPS se ve', () => {
+    setupRunTrain();
+    canTrackRunsMock.mockReturnValue(true);
+    updateGpsAvailability();
+    expect(document.getElementById('runGpsNote').hidden).toBe(true);
+    expect(document.getElementById('runGpsActions').hidden).toBe(false);
+  });
+
+  it('la nota vive una sola vez en el HTML: los re-renders no la duplican', () => {
+    setupRunTrain();
+    canTrackRunsMock.mockReturnValue(false);
+    updateGpsAvailability();
+    updateGpsAvailability();   // re-render del sub-tab
+    expect(document.querySelectorAll('#runGpsNote')).toHaveLength(1);
+  });
+
+  it('app.html trae la nota oculta por defecto, dentro del panel de entrenar', () => {
+    setupRunTrain();
+    const nota = document.getElementById('runGpsNote');
+    expect(nota).not.toBeNull();
+    expect(nota.hidden).toBe(true);
+  });
+});
+
+// ── UX-10: la zona no se comunica solo con color ─────────
+
+describe('UX-10: los tramos de sesión nombran su zona', () => {
+  it('el tramo lleva la zona como texto, no solo el color de fondo', () => {
+    const html = sessionSegMarkup({ name: 'Serie', zone: 'Z3' }, { current: true, done: false });
+    expect(html).toContain('Z3');
+    expect(html).toContain('Serie');
+  });
+
+  it('sin zona declarada cae en Z2 y sigue nombrándola', () => {
+    const html = sessionSegMarkup({ name: 'Trote' }, { current: false, done: true });
+    expect(html).toContain('Z2');
   });
 });
