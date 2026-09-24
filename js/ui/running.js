@@ -2131,3 +2131,22 @@ export function refreshRunning(db) {
   renderNextSession(db);
   renderRunCalendar(db);
 }
+
+/**
+ * Arranca una sesión CONCRETA del plan de running por nombre (F1): la misma
+ * ruta que "Iniciar esta sesión" del plan, pero invocable desde fuera — la
+ * tarjeta "Toca hoy" del dashboard la usa para empezar exactamente la sesión
+ * anunciada en vez de la siguiente de la cola. Devuelve false si el nombre no
+ * existe en la semana activa (el llamador se queda solo en la navegación).
+ */
+export function startPlanSessionFromName(db, name) {
+  const phases = getRunningPhases(db.runningProgram);
+  const week = phases[db.runningWeek];
+  const segs = week?.sessions?.[name];
+  if (!segs || segs.length === 0) return false;
+  activeSegments = segs;
+  activeRunType = inferRunType(segs);
+  activePlanSession = name;
+  startGpsRun(db);
+  return true;
+}
