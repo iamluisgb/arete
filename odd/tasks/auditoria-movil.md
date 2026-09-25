@@ -36,7 +36,7 @@ quick wins de 1 línea de la auditoría. Sin cambios de IA ni de scheduler.
 - [x] P1-f Recargas silenciosas pierden estado (js/app.js:305 external-change,
       :521 controllerchange): no recargar si hay modal abierto o runner activo;
       aplazar hasta cerrar, con toast informativo.
-- [~] Verificación: probe de overflow (scrollWidth == clientWidth en 390 y 320),
+- [x] Verificación: probe de overflow (scrollWidth == clientWidth en 390 y 320),
       re-captura de pantallas y comparación antes/después; suite completa verde;
       bump sw v153→v154.
 
@@ -53,4 +53,12 @@ quick wins de 1 línea de la auditoría. Sin cambios de IA ni de scheduler.
 
 ## Evidencia de verificación
 
-(pendiente — gentle-ai-verify)
+- gentle-ai-verify: PASS 4/4 (2026-09-25). Suite 805/805; diff exacto vs 3b3b95a;
+  cascada CSS correcta (.dash-sched-card línea 2839 gana a .dash-card 1743);
+  rail-collapse sigue ocultando .nav-label; scheduleAppReload con guard de
+  reentrada e interval limpiado (flag: polling sin tope si un modal queda
+  abierto indefinidamente — aceptable, coste trivial);
+  flag noting controllerchange no duplica reload.
+  Probe vivo (localhost, HEAD local): scrollWidth == clientWidth en 390 y 320;
+  #navQuiron right 382/312 <= viewport; .cal-grid right 354/284 <= viewport
+  (P0-1 resuelto).
