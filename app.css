@@ -95,7 +95,7 @@
   /* Dominio: fuerza es la marca, carrera es el cian. No son estados. */
   --color-domain-strength:var(--red-600);
   --color-domain-running:var(--cyan-600);
-  --color-scrim:rgba(0,0,0,.5);
+  --color-scrim:rgba(0,0,0,.6);
   --color-focus-ring:rgba(var(--red-600-rgb),.3);
   /* Texto e iconos SOBRE un relleno saturado (acento, éxito, error, zona de
      pulso). Es blanco en los dos temas a propósito: no es "el color inverso del
@@ -169,9 +169,13 @@ html{font-size:16px}
 [hidden]{display:none!important}
 body{font-family:var(--font);background:var(--color-surface-0);color:var(--color-text-primary);min-height:100dvh;padding-bottom:var(--nav-h);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:var(--radius-xl) var(--radius-xl) 0 0;display:flex;z-index:var(--z-nav);padding:8px 8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
-nav button{flex:1;background:none;border:none;color:var(--color-text-secondary);padding:6px 4px 4px;font-family:var(--font);font-size:var(--fs-xs);font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:all var(--dur-base);border-radius:var(--radius-lg)}
+nav button{flex:1;min-width:0;background:none;border:none;color:var(--color-text-secondary);padding:6px 4px 4px;font-family:var(--font);font-size:var(--fs-xs);font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:all var(--dur-base);border-radius:var(--radius-lg)}
 nav button svg{width:24px;height:24px;stroke-width:1.8}
-header{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:var(--z-header)}
+/* La etiqueta recorta en vez de empujar: en 320px los 7 botones no tienen
+   ancho de sobra, y sin esto la fila se desborda. */
+.nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media (max-width:359px){ nav button{font-size:.6875rem} }
+header{padding:max(12px,env(safe-area-inset-top)) 20px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:var(--z-header)}
 header h1{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 header h1 span{color:var(--color-accent-text)}
 /* La .context-bar ya no existe: sus chips viven en la cabecera de la pantalla
@@ -201,6 +205,9 @@ textarea:focus{background:var(--color-surface-1);box-shadow:0 0 0 2px var(--colo
 a{color:var(--color-accent-text);text-decoration-thickness:1px;text-underline-offset:2px}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-text);outline-offset:2px}
+/* El contenedor de un overlay recibe el foco programáticamente (tabindex="-1"):
+   no es un stop de teclado real y su anillo pintaba toda la pantalla. */
+[tabindex="-1"]:focus{outline:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 /* Título de bloque. `.sec-title-accent` era rojo y aparecía hasta seis veces por
@@ -449,7 +456,7 @@ select{cursor:pointer}
    justo lo que faltaba en Ajustes: había filas con la etiqueta como <label>,
    otras con <div>, y el control unas veces dentro y otras fuera. */
 .listrow--control{align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;min-height:56px}
-.listrow-main{flex:1;min-width:0}
+.listrow-main{flex:1;min-width:0;overflow:hidden}
 .listrow-desc{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
 .listrow-control{flex-shrink:0}
 /* Apilada: para el control que no cabe al lado (un grupo de campos, un selector
@@ -532,7 +539,8 @@ a.listrow--action{text-decoration:none}
    `.sheet.open` lo muestra; el `role="dialog"` y el `aria-modal` van en el
    HTML porque el componente no decide si es modal, lo decide quien lo usa. */
 .sheet{position:fixed;inset:0;z-index:var(--z-overlay);display:none;
-  align-items:flex-end;justify-content:center;background:var(--color-scrim)}
+  align-items:flex-end;justify-content:center;background:var(--color-scrim);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .sheet.open{display:flex}
 .sheet-panel{display:flex;flex-direction:column;width:100%;max-width:var(--measure-form);
   max-height:92dvh;background:var(--color-surface-0);
@@ -909,9 +917,11 @@ nav button .material-symbols-outlined{font-size:24px}
   transition:transform var(--dur-fast)}
 .cal-fold[open]>summary::before{transform:rotate(90deg)}
 .cal-nav{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);justify-content:center}
-.cal-nav button{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:8px 18px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base)}
+.cal-nav button{background:var(--color-surface-2);border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-md);font-weight:600;padding:6px 18px;min-height:44px;border-radius:var(--radius-pill);cursor:pointer;transition:background var(--dur-base)}
 .cal-nav button:active{background:var(--color-surface-3)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+/* Tracks resolubles: con 1fr puro, un chip largo estira la columna y rompe la
+   grilla en móvil. minmax(0,1fr) fija el ancho y deja que el chip recorte. */
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center}
 .cal-grid .cal-dow{font-size:var(--fs-xs);color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;padding-bottom:8px;font-weight:600}
 .cal-grid .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:var(--fs-md);border-radius:50%;color:var(--color-text-secondary);font-weight:500;transition:background var(--dur-base)}
 .cal-grid .cal-day.has-workout{background:var(--color-accent-text);color:var(--color-on-fill);font-weight:700;cursor:pointer}
@@ -2826,9 +2836,9 @@ a:hover{opacity:.8}
 .sched-anchor.on{border-color:var(--color-accent-text);color:var(--color-text);font-weight:600}
 
 .dash-sched{margin-top:var(--sp-4)}
-.dash-sched-card{display:flex;flex-direction:column;gap:var(--sp-2)}
+.dash-sched-card{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2)}
 .dash-sched-empty{align-items:flex-start}
-.dash-sched-row{display:flex;align-items:center;gap:var(--sp-2)}
+.dash-sched-row{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
 .dash-sched-row .dash-act-icon{font-size:20px;color:var(--color-text-tertiary)}
 .dash-sched-name{flex:1;font:var(--type-body-strong);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dash-sched-note{margin:0;font:var(--type-body);color:var(--color-text-secondary)}
@@ -2851,7 +2861,7 @@ a:hover{opacity:.8}
    cuando existe la sección. */
 .dash-sched-tag{font:var(--type-caption);color:var(--color-state-danger)}
 .dash-sched-overdue-link{background:none;border:none;padding:0;cursor:pointer;
-  font:inherit;text-align:left;text-decoration:underline}
+  font:inherit;text-align:left;text-decoration:underline;white-space:normal}
 
 /* Descanso y plan completado (N1), y la línea que explica el modelo (N6). */
 .dash-sched-done{display:flex;align-items:center;gap:var(--sp-1);font-weight:600}

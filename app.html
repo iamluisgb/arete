@@ -1184,17 +1184,17 @@
 </div>
 </main>
 <nav id="mainNav" aria-label="Navegacion principal">
-  <button id="railToggle" type="button" aria-expanded="true" aria-controls="mainNav" aria-label="Plegar la navegación" title="Plegar la navegación (N)"><span class="material-symbols-outlined">left_panel_close</span><span>Plegar</span></button>
-  <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">today</span><span>Hoy</span></button>
-  <button data-sec="secTrain"><span class="material-symbols-outlined">exercise</span><span>Entrenar</span></button>
-  <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span>Perfil</span></button>
-  <button data-sec="secBody"><span class="material-symbols-outlined">monitor_weight</span><span>Cuerpo</span></button>
-  <button data-sec="secSettings"><span class="material-symbols-outlined">tune</span><span>Más</span></button>
+  <button id="railToggle" type="button" aria-expanded="true" aria-controls="mainNav" aria-label="Plegar la navegación" title="Plegar la navegación (N)"><span class="material-symbols-outlined">left_panel_close</span><span class="nav-label">Plegar</span></button>
+  <button class="active" data-sec="secDashboard"><span class="material-symbols-outlined">today</span><span class="nav-label">Hoy</span></button>
+  <button data-sec="secTrain"><span class="material-symbols-outlined">exercise</span><span class="nav-label">Entrenar</span></button>
+  <button data-sec="secProfile"><span class="material-symbols-outlined">radar</span><span class="nav-label">Perfil</span></button>
+  <button data-sec="secBody"><span class="material-symbols-outlined">monitor_weight</span><span class="nav-label">Cuerpo</span></button>
+  <button data-sec="secSettings"><span class="material-symbols-outlined">tune</span><span class="nav-label">Más</span></button>
   <!-- Quirón. Va detrás de un separador porque es de otra naturaleza: los cinco
        de arriba son pantallas con tus datos, éste es una conversación. No lleva
        data-sec — no es una .section, es un panel — y por eso lo abre quiron.js
        en vez de switchTab. -->
-  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg><span>Quirón</span></button>
+  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg><span class="nav-label">Quirón</span></button>
 </nav>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="revisionsModalTitle" id="revisionsModal"><div class="modal" style="max-height:80vh;overflow-y:auto">
   <h3 id="revisionsModalTitle">Versiones anteriores en Drive</h3>
@@ -1223,7 +1223,7 @@
     <p><strong>Quirón necesita un proveedor de IA.</strong></p>
     <p>Pruébalo con nuestro cupo de demo, o configura tu API key. Tus datos de entrenamiento no salen de tu dispositivo salvo hacia el proveedor que uses.</p>
     <button class="btn btn-sm btn--primary" id="quironSetupDemoBtn">Probar sin API key</button>
-    <button class="btn btn-sm" id="quironGoSettings">Ir a Ajustes</button>
+    <button class="btn btn-sm btn--secondary" id="quironGoSettings">Ir a Ajustes</button>
     <div id="quironSetupStatus" class="drive-status" role="status" aria-live="polite"></div>
   </div>
   <div class="quiron-chips" id="quironChips"></div>
