@@ -302,7 +302,7 @@ async function init() {
   });
   setOnExternalChange(() => {
     toast('Datos actualizados en otra pestaña. Recargando...', 'info');
-    setTimeout(() => location.reload(), 1500);
+    setTimeout(scheduleAppReload, 1500);
   });
 
   updateSyncUI();
@@ -504,6 +504,25 @@ function bindEvents() {
 init();
 
 // Register Service Worker + prompt update
+// Deferred reload: an update or a cross-tab change never yanks the screen away
+// while a dialog (modal overlay, sheet) or the set runner is open. When one is
+// visible we defer instead, with a one-shot poll that reloads as soon as the
+// view closes so the new code is picked up without a second prompt.
+let pendingReloadTimer = null;
+function scheduleAppReload() {
+  if (pendingReloadTimer !== null) return;
+  const overlayBlocking = () => isRunnerOpen() ||
+    [...document.querySelectorAll('.modal-overlay.open, .sheet.open')].some(isDialogVisible);
+  if (!overlayBlocking()) { location.reload(); return; }
+  toast('Actualización pendiente. Se aplicará al cerrar la vista actual.', 'info');
+  pendingReloadTimer = setInterval(() => {
+    if (overlayBlocking()) return;
+    clearInterval(pendingReloadTimer);
+    pendingReloadTimer = null;
+    location.reload();
+  }, 500);
+}
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => {
     reg.addEventListener('updatefound', () => {
@@ -519,7 +538,7 @@ if ('serviceWorker' in navigator) {
   // Reload when new SW takes over
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) { refreshing = true; location.reload(); }
+    if (!refreshing) { refreshing = true; scheduleAppReload(); }
   });
 }
 
