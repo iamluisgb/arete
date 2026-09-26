@@ -62,3 +62,18 @@ quick wins de 1 línea de la auditoría. Sin cambios de IA ni de scheduler.
   Probe vivo (localhost, HEAD local): scrollWidth == clientWidth en 390 y 320;
   #navQuiron right 382/312 <= viewport; .cal-grid right 354/284 <= viewport
   (P0-1 resuelto).
+
+## Findings informativos de la revisión (review-8a876bc2c3066c73) — follow-ups
+
+- R3-001 WARNING js/app.js:517-527 — scheduleAppReload polling
+- R3-002 WARNING js/app.js:517-527 — scheduleAppReload polling
+- R3-003 SUGGESTION js/app.js:538 — refreshing flag interaction
+- R3-004 WARNING tests/ui-polish.test.js:85-110 — assertions de markup
+- R3-005 SUGGESTION app.css:543-544 — scrim/sheet blur
+
+## Envío
+
+- PR #11 merged `00d2cac` (merge commit), deploy Cloudflare Pages completado,
+  prod: build.json = 00d2cac, sw arete-v154.
+- Probe en producción: sw==cw en 320 y 390; #navQuiron right 312/382;
+  .cal-grid right 284/354. Sin overflow horizontal.
