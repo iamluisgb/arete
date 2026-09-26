@@ -108,6 +108,28 @@ describe('markup audit (mobile visual fixes)', () => {
     expect(goSettings).toContain('btn--secondary');
     expect(goSettings).not.toContain('btn--primary');
   });
+
+  // R2-2: en móvil angosto la etiqueta "Compartir" se recortaba (99px de
+  // contenido en una caja de 88px). Bajo 400px queda solo el icono, así que el
+  // botón necesita aria-label y su texto visible vive en un span ocultable.
+  it('el botón Compartir del detalle envuelve su etiqueta y tiene aria-label', () => {
+    const bar = document.createElement('div');
+    bar.innerHTML = HTML.slice(HTML.indexOf('<div class="detail-btn-bar"'), HTML.indexOf('</div>', HTML.indexOf('detail-share-btn')) + 6);
+    const share = bar.querySelector('.detail-share-btn');
+    expect(share).not.toBeNull();
+    expect(share.getAttribute('aria-label')).toBe('Compartir');
+    const label = share.querySelector('.detail-share-label');
+    expect(label).not.toBeNull();
+    expect(label.textContent.trim()).toBe('Compartir');
+  });
+
+  // R2-1: text-overflow no aplica a contenedores flex — la elipsis del chip del
+  // calendario vive en el span hijo del texto, no en el chip. chipsDia no está
+  // exportada; se audita su plantilla en el fuente, como el resto del bloque.
+  it('el texto de sesión del chip del calendario va dentro de .cal-chip-txt', () => {
+    const src = readFileSync(resolve(process.cwd(), 'js/ui/calendar.js'), 'utf-8');
+    expect(src).toContain('<span class="cal-chip-txt">');
+  });
 });
 
 describe('celebración de PR: foco y cierre', () => {

@@ -949,7 +949,11 @@ nav button .material-symbols-outlined{font-size:24px}
    nombres de ejercicio de debajo: seis cosas compitiendo por ser la identidad
    de la tarjeta. */
 .history-item .hi-date{font-size:var(--fs-md);color:var(--color-text-primary);font-weight:700;letter-spacing:-.01em}
-.history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px}
+.history-item .hi-session{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500;margin-top:1px;
+  /* Clamp a 2 líneas: un nombre largo envolvía sin límite y el chip del plan
+     (.hi-plan) quedaba huérfano en su propia línea. word-break corta palabras
+     sin espacios que tampoco cabrían. */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .history-item .hi-summary{font-size:var(--fs-base);color:var(--color-text-primary);margin-top:6px;line-height:1.4}
 /* Nombre a la izquierda, series a la derecha: el mismo ListRow que el resto del
    producto (§6.x). Las cifras en tabulares para que las columnas de dos
@@ -1230,6 +1234,13 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 /* Detail button bar */
 #detailBtnBar{display:none}
 .detail-btn-bar .btn{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:12px 8px;font-size:var(--fs-base)}
+/* En móvil angosto el icono de compartir solo ocupa ~44px y deja que Cerrar,
+   Editar y Borrar conserven su texto: sin esto, "Comparti…" quedaba recortado
+   (99px de contenido en una caja de 88px a 390). El aria-label mantiene el
+   nombre accesible cuando la etiqueta visible desaparece. */
+/* La fila es 4 botones: con icono+texto "Compartir" (~99px) cada uno
+   necesita ≥99px + gaps(18) + padding(20) → no cabe hasta ~434px. */
+@media (max-width:433px){ .detail-share-label{display:none} }
 .detail-close-btn{font-size:var(--fs-md)}
 .detail-share-btn{background:var(--color-accent-text);color:var(--color-on-fill);font-weight:700}
 #deleteBtn{background:var(--color-state-danger);color:var(--color-on-fill);border:none;border-radius:var(--radius-md);font-weight:700}
@@ -2905,8 +2916,12 @@ a:hover{opacity:.8}
 /* Día pasado con ancla perdido (F4): contorno punteado rojo y chip tachado,
    distinto del punteado acento de los días futuros programados. */
 .cal-grid .cal-day.cal-day--missed{outline-color:var(--color-state-danger)}
-.cal-chip{display:inline-flex;align-items:center;gap:1px;max-width:100%;overflow:hidden;
+.cal-chip{display:inline-flex;align-items:center;gap:1px;max-width:100%;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
+/* text-overflow no aplica a contenedores flex: la elipsis real vive en el span
+   del texto (hijo), no en el chip. Sin min-width:0 el chip no encoge dentro del
+   día y el nombre se recortaba a mitad de palabra cruzando el círculo punteado. */
+.cal-chip-txt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cal-chip .material-symbols-outlined{font-size:7px;line-height:1}
 .cal-chip--missed,.cal-day-sched--missed{text-decoration:line-through;
   color:var(--color-state-danger)}
