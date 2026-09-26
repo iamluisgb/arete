@@ -1,5 +1,7 @@
 // UX-4: el overlay de PR roba el foco — al abrirse manda el foco a su botón
 // principal y al cerrarse (clic o Escape) lo devuelve a quien lo tenía.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 vi.mock('../js/programs.js', async () => {
@@ -78,6 +80,34 @@ beforeEach(() => {
   vi.resetModules();
   setupDOM();
   localStorage.clear();
+});
+
+// Auditoría móvil: el nav inferior debe poder recortar su etiqueta (P0-2) y en
+// el setup de Quirón la acción primaria es el demo, no "Ir a Ajustes" (P1-e).
+// Se prueba contra el app.html real, como quiron-demo.test.js.
+describe('markup audit (mobile visual fixes)', () => {
+  const HTML = readFileSync(resolve(process.cwd(), 'app.html'), 'utf-8');
+
+  it('cada botón del nav inferior envuelve su etiqueta en .nav-label', () => {
+    const start = HTML.indexOf('<nav id="mainNav"');
+    const end = HTML.indexOf('</nav>', start);
+    document.body.innerHTML = HTML.slice(start, end + 6);
+
+    const buttons = document.querySelectorAll('#mainNav button');
+    expect(buttons.length).toBeGreaterThan(0);
+    buttons.forEach(btn => expect(btn.querySelector('.nav-label')).not.toBeNull());
+  });
+
+  it('Quirón setup: el demo queda primario y "Ir a Ajustes" es secundario', () => {
+    const demo = HTML.match(/<button[^>]*id="quironSetupDemoBtn"[^>]*>/)?.[0];
+    expect(demo).toBeTruthy();
+    expect(demo).toContain('btn--primary');
+
+    const goSettings = HTML.match(/<button[^>]*id="quironGoSettings"[^>]*>/)?.[0];
+    expect(goSettings).toBeTruthy();
+    expect(goSettings).toContain('btn--secondary');
+    expect(goSettings).not.toContain('btn--primary');
+  });
 });
 
 describe('celebración de PR: foco y cierre', () => {
