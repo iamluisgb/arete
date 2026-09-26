@@ -105,3 +105,13 @@ Evidence commits / verificación:
   del día, share label oculto y botón sin recortar, barra y documento sin desborde,
   clamp de .hi-session configurado, sin regla que reabra el label, media queries
   desktop/móvil disjuntas.
+
+## Revisión nativa ronda 2
+
+- review-036b91048ee3ac23: **APPROVED**, autoridad quemada (burn
+  gentle-ai.review-acknowledged/v1). 3 findings informativos no bloqueantes:
+  - R3-calchip-assertion-trivial WARNING tests/ui-polish.test.js:131-135
+  - R3-hi-session-clamp-untested SUGGESTION app.css:952-956
+  - R3-share-breakpoint-unproved WARNING tests/ui-polish.test.js:112-129
+- Verificado en vivo además por gentle-ai-verify (390/320/412): ellipsis real,
+  chip dentro del día, share solo-icono <434px, barra y documento sin desborde.
