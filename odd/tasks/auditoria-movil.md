@@ -132,4 +132,11 @@ Evidence commits / verificación:
       sin desborde sin controlar, layout lado-a-lado preservado, captura
       visual de la tarjeta larga correcta. Suite 807/807.
 
-Evidence commits / revisión: (pendiente)
+Evidence commits / revisión:
+- `11b4eb4` fix(ui): keep exercise set lists inside history cards (app.css, sw v156, doc).
+- Suite 807/807. Réplica de datos del usuario: doc scrollWidth == clientWidth
+  en 390 y 320; captura visual de la tarjeta larga correcta (nombres con
+  elipsis, series envueltas dentro de la columna 55%).
+- Revisión nativa review-c8333f191cf54ef7: **APPROVED**, autoridad quemada.
+  2 findings informativos: R3-cache-bump-coherence (sw.js:1),
+  R3-grid-track-overflow (app.css:972).
