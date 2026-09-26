@@ -965,11 +965,17 @@ nav button .material-symbols-outlined{font-size:24px}
    La columna de nombres mide lo que mida el más largo de la tarjeta y las
    series arrancan pegadas a ella; como comparten rejilla, siguen alineadas
    entre sí de una fila a otra, que era la otra mitad del objetivo. */
-.hi-rows{display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);
+/* 45% fijo para el nombre (no max-content, no fit-content dentro de
+   minmax — ambos ya probados y rechazados): sin cota, un nombre largo
+   (nowrap) empujaba a la columna de series con migajas y su texto la
+   desbordaba saliéndose de la tarjeta y de la pantalla (scrollWidth 660
+   vs 390). Con la cota, los nombres largos usan su ellipsis (.hi-ex) y las
+   series reciben siempre el 55% restante para poder envolver. */
+.hi-rows{display:grid;grid-template-columns:minmax(0,45%) minmax(0,1fr);
   column-gap:var(--sp-4);row-gap:2px;margin-top:2px}
 .hi-row{display:contents}
 .hi-ex{color:var(--color-text-primary);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hi-sets{color:var(--color-text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hi-sets{color:var(--color-text-secondary);font-variant-numeric:tabular-nums;min-width:0;white-space:normal;overflow-wrap:anywhere}
 .hi-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);
   padding:2px 6px;border-radius:var(--radius-sm);font-weight:700;margin-left:6px}
 .history-item .hi-plan{font-size:.6rem;color:var(--color-text-secondary);background:var(--color-surface-2);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;white-space:nowrap}

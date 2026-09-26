@@ -115,3 +115,21 @@ Evidence commits / verificación:
   - R3-share-breakpoint-unproved WARNING tests/ui-polish.test.js:112-129
 - Verificado en vivo además por gentle-ai-verify (390/320/412): ellipsis real,
   chip dentro del día, share solo-icono <434px, barra y documento sin desborde.
+
+## Ronda 3 — Las series se salen de la cajita (reporte con captura del usuario)
+
+- [x] R3-1 Diagnóstico: `.hi-rows` grid con col1 `minmax(0,max-content)` y
+      `.hi-sets{white-space:nowrap}` SIN min-width/overflow → con datos reales
+      (4-5 series tipo "18×10-12", nombres largos) el texto desbordaba la
+      tarjeta y la pantalla: **scrollWidth 660 vs 390**. Las dos rondas de
+      auditoría lo no pillaron: la semilla tenía series cortas.
+- [x] R3-2 Fix: col1 → `minmax(0,45%)` (tope fijo; `fit-content(45%)`
+      dentro de `minmax` es inválido — probado, Chrome tiraba la regla) +
+      `.hi-sets` con `min-width:0; white-space:normal; overflow-wrap:anywhere`
+      (las series envuelven en su 55%, nada se sale). sw v155→v156.
+- [x] R3-3 Verificación con datos réplica del usuario (4 series ×4 ejercicios
+      con rangos + Clean ×5 + nombre largo): doc 390/390 y 320/320,
+      sin desborde sin controlar, layout lado-a-lado preservado, captura
+      visual de la tarjeta larga correcta. Suite 807/807.
+
+Evidence commits / revisión: (pendiente)
