@@ -77,3 +77,22 @@ quick wins de 1 línea de la auditoría. Sin cambios de IA ni de scheduler.
   prod: build.json = 00d2cac, sw arete-v154.
 - Probe en producción: sw==cw en 320 y 390; #navQuiron right 312/382;
   .cal-grid right 284/354. Sin overflow horizontal.
+
+## Ronda 2 — Historial móvil (reporte del usuario: "las sesiones se salen de la cajita")
+
+- [ ] R2-1 Calendario del Historial: `.cal-chip` es inline-flex → text-overflow
+      no aplica; contenido 58-61px en caja de 39/29px se corta a mitad de
+      palabra sin ellipsis y cruza el borde del círculo punteado. Fix:
+      envolver texto del chip en `<span class="cal-chip-txt">` (calendar.js
+      chipsDia) + CSS ellipsis real con min-width:0.
+- [ ] R2-2 Detalle de sesión: botón "Compartir" truncado en la barra
+      (99px>88 a 390; 90>71 a 320). Fix: por debajo de 400px, solo icono
+      con aria-label (envolver texto en span en app.html:921).
+- [ ] R2-3 Lista: nombres largos de sesión parten la línea y dejan la chip
+      de plan huérfana. Fix: `.hi-session` a 2 líneas con elipsis
+      (-webkit-line-clamp).
+- [ ] R2-4 sw bump v154→v155; suite verde; verificación con probe
+      (scrollWidth<=clientWidth del chip y del botón, ellipsis visible) y
+      capturas antes/después.
+
+Evidence commits / verificación: (pendiente)
