@@ -110,7 +110,7 @@ function chipsDia(entries, missed = false) {
   return [...porPlan.entries()].map(([plan, sesiones]) =>
     `<span class="cal-chip${missed ? ' cal-chip--missed' : ''}" data-plan="${plan}">` +
     `<span class="material-symbols-outlined" aria-hidden="true">${ICONO_PLAN[plan]}</span>` +
-    `${esc(sesiones[0])}${sesiones.length > 1 ? ` ×${sesiones.length}` : ''}</span>`
+    `<span class="cal-chip-txt">${esc(sesiones[0])}${sesiones.length > 1 ? ` ×${sesiones.length}` : ''}</span></span>`
   ).join('');
 }
 
