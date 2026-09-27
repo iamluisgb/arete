@@ -33,11 +33,11 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
       (`substitutes[]` → derivado, ver exercise-catalog.js:90); 873→876;
       D7–D12 escritas en el PLAN; `f3-ontologia-derivacion.md` 5 checkboxes +
       sección de evidencia; nota de cierre (8 filas aplicadas 2026-09-26).
-- [ ] E1 — F5: check `catalogo` hard en `evals/checks.mjs` (todo ejercicio que
+- [x] E1 — F5: check `catalogo` hard en `evals/checks.mjs` (todo ejercicio que
       Quirón nombra resuelve con `resolveExercise` + compatibilidad de
       equipamiento declarado por escenario) + casos adversariales en
       `tests/evals-checks.test.js` (un check que no caza nada debe fallar).
-- [ ] E2 — F5: escenario "molesta el hombro → sustituir press militar" en
+- [x] E2 — F5: escenario "molesta el hombro → sustituir press militar" en
       `evals/scenarios.mjs` (ejercita soul.js SEGURIDAD end-to-end).
 - [ ] V — suite completa verde (delta de fixtures de dominios = 0), bump
       sw v156→v157 (cambia js/exercise-ontology.js), verificación, revisión
@@ -62,4 +62,9 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
 
 ## Evidencia de verificación
 
-(pendiente)
+- `5f1de6b` feat(evals): catalogo check + molestia-hombro + docs (suite 812/812).
+- Nota E1: la sub-check de equipamiento usa el campo opcional `equipment` del
+  escenario — solo cubierto por tests de momento (ningún escenario real lo
+  declara todavía; declararlo en `ruteo-sesion-sin-material` caparía runs
+  reales — pendiente de decisión cuando se ejecuten evals a escala).
+- Pendiente de verificación independiente + revisión nativa.
