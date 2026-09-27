@@ -1,0 +1,78 @@
+# Memoria duradera de Quirón (inspirada en Engram)
+
+Goal: que el agente recuerde entre sesiones el conocimiento conversacional
+importante (preferencias, dolores, horarios, decisiones, objetivos) — hoy
+perdido tras la ventana de 8 mensajes — visible y editable por el usuario.
+
+Plan madre: `odd/tasks/ronda-limpieza.md` → no; ronda propia. Origen: pregunta
+del usuario (2026-09-27) "¿podemos guardar la info importante de las
+conversaciones, inspirado en Engram?". Decisión del usuario: **memoria
+primero, UI después** (la ronda de botones/historial queda pendiente).
+
+## Estado actual (scout 2026-09-27)
+
+- Conversación: localStorage + archivo de 15 + sync Drive `arete-quiron.json`
+  (js/sync/quiron.js, union-by-uid + LWW, SIN tombstones — los borrados locales
+  reviven tras sync, trade-off aceptado para el chat).
+- Modelo: cada turno envía snapshot fresco (context.js) + últimas 8 mensajes
+  (HISTORY_MSGS=8). Todo lo anterior es invisible para el modelo.
+- Snapshot ya incluye datos deportivos; falta el conocimiento conversacional.
+
+## Decisiones de diseño
+
+- **D1 — Dónde vive**: array `memorias` DENTRO de `arete-quiron.json` (mismo
+  ritmo de cambio que el chat, no ensucia el fingerprint de la db; patrón de
+  sync ya probado). Entrada: `{uid, categoria, texto, ts, updatedAt,
+  deleted, source}`.
+- **D2 — Merge**: mismo contrato que el resto del fichero — union por `uid`,
+  LWW por `updatedAt` con tie-break `stableStringify`. **Borrado = flag
+  `deleted:true` con updatedAt=now** (propaga entre dispositivos; el LWW
+  resuelve; los lectores filtran). Físico: FIFO por updatedAt a 200 entradas
+  totales para no crecer sin límite.
+- **D3 — Modelo**: tools nuevas `remember({id?, categoria, texto})` (upsert:
+  sin id crea, con id reemplaza) y `forget({id})`. IDs cortos visibles en el
+  snapshot como `[M1]…[Mn]` (orden por ts, determinístico). Mismo pipeline de
+  tools que `get_workouts` (QUIRON_TOOLS).
+- **D4 — Límites**: 50 memorias activas visibles; categorías cerradas:
+  `horario | dolor | preferencia | decision | objetivo | otro`.
+- **D5 — Recuperación**: sección nueva en el snapshot `MEMORIA DEL ATLETA`
+  (context.js) — como el snapshot se reconstruye cada turno, la memoria NO
+  depende de la ventana de 8 mensajes. Instrucción en soul.js: guarda lo
+  duradero dicho por el usuario; NO guardes datos que ya están en el snapshot.
+- **D6 — UI**: botón "Memoria" en la cabecera del panel (icono
+  `psychology`) → modal: lista (chip de categoría + texto + fecha + id),
+  editar inline, borrar con confirmación, contador `N/50`, estado vacío con
+  copy. El usuario SIEMPRE ve lo que el agente recuerda.
+- **D7 — Sync doc**: ampliar `docs/SYNC-V2.md` (contrato U3) con `memorias`
+  y la semántica de `deleted`.
+
+## Tareas
+
+- [ ] W1 — Capa de datos: esquema + storage (get/upsert/delete/list con
+      filtrado de `deleted`) en js/ui/quiron.js (o módulo dedicado si quima),
+      merge de `memorias` en js/sync/quiron.js (union+LWW+flag deleted+FIFO
+      200), `docs/SYNC-V2.md`, tests de storage y de merge (2 dispositivos,
+      LWW, borrado propagado).
+- [ ] W2 — Tools: registrar `remember`/`forget` en QUIRON_TOOLS + dispatch +
+      labels de espera; ids `[Mn]` coherentes con el orden del snapshot.
+- [ ] W3 — Snapshot e instrucción: sección MEMORIA DEL ATLETA en context.js
+      (sin ella los ids del modelo no existen), instrucción en soul.js; tests.
+- [ ] W4 — UI: botón Memoria + modal (app.html/app.css/js/ui/quiron.js),
+      render de lista, editar/borrar, contador, estado vacío; tests markup.
+- [ ] V — suite completa, verificación independiente, revisión nativa, PR,
+      deploy (preguntando antes).
+
+## Fuera de alcance (esta ronda)
+
+- Destilación automática periódica (si hace falta, ronda posterior).
+- Pin manual desde burbujas (v2 — el usuario ya puede escribir "acuérdate…").
+- Cambios en la ventana de 8 mensajes (la pista de UI va en la ronda de interfaz).
+- Tombstones para el chat (borrado de conversaciones) — sigue como trade-off.
+
+## Evidencia de commits
+
+(pendiente)
+
+## Evidencia de verificación
+
+(pendiente)
