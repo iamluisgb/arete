@@ -48,16 +48,16 @@ primero, UI después** (la ronda de botones/historial queda pendiente).
 
 ## Tareas
 
-- [ ] W1 — Capa de datos: esquema + storage (get/upsert/delete/list con
+- [x] W1 — Capa de datos: esquema + storage (get/upsert/delete/list con
       filtrado de `deleted`) en js/ui/quiron.js (o módulo dedicado si quima),
       merge de `memorias` en js/sync/quiron.js (union+LWW+flag deleted+FIFO
       200), `docs/SYNC-V2.md`, tests de storage y de merge (2 dispositivos,
       LWW, borrado propagado).
-- [ ] W2 — Tools: registrar `remember`/`forget` en QUIRON_TOOLS + dispatch +
+- [x] W2 — Tools: registrar `remember`/`forget` en QUIRON_TOOLS + dispatch +
       labels de espera; ids `[Mn]` coherentes con el orden del snapshot.
-- [ ] W3 — Snapshot e instrucción: sección MEMORIA DEL ATLETA en context.js
+- [x] W3 — Snapshot e instrucción: sección MEMORIA DEL ATLETA en context.js
       (sin ella los ids del modelo no existen), instrucción en soul.js; tests.
-- [ ] W4 — UI: botón Memoria + modal (app.html/app.css/js/ui/quiron.js),
+- [x] W4 — UI: botón Memoria + modal (app.html/app.css/js/ui/quiron.js),
       render de lista, editar/borrar, contador, estado vacío; tests markup.
 - [ ] V — suite completa, verificación independiente, revisión nativa, PR,
       deploy (preguntando antes).
@@ -71,7 +71,18 @@ primero, UI después** (la ronda de botones/historial queda pendiente).
 
 ## Evidencia de commits
 
-(pendiente)
+- `a0baf18` W1 capa de datos: js/quiron-memory.js (esquema, caps 50/200,
+  borrado blando, shortIds), mergeMemorias en sync (union uid + LWW + flag
+  deleted + FIFO 200), hooks get/save con slot memorias, SYNC-V2.md. +32 tests.
+- `89cff6c` W2+W3: QUIRON_MEMORY_TOOLS (remember/forget con resolución de
+  shortId), buildMemoriaSection en snapshot (context.js lee loadMemorias
+  directo — hoja, sin ciclo), sección soul.js. +20 tests.
+- `fda40b2` W4: wiring (tools array, exclusión del bloque data, labels,
+  contrato de labels ampliado), #quironMemoryBtn + #quironMemoryModal
+  (lista M1..Mn, edición inline, borrado con confirm en dos toques,
+  contador N/50, estado vacío), fixtures con el nuevo modal en su contrato
+  de DOM (convención del repo), +3 tests.
+- Suite: 870/870 (52 ficheros).
 
 ## Evidencia de verificación
 
