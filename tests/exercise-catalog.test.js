@@ -89,10 +89,10 @@ describe('findExercises', () => {
 
   it('sin filtros recorta el catálogo al límite y reporta el total', () => {
     const r = findExercises({});
-    expect(r.total).toBe(74);
+    expect(r.total).toBe(82);
     expect(r.exercises).toHaveLength(15); // límite por defecto
     const corto = findExercises({ limit: 5 });
-    expect(corto.total).toBe(74);
+    expect(corto.total).toBe(82);
     expect(corto.exercises).toHaveLength(5);
   });
 
