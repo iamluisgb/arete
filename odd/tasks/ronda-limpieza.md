@@ -92,3 +92,17 @@ Documentar en este doc al cierre qué se acepta y por qué.
 
 - PLAN substitutes contradiction (resuelto en la ronda de cierre de ontología).
 - evals catalogo empty-answer (ya visible + test fijado en esa ronda).
+
+## Segunda revisión (candidato con v158) + incidente de transporte
+
+- `a399073` fix(sw): bump v157→v158 — detectado ANTES de entregar: los 5 JS
+  modificados están en la precache del SW y el SW sirve cache-first; sin bump
+  los clientes instalados nunca recibirían el update. Comentario corregido a
+  la regla real (ASSETS o contenido de cualquier fichero listado).
+- Incidente: en review-e3e93bb92d21a0ba el revisor resilience devolvió un
+  payload con campo desconocido `severity_note` → rechazado en admisión
+  (payload preservado en .git/gentle-ai/rejected-results/). STATUS fresco
+  reofrió los 3 slots restantes (risk ya admitido), reintento del grupo de 3
+  → todos admitidos.
+- review-e3e93bb92d21a0ba: **APPROVED** (4 lentes completos), 15 findings
+  informativos (R1-1..2, R2-001..007, R3-001..003, R4-A..C), autoridad quemada.
