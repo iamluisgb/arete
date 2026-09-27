@@ -1,3 +1,5 @@
+// Coherence: any change to ASSETS requires bumping CACHE_NAME (and vice versa),
+// or the old SW keeps serving stale assets from the previous cache.
 const CACHE_NAME = 'arete-v157';
 const ASSETS = [
   './',
