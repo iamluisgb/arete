@@ -635,8 +635,11 @@ body{line-height:1.5}
 .dash-card{padding:var(--sp-4)}
 }
 /* Estado vacío con salida: un texto que dice "no hay nada" y no ofrece la
-   acción que lo llena deja al usuario en un callejón. */
-.empty-state{display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)}
+   acción que lo llena deja al usuario en un callejón. grid-column 1/-1:
+   cuando el empty-state cae dentro de una rejilla (.tiles de medidas) es
+   un grid item y se colapsa en la primera columna ancha de 148px — debe
+   abarcar todas las columnas. Fuera de un grid la propiedad se ignora. */
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);grid-column:1/-1}
 .empty-state .btn{width:auto;margin-top:var(--sp-2)}
 .empty-state-sub{font-size:var(--fs-base);color:var(--color-text-secondary)}
 /* Título de categoría. .group-title es del sistema y lo comparten Ajustes,
