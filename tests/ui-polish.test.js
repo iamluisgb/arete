@@ -146,6 +146,16 @@ describe('markup audit (mobile visual fixes)', () => {
     expect(rule).toContain('-webkit-line-clamp:2');
   });
 
+  // Empty states dentro de rejillas (.tiles de medidas): sin el span, el
+  // estado vacío es un grid item que se colapsa en la primera columna
+  // (~148px) y el texto/botón se estrujan — bug reportado en escritorio.
+  it('.empty-state abarca todas las columnas cuando cae en una rejilla', () => {
+    const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8');
+    const rule = css.match(/\.empty-state\{display:flex[^}]*\}/)?.[0];
+    expect(rule).toBeTruthy();
+    expect(rule).toContain('grid-column:1/-1');
+  });
+
   // R2-2 (mismo caso): bajo 433px la etiqueta "Compartir" se oculta y queda
   // solo el icono; el aria-label del botón es lo que sostiene la accesibilidad.
   it('app.css oculta .detail-share-label bajo el breakpoint de 433px', () => {
