@@ -106,3 +106,12 @@ primero, UI después** (la ronda de botones/historial queda pendiente).
   persistir, borrar con ¿Seguro? → deleted:true y contador 2/50),
   SYNC-V2.md U3 completo.
 - Suite del parent tras commit: 870/870 (52 ficheros).
+
+## Segunda revisión (candidato con sw v159)
+
+- `f249a42` chore(sw): js/quiron-memory.js añadido a ASSETS (nuevo módulo
+  importado por ui/quiron.js y context.js — sin él, el shell offline-first
+  no lo cargaría) + CACHE_NAME v158→v159 por la regla de coherencia.
+- review-e8ee3a070764f208: tier medium, lente review-reliability.
+  **APPROVED**, autoridad quemada. 4 findings informativos (R3-001..004 en
+  js/ui/quiron.js y js/quiron-memory.js) — trabajo futuro.
