@@ -180,6 +180,7 @@ export function patternVolume(workouts = [], days = 28, ref = new Date()) {
   for (const w of workouts) {
     if (daysAgo(w.date, ref) >= days) continue;
     for (const ex of (w.exercises || [])) {
+      // Solo cuentan series con carga o reps registradas: una serie vacía no es volumen.
       const sets = (ex.sets || []).filter((s) => s.kg || s.reps).length;
       if (!sets) continue;
       const pattern = resolveExercise(ex.name)?.pattern ?? 'sin clasificar';

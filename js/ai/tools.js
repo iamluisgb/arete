@@ -273,7 +273,11 @@ export function makeToolExecutor(db, deps = {}) {
         const extra = n.variantOf ? ` · variante de ${n.variantOf}` : '';
         return `${n.name} (patrón ${n.pattern}; material: ${(n.equipment ?? []).join(', ')}; musculatura: ${mus}${extra})`;
       });
-      const cut = total > exercises.length ? ` (los primeros ${exercises.length} de ${total})` : '';
+      // Continuación explícita: el truncado nunca deja al modelo varado con un
+      // resultado parcial y sin salida para acotar.
+      const cut = total > exercises.length
+        ? ` (los primeros ${exercises.length} de ${total} — refina la búsqueda con pattern, equipment o evita para acotar)`
+        : '';
       return `CATÁLOGO — ${total} ejercicio(s) coinciden${cut}. SOLO estos existen para prescribir:\n  ${lines.join('\n  ')}`;
     }
     if (name === 'explain_exercise') {
