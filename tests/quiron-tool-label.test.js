@@ -9,7 +9,7 @@
 //  2. Dos herramientas que miran lo mismo no deben decirlo dos veces.
 import { describe, it, expect } from 'vitest';
 import { toolLabel } from '../js/ui/quiron.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS } from '../js/ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, QUIRON_MEMORY_TOOLS } from '../js/ai/tools.js';
 
 describe('toolLabel', () => {
   it('traduce una herramienta a lenguaje del atleta', () => {
@@ -40,9 +40,16 @@ describe('toolLabel', () => {
   // El que de verdad protege: si mañana se añade una tool y se olvida su etiqueta, el
   // atleta vería "consultando tus datos…" donde el resto del turno le habla claro.
   it('toda herramienta declarada tiene etiqueta propia', () => {
-    const sinEtiqueta = [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS]
+    const sinEtiqueta = [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS, ...QUIRON_MEMORY_TOOLS]
       .map(t => t.function.name)
       .filter(name => toolLabel([name]) === 'consultando tus datos…');
     expect(sinEtiqueta).toEqual([]);
+  });
+
+  // D3/W4: recordar y olvidar también hablan claro — son las más visibles, porque
+  // a veces corren solas en el turno entero.
+  it('las tools de memoria se traducen a lenguaje del atleta', () => {
+    expect(toolLabel(['remember'])).toBe('guardando en tu memoria…');
+    expect(toolLabel(['forget'])).toBe('olvidando de tu memoria…');
   });
 });

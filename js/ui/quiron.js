@@ -12,7 +12,7 @@
 import * as LLM from '../ai/llm.js';
 import { attachMic, micAvailable } from '../ai/mic.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
-import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, makeToolExecutor } from '../ai/tools.js';
+import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, QUIRON_MEMORY_TOOLS, MEMORY_TOOL_NAMES, makeToolExecutor } from '../ai/tools.js';
 import { buildSystemMessage } from '../ai/soul.js';
 import { renderSettingsIndex, openSettingsPage } from './settings.js';
 import {
@@ -27,7 +27,7 @@ import {
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
 import { setQuironSyncHooks } from '../sync/quiron.js';
-import { loadMemorias, saveMemorias } from '../quiron-memory.js';
+import { loadMemorias, saveMemorias, listMemorias, upsertMemoria, deleteMemoria, MAX_MEMORIAS, CATEGORIAS } from '../quiron-memory.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
 import { toast } from './toast.js';
 
@@ -197,6 +197,48 @@ function resumeConversation(idx) {
   renderConvo();
 }
 
+// ── Memoria duradera (D6): el atleta SIEMPRE ve lo que Quirón recuerda ─────
+// El almacén se relee en cada apertura y acción: las tools remember/forget del
+// modelo y el sync de otro dispositivo pueden cambiarlo en cualquier momento.
+let memoryEditUid = null;   // uid en edición inline (null = ninguna)
+
+function memoryRow(m) {
+  const d = new Date(m.ts || Date.now());
+  const when = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+  const cat = m.categoria || 'otro';
+  if (memoryEditUid === m.uid) {
+    const opts = CATEGORIAS.map(c => `<option value="${c}"${c === cat ? ' selected' : ''}>${c}</option>`).join('');
+    return `<div class="quiron-memory-item qm-editing" data-uid="${m.uid}">
+      <textarea class="qm-edit-text" rows="2" aria-label="Texto de la memoria">${esc(m.texto)}</textarea>
+      <div class="qm-edit-row"><span class="qh-id">[${m.shortId}]</span><select class="qm-edit-cat" aria-label="Categoría">${opts}</select></div>
+      <div class="qm-edit-actions">
+        <button class="btn btn-sm btn--primary" data-save="${m.uid}">Guardar</button>
+        <button class="btn btn-sm btn--secondary" data-cancel>Cancelar</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="quiron-memory-item" data-uid="${m.uid}">
+    <div class="qh-text">
+      <div class="qh-tags"><span class="qh-id">[${m.shortId}]</span><span class="qh-cat" data-cat="${cat}">${cat}</span><span class="qh-when">${when}</span></div>
+      <div class="qh-title">${esc(m.texto)}</div>
+    </div>
+    <button class="qh-del" data-edit="${m.uid}" aria-label="Editar">✏</button>
+    <button class="qh-del" data-del="${m.uid}" aria-label="Borrar">✕</button>
+  </div>`;
+}
+
+function renderMemoryList() {
+  const list = document.getElementById('quironMemoryList');
+  const count = document.getElementById('quironMemoryCount');
+  const activas = listMemorias(loadMemorias());
+  if (count) count.textContent = `${activas.length}/${MAX_MEMORIAS}`;
+  if (!activas.length) {
+    list.innerHTML = '<p class="quiron-history-empty">Aún no recuerdo nada. Dime algo que quieras que recuerde —horarios, molestias, preferencias— o dímelo con «acuérdate de…».</p>';
+    return;
+  }
+  list.innerHTML = activas.map(memoryRow).join('');
+}
+
 // Contexto de programas para el snapshot (resuelto aquí; context.js queda puro)
 function progContext(db) {
   const list = getProgramList();
@@ -244,6 +286,9 @@ const TOOL_LABELS = {
   propose_program: 'preparando tu plan',
   propose_session: 'preparando la sesión',
   log_workout: 'anotando el entreno',
+  // Memoria duradera (D3): las más visibles cuando corren — a veces son el turno entero.
+  remember: 'guardando en tu memoria',
+  forget: 'olvidando de tu memoria',
 };
 export function toolLabel(names = []) {
   const etiquetas = [...new Set(names.map(n => TOOL_LABELS[n]).filter(Boolean))];
@@ -392,14 +437,14 @@ async function send(db, text, opts = {}) {
 
       const res = await LLM.chatAgent({
         messages: [system, ...history],
-        tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS],
+        tools: [...QUIRON_TOOLS, ...QUIRON_WRITE_TOOLS, ...QUIRON_MEMORY_TOOLS],
         execute: async (name, args) => {
           const out = await executor(name, args);
           // Solo los volcados de LECTURA son datos. Lo que devuelven las tools de
-          // escritura es una instrucción para el modelo ("dile en una frase que…"), y
-          // colarla en el bloque `data` la deja viajando en los turnos siguientes como
-          // si fuera histórico del atleta.
-          if (!WRITE_TOOL_NAMES.has(name)) gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
+          // escritura y de memoria es una instrucción para el modelo ("dile en una
+          // frase que…" / "guardado [M2]…"), y colarla en el bloque `data` la deja
+          // viajando en los turnos siguientes como si fuera histórico del atleta.
+          if (!WRITE_TOOL_NAMES.has(name) && !MEMORY_TOOL_NAMES.has(name)) gathered.push(`[${name}(${JSON.stringify(args)})]\n${out}`);
           return out;
         },
         maxRounds: GATHER_MAX_ROUNDS,
@@ -1338,6 +1383,51 @@ export function initQuiron(db, opts = {}) {
     if (item && !busy) {
       resumeConversation(parseInt(item.dataset.idx));
       historyModal.classList.remove('open');
+    }
+  });
+
+  // Memoria duradera (D6): mismo patrón que el historial — modal hermano, lista
+  // re-renderizada tras cada acción, cierre con el botón y con el overlay.
+  const memoryModal = document.getElementById('quironMemoryModal');
+  document.getElementById('quironMemoryBtn').addEventListener('click', () => {
+    memoryEditUid = null;
+    renderMemoryList();
+    memoryModal.classList.add('open');
+  });
+  document.getElementById('quironMemoryClose').addEventListener('click', () => memoryModal.classList.remove('open'));
+  memoryModal.addEventListener('click', (e) => {
+    if (e.target === memoryModal) { memoryModal.classList.remove('open'); return; }
+    if (e.target.closest('[data-cancel]')) { memoryEditUid = null; renderMemoryList(); return; }
+    const edit = e.target.closest('[data-edit]');
+    if (edit) { memoryEditUid = edit.dataset.edit; renderMemoryList(); return; }
+    const save = e.target.closest('[data-save]');
+    if (save) {
+      // upsertMemoria resuelve `id` contra el uid persistente, no contra el
+      // [Mn] posicional (js/quiron-memory.js): un id desconocido sería null.
+      const row = memoryModal.querySelector(`[data-uid="${save.dataset.save}"]`);
+      const texto = row?.querySelector('.qm-edit-text')?.value ?? '';
+      const categoria = row?.querySelector('.qm-edit-cat')?.value || 'otro';
+      const mems = loadMemorias();
+      upsertMemoria(mems, { id: save.dataset.save, categoria, texto });
+      saveMemorias(mems);
+      memoryEditUid = null;
+      renderMemoryList();
+      return;
+    }
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      // Confirmación inline (D6): el primer click pide "¿Seguro?", el segundo
+      // borra de verdad. Sin confirm() nativo, como en el resto de la app.
+      if (!del.dataset.confirm) {
+        del.dataset.confirm = '1';
+        del.textContent = '¿Seguro?';
+        del.classList.add('qh-del-confirm');
+        return;
+      }
+      const mems = loadMemorias();
+      deleteMemoria(mems, del.dataset.del);
+      saveMemorias(mems);
+      renderMemoryList();
     }
   });
 
