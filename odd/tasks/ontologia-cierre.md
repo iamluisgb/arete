@@ -23,13 +23,13 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
 
 ## Tareas
 
-- [ ] W1 — 8 filas: `confianza` → `confirmada` en `docs/ontologia-propuestas.json`
+- [x] W1 — 8 filas: `confianza` → `confirmada` en `docs/ontologia-propuestas.json`
       con `nota` de cierre por fila (criterio: variante de implementación
       aceptada en el nodo fedb; regresión/progresión distinguen la variante).
       Regenerar `js/exercise-ontology.js` + `docs/ontologia-propuestas.md` con
       `tools/build-exercise-ontology.py` (sin --refresh: cache local). Vigilar
       avisos de alias descartados por colisión de mediaKey.
-- [ ] W2 — Higiene de docs: PLAN F0–F2/F4 checkboxes [x]; esquema F0
+- [x] W2 — Higiene de docs: PLAN F0–F2/F4 checkboxes [x]; esquema F0
       (`substitutes[]` → derivado, ver exercise-catalog.js:90); 873→876;
       D7–D12 escritas en el PLAN; `f3-ontologia-derivacion.md` 5 checkboxes +
       sección de evidencia; nota de cierre (8 filas aplicadas 2026-09-26).
@@ -52,7 +52,13 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
 
 ## Evidencia de commits
 
-(pendiente)
+- `cb9d2e9` fix(tools): first-wins alias dedup (regresión 239/239 claves de main sin cambio).
+- `de8732a` feat(ontology): 8 filas confirmadas → 82 nodos, test total 82, sw v157.
+- `6f69e59` docs(ontology): PLAN + docs de tarea reconciliados.
+- W1 detalle: el build avisa de colisiones de alias; con first-wins las filas
+  nuevas ceden sus claves ('Handstand Push-Ups' sigue en hspu, 'Sit-Up' en
+  situps, etc.). 'Desplantes' → kb-zancada (coherente: primer nodo en orden).
+- Suite: 807/807 verde tras W1+W2.
 
 ## Evidencia de verificación
 
