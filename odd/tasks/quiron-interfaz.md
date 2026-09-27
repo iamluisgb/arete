@@ -119,4 +119,13 @@ decoplado (patrón de `arete:ask-quiron`) → closePanel, tests (P2 conductual,
 P1 source-contract), sw v164. Fuera de alcance: sincronizar la API key
 (secreto, diseño actual la mantiene por origen).
 
-Evidence: (pendiente)
+Evidence:
+- `e8509c2` docs: ronda 2 documentada con la cadena reproducida.
+- `6f5af17` fix(quiron): scoped rule (msgs flex:1 1 auto + min-height:0, header
+  order:-2, setup order:-1 + margin-block:0), base .quiron-msgs min-height:0,
+  evento arete:section-switch (nav.js:31) → cierra modales Quirón + panel
+  (quiron.js:1433-1445), sw v164. +6 tests (5 RED pre-fix) → 915/915.
+- Verificación en vivo (1440×793, sin key, 30 mensajes): setup y=62 en pantalla;
+  msgs sh=2955 ch=435 scrollable y rueda real (0→1920); inputbar sigue oculto
+  (diseño, hasta que haya key); clic en Más → panel cerrado, body limpio,
+  secSettings activo. ask-quiron sin interferencia (evento en document vs window).
