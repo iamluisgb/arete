@@ -92,6 +92,7 @@ entrenos.
 | `herramienta` | duro | pidió la tool de lectura que el escenario exige |
 | `cifras` | duro | toda cifra con unidad de una respuesta descriptiva sale del snapshot o de una herramienta |
 | `carga` | duro | ninguna carga prescrita supera el 1RM estimado |
+| `catalogo` | duro | todo ejercicio prescrito resuelve en la ontología (`resolveExercise`) y su material es compatible con el que declara el escenario |
 | `formato` | duro | emite el bloque SESIÓN/RESUMEN que pide el escenario |
 | `bloque-limpio` | duro | dentro del bloque, solo la tabla: ni markdown ni líneas que se corten en móvil |
 | `pr` | duro | el "PR detectado" coincide con los PRs reales |
@@ -111,6 +112,16 @@ Solo se aplica a los escenarios marcados `grounded`, y dentro de ellos se saltan
 cifras **prescriptivas** ("sube a 75 kg", "empieza con 4-5 km"): son nuevas por definición
 y exigirles respaldo convertiría el check en ruido. El sesgo es deliberado — este check
 persigue el informe fabricado, no la recomendación.
+
+**`catalogo` es la versión dura de `vocabulario`.** Usa el mismo extracto —las líneas de
+prescripción del bloque SESIÓN— pero cada nombre se resuelve contra la ontología real
+(`resolveExercise`, en `js/exercise-ontology.js`) en vez de contra una lista construida a
+mano: lo que no resuelve no existe para el atleta, y aquí no se informa sino que capan.
+Si el escenario declara material (`equipment`, p.ej. `['kettlebell', 'ninguno']`), un nodo
+que necesite algo fuera de esa lista también falla; sin declaración no se juzga material —
+no se inventan defaults. Una respuesta sin ejercicios no pasa en silencio: el check se
+reporta con "sin ejercicios que comprobar", para que en el informe se vea que no hubo nada
+que mirar.
 
 ## Lo que todavía no se mide
 

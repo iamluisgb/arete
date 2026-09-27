@@ -170,6 +170,51 @@ describe('cargas prescritas', () => {
   });
 });
 
+describe('check catálogo', () => {
+  const sesion = (linea) => run({ answer: '```\nSESIÓN DE HOY — Fuerza\n─────────\n' + linea + '\n```' });
+  const catalogo = (res) => res.hard.find(c => c.name === 'catalogo');
+
+  it('caza un ejercicio que no existe en la ontología', () => {
+    const c = catalogo(checkScenario({ id: 'x' }, sesion('Trabajo:  Sentadilla con Jetpack 3×8 a 20 kg'), TRUTH));
+    expect(c.ok).toBe(false);
+    expect(c.detail).toContain('Sentadilla con Jetpack');
+  });
+
+  it('pasa con ejercicios reales del catálogo', () => {
+    const c = catalogo(checkScenario(
+      { id: 'x' },
+      sesion('Trabajo:  Sentadilla 3×5 a 100 kg\nAccesorio: Peso Muerto 3×8 a 90 kg'),
+      TRUTH,
+    ));
+    expect(c.ok).toBe(true);
+  });
+
+  it('falla si el ejercicio resuelve pero su material no está disponible', () => {
+    // El escenario declara solo kettlebell y peso corporal: la sentadilla del catálogo
+    // necesita barra, y eso ya no es cuestión de criterio sino de inventario.
+    const sc = { id: 'x', equipment: ['kettlebell', 'ninguno'] };
+    const c = catalogo(checkScenario(sc, sesion('Trabajo:  Sentadilla 3×5 a 100 kg'), TRUTH));
+    expect(c.ok).toBe(false);
+    expect(c.detail).toContain('barra');
+  });
+
+  it('sin declaración de material no juzga compatibilidad', () => {
+    const c = catalogo(checkScenario({ id: 'x' }, sesion('Trabajo:  Sentadilla 3×5 a 100 kg'), TRUTH));
+    expect(c.ok).toBe(true);
+  });
+
+  it('una respuesta sin ejercicios se reporta visible, no pasa en silencio', () => {
+    const c = catalogo(checkScenario(
+      { id: 'x' },
+      run({ answer: 'Tu ratio de carga está en 1.45, toca descargar esta semana.' }),
+      TRUTH,
+    ));
+    expect(c).toBeDefined();
+    expect(c.ok).toBe(true);
+    expect(c.detail).toContain('sin ejercicios');
+  });
+});
+
 describe('formato del bloque', () => {
   it('exige el bloque que pide el escenario', () => {
     const res = checkScenario({ id: 'x', expectBlock: 'RESUMEN' }, run({ answer: 'Vas bien, sigue así.' }), TRUTH);

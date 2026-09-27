@@ -6,6 +6,8 @@
 //
 // `check.mjs` es el CLI que carga el fixture, llama aquí y escribe el informe.
 
+import { resolveExercise } from '../js/exercise-ontology.js';
+
 // ── Texto: bloques de código vs prosa ───────────────────────────────────────
 const FENCE = /```[^\n]*\n([\s\S]*?)```/g;
 export const fences = (s) => [...String(s).matchAll(FENCE)].map(m => m[1]);
@@ -257,7 +259,7 @@ export function checkScenario(sc, r, truth) {
   // ── cargas prescritas ────────────────────────────────────────────────────
   // El único check con consecuencia física: prescribir por encima del 1RM estimado no es
   // un fallo de estilo.
-  const overload = [], unknownEx = [];
+  const overload = [], unknownEx = [], prescribed = [];
   for (const b of blocks) {
     for (const line of b.split('\n')) {
       const m = PRESCRIPTION_RE.exec(line);
@@ -267,12 +269,40 @@ export function checkScenario(sc, r, truth) {
       const rm = truth.e1rmFor(exName);
       if (rm && kg > rm.rm) overload.push(`${exName} ${kg} kg > e1RM ${rm.rm.toFixed(1)} kg`);
       if (exName && !truth.knownNorm.has(norm(exName))) unknownEx.push(exName);
+      if (exName) prescribed.push(exName);
     }
   }
   add(hard, 'carga', overload.length === 0, overload.slice(0, 3).join(' · '));
   if (unknownEx.length) {
     add(soft, 'vocabulario', false, `fuera del catálogo: ${[...new Set(unknownEx)].slice(0, 4).join(', ')}`);
   }
+
+  // ── catálogo ─────────────────────────────────────────────────────────────
+  // La versión dura de `vocabulario`: mismo extracto (las líneas de prescripción del
+  // bloque), pero cada nombre se resuelve contra la ONTOLOGÍA real con resolveExercise
+  // en vez de contra una lista construida a mano. Lo que no resuelve no existe para el
+  // atleta — y aquí ya no se informa: capan. Si el escenario declara material
+  // (`sc.equipment`, p.ej. ['kettlebell', 'ninguno']), un nodo que necesite algo fuera de
+  // esa lista también falla; sin declaración no se juzga material — no se inventan
+  // defaults. Una respuesta sin ejercicios no pasa en silencio: el check se reporta con
+  // detalle, para que en el informe se vea que no hubo nada que comprobar.
+  const fueraCatalogo = [], malEquipo = [];
+  const unicos = [...new Map(prescribed.map(x => [norm(x), x])).values()];
+  for (const exName of unicos) {
+    const node = resolveExercise(exName);
+    if (!node) { fueraCatalogo.push(exName); continue; }
+    if (Array.isArray(sc.equipment) && sc.equipment.length) {
+      const falta = (node.equipment || [])
+        .filter(e => e && e !== 'ninguno' && !sc.equipment.includes(e));
+      if (falta.length) malEquipo.push(`${exName} necesita ${falta.join(', ')}`);
+    }
+  }
+  const detalleCatalogo = [
+    ...fueraCatalogo.map(x => `fuera del catálogo: ${x}`),
+    ...malEquipo,
+  ].slice(0, 4).join(' · ');
+  add(hard, 'catalogo', fueraCatalogo.length === 0 && malEquipo.length === 0,
+    detalleCatalogo || (unicos.length ? '' : 'sin ejercicios que comprobar'));
 
   // ── PR declarado vs PRs reales ───────────────────────────────────────────
   const prLine = /PR detectado\s*:\s*(.+)/i.exec(answer);
