@@ -35,7 +35,11 @@ export function resolveSession(db, ref) {
     return _editSpec && _editSpec.ref === ref ? _editSpec : null;
   }
   const exercises = getPrograms()[db.phase]?.sessions?.[ref];
-  return exercises ? { name: ref, exercises, customId: null } : null;
+  if (exercises) return { name: ref, exercises, customId: null };
+  // Plan que ya no tiene la sesión con ese nombre: igual que las sueltas
+  // borradas, solo se puede editar contra la especificación derivada del
+  // entreno en edición (la arma startEdit).
+  return _editSpec && _editSpec.ref === ref ? _editSpec : null;
 }
 
 /** Sesión seleccionada ahora mismo en el formulario */
@@ -881,6 +885,34 @@ export function startEdit(workout, db) {
     // así que el modo activo no puede ser otro.
     document.getElementById('phaseName').textContent = phaseChipLabel(roman, phase?.name, 'fuerza');
     populateSessions(db);
+    // populateSessions resets _formExpanded según opts.expand; aquí se está
+    // editando, así que el formulario debe quedar desplegado sí o sí.
+    _formExpanded = true;
+  }
+
+  // El entreno puede ser de una sesión que ya no está en el desplegable (cambió
+  // el plan, la fase o el nombre). Se inyecta la opción para que el select
+  // muestre el nombre grabado; y si además el nombre no resuelve contra el
+  // plan actual, se edita contra una especificación derivada del propio
+  // entreno (misma idea que las sueltas borradas, con su copia w.spec).
+  if (![...$trainSession.options].some(o => o.value === workout.session)) {
+    $trainSession.insertAdjacentHTML('beforeend', `<option value="${esc(workout.session)}">${esc(workout.session)}</option>`);
+  }
+  if (!resolveSession(db, workout.session)) {
+    // Los ejercicios del récord tienen sets como ARRAY de {kg, reps}; la
+    // plantilla los necesita NUMÉRICOS (renderSetsCard/saveWorkout iteran
+    // s < ex.sets) y su etiqueta reps no se guarda por ejercicio: se toma la
+    // de la primera serie grabada.
+    _editSpec = {
+      ref: workout.session,
+      name: workout.session,
+      exercises: workout.exercises.map(e => ({
+        ...e,
+        sets: (e.sets || []).length,
+        reps: e.reps || e.sets?.[0]?.reps || '',
+      })),
+      customId: null,
+    };
   }
 
   $trainDate.value = workout.date;
@@ -1046,7 +1078,12 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
     if (maxKg > prevPR) prs.push({ exercise: e.name, kg: maxKg, prevKg: prevPR });
   });
 
-  const prog = getActiveProgram();
+  // Al editar, el entreno conserva su plan original: que el plan activo sea
+  // otro (filtro "Todos los planes") no re-clasifica el pasado. Los nuevos
+  // entrenos sí se llevan el plan activo.
+  const prog = editingId
+    ? (db.workouts.find(w => w.id === editingId)?.program || getActiveProgram())
+    : getActiveProgram();
 
   // Si viene de una sesión suelta, el entreno se lleva su id y una COPIA de la
   // especificación: borrar la suelta no puede romper el historial ni su edición.

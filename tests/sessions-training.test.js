@@ -13,12 +13,18 @@ vi.mock('../js/programs.js', async () => {
         'Sesión B': [{ name: 'Press Militar', sets: 2, reps: '5', type: 'main' }],
       },
     },
+    2: {
+      name: 'Hipertrofia',
+      sessions: {
+        'Sesión C': [{ name: 'Peso Muerto', sets: 3, reps: '8', type: 'main' }],
+      },
+    },
   };
   return {
     ...actual,
     getPrograms: () => mockPrograms,
     getActiveProgram: () => 'arete',
-    getAllPhases: () => [{ id: 1, name: 'Fuerza', desc: '' }],
+    getAllPhases: () => [{ id: 1, name: 'Fuerza', desc: '' }, { id: 2, name: 'Hipertrofia', desc: '' }],
   };
 });
 
@@ -165,6 +171,109 @@ describe('entreno guardado desde una suelta', () => {
     training.saveWorkout(db);
     expect(db.workouts).toHaveLength(1);
     expect(db.workouts[0].exercises[0].sets[0].kg).toBe('72.5');
+  });
+});
+
+// Récord de entreno con la forma que guarda saveWorkout: sets como ARRAY de
+// {kg, reps}, sesión por NOMBRE de plan y program propio.
+const planWorkout = (over = {}) => ({
+  id: 1001,
+  date: '2026-07-28',
+  session: 'S5-6 Día 1',       // NO está en el catálogo de ninguna fase
+  phase: 1,
+  program: 'otro-plan',
+  notes: '',
+  exercises: [{ name: 'Press de Banca', sets: [{ kg: '70', reps: '6' }, { kg: '75', reps: '5' }] }],
+  ...over,
+});
+
+describe('editar un entreno de sesión desconocida', () => {
+  it('resuelve la sesión desde una especificación derivada del propio entreno', async () => {
+    const { training } = await load();
+    const db = freshDB();
+    db.workouts.push(planWorkout());
+    training.populateSessions(db);
+
+    training.startEdit(db.workouts[0], db);
+
+    const sess = training.resolveSession(db, 'S5-6 Día 1');
+    expect(sess).toBeTruthy();
+    expect(sess.name).toBe('S5-6 Día 1');
+    expect(sess.customId).toBeNull();
+    // Forma plantilla: sets numérico (2), no el array del récord.
+    expect(sess.exercises[0].name).toBe('Press de Banca');
+    expect(sess.exercises[0].sets).toBe(2);
+
+    // El desplegable muestra el nombre grabado y el formulario se despliega.
+    const select = document.getElementById('trainSession');
+    expect(select.value).toBe('S5-6 Día 1');
+    expect([...select.options].some(o => o.value === 'S5-6 Día 1')).toBe(true);
+    expect(document.getElementById('prefillText').textContent).toContain('Editando S5-6 Día 1');
+    expect(document.getElementById('exerciseList').innerHTML).toContain('Press de Banca');
+    expect(document.getElementById('exerciseList').style.display).not.toBe('none');
+  });
+
+  it('guardar mantiene sesión, plan y valores del entreno original', async () => {
+    const { training } = await load();
+    const db = freshDB();
+    db.workouts.push(planWorkout());
+    training.populateSessions(db);
+    training.startEdit(db.workouts[0], db);
+
+    fillSet(0, 0, '72.5', '6');
+    training.saveWorkout(db);
+
+    expect(db.workouts).toHaveLength(1);
+    const w = db.workouts[0];
+    expect(w.session).toBe('S5-6 Día 1');
+    expect(w.program).toBe('otro-plan');          // no lo re-escribe el plan activo
+    expect(w.sessionId).toBeUndefined();
+    expect(w.spec).toBeUndefined();
+    expect(w.exercises[0].name).toBe('Press de Banca');
+    expect(w.exercises[0].sets[0]).toEqual({ kg: '72.5', reps: '6' });
+    expect(w.exercises[0].sets[1]).toEqual({ kg: '75', reps: '5' });
+  });
+
+  it('cancelar limpia la opción inyectada y la especificación temporal', async () => {
+    const { training } = await load();
+    const db = freshDB();
+    db.workouts.push(planWorkout());
+    training.populateSessions(db);
+    training.startEdit(db.workouts[0], db);
+
+    training.cancelEdit(db);
+
+    const select = document.getElementById('trainSession');
+    expect([...select.options].some(o => o.value === 'S5-6 Día 1')).toBe(false);
+    expect(training.resolveSession(db, 'S5-6 Día 1')).toBeNull();
+  });
+
+  it('una sesión del plan sigue editándose contra la plantilla (regresión)', async () => {
+    const { training } = await load();
+    const db = freshDB();
+    db.workouts.push(planWorkout({ session: 'Sesión A', program: 'arete' }));
+    training.populateSessions(db);
+    training.startEdit(db.workouts[0], db);
+
+    // La plantilla viene del plan (Sentadilla, 2 series), no del récord.
+    expect(document.getElementById('exerciseList').innerHTML).toContain('Sentadilla');
+    expect(document.querySelector('[data-ex="0"][data-set="1"][data-field="kg"]')).toBeTruthy();
+    const select = document.getElementById('trainSession');
+    expect([...select.children].filter(c => c.tagName === 'OPTION').map(o => o.value))
+      .toEqual(['Sesión A', 'Sesión B']);   // sin opción duplicada
+  });
+
+  it('editar un entreno de otra fase despliega el formulario tras el cambio de fase', async () => {
+    const { training } = await load();
+    const db = freshDB();
+    db.workouts.push(planWorkout({ session: 'Sesión C', phase: 2, program: 'arete' }));
+    training.populateSessions(db);
+    training.startEdit(db.workouts[0], db);
+
+    expect(db.phase).toBe(2);
+    expect(document.getElementById('trainSession').value).toBe('Sesión C');
+    expect(document.getElementById('exerciseList').innerHTML).toContain('Peso Muerto');
+    expect(document.getElementById('exerciseList').style.display).not.toBe('none');
   });
 });
 
