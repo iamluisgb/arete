@@ -1,4 +1,5 @@
 let container;
+let _warnedNoContainer = false;
 
 /** Initialize toast notification container */
 export function initToast() {
@@ -10,6 +11,18 @@ export function initToast() {
  *  @param {'success'|'error'|'info'} type - Toast style
  *  @param {Object} [opts] - Optional: { action: 'Deshacer', onAction: fn } */
 export function toast(message, type = 'success', opts) {
+  // Orden de arranque / remount: el contenedor cacheado puede no existir todavía
+  // o haber quedado suelto del DOM. Se re-consulta; si sigue sin haber, no-op.
+  if (!container?.isConnected) {
+    container = document.getElementById('toastContainer');
+    if (!container) {
+      if (!_warnedNoContainer) {
+        console.warn('toast: #toastContainer no está en el DOM; aviso descartado');
+        _warnedNoContainer = true;
+      }
+      return;
+    }
+  }
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
   el.textContent = message;
