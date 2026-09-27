@@ -97,3 +97,26 @@ del enunciado de verificación, no del diseño.
   string del binding verbatim (authorityRevision == expected-revision ==
   5cf266a8…) → forecast → ack → run. Lección: copiar el binding SIEMPRE
   byte a byte del STATUS, nunca recomponerlo.
+
+## Ronda 2 — Estado PC sin key + navegación con panel abierto (2026-09-27)
+
+Reporte: "en Quirón, cambio a Más y sigue en Quirón; en el PC no me deja
+escribir ni hacer scroll — está roto". Cadena reproducida en 1440×793 sin
+`areteAiKey` con la conversación sincronizada desde Drive:
+
+- P1: `showSetupIfNeeded` oculta el composer sin key (por diseño), pero la
+  regla `.quiron-panel:has(.quiron-setup:not([hidden])) .quiron-msgs{flex:0 0 auto}`
+  hace que el chat (2955px) no se contraiga: setup queda a y=3017 (fuera de
+  pantalla), msgs sh==ch (sin scroll interno) y NO hay ningún elemento
+  scrollable del panel → scroll muerto y setup invisible. El PC no tiene key
+  (la key no viaja en el sync; solo el chat), por eso el estado imposible.
+- P2: `switchTab` (nav.js) no cierra el panel de Quirón: la sección cambia
+  detrás (Más queda active con el panel encima, body sigue `quiron-open`).
+
+Alcance: P1 CSS (msgs siempre `flex:1 1 auto; min-height:0` + setup
+`order:-1` como cabecera cuando visible), P2 evento `arete:section-switch`
+decoplado (patrón de `arete:ask-quiron`) → closePanel, tests (P2 conductual,
+P1 source-contract), sw v164. Fuera de alcance: sincronizar la API key
+(secreto, diseño actual la mantiene por origen).
+
+Evidence: (pendiente)
