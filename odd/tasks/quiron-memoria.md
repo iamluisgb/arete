@@ -86,4 +86,15 @@ primero, UI después** (la ronda de botones/historial queda pendiente).
 
 ## Evidencia de verificación
 
-(pendiente)
+- gentle-ai-verify: PASS 8/8 — suite 870/870, diff limitado a 17 ficheros
+  esperados, semántica de capa de datos completa (borrado blando, LWW,
+  propagación de deleted A→B, caps 50/200, shortIds posicionales) con tests
+  nombrados, coherencia de ids [Mn] entre snapshot y tools fijada por test
+  (ambos vía listMemorias), tools (validación, replace sin duplicar,
+  source:modelo, aviso de democión, forget con error claro), exclusión del
+  bloque data, labels + contrato ampliado, snapshot con sección omitida si
+  vacía + soul + comentario TOKEN_GUARD, y **check en vivo del modal**
+  (abrir, estado vacío, 3 filas con chips/fecha/contador 3/50, editar y
+  persistir, borrar con ¿Seguro? → deleted:true y contador 2/50),
+  SYNC-V2.md U3 completo.
+- Suite del parent tras commit: 870/870 (52 ficheros).
