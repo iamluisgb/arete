@@ -25,20 +25,20 @@ f4 9, ux-checklist 4) + el flake pre-existente de ui-polish UX-7.
       vieja y escribe el draft de "Sesión A" sobre el de "Sesión B" durante la
       ventana lenta de import del test UX-7 → match en vez de mismatch → sin
       toast → assert falla. Solo en runs en frío en paralelo.
-- [ ] A1 — Flake UX-7: guard `if (!$exerciseList?.isConnected) return;` en
+- [x] A1 — Flake UX-7: guard `if (!$exerciseList?.isConnected) return;` en
       `saveDraft` (js/ui/training.js:52) + test de regresión.
-- [ ] A2 (confirmado: js/app.js:517-527, cap ~2 min + toast final) — `scheduleAppReload` (js/app.js): polling acotado (tope de
+- [x] A2 (confirmado: js/app.js:517-527, cap ~2 min + toast final) — `scheduleAppReload` (js/app.js): polling acotado (tope de
       intentos + toast final) — findings auditoría R3-001/R3-002.
-- [ ] A3 — Supply chain del build tool: fetch sin pin / validación de cache
+- [x] A3 — Supply chain del build tool: fetch sin pin / validación de cache
       (findings f0f2).
-- [ ] B1 — metrics.js:178 comentario del predicado de series.
-- [ ] B2 — tools.js:275 truncation hint: "refina con pattern/equipment/evita".
-- [ ] B3 — test source-contract del clamp de .hi-session (-webkit-line-clamp:2).
-- [ ] B4 — test del breakpoint de Compartir (@media max-width:433px).
-- [ ] B5 — dedupe del toast de mismatch de borrador (mismo ts no re-toast).
-- [ ] B6 — toast(): re-query lazy de #toastContainer (quita acoplamiento de boot).
-- [ ] B7 — comentario de coherencia CACHE_NAME/ASSETS en sw.js.
-- [ ] B8 — nav-label: assert de texto no vacío en el test de markup.
+- [x] B1 — metrics.js:178 comentario del predicado de series.
+- [x] B2 — tools.js:275 truncation hint: "refina con pattern/equipment/evita".
+- [x] B3 — test source-contract del clamp de .hi-session (-webkit-line-clamp:2).
+- [x] B4 — test del breakpoint de Compartir (@media max-width:433px).
+- [x] B5 — dedupe del toast de mismatch de borrador (mismo ts no re-toast).
+- [x] B6 — toast(): re-query lazy de #toastContainer (quita acoplamiento de boot).
+- [x] B7 — comentario de coherencia CACHE_NAME/ASSETS en sw.js.
+- [x] B8 — nav-label: assert de texto no vacío en el test de markup.
 - [ ] V — suite verde, verificación, revisión nativa, PR, deploy.
 
 ## Fuera de alcance (categoría C)
@@ -47,7 +47,13 @@ Documentar en este doc al cierre qué se acepta y por qué.
 
 ## Evidencia de commits
 
-(pendiente)
+- `b0bb138` fix(test): flake UX-7 (guard isConnected en saveDraft + test rojo/verde) + dedupe toast mismatch + 3 source contracts.
+- `9470e89` fix(app): cap de polling 240 ticks + toast final; toast() resiliente al boot-order.
+- `599645e` build(ontology): input pineado por SHA-256 (5bb747e3fc65…95d40bf), verificado en cache-load y post-download; regen sin diff.
+- `a1867bb` chore(ai): comentario del predicado de series + hint de refinado en truncamiento.
+- `494e6dd` chore(sw): regla de coherencia CACHE_NAME/ASSETS.
+- Suite: 815/815 (era 812; +3 tests nuevos). ui-polish 16/16 ×3 frías;
+  suite completa ×2 frías verde. A3 verificado: diff de regeneración vacío.
 
 ## Evidencia de verificación
 
