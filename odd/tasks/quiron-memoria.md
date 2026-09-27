@@ -69,6 +69,14 @@ primero, UI después** (la ronda de botones/historial queda pendiente).
 - Cambios en la ventana de 8 mensajes (la pista de UI va en la ronda de interfaz).
 - Tombstones para el chat (borrado de conversaciones) — sigue como trade-off.
 
+## Revisión nativa
+
+- review-bfba7aecfceb8b97: tier medium (17 ficheros, 1270 líneas), lente
+  review-reliability. **APPROVED**, autoridad quemada. 3 findings informativos:
+  R3-edit-blank-null (js/ui/quiron.js:1417), R3-line-length (:1400),
+  R3-memory-modal-missing-close-on-escape (:1387) — el de Escape queda
+  anotado para la ronda de interfaz.
+
 ## Evidencia de commits
 
 - `a0baf18` W1 capa de datos: js/quiron-memory.js (esquema, caps 50/200,
