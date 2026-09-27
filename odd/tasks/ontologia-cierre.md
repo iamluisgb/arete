@@ -39,7 +39,7 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
       `tests/evals-checks.test.js` (un check que no caza nada debe fallar).
 - [x] E2 — F5: escenario "molesta el hombro → sustituir press militar" en
       `evals/scenarios.mjs` (ejercita soul.js SEGURIDAD end-to-end).
-- [ ] V — suite completa verde (delta de fixtures de dominios = 0), bump
+- [x] V — suite completa verde (delta de fixtures de dominios = 0), bump
       sw v156→v157 (cambia js/exercise-ontology.js), verificación, revisión
       nativa, PR, deploy.
 
@@ -67,4 +67,11 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
   escenario — solo cubierto por tests de momento (ningún escenario real lo
   declara todavía; declararlo en `ruteo-sesion-sin-material` caparía runs
   reales — pendiente de decisión cuando se ejecuten evals a escala).
-- Pendiente de verificación independiente + revisión nativa.
+- gentle-ai-verify: PASS 8/8 — suite 812/812, diff limitado a 14 ficheros esperados,
+  8 filas con transición exacta media→confirmada y notas 'Aceptado:' (diff
+  estructural JSON), regresión de resolución 239/239 claves idénticas,
+  build determinista (2 corridas sin diff, avisos first-wins correctos),
+  check `catalogo` cableado en el pipeline (evals/check.mjs:70), escenario
+  molestia-hombro importa con expectCall explain_exercise, docs PLAN F0-F4 [x]
+  y F5 marcados al completarse, sw solo v156→v157.
+- F5 checkboxes del PLAN marcados al cierre del código (con notas de estado).

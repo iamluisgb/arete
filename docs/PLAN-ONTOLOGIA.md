@@ -204,15 +204,18 @@ Decisiones de diseño (spec, decididas antes de codificar — detalle en memoria
 
 ## F5 — Evals 🟡⭐
 
-- [ ] Check nuevo `catalogo` en [`evals/checks.mjs`](../evals/checks.mjs): todo ejercicio que
+- [x] Check nuevo `catalogo` en [`evals/checks.mjs`](../evals/checks.mjs): todo ejercicio que
       Quirón nombre debe resolver contra la ontología y ser compatible con el material declarado
       en el escenario. Es el análogo del check `cifras` para el otro tipo de alucinación
-      de este dominio: el ejercicio inventado o imposible.
-- [ ] Escenarios en [`evals/scenarios.mjs`](../evals/scenarios.mjs): "sesión de pierna sin
+      de este dominio: el ejercicio inventado o imposible. (Hecho 2026-09-26, ronda de cierre.)
+- [x] Escenarios en [`evals/scenarios.mjs`](../evals/scenarios.mjs): "sesión de pierna sin
       gimnasio", "me molesta el hombro, sustitúyeme el press militar", "qué hago para mi
-      dominio limitante".
-- [ ] **Test del check** en `tests/evals-checks.test.js` — un comprobador que no caza nada
-      pasa siempre, y entonces el run en verde no significa nada.
+      dominio limitante". (Hombro: `molestia-hombro` nuevo 2026-09-26; pierna-sin-gimnasio y
+      dominio-limitante ya existían como `ruteo-sesion-sin-material` y `dominio-limitante`.)
+- [x] **Test del check** en `tests/evals-checks.test.js` — un comprobador que no caza nada
+      pasa siempre, y entonces el run en verde no significa nada. (5 casos adversariales
+      2026-09-26: inexistente falla, real pasa, equipamiento incompatible falla,
+      sin declaración se omite, respuesta vacía visible.)
 
 ## F6 — OpenAlex, para las referencias 🟢 ← paralelo, no toca la app
 
