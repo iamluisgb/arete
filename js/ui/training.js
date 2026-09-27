@@ -49,6 +49,9 @@ let _draftTimer = null;
 
 function saveDraft() {
   if (editingId) return; // don't draft when editing existing
+  // Timer de una vista ya reemplazada: los selectores cacheados apuntan a un DOM
+  // suelto y escribirían el borrador viejo encima del de la vista nueva.
+  if (!$exerciseList?.isConnected) return;
   const inputs = $exerciseList?.querySelectorAll('input');
   if (!inputs?.length) return;
   const values = [];
@@ -89,6 +92,10 @@ function clearDraft() {
 // o el número de ejercicios cambiaron, restaurarlo escribiría valores en series
 // equivocadas; se descarta y se avisa en vez de hacerlo en silencio.
 const DRAFT_MISMATCH_MSG = 'El borrador anterior no encaja con el plan actual: se descartó';
+// El mismo borrador se re-evalúa en cada re-render con expand: sin dedupe,
+// re-toastearía en cada populateSessions({expand:true}). Solo se calla el toast
+// — el descarte sigue igual.
+let lastDiscardedTs = null;
 
 function restoreDraft() {
   try {
@@ -97,9 +104,15 @@ function restoreDraft() {
     const draft = JSON.parse(raw);
     // Discard drafts older than 12 hours
     if (Date.now() - draft.ts > 12 * 60 * 60 * 1000) { clearDraft(); return false; }
-    if (draft.session !== $trainSession.value) { toast(DRAFT_MISMATCH_MSG, 'info'); return false; }
+    if (draft.session !== $trainSession.value) {
+      if (draft.ts !== lastDiscardedTs) { lastDiscardedTs = draft.ts; toast(DRAFT_MISMATCH_MSG, 'info'); }
+      return false;
+    }
     const inputs = $exerciseList.querySelectorAll('input');
-    if (inputs.length !== draft.values.length) { toast(DRAFT_MISMATCH_MSG, 'info'); return false; }
+    if (inputs.length !== draft.values.length) {
+      if (draft.ts !== lastDiscardedTs) { lastDiscardedTs = draft.ts; toast(DRAFT_MISMATCH_MSG, 'info'); }
+      return false;
+    }
     draft.values.forEach((v, i) => {
       if (v) { inputs[i].value = v; inputs[i].classList.remove('prefilled'); }
     });

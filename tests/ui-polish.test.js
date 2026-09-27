@@ -95,7 +95,12 @@ describe('markup audit (mobile visual fixes)', () => {
 
     const buttons = document.querySelectorAll('#mainNav button');
     expect(buttons.length).toBeGreaterThan(0);
-    buttons.forEach(btn => expect(btn.querySelector('.nav-label')).not.toBeNull());
+    buttons.forEach(btn => {
+      const label = btn.querySelector('.nav-label');
+      expect(label).not.toBeNull();
+      // Nav sin texto no es nav: cada botón necesita su etiqueta visible.
+      expect(label.textContent.trim()).not.toBe('');
+    });
   });
 
   it('Quirón setup: el demo queda primario y "Ir a Ajustes" es secundario', () => {
@@ -129,6 +134,22 @@ describe('markup audit (mobile visual fixes)', () => {
   it('el texto de sesión del chip del calendario va dentro de .cal-chip-txt', () => {
     const src = readFileSync(resolve(process.cwd(), 'js/ui/calendar.js'), 'utf-8');
     expect(src).toContain('<span class="cal-chip-txt">');
+  });
+
+  // R2-1 (mismo caso): el clamp del nombre de sesión en el historial es un
+  // contrato del CSS — si alguien toca la regla, este test avisa.
+  it('.hi-session limita el nombre a 2 líneas con -webkit-line-clamp:2', () => {
+    const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8');
+    const rule = css.match(/\.hi-session\{[^}]*\}/)?.[0];
+    expect(rule).toBeTruthy();
+    expect(rule).toContain('-webkit-line-clamp:2');
+  });
+
+  // R2-2 (mismo caso): bajo 433px la etiqueta "Compartir" se oculta y queda
+  // solo el icono; el aria-label del botón es lo que sostiene la accesibilidad.
+  it('app.css oculta .detail-share-label bajo el breakpoint de 433px', () => {
+    const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
+    expect(css).toContain('@media(max-width:433px){.detail-share-label{display:none}}');
   });
 });
 
@@ -272,5 +293,23 @@ describe('borrador descartado por mismatch (UX-7)', () => {
     expect(toasts.some(x => x.textContent.includes('no encaja con el plan actual'))).toBe(false);
     const kg = document.querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="kg"]');
     expect(kg.value).toBe('50');
+  });
+
+  // Flake UX-7: un timer de draft programado por un test anterior (o por una
+  // vista reemplazada) sobrevive al reset de módulos y escribía el borrador
+  // viejo — con selectores apuntando a un DOM suelto — encima del nuevo.
+  it('un timer de draft de una vista ya reemplazada no escribe el borrador', async () => {
+    const db = freshDB();
+    await cargarSesion(db); // sin draft: el click en el overview despliega el formulario
+    fill(0, 0, 60, 5);
+    document
+      .querySelector('#exerciseList [data-ex="0"][data-set="0"][data-field="kg"]')
+      .dispatchEvent(new Event('input', { bubbles: true })); // programa el timer (UX-6)
+
+    // La vista se reemplaza: #exerciseList sale del DOM y el timer queda huérfano.
+    document.getElementById('exerciseList').remove();
+    await new Promise((r) => setTimeout(r, 550)); // > 500ms del timer
+
+    expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
   });
 });
