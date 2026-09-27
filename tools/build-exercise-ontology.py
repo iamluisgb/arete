@@ -25,6 +25,7 @@ Uso:
   python3 tools/build-exercise-ontology.py --refresh      # re-baja fedb
   python3 tools/build-exercise-ontology.py --tabla        # regenera el .md de revisión
 """
+import hashlib
 import json
 import re
 import sys
@@ -33,6 +34,9 @@ import urllib.request
 from pathlib import Path
 
 FEDB_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
+# La entrada del build está fijada por contenido: si upstream cambia legítimamente,
+# actualiza EXPECTED_SHA256 a conciencia en el mismo commit que el módulo regenerado.
+EXPECTED_SHA256 = "5bb747e3fc658f095a60dcbf6d53c96627acdcc6ffb6fffde86f7e26995d40bf"
 CACHE = Path("tools/cache/free-exercise-db.json")
 PROPOSALS = Path("docs/ontologia-propuestas.json")
 OUT = Path("js/exercise-ontology.js")
@@ -127,14 +131,28 @@ def media_key(name):
     return " ".join(sorted(_stem(w) for w in words if w and w not in STOP))
 
 
+def _check_fedb_hash(data):
+    got = hashlib.sha256(data).hexdigest()
+    if got != EXPECTED_SHA256:
+        sys.exit(
+            f"free-exercise-db cambió: sha256 {got} ≠ pin EXPECTED_SHA256. "
+            "Si el cambio de upstream es legítimo, actualiza el pin y regenera "
+            "js/exercise-ontology.js en el mismo commit."
+        )
+
+
 def ensure_fedb(refresh=False):
     if CACHE.exists() and not refresh:
-        return json.loads(CACHE.read_text())
+        data = CACHE.read_bytes()
+        _check_fedb_hash(data)
+        return json.loads(data)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     print(f"bajando free-exercise-db → {CACHE}")
     with urllib.request.urlopen(FEDB_URL, timeout=60) as r:
-        CACHE.write_bytes(r.read())
-    return json.loads(CACHE.read_text())
+        data = r.read()
+    _check_fedb_hash(data)  # verificar ANTES de tocar el cache
+    CACHE.write_bytes(data)
+    return json.loads(data)
 
 
 def load_proposals():

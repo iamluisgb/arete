@@ -515,8 +515,16 @@ function scheduleAppReload() {
     [...document.querySelectorAll('.modal-overlay.open, .sheet.open')].some(isDialogVisible);
   if (!overlayBlocking()) { location.reload(); return; }
   toast('Actualización pendiente. Se aplicará al cerrar la vista actual.', 'info');
+  let ticks = 0;
   pendingReloadTimer = setInterval(() => {
-    if (overlayBlocking()) return;
+    if (overlayBlocking()) {
+      // Cap: si la vista nunca cierra, no sondear para siempre (~2 min).
+      if (++ticks < 240) return;
+      clearInterval(pendingReloadTimer);
+      pendingReloadTimer = null;
+      toast('Actualización pendiente. Recarga cuando quieras.', 'info');
+      return;
+    }
     clearInterval(pendingReloadTimer);
     pendingReloadTimer = null;
     location.reload();
