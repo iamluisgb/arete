@@ -47,9 +47,23 @@ revisiones de quiron-memoria.
 - Persistir "Continuar respuesta".
 - Cambiar la ventana de 8 mensajes del modelo.
 
+- [x] U6 (hallazgo del worker): el título "Cerrar (Esc)" prometía Escape y
+      el panel no lo cerraba (el handler global solo cubre .modal-overlay y
+      .sheet). Handler en capture phase con precedencia modal-primero.
+
 ## Evidencia de commits
 
-(pendiente)
+- `6ed17af` feat(quiron): U1-U6 (labels apilados con degrade <360px, bienvenida
+  efímera + toggle lightbulb de chips, hora/separadores ts>0, preview + borrado
+  en dos toques en historial, Escape del panel en capture phase). +12 tests.
+- chore(sw): CACHE_NAME v159→v160 (app.html/app.css/quiron.js precacheados).
+- Suite: 882/882 (52 ficheros).
+
+## Hallazgos registrados (fuera de alcance)
+
+- La fila de chips se oculta del todo sin contenido (antes strip vacío ~16px):
+  cambio intencional del toggle.
+- Streaming del assistant no lleva hora hasta renderConvo (efímero por diseño).
 
 ## Evidencia de verificación
 
