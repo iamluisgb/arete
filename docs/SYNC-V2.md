@@ -106,13 +106,20 @@ Web Locks (`'arete-sync'`, `ifAvailable`): la pestaña que no consigue el lock
 se salta el ciclo en silencio — otra está sincronizando. El `location.reload()`
 por storage-event **se queda**: es la red de seguridad cuando OTRA pestaña
 cambia localStorage, y corre fuera del ciclo. Lo prohibido era recargar DENTRO
-del ciclo; hoy el pull fusiona in-place y la UI se entera sin recargar.
+del ciclo; hoy el pull fusiona in-place y la UI se entera de verdad: cuando un
+ciclo trae cambios que el merge aplicó, la app re-renderiza la landing y la
+sección activa al momento (nunca en mitad de una interacción: con el runner
+abierto, un borrador vivo o un modal/sheet en pantalla los datos quedan
+fusionados y la siguiente navegación los pinta). Entre pestañas sigue mandando
+el reload del storage-event.
 
 ### Triggers
 
-Arranque a los 1500 ms · debounce 3 s tras cada `saveDB` · cada 90 s con la
-pestaña visible · flush al ocultar y al recuperar conexión. Nada corre en
-segundo plano oculto salvo el flush.
+Arranque con reintentos en backoff (1.5s → 5s → 20s → 60s; un ciclo `ok` corta
+la agenda, `off` —sin permiso— también, y `locked`/`busy`/`error` reintentan) ·
+debounce 3 s tras cada `saveDB` · cada 90 s con la pestaña visible · flush al
+ocultar y al recuperar conexión · pull al recuperar foco con 30 s de cooldown
+desde el último intento. Nada corre en segundo plano oculto salvo el flush.
 
 ## Quirón (`arete-quiron.json`)
 

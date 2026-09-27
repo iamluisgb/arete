@@ -278,6 +278,9 @@ function ensureEngine(db) {
       if (s === 'ok') localStorage.setItem(SYNC_TS_KEY, String(Date.now()));
       setSyncStatus(s);
     },
+    // UI adoption chain: engine → drive → app. The engine fires only when a
+    // cycle merged remote changes; we just forward to whoever subscribed.
+    onPulled: () => { if (_pulledCb) _pulledCb(); },
     onError: (e) => reportSyncError(e, 'sync'),
   });
   engineDb = db;
@@ -306,6 +309,64 @@ let _syncStatusCb = null;
 /** @param {Function} cb - Called with 'syncing' | 'ok' | 'error' */
 export function onSyncStatus(cb) { _syncStatusCb = cb; }
 function setSyncStatus(status) { if (_syncStatusCb) _syncStatusCb(status); }
+
+let _pulledCb = null;
+/**
+ * Called after a cycle merged remote changes into the live db (UI adoption).
+ * Never fires on a no-op cycle, on an error, or when another tab held the
+ * sync lock (the cross-tab storage reload covers that case).
+ * @param {Function} cb
+ */
+export function onPulled(cb) { _pulledCb = cb; }
+
+// Boot sync with backoff. The first pull 1.5s after load can land on a cold
+// network or a token refresh in flight; the next automatic trigger is the 90s
+// interval, which is too far away for the "my data is there on entry" promise.
+const BOOT_RETRY_DELAYS_MS = [1500, 5000, 20000, 60000];
+
+/**
+ * Schedule the boot sync attempts. Delays are gaps BETWEEN attempts: 1.5s,
+ * then +5s, +20s, +60s. attempt() resolves with the cycle result:
+ * - 'ok' → success: stop, the periodic triggers take over from here.
+ * - 'off' → sync is not available (no token / autosync off): stop entirely;
+ *   there is nothing to retry until the user connects.
+ * - anything else ('error', 'locked', 'busy') → retry after the next delay.
+ *   A 'locked' cycle counts as an attempt and does NOT stop the schedule:
+ *   the other tab's merge reaches this tab via the storage-event reload, not
+ *   via a re-render here, so there is nothing to wait for.
+ *
+ * @param {Function} attempt async () => 'ok' | 'off' | 'error' | 'locked' | 'busy'
+ * @param {Object} [opts.timers] injectable { setTimeout, clearTimeout } for tests.
+ * @returns {Function} stop() — cancels any pending attempt.
+ */
+export function startInitialSync(attempt, { timers = globalThis } = {}) {
+  let timer = null;
+  let stopped = false;
+  const stop = () => {
+    stopped = true;
+    if (timer !== null) timers.clearTimeout(timer);
+    timer = null;
+  };
+  const schedule = (i) => {
+    if (stopped || i >= BOOT_RETRY_DELAYS_MS.length) return;
+    timer = timers.setTimeout(() => run(i), BOOT_RETRY_DELAYS_MS[i]);
+  };
+  const run = async (i) => {
+    timer = null;
+    if (stopped) return;
+    let r;
+    try {
+      r = await attempt();
+    } catch {
+      r = 'error'; // a thrown attempt must not break the schedule
+    }
+    if (stopped) return; // stop() may have been called while the attempt ran
+    if (r === 'ok' || r === 'off') return;
+    schedule(i + 1);
+  };
+  schedule(0);
+  return stop;
+}
 
 let _reconnectCb = null;
 /** Called when Google revoked the permission and the user must connect again. */

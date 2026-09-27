@@ -12,7 +12,7 @@ import { isRunnerOpen } from './ui/set-runner.js';
 import { initCalendar } from './ui/calendar.js';
 import { initHistory } from './ui/history.js';
 import { initBody } from './ui/body.js';
-import { connectIfNeeded, isConnected, backupToDrive, syncNow, onSyncStatus, onReconnectNeeded, clearStoredToken } from './drive.js';
+import { connectIfNeeded, isConnected, backupToDrive, syncNow, onSyncStatus, onPulled, onReconnectNeeded, clearStoredToken, startInitialSync } from './drive.js';
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
@@ -27,9 +27,10 @@ import { initSettingsNav, renderSettingsIndex } from './ui/settings.js';
 const db = loadDB();
 const AUTOSYNC_KEY = 'areteAutoSync';
 const THEME_KEY = 'areteTheme';
-// Sync v2 triggers (docs/SYNC-V2.md): first pull shortly after load, debounced
-// re-sync after every saveDB, periodic while visible, flush on hide/online.
-const INITIAL_SYNC_DELAY_MS = 1500;
+// Sync v2 triggers (docs/SYNC-V2.md): boot pulls with backoff (drive.js),
+// debounced re-sync after every saveDB, periodic while visible, flush on
+// hide/online, pull on focus with a cooldown.
+const FOCUS_SYNC_COOLDOWN_MS = 30000;
 const SYNC_INTERVAL_MS = 90000;
 
 // --- Theme ---
@@ -295,6 +296,14 @@ async function init() {
   // Auto-sync (sync v2): cada saveDB reprograma un ciclo con debounce. El motor
   // fusiona lo que hay en Drive antes de subir: un guardado nunca sube a ciegas.
   const canSync = () => isAutoSync() && isConnected();
+  // Sello compartido por todos los disparadores automáticos: focus lo consulta
+  // para no encadenar ciclos pegados al volver a la app.
+  let lastAutoSyncAt = 0;
+  const attemptAutoSync = () => {
+    if (!canSync()) return;
+    lastAutoSyncAt = Date.now();
+    syncNow(db);
+  };
   const debouncedSync = debounce(() => { if (canSync()) syncNow(db); }, DEBOUNCE_BACKUP_MS);
   setOnSave(() => { if (canSync()) debouncedSync(); });
   setOnQuotaError(() => {
@@ -305,6 +314,12 @@ async function init() {
     setTimeout(scheduleAppReload, 1500);
   });
 
+  // Adopción del pull (el fix de arranque): cuando un ciclo trajo cambios de
+  // Drive, la pantalla pintada al arrancar queda vieja. onPulled solo dispara
+  // si el merge cambió datos; aquí re-renderizamos con la misma puerta que el
+  // hook de Quirón (ver applyPulledData).
+  onPulled(applyPulledData);
+
   updateSyncUI();
 
   // El permiso de Drive vive en localStorage y se renueva solo: no hay librería
@@ -313,22 +328,39 @@ async function init() {
     updateSyncUI();
     toast('Google retiró el permiso de Drive. Vuelve a activar la sincronización en Ajustes.', 'error');
   });
-  // Primer tirón poco después de cargar, sin competir con el arranque.
-  if (isAutoSync()) setTimeout(() => { if (canSync()) syncNow(db); }, INITIAL_SYNC_DELAY_MS);
+  // Primer tirón poco después de cargar, sin competir con el arranque. Con
+  // reintentos en backoff (1.5s → 5s → 20s → 60s): el primer intento puede
+  // caer en una red aún fría y el siguiente disparador automático es el
+  // intervalo de 90s. Sin permiso no hay nada que reintentar: la agenda corta
+  // ('off') y quedan el intervalo + visibility/online como estado estacionario.
+  if (isAutoSync()) {
+    startInitialSync(async () => {
+      if (!canSync()) return 'off';
+      lastAutoSyncAt = Date.now();
+      return syncNow(db);
+    });
+  }
 
   // Periódico: trae cambios de otros dispositivos, solo con la pestaña visible.
   setInterval(() => {
-    if (canSync() && document.visibilityState === 'visible') syncNow(db);
+    if (document.visibilityState === 'visible') attemptAutoSync();
   }, SYNC_INTERVAL_MS);
 
   // Flush al ocultar la pestaña (el único sync estando oculto) y re-sync al volver.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') debouncedSync.flush();
-    else if (canSync()) syncNow(db);
+    else attemptAutoSync();
   });
 
   // Recuperada la conexión: intentar un ciclo.
-  window.addEventListener('online', () => { if (canSync()) syncNow(db); });
+  window.addEventListener('online', () => attemptAutoSync());
+
+  // Recuperado el foco (desktop/PWA): mismo pull que visibilitychange, pero el
+  // click de vuelta no debe encadenar ciclos pegados — cooldown desde el
+  // último intento (sello compartido con visibility/intervalo/arranque).
+  window.addEventListener('focus', () => {
+    if (Date.now() - lastAutoSyncAt >= FOCUS_SYNC_COOLDOWN_MS) attemptAutoSync();
+  });
 
   // Offline indicator
   const offlineBanner = document.getElementById('offlineBanner');
@@ -529,6 +561,22 @@ function scheduleAppReload() {
     pendingReloadTimer = null;
     location.reload();
   }, 500);
+}
+
+// Sync v2 — adopción del pull: cuando un ciclo trajo cambios de Drive, la
+// pantalla pintada al arrancar está vieja. Re-renderiza la landing y la
+// sección activa, pero nunca en mitad de una interacción: misma puerta que el
+// hook de Quirón (runner abierto o borrador vivo) más el criterio de diálogo
+// abierto del reload diferido (modal/sheet). Los datos ya quedaron fusionados
+// y persistidos igual; la siguiente navegación los levanta.
+export function applyPulledData() {
+  if (isRunnerOpen() || getLiveDraft(db)) return;
+  if ([...document.querySelectorAll('.modal-overlay.open, .sheet.open')].some(isDialogVisible)) return;
+  // refreshActiveSection ya cubre el dashboard cuando es la sección activa:
+  // renderDashboard aparte solo cuando no lo es, para que la landing no quede vieja.
+  const sec = document.querySelector('.section.active')?.id;
+  if (sec !== 'secDashboard') renderDashboard(db);
+  refreshActiveSection(db);
 }
 
 if ('serviceWorker' in navigator) {

@@ -105,6 +105,9 @@ function emptyDbFingerprint() {
  * @param {Function} [opts.random] injectable jitter source.
  * @param {Function} [opts.onStatus] 'syncing' | 'ok' | 'error'.
  * @param {Function} [opts.onError] called with the failure after onStatus('error').
+ * @param {Function} [opts.onPulled] called after a cycle that merged remote
+ *   changes into the live db — the UI adoption hook (nothing fires on a no-op
+ *   cycle, on an error, or when another tab held the lock).
  */
 export function createSyncEngine(opts) {
   const io = opts.transport;
@@ -117,6 +120,7 @@ export function createSyncEngine(opts) {
   const random = opts.random || Math.random;
   const onStatus = opts.onStatus || (() => {});
   const onError = opts.onError || (() => {});
+  const onPulled = opts.onPulled || (() => {});
   // Quirón phase (optional): own transport (arete-quiron.json) + UI hooks.
   const quiron = opts.quiron || null;
   let qLastResult = null;
@@ -189,8 +193,12 @@ export function createSyncEngine(opts) {
   }
 
   // One full db cycle, with the emulated-412 retry loop around the push phase.
+  // `pulled` accumulates across conflict retries: a merge that DID change the
+  // db on attempt 0 must not be reported as untouched just because a later
+  // re-pull found nothing new.
   async function dbCycle() {
     let st = await pullAndMerge();
+    let pulled = st.pulled;
     for (let attempt = 0; ; attempt++) {
       // Before pushing, check the remote did not move since our pull. If it
       // did, someone else wrote: re-pull, re-merge, retry (the merge is
@@ -206,14 +214,15 @@ export function createSyncEngine(opts) {
         }
         await sleep(RETRY_BASE_MS * (attempt + 1) + random() * RETRY_JITTER_MS);
         st = await pullAndMerge();
+        pulled = pulled || st.pulled;
         continue;
       }
       // No-op sync: what we would push is what is already there. Never upload.
-      if (st.mergedFp === st.remoteFp) return { pulled: st.pulled, pushed: false };
+      if (st.mergedFp === st.remoteFp) return { pulled, pushed: false };
       // No remote file and nothing to say: don't seed Drive with an empty backup.
-      if (!st.remote && isEmptyState(st.merged)) return { pulled: st.pulled, pushed: false };
+      if (!st.remote && isEmptyState(st.merged)) return { pulled, pushed: false };
       const res = await io.push(buildPayload(st.merged));
-      return { pulled: st.pulled, pushed: true, rev: res && res.rev };
+      return { pulled, pushed: true, rev: res && res.rev };
     }
   }
 
@@ -321,15 +330,21 @@ export function createSyncEngine(opts) {
       return 'busy';
     }
     running = true;
+    let okResult = null;
     try {
       const r = await runWithLock(cycle);
       if (r === 'locked') return 'locked';
+      okResult = r;
       lastResult = 'ok';
       lastError = null;
       lastCycleAt = Date.now();
       consecutiveFailures = 0;
       record('ok', `pulled:${r.pulled} pushed:${r.pushed}` + (r.quironError ? ` quiron:${r.quironError}` : ''));
       onStatus('ok');
+      // UI adoption: the live db just absorbed remote changes — let the app
+      // re-render. Only here: not on 'locked' (the other tab merged, and the
+      // cross-tab storage reload already covers that case), not on errors,
+      // and never on a no-op cycle (nothing changed → nothing to repaint).
     } catch (e) {
       lastResult = 'error';
       lastError = String((e && e.message) || e).slice(0, 300);
@@ -344,6 +359,9 @@ export function createSyncEngine(opts) {
     } finally {
       running = false;
     }
+    // Firing after `running = false`: a listener that reacts by syncing (the
+    // focus/pull-on-focus path) must not be told the cycle is still going.
+    if (okResult && okResult.pulled) onPulled();
     // A save landed while this cycle ran: run another one right away, the
     // finished cycle may not carry it.
     if (pendingChange) {
