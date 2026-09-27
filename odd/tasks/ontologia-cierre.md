@@ -75,3 +75,14 @@ Fuente: reconciliación por scout (2026-09-26) sobre `docs/PLAN-ONTOLOGIA.md` y
   molestia-hombro importa con expectCall explain_exercise, docs PLAN F0-F4 [x]
   y F5 marcados al completarse, sw solo v156→v157.
 - F5 checkboxes del PLAN marcados al cierre del código (con notas de estado).
+
+## Revisión nativa del cierre
+
+- review-191bcb8d51ee3811: tier **high** (14 ficheros, 457 líneas), 4 lentes
+  (risk/resilience/readability/reliability) materializados y ejecutados como
+  grupo (4 model runs, pi_host_relay). **APPROVED**, autoridad quemada.
+- 15 findings informativos no bloqueantes (trabajo futuro):
+  - risk: R1-001 build:161-164, R1-002 checks:283-297, R1-003 scenarios:263-272, R1-004 sw.js:1
+  - readability: R2-catalogo-empty-pass checks:300-305, R2-plan-substitutes-contradiction PLAN:90-96, R2-sin-declaracion-no-juzga, R2-unicos-norm-key
+  - reliability: R3-alias-dedupe-firstwins-regression build:154-166, R3-catalogo-empty-answer, R3-equipment-dimension-untested-e2e, R3-vocabulario-vs-catalogo-duplication
+  - resilience: R4-catalogo-sin-ejercicios checks:302-313, R4-fallback-build-offline build:122-135, R4-scenario-ban-sin-helpers
