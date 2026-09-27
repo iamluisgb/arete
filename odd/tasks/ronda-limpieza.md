@@ -57,4 +57,11 @@ Documentar en este doc al cierre qué se acepta y por qué.
 
 ## Evidencia de verificación
 
-(pendiente)
+- gentle-ai-verify: PASS 6/6 — suite ×3 frías 815/815 (0 fallos), test de flake
+  ejercita el guard real (rojo verificado por el worker con el guard retirado),
+  diff limitado a los 9 ficheros esperados, dedupe B5 solo suprime el toast
+  (el descarte sigue), cap de polling no toca el reload inmediato, pin SHA-256
+  coincide con `shasum -a 256` del cache y se verifica en ambas rutas,
+  regeneración del módulo sin diff, source contracts no triviales (regex +
+  whitespace normalizado + trim), CACHE_NAME sigue v157 sin bump (ningún
+  activo de ASSETS cambió).
