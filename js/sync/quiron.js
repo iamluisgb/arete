@@ -13,8 +13,16 @@
 //     conversation is a local convenience and does not propagate: the entry
 //     comes back after the next sync (it survives on the other device's file).
 //     Accepted: the archive is a convenience, its loss is not data loss.
+//   - Memorias (durable memory, D1/D2): union by `uid`, LWW by `updatedAt`,
+//     tie-break by stableStringify — same as messages. UNLIKE the chat and the
+//     archive, a deletion DOES propagate: deleting is `deleted:true` +
+//     updatedAt=now, so the LWW winner carries the flag to every device and
+//     readers filter it out. After the merge the array is FIFO-capped at
+//     MAX_MEMORIAS_TOTAL (js/quiron-memory.js) by `updatedAt`. Files without
+//     the slot (older revisions) are read as `memorias: []`.
 //   - Result: messages sorted by (ts, uid); archive capped at QUIRON_ARCHIVE_MAX
-//     by `updatedAt` (FIFO) with deterministic tie-breaks.
+//     by `updatedAt` (FIFO) with deterministic tie-breaks; memorias sorted by
+//     (updatedAt desc, uid asc) and capped at MAX_MEMORIAS_TOTAL.
 //
 // Legacy backfill NEVER calls Date.now(): uids derive from content (role +
 // content + occurrence index of identical messages), ts=0 for legacy messages.
@@ -23,6 +31,7 @@
 // part of the merge contract; the merged conversation order is (ts, uid).
 
 import { canonicalJson, stableStringify } from './merge.js';
+import { MAX_MEMORIAS_TOTAL } from '../quiron-memory.js';
 
 export const QUIRON_FILE_FORMAT = 'arete-quiron';
 export const QUIRON_FORMAT_VERSION = 1;
@@ -87,19 +96,44 @@ function stampArchiveEntry(entry) {
   return out;
 }
 
+// Durable-memory entries are always created stamped (the feature postdates
+// sync), so backfill only has to tolerate garbage and derive a uid for
+// hand-made entries: hash of categoria+texto+occurrence of identical entries —
+// the same determinism rule as legacy messages. `deleted` defaults to false:
+// an entry without the flag was never deleted.
+function stampMemoria(entry, idx, memorias) {
+  if (!entry || typeof entry !== 'object') return null;
+  const out = { ...entry };
+  if (!out.uid) {
+    let n = 0;
+    for (let i = 0; i < idx; i++) {
+      const p = memorias[i];
+      if (p && p.categoria === entry.categoria && p.texto === entry.texto) n++;
+    }
+    out.uid = 'q-' + fnv1a(stableStringify([out.categoria ?? null, out.texto ?? null, n]));
+  }
+  if (typeof out.ts !== 'number') out.ts = 0;
+  if (typeof out.updatedAt !== 'number' || !out.updatedAt) out.updatedAt = out.ts || 0;
+  if (typeof out.deleted !== 'boolean') out.deleted = Boolean(out.deleted);
+  return out;
+}
+
 /**
- * Backfill a Quirón document ({convo, archive}) with sync fields. Pure and
- * idempotent: only writes MISSING fields, drops non-object garbage, returns a
- * new {convo, archive}. Never calls Date.now() — the merge contract needs two
- * independent backfills of the same legacy data to produce identical output.
+ * Backfill a Quirón document ({convo, archive, memorias}) with sync fields.
+ * Pure and idempotent: only writes MISSING fields, drops non-object garbage,
+ * returns a new {convo, archive, memorias}. Never calls Date.now() — the merge
+ * contract needs two independent backfills of the same legacy data to produce
+ * identical output.
  */
 export function backfillQuiron(data) {
   const src = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
   const rawConvo = Array.isArray(src.convo) ? src.convo : [];
   const rawArchive = Array.isArray(src.archive) ? src.archive : [];
+  const rawMemorias = Array.isArray(src.memorias) ? src.memorias : [];
   return {
     convo: rawConvo.map((m, i) => stampMessage(m, i, rawConvo)).filter(Boolean),
     archive: rawArchive.map(stampArchiveEntry).filter(Boolean),
+    memorias: rawMemorias.map((m, i) => stampMemoria(m, i, rawMemorias)).filter(Boolean),
   };
 }
 
@@ -159,10 +193,29 @@ function mergeArchive(local, remote) {
   return merged.slice(0, QUIRON_ARCHIVE_MAX);
 }
 
+// Union by uid + LWW (same pickNewer). `deleted:true` is data like any other
+// field: the delete bumped updatedAt, so the flagged copy wins and the removal
+// propagates to every device. The result is FIFO-capped at MAX_MEMORIAS_TOTAL
+// (most recently updated survive, ties by uid) in a deterministic order.
+function mergeMemorias(local, remote) {
+  const byUid = new Map();
+  for (const m of local) if (m && m.uid) byUid.set(m.uid, m);
+  for (const m of remote) {
+    if (!m || !m.uid) continue;
+    const l = byUid.get(m.uid);
+    byUid.set(m.uid, l ? pickNewer(l, m) : m);
+  }
+  return [...byUid.values()]
+    .sort((a, b) => ((b.updatedAt || 0) - (a.updatedAt || 0)) ||
+      (String(a.uid || '') < String(b.uid || '') ? -1 : String(a.uid || '') > String(b.uid || '') ? 1 : 0))
+    .slice(0, MAX_MEMORIAS_TOTAL);
+}
+
 /**
  * Merge two Quirón documents. Pure: neither input is mutated, both are
  * backfilled first, so raw legacy data can be fed straight in. Returns
- * {convo, archive} with the merged, capped, deterministically ordered data.
+ * {convo, archive, memorias} with the merged, capped, deterministically
+ * ordered data.
  */
 export function mergeQuiron(local, remote) {
   const l = backfillQuiron(local);
@@ -170,13 +223,14 @@ export function mergeQuiron(local, remote) {
   return {
     convo: mergeMessages(l.convo, r.convo),
     archive: mergeArchive(l.archive, r.archive),
+    memorias: mergeMemorias(l.memorias, r.memorias),
   };
 }
 
 /** True when the document carries nothing worth uploading (fresh install). */
 export function isEmptyQuiron(data) {
   const d = backfillQuiron(data);
-  return d.convo.length === 0 && d.archive.length === 0;
+  return d.convo.length === 0 && d.archive.length === 0 && d.memorias.length === 0;
 }
 
 // ── UI hooks (engine → chat UI) ──────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { workoutTonnage, epley } from './metrics.js';
 import { nextPrescription } from '../progression.js';
 import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import { findExercises, explainExercise } from './exercise-catalog.js';
+import { listMemorias, upsertMemoria, deleteMemoria, loadMemorias, saveMemorias, MAX_MEMORIAS } from '../quiron-memory.js';
 
 export const QUIRON_TOOLS = [
   {
@@ -203,6 +204,51 @@ export const QUIRON_WRITE_TOOLS = [
 // y quien construya el bloque `data` del turno tiene que poder distinguirlas.
 export const WRITE_TOOL_NAMES = new Set(QUIRON_WRITE_TOOLS.map(t => t.function.name));
 
+// Herramientas de MEMORIA DURADERA (D3 — odd/tasks/quiron-memoria.md): conservan
+// conocimiento conversacional (horarios, dolores, preferencias, decisiones,
+// objetivos) que hoy muere con la ventana de 8 mensajes. Viven en su PROPIA lista y
+// no en QUIRON_TOOLS a propósito: el contrato de quiron-tool-label.test.js exige que
+// toda tool de esas listas tenga etiqueta de espera en TOOL_LABELS (js/ui/quiron.js,
+// fuera de esta capa). W4 las incluye en el turno y les da etiqueta; hasta entonces
+// el modelo no las ve y no hay hueco en la cara del atleta.
+export const QUIRON_MEMORY_TOOLS = [
+  {
+    type: 'function',
+    function: {
+      name: 'remember',
+      description: 'Guarda en tu memoria duradera algo duradero que el atleta cuente: horarios, dolores o molestias, preferencias, decisiones u objetivos. Sin `id` crea una memoria nueva; con el id [Mn] de la sección MEMORIA DEL ATLETA del snapshot REEMPLAZA esa memoria (para corregirla o actualizarla). NO la uses para datos que ya están en el snapshot (entrenos, marcas, totales, planes): eso se lee, no se memoriza.',
+      parameters: {
+        type: 'object',
+        properties: {
+          texto: { type: 'string', description: 'Lo que hay que recordar, en las palabras del atleta y lo más corto que siga siendo fiel ("entreno por la mañana", "molestia en la rodilla al sentadilla")' },
+          categoria: { type: 'string', description: 'horario, dolor, preferencia, decision, objetivo u otro' },
+          id: { type: 'string', description: 'Opcional: id [Mn] de una memoria existente (sección MEMORIA DEL ATLETA del snapshot) para reemplazarla en vez de crear una nueva' },
+        },
+        required: ['texto'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'forget',
+      description: 'Borra de tu memoria duradera la memoria cuyo id [Mn] aparece en la sección MEMORIA DEL ATLETA del snapshot (p. ej. "M3"). Si el atleta corrige un dato, prefiere remember con su id: reemplaza en vez de borrar y volver a crear.',
+      parameters: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Id de la memoria a borrar, p. ej. "M3"' },
+        },
+        required: ['id'],
+      },
+    },
+  },
+];
+
+// Derivado de la lista para que no puedan divergir, igual que WRITE_TOOL_NAMES: el
+// llamante (js/ui/quiron.js) lo usa para no colar estas confirmaciones en el bloque
+// `data` del turno — como las de escritura, son para el modelo, no datos del atleta.
+export const MEMORY_TOOL_NAMES = new Set(QUIRON_MEMORY_TOOLS.map(t => t.function.name));
+
 // El protocolo de dos fases —recolección no-streaming que terminaba en "LISTO" y una
 // llamada aparte para responder— se retiró el 2026-08-07. Costaba 3-4 llamadas por turno
 // y 13-22 segundos de espera ciega antes del primer token, y su regla central era un
@@ -224,6 +270,19 @@ function inRange(date, from, to) {
   if (from && date < from) return false;
   if (to && date > to) return false;
   return true;
+}
+
+/**
+ * Resuelve un id corto [Mn] ("M3", tolerante a "3", "m3", "M03") contra la lista
+ * activa de memorias EN EL MISMO ORDEN que pinta el snapshot (listMemorias, ts asc:
+ * la misma función genera los ids de MEMORIA DEL ATLETA, así que el id que vio el
+ * modelo siempre coincide con lo que resuelve). La identidad persistente es el uid;
+ * el [Mn] es posicional y nunca se almacena.
+ */
+function findMemoriaByShortId(id) {
+  const norm = String(id || '').trim().toUpperCase().replace(/^M/, '');
+  if (!/^\d+$/.test(norm)) return null;
+  return listMemorias(loadMemorias()).find(m => m.shortId === 'M' + Number(norm)) || null;
 }
 
 /**
@@ -320,6 +379,38 @@ export function makeToolExecutor(db, deps = {}) {
       if (!description) return 'ERROR: falta `description` con el entrenamiento a registrar.';
       if (deps.onProposal) deps.onProposal({ type: 'workout_request', description });
       return 'Entreno recibido. La app lo estructurará y le mostrará al atleta una tarjeta para revisar y confirmar. En tu respuesta, dile en una frase que lo tiene listo para revisar (sin repetir todas las series).';
+    }
+
+    // ── Memoria duradera (D3): escriben el almacén de memorias, no la db. ──
+    // Igual que las señales de intención, el resultado es para el modelo (confirma con
+    // el [Mn] para que lo cite), no un volcado de datos del atleta.
+    if (name === 'remember') {
+      const texto = String(args.texto || '').trim();
+      if (!texto) return 'ERROR: falta `texto` con lo que hay que recordar.';
+      let id = null;
+      if (args.id != null && String(args.id).trim()) {
+        const hit = findMemoriaByShortId(String(args.id));
+        if (!hit) return `ERROR: no existe ninguna memoria con id "${String(args.id).trim()}". Los ids válidos están en la sección MEMORIA DEL ATLETA del snapshot.`;
+        id = hit.uid;
+      }
+      const mems = loadMemorias();
+      const estabaLlena = mems.filter(m => m && !m.deleted).length >= MAX_MEMORIAS;
+      const entry = upsertMemoria(mems, { id, categoria: args.categoria, texto, source: 'modelo' });
+      if (!entry) return 'ERROR: no se pudo guardar la memoria.';
+      saveMemorias(mems);
+      const sid = listMemorias(mems).find(m => m.uid === entry.uid)?.shortId || '?';
+      const nota = id == null && estabaLlena ? ' (memoria llena: se reemplazó la entrada más antigua)' : '';
+      return `${id ? 'actualizado' : 'guardado'} [${sid}] ${entry.categoria}: ${entry.texto}${nota}`;
+    }
+    if (name === 'forget') {
+      const raw = String(args.id || '').trim();
+      if (!raw) return 'ERROR: falta `id` con el [Mn] de la memoria a borrar.';
+      const hit = findMemoriaByShortId(raw);
+      if (!hit) return `ERROR: no existe ninguna memoria con id "${raw}". Los ids válidos están en la sección MEMORIA DEL ATLETA del snapshot.`;
+      const mems = loadMemorias();
+      deleteMemoria(mems, hit.uid);
+      saveMemorias(mems);
+      return `borrado [${hit.shortId}] ${hit.categoria}: ${hit.texto}`;
     }
 
     if (name === 'get_exercise_history') {

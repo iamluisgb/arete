@@ -27,6 +27,7 @@ coordinación, sin relojes sincronizados, sin editar el histórico.
 | `js/sync/schema.js` | `SYNC_KEYS`, backfill uid/updatedAt, tombstones (TTL 30 días), stamps, shadow-diff (`stampChanges`/`createShadow`) |
 | `js/sync/engine.js` | ciclo pull→merge→push, 412 emulado, Web Locks, diagnóstico |
 | `js/sync/quiron.js` | merge puro de la conversación de Quirón (LWW por mensaje) |
+| `js/quiron-memory.js` | capa de datos de la memoria duradera (upsert/delete/list, caps 50/200) |
 | `js/drive.js` | transporte Drive REST (rev = `modifiedTime`), wrappers v1/v2 |
 
 ## Identidad y sellos (migración v7)
@@ -117,7 +118,7 @@ segundo plano oculto salvo el flush.
 
 Fichero aparte — la conversación es prescindible y no debe pesar en el backup
 de la db. Wrapper `{format:'arete-quiron', formatVersion:1, savedAt, device,
-data:{convo, archive}}`.
+data:{convo, archive, memorias}}`.
 
 - **LWW por mensaje** `{uid, ts, updatedAt, role, content}`: unión por uid,
   gana el `updatedAt` mayor, empate por `stableStringify`, orden final
@@ -127,8 +128,19 @@ data:{convo, archive}}`.
   vieja), `ts = 0`. Sin `Date.now()`.
 - El archivo (cap 15, FIFO) se sincroniza con LWW por conversación; el cap se
   re-aplica tras el merge, así que ambos dispositivos convergen a los mismos 15.
-- Sin tombstones a propósito: borrar una conversación archivada en un
-  dispositivo la resucitará al sincronizar — aceptado para datos de conveniencia.
+- **Memorias duraderas** (`memorias`, D1/D2): entrada
+  `{uid, categoria, texto, ts, updatedAt, deleted, source}`. Mismo contrato
+  LWW: unión por `uid`, gana el `updatedAt` mayor, empate por
+  `stableStringify`. **A diferencia del chat y del archivo, el borrado SÍ
+  propaga**: borrar es `deleted:true` + `updatedAt=now`, el LWW lleva el flag a
+  todos los dispositivos y los lectores filtran la entrada (nunca se borra
+  físicamente salvo por el FIFO). Tras el merge se re-aplica el tope FIFO a
+  `MAX_MEMORIAS_TOTAL` (200) por `updatedAt`, empate por `uid`. Las revisiones
+  viejas del fichero sin el slot se leen como `memorias: []`.
+- Sin tombstones a propósito para el chat: borrar una conversación archivada en
+  un dispositivo la resucitará al sincronizar — aceptado para datos de
+  conveniencia. La excepción son las memorias: su borrado viaja como flag
+  `deleted` dentro de la propia entrada (ver arriba).
 
 ## Diagnóstico
 
@@ -153,5 +165,9 @@ Ajustes es follow-up).
 - `tests/sync-engine.test.js` — lost-update explícito, tombstones entre
   dispositivos, 412 converge y agota, no-op no sube, lock ocupado se salta.
 - `tests/sync-quiron.test.js` — propiedad del merge Quirón, backfill
-  determinista, cap 15, end-to-end A/B.
+  determinista, cap 15, end-to-end A/B, merge de memorias (unión, LWW,
+  borrado propagado, cap 200).
+- `tests/quiron-memory.test.js` — capa de datos de la memoria: crear/reemplazar,
+  validación, tope 50 activas con FIFO, borrado blando, orden + shortIds,
+  compact a 200, storage.
 - `tests/drive.test.js` — transporte: wrapper v2, v1 backfill, ciclo completo.

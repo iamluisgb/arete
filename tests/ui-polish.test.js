@@ -151,6 +151,25 @@ describe('markup audit (mobile visual fixes)', () => {
     const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
     expect(css).toContain('@media(max-width:433px){.detail-share-label{display:none}}');
   });
+
+  // D6 (memoria duradera): el atleta SIEMPRE ve lo que Quirón recuerda. El
+  // botón de cabecera necesita su aria-label (es solo icono) y el modal su
+  // lista y contador; el estado vacío vive en el render de quiron.js, como el
+  // chip del calendario: se audita el fuente.
+  it('Memoria: botón de cabecera con aria-label y modal con lista y contador', () => {
+    const btn = HTML.match(/<button[^>]*id="quironMemoryBtn"[^>]*>/)?.[0];
+    expect(btn).toBeTruthy();
+    expect(btn).toContain('aria-label="Memoria del agente"');
+    expect(HTML).toMatch(/<div class="modal-overlay[^"]*"[^>]*id="quironMemoryModal"/);
+    expect(HTML).toContain('id="quironMemoryList"');
+    expect(HTML).toContain('id="quironMemoryCount"');
+  });
+
+  it('Memoria: el estado vacío habla en la voz de Quirón', () => {
+    const src = readFileSync(resolve(process.cwd(), 'js/ui/quiron.js'), 'utf-8');
+    expect(src).toContain('Aún no recuerdo nada');
+    expect(src).toContain('acuérdate de');
+  });
 });
 
 describe('celebración de PR: foco y cierre', () => {

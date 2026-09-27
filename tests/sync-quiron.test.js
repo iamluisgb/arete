@@ -11,6 +11,7 @@ import {
   backfillQuiron, mergeQuiron, isEmptyQuiron, setQuironSyncHooks, getQuironSyncHooks,
   QUIRON_FILE_FORMAT, QUIRON_FORMAT_VERSION, QUIRON_ARCHIVE_MAX,
 } from '../js/sync/quiron.js';
+import { MAX_MEMORIAS_TOTAL } from '../js/quiron-memory.js';
 import { createSyncEngine } from '../js/sync/engine.js';
 
 // ── Generadores deterministas (mulberry32, como tests/sync-merge.test.js) ────
@@ -52,7 +53,21 @@ function genQuironDoc(r) {
     if (r() < 0.5) e.ts = Math.floor(r() * 10);
     archive.push(e);
   }
-  return { convo, archive };
+  // Memorias duraderas (D1): misma familia de sellos que los mensajes.
+  const usedM = new Set();
+  const memorias = [];
+  const nM = Math.floor(r() * 5);
+  for (let i = 0; i < nM; i++) {
+    let uid;
+    do { uid = 'mm' + Math.floor(r() * 30); } while (usedM.has(uid));
+    usedM.add(uid);
+    const m = { uid, categoria: 'otro', texto: 't' + Math.floor(r() * 5) };
+    if (r() < 0.85) m.ts = Math.floor(r() * 10);
+    if (r() < 0.85) m.updatedAt = Math.floor(r() * 10);
+    if (r() < 0.2) m.deleted = true;
+    memorias.push(m);
+  }
+  return { convo, archive, memorias };
 }
 
 // ── mergeQuiron: regla de oro ────────────────────────────────────────────────
@@ -81,8 +96,8 @@ describe('mergeQuiron — property tests', () => {
   });
 
   it('tolera basura, null y documentos a medio hacer', () => {
-    expect(mergeQuiron(null, undefined)).toEqual({ convo: [], archive: [] });
-    expect(mergeQuiron([1, 2], { convo: 'no' })).toEqual({ convo: [], archive: [] });
+    expect(mergeQuiron(null, undefined)).toEqual({ convo: [], archive: [], memorias: [] });
+    expect(mergeQuiron([1, 2], { convo: 'no' })).toEqual({ convo: [], archive: [], memorias: [] });
     const partial = mergeQuiron({ convo: [{ role: 'user', content: 'x' }] }, {});
     expect(partial.convo).toHaveLength(1);
     expect(partial.convo[0].uid).toBeTruthy();
@@ -188,6 +203,74 @@ describe('mergeQuiron — archivo de conversaciones', () => {
     const BA = mergeQuiron(B, A);
     expect(AB.archive.map((e) => e.id)).toEqual(['c1', 'c9']); // desempate: id asc
     expect(BA.archive.map((e) => e.id)).toEqual(['c1', 'c9']);
+  });
+});
+
+// ── mergeQuiron: memorias duraderas (D1/D2) ──────────────────────────────────
+
+describe('mergeQuiron — memorias duraderas', () => {
+  const MM = (uid, texto, updatedAt, extra = {}) =>
+    ({ uid, categoria: 'otro', texto, ts: updatedAt, updatedAt, deleted: false, ...extra });
+
+  it('unión por uid: las memorias que solo están en un lado sobreviven', () => {
+    const A = { convo: [], archive: [], memorias: [MM('k1', 'de A', 1)] };
+    const B = { convo: [], archive: [], memorias: [MM('k2', 'de B', 2)] };
+    const AB = mergeQuiron(A, B);
+    const BA = mergeQuiron(B, A);
+    expect(AB.memorias).toHaveLength(2);
+    expect(canonicalJson(AB)).toBe(canonicalJson(BA));
+    expect(AB.memorias.map((m) => m.texto).sort()).toEqual(['de A', 'de B']);
+  });
+
+  it('LWW: gana el updatedAt mayor en las dos direcciones', () => {
+    const A = { convo: [], archive: [], memorias: [MM('k1', 'versión vieja', 5)] };
+    const B = { convo: [], archive: [], memorias: [MM('k1', 'versión nueva', 9)] };
+    expect(mergeQuiron(A, B).memorias[0].texto).toBe('versión nueva');
+    expect(mergeQuiron(B, A).memorias[0].texto).toBe('versión nueva');
+  });
+
+  it('borrado en A llega a B: deleted:true se propaga por LWW', () => {
+    const A = { convo: [], archive: [], memorias: [MM('k1', 'ya no vale', 9, { deleted: true })] };
+    const B = { convo: [], archive: [], memorias: [MM('k1', 'ya no vale', 5)] };
+    for (const d of [mergeQuiron(A, B), mergeQuiron(B, A)]) {
+      expect(d.memorias).toHaveLength(1);           // no se borra físicamente
+      expect(d.memorias[0].deleted).toBe(true);     // el flag sí viaja
+      expect(d.memorias[0].updatedAt).toBe(9);
+    }
+  });
+
+  it('tras el merge se re-aplica el FIFO a 200 por updatedAt (determinista)', () => {
+    const many = (from, to) =>
+      Array.from({ length: to - from + 1 }, (_, i) => MM('k' + (from + i), 'm' + (from + i), from + i));
+    const A = { convo: [], archive: [], memorias: many(1, 120) };
+    const B = { convo: [], archive: [], memorias: many(121, 220) }; // 220 en total
+    const AB = mergeQuiron(A, B);
+    const BA = mergeQuiron(B, A);
+    expect(AB.memorias).toHaveLength(MAX_MEMORIAS_TOTAL);
+    expect(canonicalJson(AB)).toBe(canonicalJson(BA));
+    const uids = AB.memorias.map((m) => m.uid);
+    expect(uids).not.toContain('k1');      // las 20 más viejas caen
+    expect(uids).not.toContain('k20');
+    expect(uids).toContain('k21');
+    expect(uids).toContain('k220');
+  });
+
+  it('un fichero viejo sin el slot se lee como memorias: [] y no rompe', () => {
+    const viejo = { convo: [M('m1', 'hola', 1)], archive: [] };
+    const nuevo = { convo: [], archive: [], memorias: [MM('k1', 'memoria', 3)] };
+    const merged = mergeQuiron(viejo, nuevo);
+    expect(merged.convo).toHaveLength(1);
+    expect(merged.memorias).toHaveLength(1);
+    // Y dos ficheros viejos entre sí no siembran memorias fantasma.
+    expect(mergeQuiron(viejo, viejo).memorias).toEqual([]);
+  });
+
+  it('una memoria sin uid recibe uno derivado determinista (backfill)', () => {
+    const A = { convo: [], archive: [], memorias: [{ categoria: 'dolor', texto: 'rodilla' }] };
+    const B = { convo: [], archive: [], memorias: [{ categoria: 'dolor', texto: 'rodilla' }] };
+    const merged = mergeQuiron(A, B);
+    expect(merged.memorias).toHaveLength(1);   // misma entrada → misma identidad
+    expect(merged.memorias[0].uid).toMatch(/^q-/);
   });
 });
 
@@ -483,7 +566,7 @@ function setupDOM() {
   window.scrollTo = () => {};
   const doc = new JSDOM(HTML).window.document;
   document.body.innerHTML = '';
-  for (const id of ['setQuiron', 'quironPanel', 'quironHistoryModal']) {
+  for (const id of ['setQuiron', 'quironPanel', 'quironHistoryModal', 'quironMemoryModal']) {
     document.body.appendChild(doc.getElementById(id).cloneNode(true));
   }
   document.body.insertAdjacentHTML('beforeend',
@@ -541,6 +624,23 @@ describe('ui/quiron.js — hooks de sync', () => {
     const entry = { id: 'c1', ts: 5, title: 't', updatedAt: 5, messages: [] };
     getQuironSyncHooks().save({ convo: [], archive: [entry] });
     expect(JSON.parse(localStorage.getItem('areteQuironArchive'))).toEqual([entry]);
+  });
+
+  it('get() expone también las memorias (viajan en el mismo payload)', async () => {
+    const memoria = { uid: 'k1', categoria: 'horario', texto: 'entrena a las 7', ts: 1, updatedAt: 1, deleted: false, source: 'user' };
+    localStorage.setItem('areteQuironMemorias', JSON.stringify([memoria]));
+    const { getQuironSyncHooks } = await cargar();
+    const state = getQuironSyncHooks().get();
+    expect(state.memorias).toEqual([memoria]);
+  });
+
+  it('save() aplica las memorias fusionadas a su clave de localStorage', async () => {
+    const { getQuironSyncHooks } = await cargar();
+    const memoria = { uid: 'k2', categoria: 'dolor', texto: 'rodilla', ts: 2, updatedAt: 2, deleted: false, source: 'user' };
+    getQuironSyncHooks().save({ convo: [], archive: [], memorias: [memoria] });
+    expect(JSON.parse(localStorage.getItem('areteQuironMemorias'))).toEqual([memoria]);
+    // ...y el siguiente ciclo del motor la lee de vuelta.
+    expect(getQuironSyncHooks().get().memorias).toEqual([memoria]);
   });
 
   it('save() sustituye la conversación viva: el siguiente ciclo del motor la ve', async () => {
