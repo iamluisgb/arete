@@ -83,3 +83,17 @@ del enunciado de verificación, no del diseño.
   toques, Escape con precedencia modal→panel.
 - Única desviación: toggle de chips no oculta en convo vacía → decisión del
   parent: comportamiento correcto (ver Estado arriba).
+
+## Revisión nativa + incidente de binding
+
+- review-6a3805fac1570637: tier medium, lente review-reliability.
+  **APPROVED**, autoridad quemada. 3 findings informativos:
+  R3-chips-toggle-stale-when-setup (quiron.js:396-404),
+  R3-history-delete-confirm-permanent (:1461-1470),
+  R3-quiron-daysep-undefined-ts (:357-361).
+- Incidente: dos `capture-binding-rejected` por mezclar en el binding la
+  revisión de autoridad con la `expected-revision` del binding (y no copiar
+  `artifactSubject.authorityRevision` fresco). Resolución: STATUS → copiar el
+  string del binding verbatim (authorityRevision == expected-revision ==
+  5cf266a8…) → forecast → ack → run. Lección: copiar el binding SIEMPRE
+  byte a byte del STATUS, nunca recomponerlo.
