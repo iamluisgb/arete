@@ -49,6 +49,15 @@ const CHIPS = [
   '¿Necesito una descarga?',
 ];
 
+// U2: bienvenida efímera — se pinta cuando la conversación no tiene turnos del
+// atleta, pero no vive en `convo` (no viaja por sync ni ocupa ventana). Dos
+// ideas: qué puede pedirle, y qué se recuerda solo (duradero → Memoria; datos
+// de entreno → se leen de la app, siempre al día).
+const WELCOME = [
+  'Hola, soy Quirón. Cuéntame qué te ronda la cabeza —una duda, una molestia, qué hacer hoy—.',
+  'Lo duradero lo guardo en 🧠 Memoria —horarios, molestias, objetivos—; tus datos de entreno los leo de la app, siempre al día.',
+];
+
 let convo = [];          // [{role:'user'|'assistant'|'data', content}] — solo lo persistente
                          // 'data' = resultados de herramientas: no se pinta y viaja como 'user'
                          // (nan solo admite mensajes 'system' en el índice 0)
@@ -56,6 +65,7 @@ let dbRef = null;        // referencia a la db (para re-render de tarjetas persi
 let busy = false;
 let abortCtrl = null;
 let els = {};
+let chipsOn = false;     // U2: toggle de sugerencias — re-mostrar los chips a demanda
 
 // ── Errores legibles (UX-5) ──────────────────────────────────────────────────
 // El mensaje crudo del proveedor ("Failed to fetch", "invalid_api_key") no le
@@ -166,6 +176,22 @@ function archiveCurrent() {
   saveArchive([{ ts: Date.now(), title, messages: convo }, ...loadArchive()]);
 }
 
+// U3: preview de una conversación archivada — la última respuesta de Quirón en
+// texto plano (el markdown y el código no se leen en una línea); si no hubo
+// respuesta, el último turno del atleta. Truncada a ~80 caracteres.
+function convoPreview(messages) {
+  const plain = (t) => String(t || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const last = (role) => [...messages].reverse().find(m => m.role === role);
+  const pick = [...messages].reverse().find(m => m.role === 'assistant' && plain(m.content)) || last('user');
+  if (!pick) return '';
+  const t = plain(pick.content);
+  return t.length > 80 ? t.slice(0, 80).trimEnd() + '…' : t;
+}
+
 function renderHistoryList() {
   const list = document.getElementById('quironHistoryList');
   const arch = loadArchive();
@@ -179,7 +205,7 @@ function renderHistoryList() {
       d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
     const n = c.messages.filter(m => m.role !== 'data').length;
     return `<div class="quiron-history-item" data-idx="${i}">
-      <div class="qh-text"><div class="qh-title">${esc(c.title)}</div><div class="qh-meta">${when} · ${n} mensajes</div></div>
+      <div class="qh-text"><div class="qh-title">${esc(c.title)}</div><div class="qh-preview">${esc(convoPreview(c.messages))}</div><div class="qh-meta">${when} · ${n} mensajes</div></div>
       <button class="qh-del" data-del="${i}" aria-label="Borrar">✕</button>
     </div>`;
   }).join('');
@@ -295,21 +321,54 @@ export function toolLabel(names = []) {
   return etiquetas.length ? `${etiquetas.join(' · ')}…` : 'consultando tus datos…';
 }
 
-function appendBubble(role, html) {
+function appendBubble(role, html, ts = 0) {
   const el = document.createElement('div');
   el.className = `q-bubble q-${role}`;
-  el.innerHTML = html;
+  // U3: la hora al pie de la burbuja (formato del resto de la app). Los mensajes
+  // legacy (ts<=0, sellados antes del sync U3) no llevan hora.
+  el.innerHTML = html + (ts > 0 ? `<div class="q-when">${timeLabel(ts)}</div>` : '');
   els.msgs.appendChild(el);
   els.msgs.scrollTop = els.msgs.scrollHeight;
   return el;
 }
 
+// Etiquetas de fecha del resto de la app: HH:mm como en renderHistoryList, y
+// "mié 24/09" para el separador de día (mismo locale es que el archivo).
+function timeLabel(ts) {
+  return new Date(ts).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+}
+function dayLabel(ts) {
+  return new Date(ts).toLocaleDateString('es', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(',', '');
+}
+
 function renderConvo() {
   els.msgs.innerHTML = '';
+  // U2: sin turnos del atleta todavía, la pantalla vacía da la bienvenida (efímera).
+  if (!convo.some(m => m.role === 'user')) appendBubble('assistant', mdLite(WELCOME.join('\n\n')));
+  let lastDay = '';
+  // U3: separador de fecha entre mensajes de días distintos (solo ts>0, y solo
+  // cuando se va a pintar una burbuja — los 'data' no). lastDay avanza con lo
+  // PINTADO, no con lo recorrido.
+  const daySep = (m) => {
+    if (!(m.ts > 0)) return;
+    const day = new Date(m.ts).toDateString();
+    if (day === lastDay) return;
+    lastDay = day;
+    const el = document.createElement('div');
+    el.className = 'q-daysep';
+    el.textContent = dayLabel(m.ts);
+    els.msgs.appendChild(el);
+  };
   for (const m of convo) {
-    if (m.role === 'user') appendBubble('user', mdLite(m.label || m.content));
+    if (m.role === 'user') {
+      daySep(m);
+      appendBubble('user', mdLite(m.label || m.content), m.ts);
+    }
     else if (m.role === 'assistant') {
-      if (m.content?.trim()) appendBubble('assistant', mdLite(m.content));
+      if (m.content?.trim()) {
+        daySep(m);
+        appendBubble('assistant', mdLite(m.content), m.ts);
+      }
       if (m.proposals) for (const p of m.proposals) {
         if (p.discarded) continue;
         els.msgs.appendChild(renderProposalCard(dbRef, p, m));
@@ -321,10 +380,15 @@ function renderConvo() {
 }
 
 function updateChips() {
-  const empty = !convo.some(m => m.role === 'user');
-  els.chips.innerHTML = empty
+  // U2: los chips salen solos solo cuando la conversación no tiene turnos
+  // propios; después, el toggle de la barra (quironChipsBtn) los trae de vuelta.
+  if (!els.chips) return;
+  const show = chipsOn || !convo.some(m => m.role === 'user');
+  els.chips.innerHTML = show
     ? CHIPS.map(c => `<button class="q-chip">${esc(c)}</button>`).join('')
     : '';
+  els.chips.style.display = show ? '' : 'none';
+  els.chipsBtn?.classList.toggle('on', show);
 }
 
 function setBusy(b) {
@@ -338,7 +402,8 @@ function showSetupIfNeeded() {
   const needs = !LLM.hasKey();
   els.setup.hidden = !needs;
   els.inputbar.style.display = needs ? 'none' : '';
-  els.chips.style.display = needs ? 'none' : '';
+  if (needs) els.chips.style.display = 'none';
+  else updateChips();   // repone la fila de chips según convo/toggle (U2)
   renderQuota();
   return needs;
 }
@@ -381,7 +446,7 @@ async function send(db, text, opts = {}) {
   const userMsg = { role: 'user', content: q, ...newMsgStamp() };
   if (opts.label) userMsg.label = opts.label;
   convo.push(userMsg);
-  appendBubble('user', mdLite(opts.label || q));
+  appendBubble('user', mdLite(opts.label || q), userMsg.ts);
   if (opts.dataBlob) convo.push({ role: 'data', content: opts.dataBlob, ...newMsgStamp() });
   updateChips();
   saveConvo();
@@ -1315,6 +1380,7 @@ export function initQuiron(db, opts = {}) {
     mic: document.getElementById('quironMicBtn'),
     setTest: document.getElementById('quironTestBtn'),
     setStatus: document.getElementById('quironAiStatus'),
+    chipsBtn: document.getElementById('quironChipsBtn'),
     // Demo self-service: bloque de Ajustes + botón de la pantalla de bienvenida.
     demoPanel: document.getElementById('quironDemoPanel'),
     demoBtn: document.getElementById('quironDemoBtn'),
@@ -1345,6 +1411,25 @@ export function initQuiron(db, opts = {}) {
 
   els.fab.addEventListener('click', openPanel);
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);
+
+  // U6: el botón de cerrar promete "Cerrar (Esc)". El handler global de app.js
+  // solo atiende .modal-overlay y .sheet — el panel no es ninguno — así que el
+  // Escape se atiende aquí. Va en capture para correr ANTES que el de app.js y
+  // poder decidir con el estado intacto: si hay un diálogo de encima (los
+  // modales de Historial/Memoria, por ejemplo) soltamos el evento sin tocarlo y
+  // lo cierra la ruta de siempre (un segundo Escape, ya sin modal, cierra el
+  // panel); si no, cerramos el panel y preventDefault deja a app.js fuera,
+  // que es justo lo que su guardia de e.defaultPrevented respeta. Oyente
+  // permanente guardado por estado abierto: es el patrón del archivo (los
+  // modales tampoco se desenchufan al cerrarse).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    if (!els.panel.classList.contains('open')) return;
+    if (document.querySelector('.modal-overlay.open, .sheet.open')) return;
+    e.preventDefault();
+    closePanel();
+  }, { capture: true });
+
   document.getElementById('quironReportBtn').addEventListener('click', () => offerReport(db));
 
   // Adjuntar captura → ingesta de entreno
@@ -1373,6 +1458,14 @@ export function initQuiron(db, opts = {}) {
     if (e.target === historyModal) { historyModal.classList.remove('open'); return; }
     const del = e.target.closest('.qh-del');
     if (del) {
+      // U3: confirmación inline en dos toques, patrón del modal de memoria —
+      // el ✕ de un solo toque se llevaba conversaciones de un desliz.
+      if (!del.dataset.confirm) {
+        del.dataset.confirm = '1';
+        del.textContent = '¿Seguro?';
+        del.classList.add('qh-del-confirm');
+        return;
+      }
       const arch = loadArchive();
       arch.splice(parseInt(del.dataset.del), 1);
       saveArchive(arch);
@@ -1460,6 +1553,12 @@ export function initQuiron(db, opts = {}) {
   els.chips.addEventListener('click', (e) => {
     const chip = e.target.closest('.q-chip');
     if (chip && !busy) send(db, chip.textContent);
+  });
+
+  // U2: toggle de sugerencias — los chips ya no mueren tras el primer turno.
+  els.chipsBtn?.addEventListener('click', () => {
+    chipsOn = !chipsOn;
+    updateChips();
   });
 
   // Atajo desde otras pantallas ("Pedir una sesión" en Fuerza → Plan): abre el

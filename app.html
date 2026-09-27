@@ -1212,10 +1212,10 @@
 <div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
   <div class="quiron-header">
     <div class="quiron-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg> QUIRÓN <span class="quiron-sub">tu coach</span></div>
-    <button class="quiron-hbtn" id="quironReportBtn" aria-label="Informe" title="Informe semanal / mensual"><span class="material-symbols-outlined">summarize</span></button>
-    <button class="quiron-hbtn" id="quironMemoryBtn" aria-label="Memoria del agente" title="Lo que Quirón recuerda"><span class="material-symbols-outlined">psychology</span></button>
-    <button class="quiron-hbtn" id="quironHistoryBtn" aria-label="Conversaciones anteriores" title="Conversaciones anteriores"><span class="material-symbols-outlined">history</span></button>
-    <button class="quiron-hbtn" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span></button>
+    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironReportBtn" aria-label="Informe" title="Informe semanal / mensual"><span class="material-symbols-outlined">summarize</span><span class="quiron-hbtn-label">Informe</span></button>
+    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironMemoryBtn" aria-label="Memoria del agente" title="Lo que Quirón recuerda"><span class="material-symbols-outlined">psychology</span><span class="quiron-hbtn-label">Memoria</span></button>
+    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironHistoryBtn" aria-label="Conversaciones anteriores" title="Conversaciones anteriores"><span class="material-symbols-outlined">history</span><span class="quiron-hbtn-label">Historial</span></button>
+    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span><span class="quiron-hbtn-label">Nueva</span></button>
     <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined">close</span></button>
   </div>
   <div class="quiron-msgs" id="quironMsgs"></div>
@@ -1233,6 +1233,9 @@
        comunica escasez. Lo rellena renderQuota() en js/ui/quiron.js. -->
   <div class="quiron-quota" id="quironQuota" hidden></div>
   <div class="quiron-inputbar" id="quironInputBar">
+    <!-- Toggle de sugerencias (U2): los chips solo salen solos con la conversación
+         vacía; este botón los trae de vuelta cuando el atleta quiere ideas. -->
+    <button id="quironChipsBtn" aria-label="Sugerencias" title="Ideas de qué preguntar"><span class="material-symbols-outlined">lightbulb</span></button>
     <button id="quironAttachBtn" aria-label="Cargar entreno desde captura" title="Cargar entreno desde captura"><span class="material-symbols-outlined">add_a_photo</span></button>
     <input type="file" id="quironImageInput" accept="image/*" hidden>
     <textarea id="quironInput" rows="1" placeholder="Pregunta a tu coach…" enterkeyhint="send"></textarea>

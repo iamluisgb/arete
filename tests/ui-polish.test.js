@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { JSDOM } from 'jsdom';
 
 vi.mock('../js/programs.js', async () => {
   const actual = await vi.importActual('../js/programs.js');
@@ -169,6 +170,241 @@ describe('markup audit (mobile visual fixes)', () => {
     const src = readFileSync(resolve(process.cwd(), 'js/ui/quiron.js'), 'utf-8');
     expect(src).toContain('Aún no recuerdo nada');
     expect(src).toContain('acuérdate de');
+  });
+});
+
+// ── Quirón, ronda de interfaz (U1-U4) ────────────────────────────────────────
+// U1: los cinco botones de cabecera eran solo-icono y "no se entendían".
+// U2: bienvenida efímera + toggle de sugerencias. U3: hora/separadores en las
+// burbujas y preview + borrado en dos toques en el historial. U4: Escape cierra
+// los dos modales por la misma ruta.
+const APP_HTML = readFileSync(resolve(process.cwd(), 'app.html'), 'utf-8');
+const QUIRON_SRC = readFileSync(resolve(process.cwd(), 'js/ui/quiron.js'), 'utf-8');
+
+// Mismo harness que quiron-demo.test.js / quiron-send-race.test.js: el panel y
+// los modales salen del app.html real, así que los ids del contrato no pueden
+// desincronizarse de la app que corre.
+function setupQuironDOM() {
+  window.scrollTo = () => {};
+  const doc = new JSDOM(APP_HTML).window.document;
+  document.body.innerHTML = '';
+  for (const id of ['setQuiron', 'quironPanel', 'quironHistoryModal', 'quironMemoryModal']) {
+    document.body.appendChild(doc.getElementById(id).cloneNode(true));
+  }
+  // initQuiron toca el rail de navegación y el índice de ajustes al repintar.
+  document.body.insertAdjacentHTML('beforeend',
+    '<button id="navQuiron"></button><span id="setQuironStatus"></span>');
+}
+
+const quironFreshDB = () => ({
+  workouts: [], bodyLogs: [], runningLogs: [], domainTests: [],
+  customSessions: [], customPrograms: [], deletedIds: [], settings: {}, program: 'arete', phase: 1,
+});
+
+async function cargarQuiron(seed = {}) {
+  vi.resetModules();
+  setupQuironDOM();
+  localStorage.clear();
+  for (const [k, v] of Object.entries(seed)) localStorage.setItem(k, v);
+  const { initQuiron } = await import('../js/ui/quiron.js');
+  initQuiron(quironFreshDB());
+}
+
+const H = 60 * 60 * 1000;
+
+describe('Quirón · cabecera con etiquetas visibles (U1)', () => {
+  it('los cuatro botones de contenido llevan etiqueta visible y Cerrar queda solo-icono', () => {
+    const start = APP_HTML.indexOf('<div class="quiron-header"');
+    const end = APP_HTML.indexOf('<div class="quiron-msgs"', start); // el header cierra tras los 5 botones
+    document.body.innerHTML = APP_HTML.slice(start, end);
+
+    for (const [id, label] of [
+      ['quironReportBtn', 'Informe'], ['quironMemoryBtn', 'Memoria'],
+      ['quironHistoryBtn', 'Historial'], ['quironNewBtn', 'Nueva'],
+    ]) {
+      const btn = document.getElementById(id);
+      expect(btn).not.toBeNull();
+      const text = btn.querySelector('.quiron-hbtn-label');
+      expect(text, `falta .quiron-hbtn-label en #${id}`).not.toBeNull();
+      expect(text.textContent.trim()).toBe(label);
+      // La etiqueta visible es un refuerzo: el aria-label y el title siguen mandando.
+      expect(btn.getAttribute('aria-label')).toBeTruthy();
+      expect(btn.getAttribute('title')).toBeTruthy();
+    }
+
+    const close = document.getElementById('quironCloseBtn');
+    expect(close.querySelector('.quiron-hbtn-label')).toBeNull(); // universal ✕
+    expect(close.getAttribute('aria-label')).toBe('Cerrar');
+  });
+
+  // Igual que .detail-share-label: en 320px el espacio manda. La etiqueta cede
+  // (icono solo) pero el aria-label/title sostienen el significado.
+  it('app.css degrada las etiquetas a icono bajo 360px (cabecera sin scroll a 320px)', () => {
+    const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
+    expect(css).toContain('@media(max-width:359px){.quiron-hbtn-label{display:none}');
+  });
+
+  it('U2: el toggle de sugerencias vive junto al composer, con icono lightbulb y aria-label', () => {
+    const bar = APP_HTML.match(/<div class="quiron-inputbar"[\s\S]*?<\/div>/)?.[0];
+    expect(bar).toBeTruthy();
+    const btn = bar.match(/<button[^>]*id="quironChipsBtn"[^>]*>/)?.[0];
+    expect(btn).toBeTruthy();
+    expect(btn).toContain('aria-label="Sugerencias"');
+    expect(btn).toContain('title="Ideas de qué preguntar"');
+    expect(bar.match(/id="quironChipsBtn"[\s\S]*?<\/button>/)?.[0]).toContain('lightbulb');
+    // Al lado del composer: dentro de la barra de escribir, antes del botón de cámara.
+    expect(bar.indexOf('quironChipsBtn')).toBeLessThan(bar.indexOf('quironAttachBtn'));
+  });
+});
+
+describe('Quirón · bienvenida, sugerencias y burbujas (U2-U3, jsdom)', () => {
+  it('U2: con la conversación vacía pinta una burbuja de bienvenida que NO se persiste', async () => {
+    await cargarQuiron();
+    const welcome = document.querySelector('#quironMsgs .q-bubble.q-assistant');
+    expect(welcome?.textContent).toContain('Hola, soy Quirón');
+    // Expectativa de memoria: duradero en Memoria, datos de entreno siempre al día.
+    expect(welcome?.textContent).toContain('Memoria');
+    expect(welcome?.textContent).toContain('al día');
+    expect(localStorage.getItem('areteQuiron')).toBeNull(); // render puro, no turno
+  });
+
+  it('U2: con turnos del atleta no hay bienvenida', async () => {
+    await cargarQuiron({ areteQuiron: JSON.stringify([
+      { role: 'user', content: '¿Qué toca hoy?', ts: Date.now() },
+    ]) });
+    const bubbles = document.querySelectorAll('#quironMsgs .q-bubble');
+    expect(bubbles).toHaveLength(1);
+    expect(bubbles[0].textContent).not.toContain('Hola, soy Quirón');
+  });
+
+  it('U2: el toggle re-muestra y oculta los chips aunque ya haya turnos', async () => {
+    await cargarQuiron({ areteQuiron: JSON.stringify([
+      { role: 'user', content: '¿Qué toca hoy?', ts: Date.now() },
+      { role: 'assistant', content: 'Toca sentadilla.', ts: Date.now() + H },
+    ]) });
+    const chipsRow = document.getElementById('quironChips');
+    const btn = document.getElementById('quironChipsBtn');
+
+    expect(chipsRow.querySelectorAll('.q-chip')).toHaveLength(0); // auto-solo en vacío
+    btn.click();
+    expect(chipsRow.querySelectorAll('.q-chip')).toHaveLength(4);
+    expect(chipsRow.style.display).not.toBe('none');
+    btn.click();
+    expect(chipsRow.querySelectorAll('.q-chip')).toHaveLength(0);
+    expect(chipsRow.style.display).toBe('none');
+  });
+
+  it('U3: mensajes con ts>0 llevan HH:mm y separador al cambiar de día; legacy (ts=0) nada', async () => {
+    await cargarQuiron({ areteQuiron: JSON.stringify([
+      { role: 'user', content: 'ayer', ts: Date.now() - 48 * H },
+      { role: 'assistant', content: 'hoy', ts: Date.now() },
+      { role: 'user', content: 'legacy', ts: 0 },
+      { role: 'assistant', content: 'legacy', ts: 0 },
+    ]) });
+    const msgs = document.getElementById('quironMsgs');
+
+    const sep = msgs.querySelectorAll('.q-daysep');
+    expect(sep).toHaveLength(2); // uno abre "ayer" y otro el cambio a "hoy"; los legacy no añaden
+    for (const el of sep) expect(el.textContent).toMatch(/\d{2}\/\d{2}/);
+
+    const when = msgs.querySelectorAll('.q-when');
+    expect(when).toHaveLength(2); // solo los dos mensajes sellados
+    for (const el of when) expect(el.textContent).toMatch(/^\d{1,2}:\d{2}$/);
+  });
+
+  it('U3: el historial muestra preview de la última respuesta (o del último turno) y borra en dos toques', async () => {
+    await cargarQuiron({ areteQuironArchive: JSON.stringify([
+      { ts: Date.now(), title: 'Análisis', messages: [
+        { role: 'user', content: 'analiza mi semana' },
+        { role: 'data', content: '[volcado de tools]' },
+        { role: 'assistant', content: 'x'.repeat(120) },
+      ] },
+      { ts: Date.now() - 1, title: 'Sin respuesta', messages: [
+        { role: 'user', content: 'punta muerta' },
+      ] },
+    ]) });
+    document.getElementById('quironHistoryBtn').click();
+
+    const previews = document.querySelectorAll('#quironHistoryList .qh-preview');
+    expect(previews).toHaveLength(2);
+    expect(previews[0].textContent).toMatch(/^x{80}…$/);       // última respuesta, truncada
+    expect(previews[1].textContent).toBe('punta muerta');       // fallback: último turno del atleta
+
+    const del = document.querySelector('#quironHistoryList .qh-del');
+    del.click();
+    expect(del.textContent).toBe('¿Seguro?');                   // primer toque: solo pregunta
+    expect(JSON.parse(localStorage.getItem('areteQuironArchive'))).toHaveLength(2);
+    del.click();
+    expect(JSON.parse(localStorage.getItem('areteQuironArchive'))).toHaveLength(1); // segundo: borra
+  });
+
+  // U4: app.js cierra el diálogo de encima despachando UN clic sintético sobre
+  // el propio overlay. Reproducimos exactamente esa ruta para los dos modales:
+  // es el contrato "misma semántica que Historial", sin mecanismo nuevo.
+  it('U4: la ruta de Escape (clic sobre el overlay) cierra Historial y Memoria igual', async () => {
+    await cargarQuiron();
+    const history = document.getElementById('quironHistoryModal');
+    const memory = document.getElementById('quironMemoryModal');
+    document.getElementById('quironHistoryBtn').click();
+    document.getElementById('quironMemoryBtn').click();
+    expect(history.classList.contains('open')).toBe(true);
+    expect(memory.classList.contains('open')).toBe(true);
+
+    history.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    memory.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(history.classList.contains('open')).toBe(false);
+    expect(memory.classList.contains('open')).toBe(false);
+  });
+});
+
+// U6: el título del botón Cerrar promete "Cerrar (Esc)" pero Escape solo
+// cerraba .modal-overlay/.sheet (app.js) y el panel no es ninguno. La ruta
+// nueva vive en quiron.js; estos tests la ejercitan con el panel real de
+// app.html y simulan la parte de app.js (el clic sintético sobre el overlay,
+// igual que en U4) porque aquí no se carga app.js.
+describe('Quirón · Escape cierra el panel (U6)', () => {
+  it('U6: Escape con el panel abierto lo cierra (panel, body y foco al nav)', async () => {
+    await cargarQuiron();
+    document.getElementById('navQuiron').click();
+    const panel = document.getElementById('quironPanel');
+    expect(panel.classList.contains('open')).toBe(true);
+    expect(document.body.classList.contains('quiron-open')).toBe(true);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(panel.classList.contains('open')).toBe(false);
+    expect(document.body.classList.contains('quiron-open')).toBe(false);
+    expect(document.activeElement).toBe(document.getElementById('navQuiron'));
+  });
+
+  it('U6: con un modal de Quirón encima, Escape no toca el panel; cerrado el modal, un segundo Escape sí', async () => {
+    await cargarQuiron();
+    document.getElementById('navQuiron').click();
+    const panel = document.getElementById('quironPanel');
+    const memory = document.getElementById('quironMemoryModal');
+    document.getElementById('quironMemoryBtn').click();
+    expect(memory.classList.contains('open')).toBe(true);
+
+    // Primer Escape: hay un diálogo encima, el panel debe quedar abierto. La
+    // parte de app.js (cerrar el overlay con su clic sintético) se simula aquí.
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(panel.classList.contains('open')).toBe(true);
+    memory.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(memory.classList.contains('open')).toBe(false);
+    expect(panel.classList.contains('open')).toBe(true);
+
+    // Segundo Escape: ya sin modal, cierra el panel.
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(panel.classList.contains('open')).toBe(false);
+  });
+
+  it('U6: Escape sin panel abierto no hace nada (guardia por estado)', async () => {
+    await cargarQuiron();
+    const panel = document.getElementById('quironPanel');
+    expect(panel.classList.contains('open')).toBe(false);
+
+    expect(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))).not.toThrow();
+    expect(panel.classList.contains('open')).toBe(false);
   });
 });
 
