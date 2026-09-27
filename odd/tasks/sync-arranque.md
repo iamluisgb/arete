@@ -79,3 +79,10 @@ Fuente: scout de trazado 2026-09-27 (file:line en los hallazgos).
 ## Evidencia de verificación
 
 (pendiente)
+
+## Revisión nativa
+
+- review-8e78dd03d0075e9b: tier medium (7 ficheros, 747 líneas), lente
+  review-reliability. **APPROVED**, autoridad quemada. 3 findings informativos:
+  R3-focus-cooldown-starves (app.js:359-362), R3-onPulled-after-cycle-pending
+  (engine.js:362-364), R3-startInitialSync-no-stop-handle (app.js:337-342).
