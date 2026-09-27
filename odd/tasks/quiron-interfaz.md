@@ -8,6 +8,12 @@ revisiones de quiron-memoria.
 
 ## Alcance
 
+Estado: U1–U6 todos completados (2026-09-27). Decisión del parent: en
+conversación vacía los chips NO se pueden ocultar con el toggle
+(`chipsOn || sin turno user`) — comportamiento correcto: en vacío son la
+guía; el toggle importa cuando ya hay turnos. La expectativa contraria fue
+del enunciado de verificación, no del diseño.
+
 - **U1 — Cabecera clara**: los 5 botones `.quiron-hbtn` (Informe, Memoria,
   Historial, Nueva, Cerrar) son solo-icono (aria-label + title sí, pero nada
   visible). Objetivo: cada acción se entiende sin adivinar. Restricciones:
@@ -67,4 +73,13 @@ revisiones de quiron-memoria.
 
 ## Evidencia de verificación
 
-(pendiente)
+- gentle-ai-verify: PASS checks 1-5 — suite 882/882, diff limitado a los 6
+  ficheros esperados, revisión de fuente completa (bienvenida efímera no
+  persistida, precedencia Escape capture-phase con guard de app.js:598,
+  ts<=0 sin hora, preview 80 chars), 11 tests de markup contra app.html real
+  clonado, y **test en vivo a 390 y 320**: labels visibles/ocultas según
+  media query, scrollWidth==clientWidth en ambas, bienvenida+chips en vacío,
+  HH:mm + 2 separadores de día + legacy sin adornos, preview y borrado en dos
+  toques, Escape con precedencia modal→panel.
+- Única desviación: toggle de chips no oculta en convo vacía → decisión del
+  parent: comportamiento correcto (ver Estado arriba).
