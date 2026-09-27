@@ -1838,10 +1838,14 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-panel{position:fixed;inset:0;z-index:var(--z-overlay);background:var(--color-surface-0);display:none;flex-direction:column}
 .quiron-panel.open{display:flex;animation:fadeIn var(--dur-fast) ease-out}
 .quiron-header{display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.quiron-title{flex:1;display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em}
+.quiron-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em}
 .quiron-title svg{width:21px;height:21px;color:var(--color-accent-text);stroke-width:2}
 .quiron-sub{font-size:var(--fs-sm);font-weight:500;color:var(--color-text-secondary);text-transform:none;letter-spacing:0}
-.quiron-hbtn{background:var(--color-surface-2);border:none;color:var(--color-text-primary);width:38px;height:38px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer}
+/* U1: botones de cabecera con etiqueta visible (icono arriba, palabra debajo).
+   Cerrar queda solo-icono: la ✕ universal más el title bastan. */
+.quiron-hbtn{background:var(--color-surface-2);border:none;color:var(--color-text-primary);width:38px;height:38px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;cursor:pointer}
+.quiron-hbtn--labeled{width:auto;padding:0 8px}
+.quiron-hbtn-label{font-size:.625rem;font-weight:600;line-height:1;letter-spacing:.01em}
 .quiron-hbtn .material-symbols-outlined{font-size:20px}
 .quiron-msgs{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px}
 /* Radio fijo, no pill: con --radius-pill (999px) un mensaje largo se convierte
@@ -1849,6 +1853,11 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .q-bubble{max-width:88%;padding:10px 14px;border-radius:var(--radius-xl);font-size:var(--fs-md);line-height:1.5;word-wrap:break-word;overflow-wrap:anywhere}
 .q-user{align-self:flex-end;background:var(--color-accent-text);color:var(--color-on-fill);border-bottom-right-radius:6px}
 .q-assistant{align-self:flex-start;background:var(--color-surface-1);border:1px solid var(--color-border-subtle);border-bottom-left-radius:6px}
+/* U3: cuándo se dijo. La hora vive dentro de la burbuja (hereda su color); el
+   separador de día va centrado entre burbujas. Solo mensajes con ts — los
+   legacy (ts=0) no pintan ninguna de las dos cosas. */
+.q-when{margin-top:6px;font-size:var(--fs-2xs);line-height:1;opacity:.7}
+.q-daysep{align-self:center;font-size:var(--fs-2xs);color:var(--color-text-tertiary);padding:2px 0}
 .q-code{background:var(--color-surface-2);border-radius:var(--radius-md);padding:10px 12px;margin:8px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.68rem;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
 .q-li{padding-left:4px}
 .q-typing{color:var(--color-text-secondary);font-style:italic}
@@ -1868,6 +1877,11 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-quota--low .quiron-quota-bar>span{background:#f59e0b}
 .quiron-quota--low .quiron-quota-txt{color:var(--color-text-primary)}
 .quiron-inputbar{display:flex;align-items:flex-end;gap:8px;padding:8px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+/* U2: toggle de sugerencias, mismo lenguaje visual que la cámara y el micro. */
+#quironChipsBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+#quironChipsBtn .material-symbols-outlined{font-size:24px}
+#quironChipsBtn.on{color:var(--color-accent-text)}
+#quironChipsBtn:active{opacity:.6}
 /* Mismo motivo que .q-bubble: con pill, al crecer hasta max-height el radio
    escala a la mitad de la altura y el campo se deforma en elipse. */
 .quiron-inputbar textarea{flex:1;min-height:44px;max-height:120px;border-radius:var(--radius-xl);padding:12px 16px;font-size:var(--fs-md);resize:none}
@@ -1883,6 +1897,8 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-history-item{display:flex;align-items:center;gap:8px;padding:12px;border-radius:var(--radius-md);background:var(--color-surface-2);margin-bottom:8px;cursor:pointer}
 .qh-text{flex:1;min-width:0}
 .qh-title{font-size:var(--fs-md);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* U3: una línea de la última respuesta, para reconocer la conversación sin abrirla. */
+.qh-preview{font-size:var(--fs-xs);color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .qh-meta{font-size:var(--fs-xs);color:var(--color-text-secondary);margin-top:2px}
 .qh-del{background:none;border:none;color:var(--color-text-tertiary);font-size:var(--fs-md);padding:8px;cursor:pointer;flex-shrink:0}
 .quiron-history-empty{color:var(--color-text-secondary);font-size:var(--fs-base);text-align:center;padding:16px 8px}
@@ -1907,6 +1923,19 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .qm-edit-cat{font-family:var(--font);font-size:var(--fs-sm);padding:6px 8px;border-radius:var(--radius-md);border:1px solid var(--color-border-subtle);background:var(--color-surface-1);color:var(--color-text-primary)}
 .qm-edit-actions{display:flex;gap:8px;margin-top:10px}
 .qh-del-confirm{color:var(--color-state-danger);font-size:var(--fs-xs);font-weight:600;white-space:nowrap}
+/* U1 — matemática de la cabecera con etiquetas (320-390px): 4 botones
+   etiquetados (~42-63px cada uno, la anchura la manda la palabra a .625rem)
+   + Cerrar de 38px + gaps + padding. A 320px la cuenta da ~300px: cabe, pero
+   el margen es fino y depende de la métrica real de la fuente del sistema.
+   Por eso, bajo 360px las etiquetas se degradan a icono (el aria-label/title
+   siguen ahí) y el título — redundante con el nav — cede primero. */
+@media(max-width:399px){
+.quiron-header{gap:6px;padding-inline:12px}
+}
+@media(max-width:359px){
+.quiron-hbtn-label{display:none}
+.quiron-sub{display:none}
+}
 .q-report-choice{align-self:flex-start;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:var(--fs-md);color:var(--color-text-secondary)}
 .q-report-choice span{width:100%}
 /* ── Propuesta de plan de Quirón (Fase 5.0) ───────────────── */
