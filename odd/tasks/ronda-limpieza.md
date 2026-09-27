@@ -65,3 +65,30 @@ Documentar en este doc al cierre qué se acepta y por qué.
   regeneración del módulo sin diff, source contracts no triviales (regex +
   whitespace normalizado + trim), CACHE_NAME sigue v157 sin bump (ningún
   activo de ASSETS cambió).
+
+## Revisión nativa
+
+- review-2ad8663a7d411bfa: tier **high** (build tool = process boundary),
+  4 lentes materializados en grupo (4 model runs, pi_host_relay). **APPROVED**,
+  autoridad quemada. 19 findings informativos (R1-001..002, R2-001..006,
+  R3-1..6, R4-A..E) sobre los cambios de esta ronda — trabajo futuro.
+
+## Categoría C — aceptada y documentada (no se arregla)
+
+- Vocabularios duplicados en descripciones de tools (el modelo no ve el módulo generado — intencional).
+- Cap de hermanos `.slice(0,3)` duplicado entre running/training (churn sin cambio de comportamiento).
+- `muscle` como array libre sin anyOf (la descripción lista el vocabulario; desconocidos no matchean).
+- Caps `.slice(0,6)` de explainExercise (elección de producto documentada).
+- try/catch silencioso del hint de programación (peor caso: el hint reaparece).
+- try/catch del calendario N3 (ya documentado con comentario).
+- renderRunPlanQueue / renderPlanQueue (pura presentación con early return).
+- renderSchedulePreview con ancla de mediodía (TZ ya mitigado).
+- Filtro de plan del calendario y chips con title (semántica documentada arriba del código).
+- Ventana de lookback de scheduleMissed (JSDoc).
+- Clasificador run-vs-strength de Quirón (input con schema de prompt).
+- Sonda GPS de centrado de mapa (acción del usuario, error silenciado aceptable).
+
+## Stale (ya resueltos, sin acción)
+
+- PLAN substitutes contradiction (resuelto en la ronda de cierre de ontología).
+- evals catalogo empty-answer (ya visible + test fijado en esa ronda).
