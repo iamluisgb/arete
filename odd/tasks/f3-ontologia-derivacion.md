@@ -18,14 +18,14 @@ perfil del fixture de evals no cambia salvo donde la spec lo declare.
 
 ## Tareas
 
-- [ ] 1. Escribir la decisión de variantes en `docs/PLAN-ONTOLOGIA.md` (F3).
-- [ ] 2. Semilla `js/exercise-ontology.js` + mover `mediaKey` desde
+- [x] 1. Escribir la decisión de variantes en `docs/PLAN-ONTOLOGIA.md` (F3).
+- [x] 2. Semilla `js/exercise-ontology.js` + mover `mediaKey` desde
       `js/ui/exercise-pict.js` + `sw.js` (CACHE_NAME, ASSETS).
-- [ ] 3. Sustituir `LIFT_PATTERNS` en `js/domains.js` (derivados + `unratedLifts`),
+- [x] 3. Sustituir `LIFT_PATTERNS` en `js/domains.js` (derivados + `unratedLifts`),
       dominadas incluidas en la misma resolución.
-- [ ] 4. Tests: ontología, variantes no cuentan, básicos siguen derivando,
+- [x] 4. Tests: ontología, variantes no cuentan, básicos siguen derivando,
       perfil del fixture real fijado (skipIf falta el fixture).
-- [ ] 5. `npm test` verde, estado del plan, commits por unidad de trabajo.
+- [x] 5. `npm test` verde, estado del plan, commits por unidad de trabajo.
 
 ## Evidencia
 
@@ -35,3 +35,8 @@ perfil del fixture de evals no cambia salvo donde la spec lo declare.
 - `npm test`: 32 ficheros, 551 tests verdes (incl. evals-battery con `synth --check`).
 - Delta de perfil sobre los 6 fixtures: cero (derivados idénticos antes/después).
 - Decisiones también en Engram: `arete/plan-ontologia/variantes`, `arete/plan-ontologia/f3`.
+
+## Cierre
+
+El trabajo aterrizó en main vía `feat/ontologia-f3` (commits `9951686`, `ab844a3`) y el plan
+F3 quedó actualizado. Este doc quedó desactualizado (checkboxes sin marcar) hasta 2026-09-26.
