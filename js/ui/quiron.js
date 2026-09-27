@@ -27,6 +27,7 @@ import {
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
 import { setQuironSyncHooks } from '../sync/quiron.js';
+import { loadMemorias, saveMemorias } from '../quiron-memory.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
 import { toast } from './toast.js';
 
@@ -130,6 +131,10 @@ function applyQuironSync(data) {
     window.dispatchEvent(new CustomEvent('arete-quiron-updated'));
   }
   if (Array.isArray(data.archive)) saveArchive(data.archive);
+  // Memoria duradera (D1): mismo tratamiento que el archivo — slot propio del
+  // payload, persiste en su clave de localStorage. El wiring de tools/UI lo
+  // hace la ronda W2/W4; aquí solo queda la capa conectada al sync.
+  if (Array.isArray(data.memorias)) saveMemorias(data.memorias);
 }
 
 // Una propuesta vive dentro de su mensaje: al cambiarla (aplicar/descartar/
@@ -1287,7 +1292,11 @@ export function initQuiron(db, opts = {}) {
 
   // Sync (U3): el motor fusiona arete-quiron.json y entrega el resultado aquí.
   // Se leen en cada ciclo, no al registrarse, por si el motor corre antes.
-  setQuironSyncHooks({ get: () => ({ convo, archive: loadArchive() }), save: applyQuironSync });
+  // `memorias` (D1) viaja en el MISMO payload que convo/archive.
+  setQuironSyncHooks({
+    get: () => ({ convo, archive: loadArchive(), memorias: loadMemorias() }),
+    save: applyQuironSync,
+  });
 
   els.fab.addEventListener('click', openPanel);
   document.getElementById('quironCloseBtn').addEventListener('click', closePanel);
