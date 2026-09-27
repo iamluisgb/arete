@@ -1,6 +1,6 @@
-// Coherence: any change to ASSETS requires bumping CACHE_NAME (and vice versa),
-// or the old SW keeps serving stale assets from the previous cache.
-const CACHE_NAME = 'arete-v157';
+// Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
+// changes — the SW is cache-first, so a stale name keeps serving old bytes.
+const CACHE_NAME = 'arete-v158';
 const ASSETS = [
   './',
   './app.html',
