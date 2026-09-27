@@ -25,7 +25,7 @@ Tres consecuencias que ya se pagan:
 
 ## Decisiones ya tomadas (con las mediciones que las respaldan)
 
-**Fuente: `free-exercise-db`, no wger.** 873 ejercicios, licencia Unlicense (dominio público),
+**Fuente: `free-exercise-db`, no wger.** 876 ejercicios, licencia Unlicense (dominio público),
 campos uniformes: `force`, `mechanic`, `level`, `equipment`, `primaryMuscles`,
 `secondaryMuscles`, `category`, `instructions[]`.
 wger queda descartado: sus 644 traducciones al español no aportan nada —los 89 nombres en
@@ -45,7 +45,7 @@ es lista blanca y no incluye `data/`: una carpeta nueva de primer nivel no se de
 **Los vocabularios son cerrados y pequeños:** 17 músculos primarios, 13 valores de material,
 3 de `force`, 7 categorías. Se declaran como constantes y nada fuera de ellas es válido.
 
-**El catálogo son los 89 de Areté, no los 873 de fedb.** Los 873 se quedan como cantera en el
+**El catálogo son los 89 de Areté, no los 876 de fedb.** Los 876 se quedan como cantera en el
 script de build; al bundle solo van los que tienen ilustración y `tip` propios. Así todo lo que
 Quirón puede proponer se puede pintar, el fichero se queda en decenas de KB en vez de ~350, y
 cada alta pasa por criterio humano. El coste —Quirón no puede prescribir fuera del catálogo— es
@@ -59,31 +59,49 @@ ya se usó con RepDB en `exercise-media.js`. Reconsiderar solo si aparecen miles
 contribuciones de usuarios que moderar, o estadísticas cruzadas entre atletas: ninguna de las
 tres está en el roadmap, y las tres rompen el offline-first antes que el modelo de datos.
 
+**Decisiones D7–D12 del cierre del catálogo (F0–F2):**
+
+- **D7:** los nodos nuevos NO llevan lift (delta cero); `variantOf` es seguro (no alimenta
+  `liftMetric`). Test de cinturón: solo los cinco canónicos de la semilla llevan lift.
+- **D8:** `docs/ontologia-propuestas.json` es la fuente de verdad; el `.md` se genera (`--tabla`).
+- **D9:** semillas con match fedb claro → source `fedb`; sin match honesto (pullup,
+  búlgara, deadlift-high-pull) → source `propia` con candidato fedb en la nota.
+- **D10:** 8 claves de media ya resuelven por alias del canónico/variante (source `alias`,
+  sin nodo propio). Alias rows no producen nodo.
+- **D11:** 'kettlebell sentadilla' aplicada como variante propia con nota de CONFLICTO
+  (tip menciona banco/pie delantero: posible split squat) — revisar ilustración.
+- **D12:** elevación de talones → pattern `squat` (carga axial vertical), sin ampliar el
+  vocabulario cerrado.
+
 ---
 
 ## F0 — Esqueleto y vocabularios 🟢
 
-- [ ] `tools/build-exercise-ontology.py` — baja `free-exercise-db`, cachea el JSON crudo.
-- [ ] Definir en el propio script los vocabularios controlados:
+- [x] `tools/build-exercise-ontology.py` — baja `free-exercise-db`, cachea el JSON crudo.
+- [x] Definir en el propio script los vocabularios controlados:
   - `PATTERN`: `hinge · squat · lunge · push_h · push_v · pull_h · pull_v · carry · core · loco`
   - `EQUIPMENT`: mapeo de los 13 valores de fedb a los que Areté declara (barra, mancuerna,
     kettlebell, dominadas, ninguno, banco…). `other` y los 77 nulos se resuelven a mano.
   - `MUSCLE`: los 17 de fedb traducidos a español de entrenador (no latín).
-- [ ] Esquema de salida por ejercicio:
+- [x] Esquema de salida por ejercicio:
   ```
   { id, name, aliases[], pattern, equipment[], primary[], secondary[],
-    domains[], unilateral, mechanic, contraindications[], regression, progression, substitutes[] }
+    domains[], unilateral, mechanic, contraindications[], regression, progression }
   ```
+  `substitutes[]` no se almacena en los datos: los sustitutos se derivan en runtime
+  en [`js/ai/exercise-catalog.js`](../js/ai/exercise-catalog.js) (`explainExercise`:
+  variantOf → lift canónico, hermanos del mismo patrón).
 
 **Hecho cuando:** el script emite un `js/exercise-ontology.js` vacío pero válido y los tests pasan.
 
 ## F1 — Mapear los 89 🟡⭐ ← el trabajo real
 
-- [ ] Generar una tabla de propuestas (LLM sobre nombre + alias + tip vs. los 873 candidatos),
+- [x] Generar una tabla de propuestas (LLM sobre nombre + alias + tip vs. los 876 candidatos),
       con el id de fedb sugerido y su confianza.
-- [ ] **Revisar las 89 filas a mano.** Tres salidas por fila: id de fedb confirmado / entrada
+- [x] **Revisar las 89 filas a mano.** Tres salidas por fila: id de fedb confirmado / entrada
       propia de Areté (los kettlebell del S&S y variantes que fedb no cubre) / descartado.
-- [ ] Rellenar a mano los tres campos que ninguna fuente externa da:
+      Las 8 filas `media` restantes se aplicaron 2026-09-26 en esta ronda de cierre.
+- [x] Rellenar a mano los tres campos que ninguna fuente externa da:
   - `pattern` — derivable en borrador desde `force` + `equipment` + nombre, pero se confirma.
   - `domains[]` — la arista al producto. Es tuya por definición.
   - `regression` / `progression` / `contraindications` — criterio de entrenador.
@@ -94,10 +112,10 @@ entrada propia de Areté y seguir.
 
 ## F2 — Cargar y exponer 🟢
 
-- [ ] `js/exercise-ontology.js` generado y commiteado (está bajo `js/`, ya en `PUBLIC`).
-- [ ] Helper `resolveExercise(name)` — de texto libre a nodo, vía `aliases` normalizados.
+- [x] `js/exercise-ontology.js` generado y commiteado (está bajo `js/`, ya en `PUBLIC`).
+- [x] Helper `resolveExercise(name)` — de texto libre a nodo, vía `aliases` normalizados.
       Reutiliza la normalización que ya hace `exercise-media.js`.
-- [ ] Subir `CACHE_NAME` en [`sw.js`](../sw.js) y añadir el fichero a `ASSETS`.
+- [x] Subir `CACHE_NAME` en [`sw.js`](../sw.js) y añadir el fichero a `ASSETS`.
 
 ## F3 — Arreglar la derivación de dominios 🟢⭐ ← independiente, hazlo aunque pares aquí
 
@@ -152,15 +170,15 @@ también se comería, no aparecen en los fixtures.
 
 ## F4 — Agente 🟡⭐
 
-- [ ] Tool `find_exercises({ pattern, equipment, muscle, domain, evita })` en
+- [x] Tool `find_exercises({ pattern, equipment, muscle, domain, evita })` en
       [`js/ai/tools.js`](../js/ai/tools.js) — devuelve solo ejercicios del catálogo.
-- [ ] Tool `explain_exercise(name)` — sustitutos, regresión/progresión, contraindicaciones.
-- [ ] `propose_session` / `propose_program`: el `goal` debe citar ejercicios resueltos.
+- [x] Tool `explain_exercise(name)` — sustitutos, regresión/progresión, contraindicaciones.
+- [x] `propose_session` / `propose_program`: el `goal` debe citar ejercicios resueltos.
       Actualizar `GATHER_INSTRUCTION` (vive en `tools.js`, no en la UI, para que los evals
       prueben el prompt que corre de verdad).
-- [ ] [`soul.js`](../js/ai/soul.js): la sección de SEGURIDAD pasa de intención a instrucción
+- [x] [`soul.js`](../js/ai/soul.js): la sección de SEGURIDAD pasa de intención a instrucción
       operativa — ante molestia, llamar a `explain_exercise` y proponer la regresión.
-- [ ] Volumen por patrón en el snapshot ([`context.js`](../js/ai/context.js)), **calculado en JS**
+- [x] Volumen por patrón en el snapshot ([`context.js`](../js/ai/context.js)), **calculado en JS**
       igual que el tonelaje, bajo la regla "cítalo, no lo derives tú".
 
 Decisiones de diseño (spec, decididas antes de codificar — detalle en memoria Engram
@@ -178,23 +196,26 @@ Decisiones de diseño (spec, decididas antes de codificar — detalle en memoria
 - **`GATHER_INSTRUCTION` no existe como símbolo:** el punto del plan apunta a las
   descripciones de `propose_session`/`propose_program` en `tools.js`, que es donde
   vive hoy la instrucción de qué va en `goal`.
-- **Limitación conocida:** las 8 filas en confianza `media` de F1 no están en el
-  catálogo, así que `find_exercises` no las ofrece. Es fiel a "solo ejercicios del
-  catálogo"; aplicarlas es trabajo de F1 pendiente, no de F4.
+- **Limitación conocida (resuelta):** las 8 filas en confianza `media` de F1
+  estaban fuera del catálogo; se aplicaron el 2026-09-26 en la ronda de cierre
+  (82 nodos) y `find_exercises` las ofrece como el resto.
 - **Delta de evals declarado:** el snapshot cambia (nuevo bloque VOLUMEN POR PATRÓN).
   Los fixtures de `db` no cambian; cambia el texto que los evals envían al modelo.
 
 ## F5 — Evals 🟡⭐
 
-- [ ] Check nuevo `catalogo` en [`evals/checks.mjs`](../evals/checks.mjs): todo ejercicio que
+- [x] Check nuevo `catalogo` en [`evals/checks.mjs`](../evals/checks.mjs): todo ejercicio que
       Quirón nombre debe resolver contra la ontología y ser compatible con el material declarado
       en el escenario. Es el análogo del check `cifras` para el otro tipo de alucinación
-      de este dominio: el ejercicio inventado o imposible.
-- [ ] Escenarios en [`evals/scenarios.mjs`](../evals/scenarios.mjs): "sesión de pierna sin
+      de este dominio: el ejercicio inventado o imposible. (Hecho 2026-09-26, ronda de cierre.)
+- [x] Escenarios en [`evals/scenarios.mjs`](../evals/scenarios.mjs): "sesión de pierna sin
       gimnasio", "me molesta el hombro, sustitúyeme el press militar", "qué hago para mi
-      dominio limitante".
-- [ ] **Test del check** en `tests/evals-checks.test.js` — un comprobador que no caza nada
-      pasa siempre, y entonces el run en verde no significa nada.
+      dominio limitante". (Hombro: `molestia-hombro` nuevo 2026-09-26; pierna-sin-gimnasio y
+      dominio-limitante ya existían como `ruteo-sesion-sin-material` y `dominio-limitante`.)
+- [x] **Test del check** en `tests/evals-checks.test.js` — un comprobador que no caza nada
+      pasa siempre, y entonces el run en verde no significa nada. (5 casos adversariales
+      2026-09-26: inexistente falla, real pasa, equipamiento incompatible falla,
+      sin declaración se omite, respuesta vacía visible.)
 
 ## F6 — OpenAlex, para las referencias 🟢 ← paralelo, no toca la app
 

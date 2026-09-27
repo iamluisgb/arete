@@ -57,3 +57,7 @@ de resolución (mediaKey), mismos lifts/variantOf, resolveExercise intacto.
   (stopReason length) → captura por slots individuales; (3) reviewer reliability copió mal el
   subject_hash (binding_mismatch ×2) → tercer intento correcto.
 - PR: https://github.com/iamluisgb/arete/pull/2 — merge y deploy quedan como decisión humana.
+
+## Cierre
+
+PR #2 mergeado: el código está en main y la decisión humana pendiente quedó tomada (2026-09-26).

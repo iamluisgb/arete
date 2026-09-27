@@ -152,14 +152,19 @@ def fedb_pending(name):
 
 
 def dedupe_fedb_aliases(nodes):
-    """Quita los alias de fedb cuya firma ya esté reservada por otro nodo."""
-    for node in nodes:
+    """Quita los alias cuya firma ya esté reservada por un nodo anterior.
+    Primera-ocurrencia-gana (orden del JSON): un nodo nuevo nunca roba una
+    clave que ya resolvía a otro — antes el chequeo miraba también a los
+    nodos posteriores y, como el descarte es secuencial, el último ganaba
+    (las 8 filas del cierre llegaron a desplazar "Handstand Push-Ups",
+    "Kettlebell Windmill", "Sit-Up" y "Desplante" de sus nodos canónicos)."""
+    for i, node in enumerate(nodes):
         kept = []
         for alias in node["aliases"]:
             if alias in FEDB_PENDING:
                 FEDB_PENDING.remove(alias)
             key = media_key(alias)
-            clash = seen_key_of(nodes, node, key)
+            clash = seen_key_of(nodes[:i], node, key)
             if clash:
                 print(f"aviso: alias '{alias}' de {node['id']} choca con {clash['id']}: no se añade")
                 continue

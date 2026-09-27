@@ -2217,7 +2217,7 @@
     "id": "situps-barra",
     "source": "fedb",
     "fedb": "Sit-Up",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "core",
     "equipment": [
       "barra"
@@ -2231,7 +2231,7 @@
     ],
     "regression": "Sit-up sin anclaje",
     "progression": "Sit-up con disco al pecho",
-    "nota": "sit-up con pies anclados bajo barra: el Sit-Up de fedb es sin carga ni anclaje. Revisar.",
+    "nota": "sit-up con pies anclados bajo barra: el Sit-Up de fedb es sin carga ni anclaje. Aceptado: el anclaje bajo barra es variante de implementación; pattern/core idénticos, y equipment ['barra'] documenta la diferencia.",
     "arete": "abdominal barra",
     "aliases": [
       "Sit-up con Barra"
@@ -2241,7 +2241,7 @@
     "id": "situps-barra-2",
     "source": "fedb",
     "fedb": "Sit-Up",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "core",
     "equipment": [
       "barra"
@@ -2255,7 +2255,7 @@
     ],
     "regression": "Sit-up sin anclaje",
     "progression": "Sit-up con disco al pecho",
-    "nota": "igual que abdominal barra: el anclaje con barra no está en fedb. Revisar.",
+    "nota": "igual que abdominal barra: el anclaje con barra no está en fedb. Aceptado: ídem, nombre de Areté distinto que resuelve al mismo nodo Sit-Up.",
     "arete": "barra sit ups",
     "aliases": [
       "Sit-ups con Barra"
@@ -2265,7 +2265,7 @@
     "id": "windmill-bajo",
     "source": "fedb",
     "fedb": "Kettlebell_Windmill",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "hinge",
     "equipment": [
       "kettlebell"
@@ -2280,7 +2280,7 @@
     ],
     "regression": "Windmill sin peso",
     "progression": "Windmill completo",
-    "nota": "windmill bajo: pesa en la mano que baja; fedb no distingue la variante. Revisar.",
+    "nota": "windmill bajo: pesa en la mano que baja; fedb no distingue la variante. Aceptado: la variante baja se admite en el nodo genérico Kettlebell_Windmill; regression/progression distinguen la variante.",
     "arete": "bajo kettlebell molino",
     "aliases": [
       "Windmill Bajo"
@@ -2290,7 +2290,7 @@
     "id": "sentadilla-basica",
     "source": "fedb",
     "fedb": "Bodyweight_Squat",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "squat",
     "equipment": [
       "goma"
@@ -2304,7 +2304,7 @@
     ],
     "regression": "Sentadilla a cajón",
     "progression": "Sentadilla con peso o goblet",
-    "nota": "sentadilla corporal con mini-banda de abducción; fedb la lista sin banda. Revisar.",
+    "nota": "sentadilla corporal con mini-banda de abducción; fedb la lista sin banda. Aceptado: variante con mini-banda; equipment ['goma'] documenta la banda.",
     "arete": "basica sentadilla",
     "aliases": [
       "Sentadilla básica"
@@ -2314,7 +2314,7 @@
     "id": "elevacion-piernas",
     "source": "fedb",
     "fedb": "Flat_Bench_Lying_Leg_Raise",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "core",
     "equipment": [
       "ninguno"
@@ -2328,7 +2328,7 @@
     ],
     "regression": "Rodillas flexionadas (tuck)",
     "progression": "Colgado en barra",
-    "nota": "elevación de piernas en suelo; fedb la lista en banco plano. Revisar.",
+    "nota": "elevación de piernas en suelo; fedb la lista en banco plano. Aceptado: la variante en suelo se admite en el nodo de banco; regression/progression distinguen.",
     "arete": "elevacion pierna",
     "aliases": [
       "Elevación de piernas"
@@ -2338,7 +2338,7 @@
     "id": "elevacion-talones",
     "source": "fedb",
     "fedb": "Standing_Calf_Raises",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "squat",
     "equipment": [
       "ninguno"
@@ -2356,7 +2356,7 @@
     ],
     "regression": "Elevación con apoyo de una mano",
     "progression": "Elevación a una pierna o con lastre",
-    "nota": "fedb la lista en máquina; en Areté es sin peso. Revisar.",
+    "nota": "fedb la lista en máquina; en Areté es sin peso. Aceptado: la versión sin máquina se admite en el nodo; D12 ya fija pattern squat.",
     "arete": "elevacion talon",
     "aliases": [
       "Elevación Talones"
@@ -2366,7 +2366,7 @@
     "id": "flexion-pike",
     "source": "fedb",
     "fedb": "Handstand_Push-Ups",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "push_v",
     "equipment": [
       "ninguno"
@@ -2380,7 +2380,7 @@
     ],
     "regression": "Pike con pies en banco bajo",
     "progression": "Handstand push-up completo",
-    "nota": "la pike es la regresión del HSPU; fedb no la distingue. Revisar.",
+    "nota": "la pike es la regresión del HSPU; fedb no la distingue. Aceptado: la pike es la regresión formal del HSPU; pattern push_v idéntico, regression/progression distinguen la variante.",
     "arete": "flexion pike",
     "aliases": [
       "Pike push-ups"
@@ -2390,7 +2390,7 @@
     "id": "zancada",
     "source": "fedb",
     "fedb": "Bodyweight_Walking_Lunge",
-    "confianza": "media",
+    "confianza": "confirmada",
     "pattern": "lunge",
     "equipment": [
       "ninguno"
@@ -2404,7 +2404,7 @@
     ],
     "regression": "Zancada con apoyo",
     "progression": "Zancada con lastre",
-    "nota": "la zancada de Areté es alternada en sitio; fedb lista la caminada. Revisar.",
+    "nota": "la zancada de Areté es alternada en sitio; fedb lista la caminada. Aceptado: la alternada en sitio se admite en el nodo caminado; pattern lunge/unilateral idénticos.",
     "arete": "zancada",
     "aliases": [
       "Desplantes",
