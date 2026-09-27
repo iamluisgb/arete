@@ -29,6 +29,11 @@ export function switchTab(btn, db) {
   // quedarse a media luz.
   document.querySelectorAll('nav button').forEach(b => { b.classList.remove('active', 'nav-dimmed'); b.removeAttribute('aria-current'); });
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  // Aviso por evento, patrón de arete:ask-quiron: con el panel de Quirón
+  // abierto, la sección cambiaba por detrás (destino activo pero invisible
+  // bajo el panel, body aún quiron-open) y el atleta se quedaba atrapado
+  // viendo Quirón. Quien abre superficies sobre la app decide qué cerrar.
+  window.dispatchEvent(new CustomEvent('arete:section-switch'));
   btn.classList.add('active');
   try { navigator.vibrate?.(10); } catch {}
   btn.setAttribute('aria-current', 'page');

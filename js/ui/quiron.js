@@ -1430,6 +1430,23 @@ export function initQuiron(db, opts = {}) {
     closePanel();
   }, { capture: true });
 
+  // Ronda 2: navegar por el rail con el panel abierto cambiaba la sección por
+  // detrás — el destino quedaba activo pero invisible bajo Quirón, body seguía
+  // quiron-open y no había salida visible. nav.js avisa por evento (patrón de
+  // arete:ask-quiron) y aquí se cierra lo abierto de Quirón: PRIMERO los
+  // modales — Historial y Memoria viven FUERA del panel en app.html, así que
+  // closePanel no los toca (la misma razón por la que Escape los deja pasar) —
+  // y después el panel. Guard por estado: sin nada abierto, el evento no toca
+  // nada; la ruta arete:ask-quiron abre en dirección contraria y nunca pasa
+  // por switchTab, así que no hay interferencia.
+  window.addEventListener('arete:section-switch', () => {
+    const modal = document.querySelector('.quiron-history-modal.open, .quiron-memory-modal.open');
+    if (!modal && !els.panel.classList.contains('open')) return;
+    document.querySelectorAll('.quiron-history-modal.open, .quiron-memory-modal.open')
+      .forEach(m => m.classList.remove('open'));
+    if (els.panel.classList.contains('open')) closePanel();
+  });
+
   document.getElementById('quironReportBtn').addEventListener('click', () => offerReport(db));
 
   // Adjuntar captura → ingesta de entreno
