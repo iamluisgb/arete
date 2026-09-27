@@ -190,6 +190,7 @@ describe('markup audit (mobile visual fixes)', () => {
 // los dos modales por la misma ruta.
 const APP_HTML = readFileSync(resolve(process.cwd(), 'app.html'), 'utf-8');
 const QUIRON_SRC = readFileSync(resolve(process.cwd(), 'js/ui/quiron.js'), 'utf-8');
+const NAV_SRC = readFileSync(resolve(process.cwd(), 'js/ui/nav.js'), 'utf-8');
 
 // Mismo harness que quiron-demo.test.js / quiron-send-race.test.js: el panel y
 // los modales salen del app.html real, así que los ids del contrato no pueden
@@ -415,6 +416,84 @@ describe('Quirón · Escape cierra el panel (U6)', () => {
 
     expect(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))).not.toThrow();
     expect(panel.classList.contains('open')).toBe(false);
+  });
+});
+
+// ── Quirón, ronda 2 (P1 estado sin key + P2 navegación con panel abierto) ────
+// P1: sin areteAiKey (la clave no viaja en el sync) el setup quedaba fuera de
+// pantalla: el truco flex:0 0 auto congelaba el chat a su altura de contenido
+// y NADA del panel era scrollable. El arreglo es CSS puro; jsdom no mide
+// layout, así que se afirma el contrato de fuente, como en las pruebas U1.
+// P2: switchTab cambiaba la sección por detrás del panel abierto. El
+// desacople replica el patrón de arete:ask-quiron: nav emite un evento de
+// window y quiron cierra lo suyo (panel + modales, que viven FUERA del panel
+// en app.html, así que closePanel no los toca).
+describe('Quirón · ronda 2: setup visible y cierre al navegar (P1-P2)', () => {
+  it('P1 (contrato CSS): con setup visible el chat se contrae y el setup va bajo la cabecera', () => {
+    const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
+    // El truco viejo (congelar msgs + centrar el setup) era correcto con el
+    // chat vacío y letal con uno sincronizado: setup invisible, cero scroll.
+    expect(css).not.toContain('.quiron-panel:has(.quiron-setup:not([hidden])).quiron-msgs{flex:00auto}');
+    // Ahora el chat se queda el resto y puede encogerse bajo su contenido.
+    expect(css).toContain('.quiron-panel:has(.quiron-setup:not([hidden])).quiron-msgs{flex:11auto;min-height:0}');
+    // El setup es banda superior: order:-1 y sin el margin-block:auto que lo
+    // hacía flotar. La cabecera se ancla con order:-2 para seguir primera.
+    expect(css).toContain('.quiron-panel:has(.quiron-setup:not([hidden])).quiron-setup{order:-1;margin-block:0}');
+    expect(css).toContain('.quiron-panel:has(.quiron-setup:not([hidden])).quiron-header{order:-2}');
+    // Cinturón y tirantes en la base: msgs puede encoger siempre.
+    expect(css).toContain('.quiron-msgs{flex:1;min-height:0;overflow-y:auto');
+  });
+
+  it('P2: navegar por el rail (switchTab) cierra el panel y activa la sección destino', async () => {
+    await cargarQuiron();
+    document.getElementById('navQuiron').click();
+    const panel = document.getElementById('quironPanel');
+    expect(panel.classList.contains('open')).toBe(true);
+
+    // Rail mínimo: switchTab no necesita la app entera para cambiar de sección
+    // (ninguna rama de render matchea "secFake").
+    document.body.insertAdjacentHTML('beforeend',
+      '<button data-sec="secFake"></button><section class="section" id="secFake"></section>');
+    const { switchTab } = await import('../js/ui/nav.js');
+    switchTab(document.querySelector('button[data-sec="secFake"]'), quironFreshDB());
+
+    expect(document.getElementById('secFake').classList.contains('active')).toBe(true);
+    expect(panel.classList.contains('open')).toBe(false);
+    expect(document.body.classList.contains('quiron-open')).toBe(false);
+  });
+
+  it('P2: con un modal de Quirón encima, cambiar de sección cierra modal Y panel', async () => {
+    await cargarQuiron();
+    document.getElementById('navQuiron').click();
+    document.getElementById('quironMemoryBtn').click();
+    const panel = document.getElementById('quironPanel');
+    const memory = document.getElementById('quironMemoryModal');
+    expect(panel.classList.contains('open')).toBe(true);
+    expect(memory.classList.contains('open')).toBe(true);
+
+    window.dispatchEvent(new CustomEvent('arete:section-switch'));
+
+    expect(memory.classList.contains('open')).toBe(false);
+    expect(panel.classList.contains('open')).toBe(false);
+    expect(document.body.classList.contains('quiron-open')).toBe(false);
+  });
+
+  it('P2: el evento sin nada abierto de Quirón no hace nada (guardia por estado)', async () => {
+    await cargarQuiron();
+    expect(() => window.dispatchEvent(new CustomEvent('arete:section-switch'))).not.toThrow();
+    expect(document.getElementById('quironPanel').classList.contains('open')).toBe(false);
+    expect(document.body.classList.contains('quiron-open')).toBe(false);
+  });
+
+  it('P2 (regresión): arete:ask-quiron sigue abriendo el panel y precargando el prompt', async () => {
+    await cargarQuiron();
+    document.dispatchEvent(new CustomEvent('arete:ask-quiron', { detail: { prompt: 'Prepárame una sesión para hoy' } }));
+    expect(document.getElementById('quironPanel').classList.contains('open')).toBe(true);
+    expect(document.getElementById('quironInput').value).toBe('Prepárame una sesión para hoy');
+  });
+
+  it('P2 (contrato fuente): switchTab emite arete:section-switch por window', () => {
+    expect(NAV_SRC).toContain("window.dispatchEvent(new CustomEvent('arete:section-switch'))");
   });
 });
 
