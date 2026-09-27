@@ -56,7 +56,25 @@ Fuente: scout de trazado 2026-09-27 (file:line en los hallazgos).
 
 ## Evidencia de commits
 
-(pendiente)
+- `4111e98` docs(odd): feature doc.
+- `8e4578b` fix(sync): onPulled con huella (acumulada en 412) →
+  applyPulledData con guard (runner/borrador/modal/sheet, storage ANTES de
+  la señal), startInitialSync con backoff [1.5s,5s,20s,60s] (ok/off cortan),
+  focus con cooldown 30s compartido, doc honesta, sw v162. +21 tests.
+- Suite: 904/904 (53 ficheros).
+
+## Evidencia de verificación
+
+- gentle-ai-verify: PASS 9/9 — suite 904/904, diff limitado a 7 ficheros,
+  cadena de señal completa (huella + acumulación 412 + fire fuera de finally
+  sin re-entrada + saveRaw antes de la señal), no doble render del dashboard
+  (nav.js:315), cross-tab intacto, agenda con semántica exacta y stop()
+  cancelando timers, visibility sin cooldown (frecuencia no reducida) + focus
+  aditivo, 21 tests con mocks importOriginal sin ocultar módulos reales, doc
+  sin overclaim, sw solo v161→v162 con los 3 ficheros en ASSETS, sonda jsdom
+  real de applyPulledData (guard=0 writes + storage intacta; sin guard=3).
+- Observación informativa: un ciclo que mergea y luego falla no repinta hasta
+  otro trigger (diseño declarado en SYNC-V2).
 
 ## Evidencia de verificación
 
