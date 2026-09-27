@@ -129,3 +129,10 @@ Evidence:
   msgs sh=2955 ch=435 scrollable y rueda real (0→1920); inputbar sigue oculto
   (diseño, hasta que haya key); clic en Más → panel cerrado, body limpio,
   secSettings activo. ask-quiron sin interferencia (evento en document vs window).
+
+## Revisión nativa (ronda 2)
+
+- review-45114fa423807abd: tier medium (6 ficheros, 157 líneas), lente
+  review-reliability. **APPROVED**, autoridad quemada. 2 findings
+  informativos: R3-close-order (quiron.js:1440-1446),
+  R3-source-contract (ui-polish:438-449).
