@@ -7,6 +7,7 @@ import {
   listMemorias, upsertMemoria, deleteMemoria, compactMemorias,
   loadMemorias, saveMemorias,
 } from '../js/quiron-memory.js';
+import { makeToolExecutor, QUIRON_MEMORY_TOOLS, MEMORY_TOOL_NAMES } from '../js/ai/tools.js';
 
 // Reloj controlado: los sellos (ts/updatedAt) salen de Date.now(), y el FIFO
 // depende de su orden relativo.
@@ -258,5 +259,123 @@ describe('loadMemorias / saveMemorias — storage', () => {
     expect(loadMemorias()).toEqual([]);
     saveMemorias('no');
     expect(loadMemorias()).toEqual([]);
+  });
+});
+
+// ── W2 — tools remember/forget (js/ai/tools.js) ───────────────────────────────────
+// Se prueba el ejecutor directamente (makeToolExecutor), que es donde vive la
+// lógica: resolución de [Mn], persistencia y confirmaciones que cita el modelo.
+describe('tools remember/forget — esquema', () => {
+  it('declaradas en su propia lista con esquema OpenAI y nombres en MEMORY_TOOL_NAMES', () => {
+    expect(QUIRON_MEMORY_TOOLS.map((t) => t.function.name).sort()).toEqual(['forget', 'remember']);
+    expect(MEMORY_TOOL_NAMES).toEqual(new Set(['remember', 'forget']));
+    // No viven en QUIRON_TOOLS: el contrato de quiron-tool-label.test.js exigiría
+    // una etiqueta en js/ui/quiron.js (cableado de W4) antes de exponerlas.
+    for (const t of QUIRON_MEMORY_TOOLS) {
+      expect(t.type).toBe('function');
+      expect(t.function.description).toBeTruthy();
+      expect(t.function.parameters.type).toBe('object');
+    }
+  });
+});
+
+describe('tool remember', () => {
+  it('crea, persiste con source modelo y confirma con el shortId posicional', async () => {
+    const out = await makeToolExecutor({}, {})('remember', { categoria: 'horario', texto: 'entreno por la mañana' });
+    expect(out).toBe('guardado [M1] horario: entreno por la mañana');
+    const activas = listMemorias(loadMemorias());
+    expect(activas).toHaveLength(1);
+    expect(activas[0]).toMatchObject({ categoria: 'horario', texto: 'entreno por la mañana', source: 'modelo' });
+  });
+
+  it('categoría fuera del set cerrado cae a otro (validación de la capa de datos)', async () => {
+    const out = await makeToolExecutor({}, {})('remember', { categoria: 'inventada', texto: 'x' });
+    expect(out).toBe('guardado [M1] otro: x');
+  });
+
+  it('con id reemplaza la memoria existente y conserva su posición', async () => {
+    const ex = makeToolExecutor({}, {});
+    await ex('remember', { categoria: 'dolor', texto: 'rodilla al sentadilla' });
+    vi.advanceTimersByTime(10);
+    await ex('remember', { categoria: 'horario', texto: 'entreno por la mañana' });
+    vi.advanceTimersByTime(10);
+    const out = await ex('remember', { id: 'M1', categoria: 'dolor', texto: 'tendinitis en el talón de Aquiles' });
+    expect(out).toBe('actualizado [M1] dolor: tendinitis en el talón de Aquiles');
+    const activas = listMemorias(loadMemorias());
+    expect(activas).toHaveLength(2); // reemplazo, no duplicado
+    expect(activas.map((m) => m.texto)).toEqual(['tendinitis en el talón de Aquiles', 'entreno por la mañana']);
+  });
+
+  it('tolera variantes del id ("m1", "3") porque el [Mn] es posicional sobre el orden del snapshot', async () => {
+    const ex = makeToolExecutor({}, {});
+    await ex('remember', { texto: 'a' });
+    vi.advanceTimersByTime(10);
+    await ex('remember', { texto: 'b' });
+    vi.advanceTimersByTime(10);
+    expect(await ex('remember', { id: 'm2', texto: 'b editada' })).toContain('actualizado [M2]');
+    expect(await ex('remember', { id: '1', texto: 'a editada' })).toContain('actualizado [M1]');
+  });
+
+  it('id desconocido devuelve error claro y no crea nada', async () => {
+    await makeToolExecutor({}, {})('remember', { texto: 'única' });
+    const out = await makeToolExecutor({}, {})('remember', { id: 'M9', texto: 'x' });
+    expect(out).toMatch(/^ERROR: no existe ninguna memoria con id "M9"/);
+    expect(listMemorias(loadMemorias())).toHaveLength(1);
+  });
+
+  it('sin texto devuelve error y no persiste nada', async () => {
+    const out = await makeToolExecutor({}, {})('remember', { texto: '   ' });
+    expect(out).toMatch(/^ERROR: falta `texto`/);
+    expect(loadMemorias()).toEqual([]);
+  });
+
+  it('al llegar al tope de 50, la creación 51 avisa de que reemplazó la más antigua y mantiene 50 activas', async () => {
+    const ex = makeToolExecutor({}, {});
+    for (let i = 0; i < MAX_MEMORIAS; i++) {
+      vi.advanceTimersByTime(1);
+      await ex('remember', { texto: 'm' + i });
+    }
+    vi.advanceTimersByTime(1);
+    const out = await ex('remember', { texto: 'la que desplaza' });
+    expect(out).toContain('(memoria llena: se reemplazó la entrada más antigua)');
+    expect(listMemorias(loadMemorias())).toHaveLength(MAX_MEMORIAS);
+    expect(listMemorias(loadMemorias()).map((m) => m.texto)).not.toContain('m0');
+  });
+});
+
+describe('tool forget', () => {
+  it('resuelve el shortId al uid, borra y confirma con los datos de la memoria borrada', async () => {
+    const ex = makeToolExecutor({}, {});
+    await ex('remember', { categoria: 'dolor', texto: 'rodilla al sentadilla' });
+    vi.advanceTimersByTime(10);
+    await ex('remember', { categoria: 'horario', texto: 'entreno por la mañana' });
+    const out = await ex('forget', { id: 'M1' });
+    expect(out).toBe('borrado [M1] dolor: rodilla al sentadilla');
+    const activas = listMemorias(loadMemorias());
+    expect(activas).toHaveLength(1);
+    expect(activas[0].texto).toBe('entreno por la mañana');
+    expect(activas[0].shortId).toBe('M1'); // las posiciones se recalculan
+  });
+
+  it('id desconocido devuelve error claro y no borra nada (nunca un no-op silencioso)', async () => {
+    const ex = makeToolExecutor({}, {});
+    await ex('remember', { texto: 'única' });
+    const out = await ex('forget', { id: 'M7' });
+    expect(out).toMatch(/^ERROR: no existe ninguna memoria con id "M7"/);
+    expect(listMemorias(loadMemorias())).toHaveLength(1);
+  });
+
+  it('sin id devuelve error', async () => {
+    const out = await makeToolExecutor({}, {})('forget', {});
+    expect(out).toMatch(/^ERROR: falta `id`/);
+  });
+
+  it('el borrado es blando en el payload (la entrada queda para el merge de sync)', async () => {
+    const ex = makeToolExecutor({}, {});
+    await ex('remember', { texto: 'importante' });
+    await ex('forget', { id: 'M1' });
+    const brutas = loadMemorias();
+    expect(brutas).toHaveLength(1);
+    expect(brutas[0].deleted).toBe(true);
   });
 });

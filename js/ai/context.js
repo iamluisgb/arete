@@ -11,6 +11,7 @@ import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
 } from './metrics.js';
+import { listMemorias, loadMemorias } from '../quiron-memory.js';
 
 /** "+12%" · "-4%" · "s/ref" cuando no hay periodo anterior con el que comparar. */
 const deltaPct = (v) => (v == null ? 's/ref' : `${v >= 0 ? '+' : ''}${v}%`);
@@ -74,6 +75,33 @@ export function scheduleBlock(db, ref = new Date()) {
 }
 
 /**
+ * Sección MEMORIA DEL ATLETA del snapshot (D5 — odd/tasks/quiron-memoria.md): lo
+ * duradero que el atleta contó en conversaciones anteriores — hoy perdido tras la
+ * ventana de 8 mensajes — y que el modelo puede actualizar o borrar con
+ * remember/forget citando el [Mn]. Lee js/quiron-memory.js DIRECTAMENTE: es un
+ * módulo hoja (cero imports, no hay ciclo posible) y así TODOS los buildSnapshot
+ * (turno en js/ui/quiron.js:353, informes :558/:606, evals) traen la memoria sin
+ * cableado en el llamante. Costo: una lectura de localStorage por snapshot, igual
+ * de barata que la de la conversación que ya hace el llamante.
+ *
+ * Presupuesto TOKEN_GUARD: tope MAX_MEMORIAS (50) líneas de ~15 tokens ≈ 750
+ * tokens, un 1% del guard de 60000. Se lista el tope completo porque los [Mn] son
+ * POSICIONALES (listMemorias, ts asc): ocultar una línea desalinearía los ids que
+ * usa el modelo para editar/borrar.
+ */
+export function buildMemoriaSection() {
+  const mems = listMemorias(loadMemorias());
+  if (!mems.length) return [];
+  const fecha = (ts) => {
+    const d = new Date(ts || 0);
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  };
+  const L = ['MEMORIA DEL ATLETA (lo duradero que me contaste antes — [Mn] es su id para actualizar o borrar):'];
+  for (const m of mems) L.push(`  [${m.shortId}] ${m.categoria} · ${m.texto} (${fecha(m.ts)})`);
+  return L;
+}
+
+/**
  * @param {Object} db  la db de la app
  * @param {Object} prog  contexto de programas: { name, phaseName, sessionNames, runProgramName, runWeek }
  * @param {Date} ref  fecha de referencia (tests)
@@ -95,6 +123,11 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   if (s.race5k) profile.push(`marca 5K ${formatRunDuration(s.race5k)}`);
   if (s.maxHR) profile.push(`FC máx ${s.maxHR}`);
   if (profile.length) L.push(`PERFIL: ${profile.join(' · ')}`);
+
+  // Memoria duradera (D5): lo conversacional que sobrevive al recorte de historial.
+  // Sección omitida por completo si no hay nada activo — un usuario nuevo no necesita
+  // un encabezado anunciando que no recordamos nada.
+  L.push(...buildMemoriaSection());
 
   // Programa activo
   const p = [];
