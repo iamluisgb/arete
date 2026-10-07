@@ -106,3 +106,6 @@ pestaña. Candidato a evaluar, no necesariamente a hacer: el draft ya salva la s
 - Tabla de umbrales femenina — `mejoras_arete.md` #7.
 - Advisory F3 (liftMetric silencioso, test skipIf, índice de alias) — `mejoras_arete.md` #9.
 - Filas en confianza `media` de la ontología — pendientes de revisión humana.
+- Auditoría de capacidades del navegador (2026-10): las transiciones de pantalla y las container
+  queries del layout ancho son UX, pero viven en `mejoras_arete.md` #16 y #17 junto al resto de la
+  auditoría, para no partirla.

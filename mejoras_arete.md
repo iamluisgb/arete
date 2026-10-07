@@ -96,6 +96,70 @@ casan exacto contra `free-exercise-db` tras normalizar, y el emparejamiento difu
 equivocados con alta confianza (`Remo con Barra → Curl con barra`, `Burpee con flexión → Burpees
 sin Flexión`). El mapeo se revisa a mano, entero: es la fase que domina el esfuerzo.
 
+## Encontrado en la auditoría de capacidades del navegador (2026-10)
+
+Medido sobre producción (`arete.raiatech.com`, carga fría con la caché HTTP desactivada) y sobre el
+árbol a `dff50a1` (`sw.js` v164). El soporte de cada API está leído de
+`@mdn/browser-compat-data@8.1.4`, no de memoria. Nada de esto bloquea nada: es la lista de lo que el
+navegador ya sabe hacer y la app no le pide.
+
+12. **`theme_color` del manifest no es el de la app.** `manifest.json:9` declara `#d4372c` (rojo) y
+    `js/app.js:37-40` (`applyTheme`) escribe `#f4f2f0`/`#131313` en el `<meta>`. El manifest no se
+    actualiza nunca, así que una Areté **instalada** lleva la barra de título de un color que la app no
+    muestra en ninguna pantalla. Es un bug, no una mejora: o el manifest hereda el valor claro, o se
+    documenta que el que manda en tiempo de ejecución es el meta.
+
+13. **Las 110 fotos de ejercicios son 2,1 MB de los 3,31 MB del precache (63 %).** `sw.js` precachea
+    las 110 (110 de 110 en `ASSETS`, v164) en `install`, y solo hacen falta si se abre el catálogo.
+    Cachearlas a demanda con un tope LRU deja el precache inicial en ~1,2 MB sin quitar nada offline.
+
+14. **Material Symbols: una dependencia de terceros en el camino crítico para 35 iconos.**
+    `app.html:18` sigue pidiendo Inter a `fonts.googleapis.com`, y la hoja de Material Symbols entra
+    por `@import url(…) layer(vendor)` en `app.css:35` con un `<link rel="preload">` de consuelo en
+    `app.html:22` (el comentario de `app.css:30-34` explica por qué: sin capa ganaba a las 20 reglas de
+    tamaño de icono). El apaño está bien hecho — pero sigue habiendo **dos round-trips a un tercero en
+    el arranque de una app que se vende offline**, y viaja el fichero de iconos completo para 35
+    glifos (`material-symbols-outlined` aparece 35 veces en `app.html`). Con SVG en línea desaparecen
+    las tres cosas a la vez: la dependencia, el `@import` bloqueante y la pelea de capas. `assets/icons/`
+    ya existe. Prioridad honesta: **baja** — hoy funciona y el preload ya mitiga la latencia.
+
+15. **El manifest declara 10 miembros.** Faltan: `id` (sin él la identidad de lo instalado se deriva
+    de `start_url`, y mover esa página deja huérfanas las instalaciones de antes), `shortcuts`
+    (Chrome 96 · Safari 17.4) — "Iniciar sesión" es la acción natural de la pulsación larga y ya
+    existe como `switchStrTab()` — y `screenshots`, que es lo que convierte la hoja de instalación de
+    Android en una tarjeta con imágenes. Además los **dos** iconos van como `"any maskable"` sobre el
+    mismo PNG, así que Android va a recortarlo: el mismo fichero no puede ser `any` y `maskable` a la
+    vez. BookReader los separa en ficheros distintos; copiar de ahí.
+
+16. **Las pantallas cambian de golpe.** `js/ui/nav.js:31-40` conmuta `classList` (`.section.active`) y
+    el panel aparece sin transición; lo mismo con las subpestañas (`js/ui/nav.js:99-104`).
+    `document.startViewTransition()` (Chrome 111 · Safari 18 · Firefox 144) da la transición nativa,
+    degrada solo donde no exista y no necesita polyfill. Con cinco pestañas más los paneles, es la
+    mejora de sensación más barata que queda.
+
+17. **21 bloques `@media (min-width:1024px)` en `app.css` para el layout de escritorio.** El layout
+    depende del ancho del panel, no del viewport: `@container` (Chrome 105 · Safari 16 · Firefox 110)
+    es la herramienta correcta y colapsa la matriz. **Ojo, esto no es volver a lo que ya se quitó:**
+    `app.css:2132-2137` documenta que la `container-type` del segmentado se retiró porque aplica
+    contención de layout y el segmentado ya no vive en el carril de 168 px. La propuesta es para el
+    layout ancho, no para resucitar ese caso. De paso, `content-visibility: auto` (Chrome 85 ·
+    Safari 18 · Firefox 125) en historial y catálogo, que pintan todas sus filas aunque estén fuera de
+    pantalla.
+
+18. **No se pide almacenamiento persistente.** Los datos viven en `localStorage` (`loadDB()`) y nada
+    llama a `navigator.storage.persist()` (Chrome 55 · Safari 15.2 · Firefox 57). El respaldo de Drive
+    es la red de seguridad real, pero persistir el origen cubre la ventana entre sincronizaciones.
+    BookReader ya lo pide (`js/sync/blobs.js`).
+
+19. **El wrapper Android va 64 versiones de caché por detrás.** `arete-android/www/` es una copia del
+    23-may: su `sw.js` dice **`arete-v100`** contra el **v164** actual, y su `app.css` pesa 80 115 B
+    frente a los 235 873 B de hoy (casi un tercio). El repo no recibe commits desde el 2026-07-28
+    (`bae9d9f`), ni en local ni en `origin/main`. Y como Capacitor sirve desde `https://localhost`, el
+    APK y la PWA son **dos orígenes con dos almacenes**: los datos no son el mismo juego.
+    `scope_extensions` (Chrome 138) es la vía moderna para declararlos la misma app;
+    `related_applications` (Chrome Android 44) es la señal antigua. Antes de decidir nada:
+    ¿el wrapper sigue vivo, o es deuda que conviene retirar?
+
 ## Anterior (recuperar de la lista original si aparece)
 
 7. **Tabla de umbrales femenina.** Los umbrales de los 7 dominios están calibrados para hombre de
