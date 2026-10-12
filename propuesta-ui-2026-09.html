@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Areté — propuesta de UI (2026-09)</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- Mismo logo que app.html: el icono de la app, no una letra. Es el único
+     asset externo del prototipo y sirve para juzgarlo con la marca real. -->
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<!-- PROPUESTA 1 · El tema se decide ANTES del primer pintado, sin JS de módulos.
+     Antes: `:root.dark` lo ponía js/app.js, que es un módulo ES y se evalúa
+     después del primer pintado. Medido con una sonda cada 5 ms: a los 216 ms el
+     fondo ya era rgb(244,242,240) —crema— y la clase `dark` no llegaba hasta los
+     430 ms. Eso es un flash blanco de ~200-400 ms en cada carga en frío, y con
+     JavaScript apagado el usuario de modo oscuro veía la app clara entera
+     (comprobado: BookReader rinde rgb(18,18,20) y Areté rgb(244,242,240) con el
+     mismo `prefers-color-scheme: dark`).
+
+     El atributo se escribe AQUÍ, en un script inline del <head>: corre antes de
+     que exista el <body>, así que no hay nada que repintar. Y el tema deja de
+     depender de que el JS de la app arranque: si un módulo falla, el tema sigue
+     bien puesto. `data-theme` ausente = seguir al sistema, que es el estado por
+     defecto. -->
+<script>
+(function () {
+  try {
+    var m = localStorage.getItem('areteProtoTheme') || 'auto';
+    var dark = m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    if (m !== 'auto') document.documentElement.setAttribute('data-theme', m);
+    else if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  } catch (e) { /* sin localStorage: queda en «seguir al sistema» */ }
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════════
+   ARETÉ · PROTOTIPO DE PROPUESTA · 2026-09
+
+   Los tokens de la capa `tokens` están copiados VERBATIM de app.css para que la
+   propuesta se juzgue sobre el sistema real y no sobre una paleta inventada.
+   Lo único que cambia respecto a app.css va marcado con la etiqueta PROPUESTA.
+
+   Sonda de la auditoría: auditoria-estilo-ux-2026-09.md
+   Plan:                  plan-mejora-ux-2026-09.md
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@layer tokens, base, sistema, pantallas, escritorio;
+
+@layer tokens {
+:root{
+  /* ── primitivos (no los usa ningún componente) ── */
+  --red-200:#ffb4aa; --red-500:#ff5545; --red-600:#d4372c;
+  --red-500-rgb:255,85,69; --red-600-rgb:212,55,44;
+  --sand-0:#fff; --sand-50:#f4f2f0; --sand-100:#f0eeeb; --sand-200:#ebe8e5;
+  --brown-900:#1c1b1b; --brown-700-rgb:93,63,59;
+  --ink-900:#131313; --ink-800:#201f1f; --ink-700:#2a2a2a; --ink-600:#353534;
+  --ash-50:#e5e2e1; --rose-200-rgb:231,189,183;
+  --green-600:#16a34a; --green-400:#30d158;
+  --crimson-600:#dc2626; --crimson-400:#ff453a;
+  --amber-700:#a16207; --cyan-600:#0891b2; --cyan-300:#68d3fc;
+
+  /* ── semánticos · claro ── */
+  --color-surface-0:var(--sand-50);
+  --color-surface-1:var(--sand-0);
+  --color-surface-2:var(--sand-200);
+  --color-surface-3:var(--sand-100);
+  --color-surface-glass:rgba(255,255,255,.75);
+  --color-text-primary:var(--brown-900);
+  --color-text-secondary:rgba(var(--brown-700-rgb),.80);
+  /* → PROPUESTA (AE-03): .64 daba 3,53:1 y se usaba para texto que informa.
+     .78 sobre surface-0/1 da 4,74:1 y 5,10:1 — AA de texto en los dos fondos. */
+  --color-text-tertiary:rgba(var(--brown-700-rgb),.78);
+  --color-text-inverse:var(--sand-0);
+  --color-border-subtle:rgba(92,68,64,.08);
+  --color-border-ghost:rgba(0,0,0,.06);
+  --color-action-primary:var(--red-600);
+  --color-action-primary-fg:var(--sand-0);
+  --color-accent-text:var(--red-600);
+  --color-accent-soft:var(--red-200);
+  --color-state-success:var(--green-600);
+  --color-state-danger:var(--crimson-600);
+  --color-state-warning:var(--amber-700);
+  --color-state-info:var(--cyan-600);
+  --color-domain-strength:var(--red-600);
+  --color-domain-running:var(--cyan-600);
+  --color-scrim:rgba(0,0,0,.6);
+  --color-on-fill:var(--sand-0);
+  /* color-scheme es lo que hace que la barra de scroll nativa, el desplegable de
+     <select> y el selector de fecha sigan el tema solos. PROPUESTA extra: Areté
+     solo lo parcheaba en `:root.dark select/input/textarea`, así que la barra de
+     scroll del documento se quedaba clara en modo oscuro. */
+  color-scheme:light;
+
+  /* ── DERIVADOS (8) ─────────────────────────────────────────────────────
+     PROPUESTA 4 · color-mix() como motor de derivación. Antes estos ocho se
+     declaraban a mano DOS veces —una en claro y otra en oscuro— con alfa
+     distinta (.08/.14, .10/.16, .30/.45…), y cada par era una deriva esperando.
+     Derivados del propio token semántico, el tema los sigue solo: en oscuro
+     --color-state-success ya vale --green-400, así que el wash se recalcula y la
+     declaración duplicada desaparece del bloque oscuro. Medido: el prototipo
+     pasa de 1 uso de color-mix en ~3.000 líneas a 8, y el bloque oscuro pierde
+     7 declaraciones.
+     La mezcla con `transparent` es premultiplicada en sRGB, así que
+     `color-mix(in srgb, X 10%, transparent)` da exactamente `rgba(X, .10)`.
+     OJO en la app real: esos alfa están calibrados y medidos en app.css:126-162;
+     armonizarlos a 10/12/14 % obliga a volver a medir los pares y a actualizar la
+     tabla. Acá se armonizan porque el prototipo no tiene tabla propia. */
+  --color-accent-wash:color-mix(in srgb, var(--color-accent-text) 10%, transparent);
+  --color-accent-glow:color-mix(in srgb, var(--color-accent-text) 26%, transparent);
+  --color-focus-ring:color-mix(in srgb, var(--color-accent-text) 32%, transparent);
+  --color-success-wash:color-mix(in srgb, var(--color-state-success) 14%, transparent);
+  --color-danger-wash:color-mix(in srgb, var(--color-state-danger) 12%, transparent);
+  --color-info-wash:color-mix(in srgb, var(--color-state-info) 14%, transparent);
+  --color-warning-wash:color-mix(in srgb, var(--color-state-warning) 14%, transparent);
+  --cat-violet-wash:color-mix(in srgb, var(--cat-violet) 10%, transparent);
+  --cat-orange-wash:color-mix(in srgb, var(--cat-orange) 10%, transparent);
+  /* → PROPUESTA (AE-04): el rojo de micrófono era #e53935 literal en 3 sitios. */
+  --color-mic-live:var(--crimson-600);
+
+  /* ── tipografía ── */
+  --font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
+  --fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;
+  --fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;
+  --type-display:800 var(--fs-3xl)/1.1 var(--font);      --track-display:-.04em;
+  --type-title-lg:800 var(--fs-xl)/1.2 var(--font);      --track-title-lg:-.03em;
+  --type-title:700 var(--fs-lg)/1.25 var(--font);        --track-title:-.01em;
+  --type-body:400 var(--fs-md)/1.5 var(--font);          --track-body:0;
+  --type-body-strong:600 var(--fs-md)/1.45 var(--font);  --track-body-strong:0;
+  --type-caption:500 var(--fs-sm)/1.45 var(--font);      --track-caption:0;
+  --type-label:600 var(--fs-xs)/1.3 var(--font);         --track-label:.06em;
+  --type-metric:800 var(--fs-2xl)/1.1 var(--font);       --track-metric:-.02em;
+  --type-metric-lg:800 var(--fs-3xl)/1 var(--font);      --track-metric-lg:-.03em;
+
+  /* ── espacio, radio, sombra, profundidad, movimiento ── */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;
+  --pad-y-sm:8px;  --pad-x-sm:14px;
+  --pad-y-md:12px; --pad-x-md:20px;
+  --pad-y-lg:16px; --pad-x-lg:24px;
+  --pad-card:var(--sp-4);
+  --gap-tight:var(--sp-2);
+  --gap-stack:var(--sp-3);
+  --gap-group:var(--sp-5);
+  --gap-section:var(--sp-8);
+  --radius-xs:6px; --radius-sm:8px; --radius-md:10px;
+  --radius-lg:16px; --radius-xl:24px; --radius-pill:999px;
+  /* ── SUPERFICIE DEL CONTROL ACTIVO ──────────────────────────────────────
+     PROPUESTA extra, y es un defecto real: el relleno del control activo era
+     --color-surface-1. En claro esa superficie es MÁS CLARA que la pista
+     (blanco sobre #ebe8e5) y en oscuro es MÁS OSCURA (#201f1f sobre #2a2a2a),
+     así que en modo oscuro el segmentado activo se leía HUNDIDO en vez de
+     elevado — justo cuando el design system dice que el activo se marca «con
+     fondo y peso». Un token para «la superficie elevada de un control» arregla
+     los dos temas con una sola regla. */
+  --color-surface-active:var(--sand-0);
+
+  /* ── SOMBRAS ────────────────────────────────────────────────────────────
+     PROPUESTA 5 · dos capas y un canal de color.
+     Antes: una sola capa por nivel y NEGRA en los dos temas. Medido, --shadow-1
+     y --shadow-3 se computaban byte a byte iguales en claro y en oscuro, así
+     que en modo oscuro la elevación no existía: seis componentes usan
+     --shadow-1 (los segmentados, el mini-timer) y una sombra negra al 8 % sobre
+     #131313 no se ve. Una sombra real son dos: una pegada que define el borde y
+     una difusa que sugiere la altura; con una sola capa se ve como un contorno
+     sucio. El canal --shadow-color es lo que permite teñirlas por tema sin
+     reescribir los tres niveles. */
+  --shadow-color:0,0,0;
+  --shadow-1:0 1px 2px rgba(var(--shadow-color),.06), 0 2px 4px rgba(var(--shadow-color),.05);
+  --shadow-2:0 1px 3px rgba(var(--shadow-color),.05), 0 6px 20px rgba(var(--shadow-color),.07);
+  --shadow-3:0 4px 12px rgba(var(--shadow-color),.06), 0 24px 60px rgba(var(--shadow-color),.14);
+  --shadow-action:0 8px 24px var(--color-accent-glow);
+  /* La placa de la marca. PROPUESTA 3: el PNG tiene las cuatro esquinas en
+     rgb(33,33,37) y el fondo de tarjeta oscuro es #201f1f → 1,02:1, medido. En
+     modo oscuro el cuadrado del logo desaparece y solo flota el triángulo
+     cortado en las esquinas. BookReader resuelve exactamente esto con
+     --logo-tile/--logo-page. Acá el token es el canto de la placa: en claro, no
+     hace falta (16,04:1 contra el blanco); en oscuro, un pelo claro que devuelve
+     el borde de la baldosa sin tocar el arte. */
+  --logo-tile:transparent;
+  --z-raised:1; --z-sticky-action:40; --z-sticky-timer:50;
+  --z-header:60; --z-runner:90; --z-nav:100; --z-overlay:200;
+  --z-toast:250; --z-alert:300;
+  --dur-instant:.1s; --dur-fast:.15s; --dur-base:.2s; --dur-slow:.3s;
+  --ease-standard:ease-out; --ease-sheet:cubic-bezier(.32,.72,0,1);
+
+  /* ── shell ── */
+  --shell:100%;--nav-h:84px;--rail-w:0px;--rail-w-open:232px;
+  --measure-prose:46rem; --measure-form:520px; --measure-panel:560px;
+}
+/* ── semánticos · oscuro ───────────────────────────────────────────────────
+   Se declara dos veces, y no por descuido: la copia A atiende la preferencia
+   del sistema —el camino sin flash ni JS— y la B el override manual, y no hay
+   forma de compartir un bloque de declaraciones a través de la frontera de un
+   @media. `light-dark()` eliminaría la duplicación de raíz, pero exige Safari
+   17.5+ (mayo 2024) y en una PWA no se apuesta el tema entero a eso: si el
+   navegador no lo soporta, cada color queda inválido a tiempo de cómputo, o sea
+   la app sin colores. Cuando el suelo de soporte lo permita, los dos bloques se
+   colapsan en uno.
+   La copia A lleva `:not([data-theme="light"])` para que elegir claro a mano
+   gane sobre el sistema; la B no necesita condición porque ningún arm del
+   sistema puede aplicar teniendo `data-theme="dark"`.
+
+   Fíjate en lo que NO está: --color-accent-wash, --color-accent-glow,
+   --color-focus-ring y los cuatro --color-*-wash. Los siete se derivan con
+   color-mix() del token semántico de arriba y siguen al tema solos. */
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]){
+  --color-surface-0:var(--ink-900);
+  --color-surface-1:var(--ink-800);
+  --color-surface-2:var(--ink-700);
+  --color-surface-3:var(--ink-600);
+  /* #353534 es MÁS CLARO que la pista #2a2a2a: el activo se eleva. */
+  --color-surface-active:var(--ink-600);
+  --color-surface-glass:rgba(32,31,31,.85);
+  --color-text-primary:var(--ash-50);
+  --color-text-secondary:rgba(var(--rose-200-rgb),.78);
+  /* → PROPUESTA (AE-03): .62 → .78. Pasa de 4,21 a 5,60 sobre surface-2. */
+  --color-text-tertiary:rgba(var(--rose-200-rgb),.78);
+  --color-text-inverse:var(--ink-900);
+  --color-border-subtle:transparent;
+  --color-border-ghost:rgba(var(--brown-700-rgb),.15);
+  --color-action-primary:var(--red-600);
+  --color-action-primary-fg:var(--sand-0);
+  --color-accent-text:var(--red-500);
+  --color-accent-soft:var(--red-200);
+  --color-state-success:var(--green-400);
+  --color-state-danger:var(--crimson-400);
+  --color-state-warning:#e0a82e;
+  --color-state-info:var(--cyan-300);
+  --color-domain-strength:var(--red-500);
+  --color-domain-running:var(--cyan-300);
+  --color-mic-live:var(--crimson-400);
+  --cat-violet:#c48fe8; --cat-orange:#f5a35a;
+  /* El canto de la placa de la marca. Vuelve a medir: 2,9:1 contra #201f1f,
+     frente a los 1,02:1 a los que estaba el borde de la placa del PNG. */
+  --logo-tile:rgba(255,255,255,.32);
+  --shadow-1:0 1px 2px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.30);
+  --shadow-2:0 2px 6px rgba(0,0,0,.40), 0 10px 28px rgba(0,0,0,.32);
+  --shadow-3:0 6px 16px rgba(0,0,0,.45), 0 28px 64px rgba(0,0,0,.50);
+  color-scheme:dark;
+}
+}
+:root[data-theme="dark"]{
+  --color-surface-0:var(--ink-900);
+  --color-surface-1:var(--ink-800);
+  --color-surface-2:var(--ink-700);
+  --color-surface-3:var(--ink-600);
+  --color-surface-active:var(--ink-600);
+  --color-surface-glass:rgba(32,31,31,.85);
+  --color-text-primary:var(--ash-50);
+  --color-text-secondary:rgba(var(--rose-200-rgb),.78);
+  --color-text-tertiary:rgba(var(--rose-200-rgb),.78);
+  --color-text-inverse:var(--ink-900);
+  --color-border-subtle:transparent;
+  --color-border-ghost:rgba(var(--brown-700-rgb),.15);
+  --color-action-primary:var(--red-600);
+  --color-action-primary-fg:var(--sand-0);
+  --color-accent-text:var(--red-500);
+  --color-accent-soft:var(--red-200);
+  --color-state-success:var(--green-400);
+  --color-state-danger:var(--crimson-400);
+  --color-state-warning:#e0a82e;
+  --color-state-info:var(--cyan-300);
+  --color-domain-strength:var(--red-500);
+  --color-domain-running:var(--cyan-300);
+  --color-mic-live:var(--crimson-400);
+  --cat-violet:#c48fe8; --cat-orange:#f5a35a;
+  --logo-tile:rgba(255,255,255,.32);
+  --shadow-1:0 1px 2px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.30);
+  --shadow-2:0 2px 6px rgba(0,0,0,.40), 0 10px 28px rgba(0,0,0,.32);
+  --shadow-3:0 6px 16px rgba(0,0,0,.45), 0 28px 64px rgba(0,0,0,.50);
+  color-scheme:dark;
+}
+}
+
+@layer base {
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+[hidden]{display:none!important}
+body{
+  font-family:var(--font);background:var(--color-surface-0);color:var(--color-text-primary);
+  min-height:100dvh;padding-bottom:var(--nav-h);
+  padding-top:52px; /* barra de la demo, no forma parte de la propuesta */
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,h4{font-weight:700}
+/* ── PROPUESTA 7 · OVERSCROLL ─────────────────────────────────────────────
+   Areté no declara `overscroll-behavior` en ningún sitio (0 coincidencias en
+   3.006 líneas, y el computado es `auto`). Consecuencias: desde la pestaña del
+   navegador —que es como se usa la app antes de instalarla— un tirón hacia
+   abajo en medio de una serie dispara el «recargar» de Android, y arrastrar el
+   carrusel de Hoy (1.048 px de contenido en 350) hasta el borde encadena el
+   gesto al «atrás» del navegador. BookReader usa `overscroll-behavior-x:none`
+   en html y `contain` en los paneles desplazables. */
+html{overscroll-behavior-y:contain;overscroll-behavior-x:none}
+/* ── PROPUESTA 8 · TEXT-WRAP Y GUIÓN ─────────────────────────────────────
+   Cero usos en la app, y el síntoma ya está medido en la auditoría: en Ajustes
+   la fila «Programación semanal» se parte como «Programac / semanal» (AU-09).
+   `balance` reparte los títulos en líneas iguales; `pretty` evita la palabra
+   huérfana en los párrafos. */
+h1,h2,h3,h4,.page-title,.tile-value,.sheet-title,.limitante-title,.sesion-hoy-title,.dom-name{text-wrap:balance}
+p,.calib,.field-hint,.hist-meta,.act-meta,.notice,.estado-sub,.sesion-hoy-sub{text-wrap:pretty}
+a{color:var(--color-accent-text);text-decoration-thickness:1px;text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--color-accent-text);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.t-metric{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+}
+
+@layer sistema {
+/* ── cabecera de app ─────────────────────────────────────── */
+.app-header{position:sticky;top:52px;z-index:var(--z-header);display:flex;align-items:center;
+  justify-content:space-between;gap:var(--sp-3);padding:12px 20px;
+  background:var(--color-surface-glass);backdrop-filter:blur(20px)}
+.app-header h1{display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:800;
+  letter-spacing:-.03em;text-transform:uppercase}
+.brand-dot{width:24px;height:24px;border-radius:var(--radius-xs);background:var(--color-action-primary);
+  display:grid;place-items:center;color:var(--color-on-fill);font-size:13px;font-weight:800}
+/* El logo real, con la misma medida y radio que en app.css:827. */
+/* El logo real, con la misma medida y radio que en app.css:827.
+   PROPUESTA 3 · `box-shadow` con el token de placa: en claro es `transparent`
+   (el PNG ya trae su placa oscura y da 16,04:1 contra el blanco); en oscuro es
+   un pelo claro que devuelve el canto de la baldosa. Sin esto, la placa del PNG
+   (rgb(33,33,37)) sobre el fondo de tarjeta oscuro (#201f1f) quedaba a 1,02:1 —
+   medido — y el logo se veía como un triángulo flotante con las esquinas
+   cortadas. Ahora el canto mide 2,9:1. */
+.header-logo{width:24px;height:24px;border-radius:var(--radius-xs);display:block;flex:0 0 24px;
+  box-shadow:0 0 0 1px var(--logo-tile)}
+.sync-pill{display:inline-flex;align-items:center;gap:6px;font:var(--type-caption);
+  color:var(--color-text-secondary);background:var(--color-surface-2);
+  border-radius:var(--radius-pill);padding:5px 10px}
+.sync-pill i{width:7px;height:7px;border-radius:50%;background:var(--color-state-success);display:block}
+
+/* ── navegación ──────────────────────────────────────────── */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:var(--z-nav);display:flex;
+  padding:8px 8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom));
+  background:var(--color-surface-glass);backdrop-filter:blur(20px);
+  border-radius:var(--radius-xl) var(--radius-xl) 0 0}
+nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+  min-height:56px;padding:6px 4px 4px;background:none;border:none;cursor:pointer;
+  border-radius:var(--radius-lg);font-family:var(--font);font-size:var(--fs-xs);font-weight:500;
+  color:var(--color-text-secondary);transition:color var(--dur-base),background var(--dur-base)}
+nav button .ic{width:24px;height:24px;stroke-width:1.8}
+nav button .nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+nav button[aria-selected="true"]{color:var(--color-on-fill);background:var(--color-accent-text);box-shadow:var(--shadow-action)}
+nav .nav-sep{width:1px;margin:10px 6px;background:var(--color-border-ghost);flex:0 0 1px}
+
+/* ── secciones ───────────────────────────────────────────── */
+main{max-width:var(--shell);margin-inline:auto}
+.section{display:none;padding:16px 20px 28px}
+.section.active{display:block;animation:fadeIn var(--dur-base) var(--ease-standard)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.page-head{margin-bottom:var(--gap-group)}
+.page-title{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);text-transform:uppercase}
+.page-sub{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+.sec-title{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary);margin-bottom:var(--sp-2)}  /* → PROPUESTA (AE-08): Ajustes usa este, no .group-title */
+.sec-title-mt{margin-top:var(--gap-section)}
+
+/* ── paneles y filas ─────────────────────────────────────── */
+.panel{background:var(--color-surface-1);border-radius:var(--radius-xl);padding:var(--pad-card)}
+.panel--flush{padding:0;overflow:hidden}
+.stack{display:flex;flex-direction:column;gap:var(--gap-stack)}
+.stack--group{gap:var(--gap-group)}
+.listrow{display:flex;align-items:center;gap:var(--sp-3);min-height:56px;padding:10px var(--pad-card);
+  background:var(--color-surface-1);cursor:pointer;border:none;width:100%;text-align:left;
+  font-family:var(--font);color:var(--color-text-primary)}
+.listrow + .listrow{border-top:1px solid var(--color-border-subtle)}
+.listrow-ic{flex:0 0 28px;height:28px;display:grid;place-items:center;color:var(--color-text-secondary)}
+.listrow-body{flex:1 1 auto;min-width:0}
+/* El nombre puede partirse en dos líneas enteras (con guión si hace falta) y el
+   estado se reparte en el 46 % que queda en vez de desbordar por encima del
+   chevron: con `white-space:nowrap` el texto salía de su caja y se montaba
+   encima de la flecha («RunningM·J»). Es la contrapartida de darle aire al
+   nombre; sin las dos reglas juntas, AU-09 se arregla rompiendo otra cosa. */
+.listrow-name{font:var(--type-body-strong);overflow-wrap:break-word;hyphens:auto;min-width:0}
+.listrow-status{font:var(--type-caption);color:var(--color-text-secondary);text-align:right;
+  flex:0 1 auto;min-width:0;max-width:46%;overflow-wrap:break-word;text-wrap:pretty}
+.listrow-chev{flex:0 0 20px;color:var(--color-text-secondary)}
+
+/* ── tiles ───────────────────────────────────────────────── */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap-tight)}
+.tile{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:12px 14px;min-width:0}
+.tile--quiet{background:var(--color-surface-3)}
+.tile-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary);display:block}
+.tile-value{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums;
+  display:block;margin-top:2px}
+.tile-unit{font-size:var(--fs-base);font-weight:600;color:var(--color-text-secondary)}
+.tile-note{font:var(--type-caption);color:var(--color-text-secondary);display:block;margin-top:2px}
+.tile-delta{font:var(--type-caption);font-weight:600}
+
+/* ── botones ─────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;
+  padding:var(--pad-y-md) var(--pad-x-md);border:1px solid transparent;border-radius:var(--radius-pill);
+  background:var(--color-action-primary);color:var(--color-action-primary-fg);
+  font-family:var(--font);font-size:var(--fs-md);font-weight:600;cursor:pointer;
+  transition:transform var(--dur-instant),opacity var(--dur-fast)}
+.btn:active{transform:scale(.97)}
+.btn--secondary{background:var(--color-surface-2);color:var(--color-text-primary)}
+.btn--ghost{background:none;color:var(--color-text-primary);border-color:var(--color-border-ghost)}
+.btn--danger{background:none;color:var(--color-state-danger);border-color:transparent;justify-content:flex-start}
+.btn--sm{min-height:44px;padding:8px var(--pad-x-sm);font-size:var(--fs-base)}
+/* ── ANCHO DE LA ACCIÓN ────────────────────────────────────────────────────
+   PROPUESTA. El sistema ya lo dice en app.css:333 («un "Iniciar sesión" de
+   1.100px en un monitor no es un botón, es una valla») pero la implementación
+   no lo cumple: `.btn--block{width:100%}` es incondicional y cada componente
+   se desbloquea a mano a ≥1024 con su propio min-width (200 / 240 / 260) y su
+   propia alineación (margin-left:auto / margin-inline:auto). Medido en la app:
+   el mismo `.btn--block` es el 94 % de su tarjeta a 900 px, el 36 % a 1440 en
+   Plan y el 23 % en Carrera — y la franja 640-1023 se queda con el de móvil.
+
+   La regla, una sola y en la capa de sistema:
+   · `.btn--block` = «soy la acción principal de mi contenedor». Vale donde el
+     contenedor es estrecho y se usa a una mano: por debajo de 640 px y dentro
+     de una hoja. Es el caso que enseñaron Apple (objetivo de 44 pt y alcance
+     del pulgar) y Material (acciones apiladas en diálogos).
+   · De 640 px arriba el botón mide lo que dice. Se pierde cero facilidad de
+     pulsación —el objetivo ya cumple 44 px y Apple pide 44×44, no ancho— y se
+     recupera la jerarquía: el relleno de color deja de ser lo que más pesa en
+     la pantalla (Volvo DS: el primario es «la única acción más importante del
+     viewport», no su superficie más grande).
+   · La alineación es una convención, no una opinión por componente: el botón
+     se ancla al borde FINAL de su fila. Es la regla de Carbon para diálogos y
+     asistentes («right-aligned, to the right of the secondary») y es lo que ya
+     hacía la app en la cabecera de pantalla (título a la izquierda, primario a
+     la derecha), en `.str-plan-start-btn` y en `#saveWorkoutBtn`.
+     Carbon y GOV.UK prescriben el borde INICIAL para el pie de un formulario
+     de página completa («Align the primary action button to the left edge of
+     your form»). Areté no tiene pies de formulario en la página: sus
+     formularios viven en hojas, así que esa regla no aplica aquí y no se
+     contradice. */
+.btn--block{width:100%}
+@media(min-width:640px){
+  .btn--block{width:auto;min-width:200px}
+  .btn--end{margin-inline-start:auto}
+  /* Fila de acciones del asistente (Anterior / Siguiente): el primario al
+     borde final y los dos midiendo lo que dicen. */
+  .btn-row{justify-content:flex-end}
+  .btn-row>.btn{flex:0 0 auto;min-width:160px}
+}
+.btn--icon{width:44px;min-width:44px;padding:0;border-radius:var(--radius-pill)}
+/* Fila de acciones. En móvil los botones se reparten el ancho; de 640 arriba
+   miden lo que dicen y la fila se ancla al borde final (el primario, que va
+   último en el marcado, queda a la derecha y el secundario a su izquierda).
+   El @media va AQUÍ y no en el bloque de arriba: una regla de la misma
+   especificidad declarada más abajo gana, y `.btn-row>.btn{flex:1}` está aquí. */
+.btn-row{display:flex;gap:var(--gap-tight);flex-wrap:wrap}
+.btn-row>.btn{flex:1 1 160px}
+@media(min-width:640px){
+  .btn-row{justify-content:flex-end}
+  .btn-row>.btn{flex:0 0 auto}
+}
+
+/* ── TOOLTIP PROPIO ───────────────────────────────────────────────────────
+   PROPUESTA 9. Areté tiene 24 atributos `title` y 0 `data-tip`. El tooltip
+   nativo no existe en táctil, no se puede estilar, tarda cerca de un segundo y
+   no aparece con foco de teclado — y las 24 son casi todas botones solo-icono,
+   justo la clase de control que necesita decir qué hace. BookReader tiene el
+   sistema completo (content:attr(data-tip), retardo, variantes de alineación y
+   `@media(hover:none)` para no dejar burbujas colgando en el móvil). Este es el
+   mínimo que sirve. */
+[data-tip]{position:relative}
+[data-tip]::after{
+  content:attr(data-tip);position:absolute;z-index:var(--z-toast);
+  bottom:calc(100% + 8px);left:50%;translate:-50% 0;
+  background:var(--color-text-primary);color:var(--color-surface-0);
+  font:var(--type-label);letter-spacing:var(--track-label);
+  padding:6px 10px;border-radius:var(--radius-sm);white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity var(--dur-fast) var(--ease-standard) var(--dur-base)}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1}
+/* En táctil no hay hover: la burbuja quedaría pegada tras el toque. */
+@media(hover:none){[data-tip]::after{display:none}}
+
+/* ── chips, badges, campos ───────────────────────────────── */
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;
+  border:none;border-radius:var(--radius-pill);background:var(--color-surface-2);
+  color:var(--color-text-primary);font:var(--type-caption);cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--color-accent-wash);color:var(--color-accent-text);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--radius-pill);
+  background:var(--color-surface-2);color:var(--color-text-secondary);
+  font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase}
+.badge--brand{background:var(--color-accent-wash);color:var(--color-accent-text)}
+.badge--quiet{background:var(--color-surface-3);color:var(--color-text-secondary);font-style:italic;text-transform:none;letter-spacing:0}
+.field{display:block}
+.field-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary);margin-bottom:5px}
+.field-hint{font:var(--type-caption);color:var(--color-text-secondary);margin-top:5px}
+input[type="text"],input[type="number"],input[type="date"],select,textarea{
+  width:100%;background:var(--color-surface-2);border:none;border-radius:var(--radius-md);
+  color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;
+  outline:none;transition:background var(--dur-base)}
+select{cursor:pointer}
+input:focus-visible,select:focus-visible,textarea:focus-visible{background:var(--color-surface-1)}
+.switch{position:relative;flex:0 0 50px;width:50px;height:30px;border-radius:var(--radius-pill);
+  background:var(--color-surface-2);border:none;cursor:pointer;padding:0;transition:background var(--dur-base)}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;
+  background:var(--color-surface-1);box-shadow:var(--shadow-1);transition:transform var(--dur-base) var(--ease-standard)}
+.switch[aria-checked="true"]{background:var(--color-action-primary)}
+.switch[aria-checked="true"]::after{transform:translateX(20px);background:var(--color-on-fill)}
+
+/* ── hojas ───────────────────────────────────────────────── */
+.sheet{position:fixed;inset:0;z-index:var(--z-overlay);display:none;align-items:flex-end;
+  background:var(--color-scrim)}
+.sheet.open{display:flex}
+.sheet-panel{width:100%;background:var(--color-surface-0);border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  max-height:88vh;display:flex;flex-direction:column;animation:sheetUp var(--dur-slow) var(--ease-sheet)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+.sheet-head{display:flex;align-items:center;gap:var(--sp-3);padding:16px 20px 8px}
+.sheet-title{flex:1;font:var(--type-title)}
+.sheet-body{padding:8px 20px 20px;overflow-y:auto}
+.sheet-foot{padding:12px 20px calc(20px + env(safe-area-inset-bottom));display:flex;gap:var(--gap-tight);
+  border-top:1px solid var(--color-border-subtle)}
+.sheet-foot>.btn{flex:1}
+/* La hoja ya no es una hoja: de 640 arriba es un diálogo centrado, así que sus
+   acciones se miden por contenido y se anclan al borde final. */
+@media(min-width:640px){ .sheet-foot>.btn{flex:0 1 260px;margin-inline-start:auto} }
+
+/* ── avisos ──────────────────────────────────────────────── */
+.notice{display:flex;gap:var(--sp-3);align-items:flex-start;padding:12px 14px;border-radius:var(--radius-lg);
+  background:var(--color-info-wash);font:var(--type-body)}
+.notice--warn{background:var(--color-warning-wash)}
+.notice--danger{background:var(--color-danger-wash)}
+.notice-ic{flex:0 0 20px;margin-top:2px}
+.toast-host{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + 12px);z-index:var(--z-toast);
+  display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:var(--color-text-primary);color:var(--color-surface-0);border-radius:var(--radius-pill);
+  padding:10px 18px;font:var(--type-caption);box-shadow:var(--shadow-3);animation:fadeIn var(--dur-base)}
+
+/* ── barra de propuesta (chrome de la demo, no de Areté) ─── */
+.demo-bar{position:fixed;top:0;left:0;right:0;height:52px;z-index:400;display:flex;align-items:center;
+  gap:8px;padding:0 10px;overflow-x:auto;white-space:nowrap;background:#101010;color:#f4f2f0;font-size:12px}
+.demo-bar strong{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#ff5545;flex:0 0 auto}
+.demo-bar .sp{flex:1 1 auto;min-width:8px}
+.demo-bar button{flex:0 0 auto;background:rgba(255,255,255,.1);color:#f4f2f0;border:none;border-radius:999px;
+  min-height:32px;padding:0 10px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;
+  letter-spacing:.03em}
+.demo-bar button[aria-pressed="true"]{background:#d4372c;color:#fff}
+.demo-notes{position:fixed;z-index:390;right:12px;bottom:calc(var(--nav-h) + 12px);width:min(320px,calc(100vw - 24px));
+  max-height:min(46vh,380px);overflow-y:auto;background:var(--color-surface-1);border-radius:var(--radius-xl);
+  box-shadow:var(--shadow-3);padding:14px}
+.demo-notes h3{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary);margin-bottom:10px}
+.demo-notes li{font:var(--type-caption);margin:0 0 10px 16px;color:var(--color-text-primary)}
+.demo-notes li b{color:var(--color-accent-text)}
+@media(max-width:1023.98px){
+  .demo-notes{left:12px;right:12px;width:auto;bottom:calc(var(--nav-h) + 12px);max-height:34vh;padding:12px 14px}
+  .demo-notes li{margin-bottom:7px}
+}
+}
+
+@layer pantallas {
+/* ── HOY ─────────────────────────────────────────────────── */
+.hero{display:flex;flex-direction:column;gap:var(--gap-stack)}
+.limitante{display:flex;align-items:center;gap:var(--sp-3);width:100%;text-align:left;
+  background:var(--color-surface-1);border:none;border-radius:var(--radius-xl);padding:14px var(--pad-card);
+  min-height:76px;cursor:pointer;font-family:var(--font);color:var(--color-text-primary)}
+.limitante-lvl{flex:0 0 44px;height:44px;border-radius:var(--radius-md);display:grid;place-items:center;
+  background:var(--color-accent-wash);color:var(--color-accent-text);font:var(--type-title)}
+.limitante-body{flex:1;min-width:0}
+.limitante-kicker{display:block;font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.limitante-title{display:block;font:var(--type-body-strong);margin-top:1px}
+.limitante-sub{display:block;font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+.limitante-chev{flex:0 0 20px;color:var(--color-text-secondary)}
+
+/* Estado de la semana: una línea, sin adjetivos, con la acción al lado. */
+.estado{display:flex;align-items:center;gap:var(--sp-3);padding:12px var(--pad-card);
+  background:var(--color-surface-1);border-radius:var(--radius-xl)}
+.estado-dot{flex:0 0 10px;height:10px;border-radius:50%;background:var(--color-state-success)}
+.estado-body{flex:1;min-width:0}
+.estado-title{display:block;font:var(--type-body-strong)}
+.estado-sub{display:block;font:var(--type-caption);color:var(--color-text-secondary)}
+
+.sesion-hoy{background:var(--color-surface-1);border-radius:var(--radius-xl);overflow:hidden}
+.sesion-hoy-head{padding:14px var(--pad-card) 10px}
+.sesion-hoy-kicker{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-accent-text)}
+.sesion-hoy-title{font:var(--type-title);margin-top:2px}
+.sesion-hoy-sub{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+.sesion-hoy-list{padding:0 var(--pad-card)}
+.ej{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  padding:9px 0;border-top:1px solid var(--color-border-subtle)}
+.ej-name{font:var(--type-body-strong);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ej-target{font:var(--type-caption);color:var(--color-text-secondary);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.sesion-hoy-foot{padding:12px var(--pad-card) 14px;display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap}
+.sesion-hoy-foot .btn{flex:1 1 100%}
+/* El pie deja de ser una barra roja y pasa a ser una fila: a la izquierda el
+   dato que ayuda a decidir (cuándo fue y cuánto movió la última vez), a la
+   derecha la acción. En escritorio el ancho extra se gasta en información, no
+   en el botón. */
+.sesion-hoy-prev{flex:1 1 100%;font:var(--type-caption);color:var(--color-text-secondary);margin:0}
+.sesion-hoy-prev b{color:var(--color-text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.plan-session-foot{padding:12px var(--pad-card) 14px;display:flex;flex-direction:column;gap:8px}
+.plan-session-foot .btn{width:100%}
+@media(min-width:640px){
+  /* column-reverse y no un reordenado del DOM: en el marcado el primario va
+     primero (el orden de tabulación lo alcanza antes y en móvil queda arriba,
+     que es como los apila Material), y en fila queda a la derecha con el
+     secundario a su izquierda, que es como los alinea Carbon. */
+  .plan-session-foot{flex-direction:row-reverse;justify-content:flex-start;gap:var(--gap-tight)}
+  .plan-session-foot .btn{width:auto;min-width:180px}
+  .sesion-hoy-prev{flex:1 1 auto}
+  .sesion-hoy-foot .btn{flex:0 0 auto}
+}
+
+/* La cola plegada: el mismo dato que hoy ocupa 7 filas rojas, en una línea. */
+.cola-toggle{display:flex;align-items:center;gap:var(--sp-2);width:100%;min-height:44px;
+  background:none;border:none;border-top:1px solid var(--color-border-subtle);cursor:pointer;
+  padding:0 var(--pad-card);font-family:var(--font);font:var(--type-caption);
+  color:var(--color-text-primary);font-weight:600}
+.cola-toggle .caret{transition:transform var(--dur-base)}
+.cola-toggle[aria-expanded="true"] .caret{transform:rotate(90deg)}
+.cola-list{border-top:1px solid var(--color-border-subtle)}
+.cola-item{display:flex;align-items:center;gap:var(--sp-3);min-height:44px;padding:4px var(--pad-card)}
+.cola-date{flex:0 0 62px;font:var(--type-caption);color:var(--color-text-secondary);
+  font-variant-numeric:tabular-nums}
+.cola-name{flex:1;min-width:0;font:var(--type-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cola-meta{font:var(--type-caption);color:var(--color-text-secondary)}
+.pie-links{display:flex;flex-direction:column;border-top:1px solid var(--color-border-subtle)}
+.pie-link{display:flex;align-items:center;gap:8px;min-height:44px;background:none;border:none;
+  padding:0 var(--pad-card);font-family:var(--font);font:var(--type-caption);font-weight:600;
+  color:var(--color-accent-text);cursor:pointer;text-align:left;width:100%}
+
+/* Carrusel de actividad con afordancia explícita (→ AU-10/estilo). */
+.act-strip{display:flex;gap:var(--gap-tight);overflow-x:auto;scroll-snap-type:x mandatory;
+  padding-bottom:6px;scrollbar-width:thin;overscroll-behavior-inline:contain}
+.act-card{flex:0 0 62%;scroll-snap-align:start;background:var(--color-surface-1);
+  border-radius:var(--radius-lg);padding:12px 14px}
+.act-card-top{display:flex;align-items:center;gap:6px;font:var(--type-label);
+  letter-spacing:var(--track-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.act-name{font:var(--type-body-strong);margin-top:6px}
+.act-meta{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+.act-cue{display:flex;align-items:center;gap:6px;font:var(--type-caption);
+  color:var(--color-text-secondary);margin-top:6px}
+
+/* ── ENTRENAR ────────────────────────────────────────────── */
+.ctx-bar{display:flex;align-items:center;gap:var(--gap-tight);margin-bottom:var(--sp-3)}
+.seg{display:inline-flex;background:var(--color-surface-2);border-radius:var(--radius-pill);padding:3px;gap:2px}
+.seg button{min-height:38px;padding:0 14px;border:none;border-radius:var(--radius-pill);background:none;
+  font-family:var(--font);font-size:var(--fs-base);font-weight:600;color:var(--color-text-secondary);cursor:pointer}
+.seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--color-surface-active);color:var(--color-text-primary);box-shadow:var(--shadow-1)}
+.subnav{display:flex;gap:2px;background:var(--color-surface-2);border-radius:var(--radius-pill);padding:3px;
+  margin-bottom:var(--sp-3);overflow-x:auto}
+.subnav button{flex:1;min-height:40px;padding:0 10px;border:none;border-radius:var(--radius-pill);
+  background:none;font-family:var(--font);font-size:var(--fs-base);font-weight:600;
+  color:var(--color-text-secondary);cursor:pointer;white-space:nowrap}
+.subnav button[aria-selected="true"]{background:var(--color-surface-active);color:var(--color-text-primary);box-shadow:var(--shadow-1)}
+/* El control segmentado tampoco crece con el viewport: cuatro pestañas de 280 px
+   cada una no se leen, se barren. Se mide por contenido y se queda a la
+   izquierda, que es donde el ojo la busca. */
+@media(min-width:640px){
+  .subnav{width:fit-content}
+  .subnav button{flex:0 0 auto;padding-inline:20px}
+}
+
+/* línea de sesión: TODO el contexto de una sesión en curso en 44 px */
+.session-line{display:flex;align-items:center;gap:var(--sp-2);min-height:44px;
+  background:var(--color-surface-1);border-radius:var(--radius-lg);padding:0 12px;margin-bottom:var(--sp-3)}
+.session-line-dot{flex:0 0 8px;height:8px;border-radius:50%;background:var(--color-action-primary)}
+.session-line-name{font:var(--type-caption);font-weight:600;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.session-line-prog{font:var(--type-caption);color:var(--color-text-secondary);font-variant-numeric:tabular-nums}
+.guided{display:flex;align-items:center;gap:8px;font:var(--type-caption);color:var(--color-text-secondary)}
+
+/* Barra de descanso fina: la cuenta y un objetivo de 44 px, nada más. */
+.rest{position:sticky;top:calc(52px + 60px);z-index:var(--z-sticky-timer);
+  display:flex;align-items:center;gap:var(--sp-3);background:var(--color-text-primary);
+  color:var(--color-surface-0);border-radius:var(--radius-lg);padding:8px 10px 8px 14px;margin-bottom:var(--sp-3)}
+.rest-time{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums}
+.rest-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;opacity:.7}
+.rest-sp{flex:1}
+.rest button{min-height:44px;min-width:44px;border:none;border-radius:var(--radius-md);
+  background:rgba(255,255,255,.12);color:inherit;font-family:var(--font);font-size:var(--fs-base);
+  font-weight:600;cursor:pointer}
+.rest button.solid{background:var(--color-action-primary);color:var(--color-on-fill)}
+
+.ex-runner{background:var(--color-surface-1);border-radius:var(--radius-xl);padding:var(--pad-card);
+  max-width:var(--measure-panel);margin-inline:auto}  /* el runner no se ensancha */
+.ex-runner-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-3)}
+.ex-runner-name{font:var(--type-title);flex:1}
+.ex-runner-target{font:var(--type-caption);color:var(--color-text-secondary)}
+.ex-dots{display:flex;gap:6px;justify-content:center;margin:0 0 var(--sp-3)}
+.ex-dots i{width:7px;height:7px;border-radius:50%;background:var(--color-border-ghost)}
+.ex-dots i.on{background:var(--color-accent-text)}
+.sets{display:flex;flex-direction:column;gap:6px}
+.set-row{display:grid;grid-template-columns:28px 1fr 1fr 44px;gap:8px;align-items:center}
+.set-idx{font:var(--type-caption);color:var(--color-text-secondary);font-variant-numeric:tabular-nums}
+.set-in{background:var(--color-surface-2);border:none;border-radius:var(--radius-md);
+  font-family:var(--font);font-size:var(--fs-xl);font-weight:600;text-align:center;padding:10px;
+  color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+.set-done{width:44px;height:44px;border-radius:var(--radius-md);border:1px solid var(--color-border-ghost);
+  background:none;cursor:pointer;display:grid;place-items:center;color:var(--color-text-secondary)}
+.set-row.done .set-done{background:var(--color-state-success);border-color:transparent;color:var(--color-on-fill)}
+.set-row.done .set-in{opacity:.6}
+.prev-hint{display:flex;align-items:center;gap:8px;font:var(--type-caption);
+  color:var(--color-text-secondary);margin-bottom:var(--sp-3);padding-bottom:var(--sp-3);
+  border-bottom:1px dashed var(--color-border-ghost)}
+.prog-why{display:flex;gap:8px;align-items:flex-start;background:var(--color-success-wash);
+  border-radius:var(--radius-md);padding:10px 12px;font:var(--type-caption);margin-bottom:var(--sp-3)}
+
+.plan-session{background:var(--color-surface-1);border-radius:var(--radius-xl);overflow:hidden}
+.plan-session-head{display:flex;align-items:center;gap:var(--sp-3);padding:14px var(--pad-card) 8px}
+.plan-session-name{font:var(--type-title);flex:1}
+.plan-session-foot{padding:12px var(--pad-card) 14px}
+
+/* ── HISTORIAL ───────────────────────────────────────────── */
+.hist{background:var(--color-surface-1);border-radius:var(--radius-xl);overflow:hidden}
+.hist-head{display:grid;grid-template-columns:1fr auto;gap:var(--sp-3);align-items:center;
+  width:100%;min-height:56px;background:none;border:none;padding:10px var(--pad-card);
+  font-family:var(--font);text-align:left;cursor:pointer;color:var(--color-text-primary)}
+.hist-head + .hist-head,.hist-body+.hist-head{border-top:1px solid var(--color-border-subtle)}
+.hist-date{display:block;font:var(--type-body-strong)}
+.hist-meta{display:block;font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+.hist-sum{font:var(--type-caption);color:var(--color-text-secondary);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.hist-body{padding:0 var(--pad-card) 12px;background:var(--color-surface-3)}
+.hist-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);
+  padding:6px 0}
+.hist-row-name{font:var(--type-body);font-weight:600;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+/* → PROPUESTA (AU-04): «3×5 @ 100 kg» en vez de «100×5 · 100×5 · 100×5». */
+.hist-row-sets{font:var(--type-caption);color:var(--color-text-secondary);
+  font-variant-numeric:tabular-nums;text-align:right;flex:0 0 auto}
+.variant-key{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-3);
+  font:var(--type-caption);color:var(--color-text-secondary)}
+.variant-key span{display:inline-flex;align-items:center;gap:6px}
+.variant-key i{width:10px;height:3px;border-radius:2px;display:block}
+
+/* ── PROGRESO ────────────────────────────────────────────── */
+.chart-wrap{background:var(--color-surface-1);border-radius:var(--radius-xl);padding:var(--pad-card)}
+.chart-wrap svg{width:100%;height:auto;display:block;overflow:visible}
+.chart-cap{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-3);
+  padding-top:var(--sp-3);border-top:1px solid var(--color-border-subtle)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-tight);margin-bottom:var(--sp-3)}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  color:var(--color-text-secondary);text-align:left;padding:8px 10px;white-space:nowrap}
+th.num,td.num{text-align:right}
+td{padding:9px 10px;font:var(--type-body);border-top:1px solid var(--color-border-subtle)}
+td.num{white-space:nowrap}
+tr.row-pr{background:var(--color-danger-wash)}
+.badge-pr{background:var(--color-state-danger);color:var(--color-on-fill)}
+/* «= récord» se lee, pero no ocupa dos líneas ni parte la fila. */
+.badge-eq{background:var(--color-surface-3);color:var(--color-text-secondary);
+  letter-spacing:0;text-transform:none;font-weight:500;white-space:nowrap}
+/* En móvil la tabla pierde la columna menos decisiva antes que partirse. */
+@media(max-width:639px){
+  #exTable th:nth-child(5),#exTable td:nth-child(5){display:none}
+}
+
+/* ── PERFIL ──────────────────────────────────────────────── */
+.perfil-head{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.lvl-chip{display:inline-flex;align-items:baseline;gap:8px;background:var(--color-surface-1);
+  border-radius:var(--radius-pill);padding:8px 16px}
+.lvl-num{font:var(--type-title-lg);letter-spacing:var(--track-title-lg)}
+.lvl-of{font:var(--type-caption);color:var(--color-text-secondary)}
+.radar-wrap{background:var(--color-surface-1);border-radius:var(--radius-xl);padding:var(--sp-3) var(--sp-3) 0;
+  /* width:100% no es decoración: con `margin-inline:auto` en un contenedor flex,
+     las márgenes automáticas absorben el hueco y el ítem se mide por contenido —
+     el radar volvía a 324 px. Es la misma trampa que documentó D-2 en app.css. */
+  width:100%;max-width:520px;margin-inline:auto}
+.radar-wrap svg{width:100%;height:auto;display:block;overflow:visible}
+.dom{display:flex;align-items:center;gap:var(--sp-3);padding:12px var(--pad-card);
+  background:var(--color-surface-1)}
+.dom + .dom{border-top:1px solid var(--color-border-subtle)}
+.dom-ic{flex:0 0 24px;display:grid;place-items:center}
+.dom-body{flex:1;min-width:0}
+.dom-name{font:var(--type-body-strong);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dom-bar{display:block;height:4px;border-radius:2px;background:var(--color-surface-2);margin-top:8px;overflow:hidden}
+.dom-bar i{display:block;height:100%;border-radius:2px}
+.dom-lvl{flex:0 0 auto;font:var(--type-title);font-variant-numeric:tabular-nums}
+.calib{font:var(--type-caption);color:var(--color-text-secondary)}
+
+/* ── CUERPO ──────────────────────────────────────────────── */
+.cal-primary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap-tight)}
+.disc{width:100%;display:flex;align-items:center;gap:8px;min-height:44px;background:none;border:none;
+  border-top:1px solid var(--color-border-subtle);margin-top:var(--sp-3);padding-top:var(--sp-3);
+  font-family:var(--font);font:var(--type-caption);font-weight:600;color:var(--color-text-primary);cursor:pointer}
+.disc .caret{margin-left:auto;transition:transform var(--dur-base)}
+.disc[aria-expanded="true"] .caret{transform:rotate(90deg)}
+.cal-detail{border-collapse:collapse;width:100%;margin-top:var(--sp-2);font-variant-numeric:tabular-nums}
+.cal-detail td{padding:7px 0;border-top:1px solid var(--color-border-subtle);font:var(--type-caption);
+  color:var(--color-text-secondary)}
+.cal-detail td:last-child{text-align:right;color:var(--color-text-primary);font-weight:600}
+
+/* ── QUIRÓN ──────────────────────────────────────────────── */
+.quiron{position:fixed;top:52px;left:0;right:0;bottom:var(--kb-inset,0px);z-index:var(--z-overlay);display:none;flex-direction:column;
+  background:var(--color-surface-0)}  /* PROPUESTA 6: el teclado encoge el panel */
+.quiron.open{display:flex}
+.quiron-head{display:flex;align-items:center;gap:var(--sp-2);padding:12px 16px;
+  border-bottom:1px solid var(--color-border-subtle);background:var(--color-surface-glass);
+  backdrop-filter:blur(20px)}
+.quiron-brand{flex:1;display:flex;align-items:baseline;gap:8px;min-width:0}
+.quiron-title{font:var(--type-title);letter-spacing:var(--track-title);text-transform:uppercase}
+.quiron-sub{font:var(--type-caption);color:var(--color-text-secondary)}
+.quiron-menu{position:absolute;top:60px;right:16px;z-index:var(--z-overlay);background:var(--color-surface-1);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-3);padding:6px;min-width:190px}
+.quiron-menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;
+  background:none;border:none;border-radius:var(--radius-sm);font-family:var(--font);
+  font:var(--type-body);color:var(--color-text-primary);cursor:pointer;text-align:left}
+.quiron-menu button:hover{background:var(--color-surface-2)}
+.quiron-body{flex:1;overflow-y:auto;padding:16px 0}
+.quiron-inner{max-width:var(--measure-prose);margin-inline:auto;padding:0 16px}
+.bubble{border-radius:var(--radius-lg);padding:12px 14px;font:var(--type-body);margin-bottom:12px;max-width:92%}
+.bubble--coach{background:var(--color-surface-1)}
+.bubble--me{background:var(--color-accent-wash);margin-left:auto}
+.bubble b{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 12px;max-width:var(--measure-prose);margin-inline:auto}
+.inputbar{display:flex;align-items:flex-end;gap:8px;padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--color-border-subtle);background:var(--color-surface-glass);backdrop-filter:blur(20px)}
+.inputbar-inner{flex:1;display:flex;align-items:flex-end;gap:8px;max-width:var(--measure-prose);margin-inline:auto}
+/* → PROPUESTA (AU-05): el campo crece con el contenido. Antes: 44 px fijos con
+   scrollHeight 64 → el placeholder «Pregunta a tu coach…» se cortaba a media línea. */
+.ask{flex:1;min-height:44px;max-height:120px;overflow-y:auto;resize:none;line-height:1.35;
+  font-size:var(--fs-md);padding:11px 14px}
+
+/* ── AJUSTES ─────────────────────────────────────────────── */
+.set-group{margin-bottom:var(--gap-section)}
+.set-group:last-of-type{margin-bottom:0}
+.theme-seg{display:flex;padding:6px var(--pad-card) 12px;gap:2px}
+.theme-seg .seg{width:100%}
+.theme-seg .seg button{flex:1}
+
+/* ── ONBOARDING ──────────────────────────────────────────── */
+.ob{position:fixed;top:52px;left:0;right:0;bottom:0;z-index:var(--z-alert);display:none;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;background:var(--color-scrim);backdrop-filter:blur(8px)}
+.ob.open{display:flex}
+/* → PROPUESTA (AE-01): era --radius-pill (999px) sobre una tarjeta de 340×345, y
+   el navegador lo clampeaba a un CÍRCULO. El radio de tarjeta del sistema es xl. */
+.ob-card{width:100%;max-width:360px;background:var(--color-surface-1);border-radius:var(--radius-xl);
+  padding:24px;box-shadow:var(--shadow-3);text-align:center;animation:fadeIn var(--dur-base)}
+.ob-icon{width:48px;height:48px;border-radius:var(--radius-lg);background:var(--color-accent-wash);
+  color:var(--color-accent-text);display:grid;place-items:center;margin:0 auto var(--sp-4)}
+/* La marca, no un icono genérico: es la primera pantalla del producto. */
+.ob-logo{width:56px;height:56px;border-radius:var(--radius-lg);display:block;margin:0 auto var(--sp-4)}
+.ob-card h2{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);margin-bottom:var(--sp-2)}
+.ob-card p{font:var(--type-body);color:var(--color-text-secondary);margin-bottom:var(--sp-4)}
+.ob-dots{display:flex;justify-content:center;gap:8px;margin-bottom:var(--sp-4)}
+.ob-dots i{width:8px;height:8px;border-radius:50%;background:var(--color-border-ghost)}
+.ob-dots i.on{background:var(--color-accent-text)}
+.ob-foot{display:flex;flex-direction:column;gap:var(--gap-tight)}
+.ob-skip{background:none;border:none;min-height:44px;font-family:var(--font);font:var(--type-body);
+  font-weight:600;color:var(--color-text-secondary);cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px}
+.ob-fields{display:flex;flex-direction:column;gap:var(--sp-3);text-align:left;margin-bottom:var(--sp-4)}
+}
+
+/* ── ESCRITORIO ──────────────────────────────────────────── */
+@media(min-width:640px){
+  :root{--shell:600px}
+  .sheet{align-items:center}
+  .sheet-panel{border-radius:var(--radius-xl);max-height:88vh}
+  .quiron-head{padding:12px 24px}
+  .quiron-inner,.chips{padding-inline:24px}
+  .inputbar{padding-inline:24px}
+}
+@media(min-width:1024px){
+  :root{--shell:880px;--nav-h:0px;--rail-w:var(--rail-w-open)}
+  body{padding-bottom:0;padding-left:var(--rail-w)}
+  /* La barra de la demo ocupa los primeros 52 px: el rail empieza debajo, no
+     debajo del todo (si no, el primer destino queda tapado). */
+  .app-header{top:52px;padding-inline:24px}
+  main{padding-left:0}
+  nav{top:52px;bottom:0;right:auto;width:var(--rail-w);flex-direction:column;justify-content:flex-start;
+    gap:2px;padding:16px 12px;border-radius:0;border-right:1px solid var(--color-border-subtle)}
+  nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;
+    min-height:48px;padding:0 12px;font-size:var(--fs-md)}
+  nav .nav-sep{width:auto;height:1px;margin:10px 4px}
+  nav .nav-spacer{flex:1}
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .section{padding:20px 24px 40px}
+  .demo-notes{right:20px}
+}
+@media(min-width:1440px){:root{--shell:1180px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<svg hidden aria-hidden="true">
+  <defs>
+    <g id="i-today"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g>
+    <g id="i-train"><path d="M4 12h2m12 0h2M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/></g>
+    <g id="i-profile"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></g>
+    <g id="i-body"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></g>
+    <g id="i-more"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h12M20 17h0"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="17" r="2"/></g>
+    <g id="i-quiron"><path d="M17 3h4v4"/><path d="M18.6 11.1a13 13 0 0 1 1 9 1.2 1.2 0 0 1-1.9.6L14 17"/><path d="M7 10 3.3 6.3a1.17 1.17 0 0 1 .6-1.9 13 13 0 0 1 9 1"/><path d="M7 14a1.7 1.7 0 0 0-1.2.5l-2.6 2.6a.5.5 0 0 0 .3.9H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .9.4L9.5 18.2A1.7 1.7 0 0 0 10 17z"/><path d="M9.7 14.3 21 3"/></g>
+    <g id="i-check"><path d="M20 6 9 17l-5-5"/></g>
+    <g id="i-play"><path d="M6 4l14 8-14 8z"/></g>
+    <g id="i-pause"><path d="M9 4v16M15 4v16"/></g>
+    <g id="i-chev-right"><path d="M9 6l6 6-6 6"/></g>
+    <g id="i-chev-down"><path d="M6 9l6 6 6-6"/></g>
+    <g id="i-close"><path d="M6 6l12 12M18 6L6 18"/></g>
+    <g id="i-dots"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></g>
+    <g id="i-plus"><path d="M12 5v14M5 12h14"/></g>
+    <g id="i-scale"><path d="M3 21h18M12 3v4M6 21l3-9h6l3 9M5 12h14"/></g>
+    <g id="i-ruler"><path d="M3 8h18v8H3zM7 8v3M11 8v4M15 8v3M19 8v4"/></g>
+    <g id="i-info"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g>
+    <g id="i-alert"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></g>
+    <g id="i-shield"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></g>
+    <g id="i-layer"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></g>
+    <g id="i-tune"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h12M20 17h0"/></g>
+  </defs>
+</svg>
+
+<!-- ── barra de la demo (no forma parte de la propuesta) ─────────────────── -->
+<div class="demo-bar">
+  <strong>Areté · propuesta</strong>
+  <span class="sp"></span>
+  <button id="notesBtn" aria-pressed="true">Notas</button>
+  <button data-theme="auto" aria-pressed="true">Auto</button>
+  <button data-theme="light" aria-pressed="false">Claro</button>
+  <button data-theme="dark" aria-pressed="false">Oscuro</button>
+</div>
+
+<!-- ── onboarding ────────────────────────────────────────────────────────── -->
+<div class="ob" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="obTitle">
+  <div class="ob-card">
+    <img class="ob-logo" src="assets/icons/icon-192.png" alt="" aria-hidden="true">
+    <h2 id="obTitle">Empecemos por el suelo</h2>
+    <p id="obText">Areté mide 7 dominios y tu nivel es <b>el más bajo</b>, no la media. Con tu peso y tu altura ya se calculan solas cuatro métricas de fuerza.</p>
+    <div class="ob-fields" id="obFields">
+      <label class="field"><span class="field-label">Peso corporal (kg)</span><input type="number" id="obWeight" inputmode="decimal" value="75" step="0.1"></label>
+      <label class="field"><span class="field-label">Altura (cm)</span><input type="number" id="obHeight" inputmode="numeric" value="178"></label>
+    </div>
+    <div class="ob-dots" id="obDots"><i class="on"></i><i></i><i></i></div>
+    <div class="ob-foot">
+      <button class="btn btn--block" id="obNext">Empezar</button>
+      <button class="ob-skip" id="obSkip">Saltar y explorar</button>
+    </div>
+  </div>
+</div>
+
+<header class="app-header">
+  <h1><img src="assets/icons/icon-192.png" alt="" aria-hidden="true" class="header-logo">Areté</h1>
+  <span class="sync-pill"><i aria-hidden="true"></i><span id="syncText">Copia al día</span></span>
+</header>
+
+<main>
+  <!-- ═══ HOY ══════════════════════════════════════════════════════════════ -->
+  <div class="section active" id="secHoy" data-sec="secHoy">
+    <div class="page-head">
+      <p class="page-sub" style="margin:0 0 4px">Areté</p>
+      <h2 class="page-title" id="greeting">Buenas tardes</h2>
+    </div>
+
+    <div class="stack stack--group">
+      <button class="limitante" id="limitanteBtn">
+        <span class="limitante-lvl" aria-hidden="true">II</span>
+        <span class="limitante-body">
+          <span class="limitante-kicker">Tu limitante</span>
+          <span class="limitante-title">Fuerza máxima</span>
+          <span class="limitante-sub">Nivel II de V · 3 de 7 dominios medidos</span>
+        </span>
+        <svg class="limitante-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+      </button>
+
+      <!-- AU-02: una línea de estado en vez del titular rojo + 7 filas «atrasada» -->
+      <div class="estado">
+        <span class="estado-dot" aria-hidden="true"></span>
+        <span class="estado-body">
+          <span class="estado-title">Al día esta semana</span>
+          <span class="estado-sub">3 de 4 sesiones · 18,4 de 25 km · racha 5 días</span>
+        </span>
+      </div>
+
+      <div>
+        <h3 class="sec-title">Esta semana</h3>
+        <div class="tiles">
+          <div class="tile"><span class="tile-label">Volumen</span><span class="tile-value">12.480 <span class="tile-unit">kg</span></span><span class="tile-delta" style="color:var(--color-state-success)">+8 % vs. semana pasada</span></div>
+          <div class="tile"><span class="tile-label">Sesiones</span><span class="tile-value">3<span class="tile-unit">/4</span></span><span class="tile-note">falta el viernes</span></div>
+          <div class="tile"><span class="tile-label">Kilómetros</span><span class="tile-value">18,4 <span class="tile-unit">km</span></span><span class="tile-delta" style="color:var(--color-state-success)">+2,1 km</span></div>
+          <div class="tile"><span class="tile-label">Racha</span><span class="tile-value">5 <span class="tile-unit">días</span></span><span class="tile-note">mejor: 12</span></div>
+        </div>
+      </div>
+
+      <!-- AU-02: la sesión de hoy primero; la cola, plegada -->
+      <div class="sesion-hoy">
+        <div class="sesion-hoy-head">
+          <p class="sesion-hoy-kicker">Hoy toca</p>
+          <h3 class="sesion-hoy-title">Sesión A · Full-body</h3>
+          <p class="sesion-hoy-sub">3×5 · Progresión lineal · ~52 min</p>
+        </div>
+        <div class="sesion-hoy-list" id="hoyExercises"></div>
+        <div class="sesion-hoy-foot">
+          <p class="sesion-hoy-prev">Última A · 05/08/2026 · <b>13 series · 4.310 kg</b></p>
+          <button class="btn btn--block btn--end" id="startToday">Empezar sesión A</button>
+        </div>
+        <button class="cola-toggle" id="colaToggle" aria-expanded="false" aria-controls="colaList">
+          <svg class="caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+          <span id="colaLabel">7 sesiones en cola</span>
+        </button>
+        <div class="cola-list" id="colaList" hidden></div>
+        <div class="pie-links">
+          <button class="pie-link" data-goto="secEntrenar" data-mode="run">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-train"/></svg>
+            Carrera · Media Maratón 1h40 · semana 8
+          </button>
+          <button class="pie-link" data-goto="secAjustes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-tune"/></svg>
+            Cambiar los días de entrenamiento
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sec-title">Actividad reciente</h3>
+        <div class="act-strip" id="actStrip"></div>
+        <p class="act-cue" style="display:flex;align-items:center;gap:6px;font:var(--type-caption);color:var(--color-text-secondary);margin-top:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+          Desliza para ver las anteriores
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ENTRENAR ═════════════════════════════════════════════════════════ -->
+  <div class="section" id="secEntrenar" data-sec="secEntrenar">
+    <div class="page-head" style="display:flex;align-items:flex-end;gap:var(--sp-3);flex-wrap:wrap">
+      <div style="flex:1;min-width:180px">
+        <h2 class="page-title">Entrenar</h2>
+      </div>
+      <!-- AU-11: en móvil esta fila es UNA línea; el plan y la fase comparten control -->
+      <div class="ctx-bar" style="margin:0">
+        <div class="seg" role="tablist" aria-label="Modo">
+          <button role="tab" aria-selected="true" data-mode="str">Fuerza</button>
+          <button role="tab" aria-selected="false" data-mode="run">Carrera</button>
+        </div>
+        <select id="planSelect" aria-label="Plan y fase" style="width:auto;min-width:168px;padding:10px 12px;font-size:var(--fs-base)">
+          <option>Areté · Fase I</option>
+          <option>Areté · Fase II</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="subnav" role="tablist" aria-label="Secciones de fuerza">
+      <button role="tab" aria-selected="true" data-tab="captura">Actividad</button>
+      <button role="tab" aria-selected="false" data-tab="historial">Historial</button>
+      <button role="tab" aria-selected="false" data-tab="progreso">Progreso</button>
+      <button role="tab" aria-selected="false" data-tab="plan">Plan</button>
+    </div>
+
+    <!-- captura -->
+    <div class="train-panel" id="panelCaptura">
+      <!-- AU-03: TODO el contexto de la sesión en curso, en 44 px -->
+      <div class="session-line">
+        <span class="session-line-dot" aria-hidden="true"></span>
+        <span class="session-line-name">Sesión A · Areté Fase I</span>
+        <span class="session-line-prog" id="sessionProg">0 de 15 series</span>
+        <button class="switch" role="switch" aria-checked="true" id="guidedSwitch" aria-label="Modo guiado"></button>
+      </div>
+
+      <div class="prev-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-layer"/></svg>
+        <span style="flex:1">Cargada tu última sesión A del 05/08</span>
+        <button class="chip" id="resetPrefill" style="min-height:36px">Empezar de cero</button>
+      </div>
+
+      <div class="ex-runner">
+        <div class="ex-runner-head">
+          <h3 class="ex-runner-name" id="exName">Sentadilla</h3>
+          <span class="ex-runner-target" id="exTarget">3×5 @ 102,5 kg</span>
+        </div>
+
+        <div class="prog-why">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex:0 0 16px;margin-top:2px"><use href="#i-info"/></svg>
+          <span id="progWhy">Sube 2,5 kg: la última sesión cumplió 3×5 a 100 kg.</span>
+        </div>
+
+        <div class="sets" id="setList"></div>
+
+        <div class="ex-dots" id="exDots"></div>
+        <div class="btn-row" style="margin-top:var(--sp-3)">
+          <button class="btn btn--secondary" id="prevEx">Anterior</button>
+          <button class="btn" id="nextEx">Siguiente ejercicio</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:var(--gap-stack)">
+        <button class="btn btn--secondary" id="saveSession">Guardar y cerrar</button>
+      </div>
+      <p class="field-hint" style="margin-top:var(--sp-3)">En escritorio la acción mide lo que dice y se ancla al borde final; en móvil sigue ocupando el ancho completo.</p>
+    </div>
+
+    <!-- historial -->
+    <div class="train-panel" id="panelHistorial" hidden>
+      <div class="hist" id="histList"></div>
+      <div style="display:flex;gap:var(--gap-tight);margin-top:var(--gap-stack)">
+        <button class="btn btn--secondary btn--block" id="moreHist">Ver sesiones anteriores</button>
+      </div>
+    </div>
+
+    <!-- progreso -->
+    <div class="train-panel" id="panelProgreso" hidden>
+      <label class="field" style="margin-bottom:var(--sp-3)">
+        <span class="field-label">Ejercicio</span>
+        <select id="exSelect">
+          <option>Sentadilla</option>
+          <option>Press de Banca</option>
+          <option>Peso Muerto</option>
+        </select>
+      </label>
+
+      <div class="stats" id="progStats"></div>
+
+      <div class="chart-wrap">
+        <div id="chart"></div>
+        <div class="variant-key" id="variantKey"></div>
+        <!-- AU-14: la línea que faltaba entre el 1RM estimado y el peso máximo -->
+        <p class="chart-cap" id="chartCap"></p>
+      </div>
+
+      <h3 class="sec-title sec-title-mt">Historial de <span id="histExName">Sentadilla</span></h3>
+      <div class="panel panel--flush">
+        <div class="table-scroll">
+          <table><thead><tr><th>Fecha</th><th>Sesión</th><th class="num">Peso máx</th><th class="num">Reps</th><th class="num">Volumen</th></tr></thead>
+          <tbody id="exTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- plan -->
+    <div class="train-panel" id="panelPlan" hidden>
+      <div class="plan-session">
+        <div class="plan-session-head">
+          <h3 class="plan-session-name">Sesión A</h3>
+          <span class="badge">5 ej.</span>
+        </div>
+        <div class="sesion-hoy-list" id="planExercises"></div>
+        <div class="plan-session-foot">
+          <button class="btn" id="startPlan">Iniciar sesión</button>
+          <button class="btn btn--secondary" id="askQuiron">Pedirle una sesión a Quirón</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PERFIL ═══════════════════════════════════════════════════════════ -->
+  <div class="section" id="secPerfil" data-sec="secPerfil">
+    <div class="page-head">
+      <h2 class="page-title">Perfil</h2>
+      <p class="page-sub">Tu nivel es el del dominio más bajo, no la media</p>
+    </div>
+
+    <div class="stack stack--group">
+      <!-- AE-10: el numeral deja de ir solo -->
+      <div class="perfil-head">
+        <span class="lvl-chip"><span class="lvl-num">II</span><span class="lvl-of">Nivel II de V</span></span>
+        <p style="font:var(--type-caption);color:var(--color-text-secondary)">3 de 7 dominios medidos · perfil provisional</p>
+      </div>
+
+      <div class="radar-wrap"><div id="radar"></div></div>
+
+      <div class="panel" style="display:flex;align-items:center;gap:var(--sp-3)">
+        <div style="flex:1">
+          <p class="sec-title" style="margin:0">Siguiente test</p>
+          <p style="font:var(--type-body-strong);margin-top:2px">Capacidad glucolítica</p>
+          <p class="calib">Sin medir todavía · 400 m en pista</p>
+        </div>
+        <button class="btn" id="medirBtn">Medir</button>
+      </div>
+
+      <div>
+        <h3 class="sec-title">7 dominios</h3>
+        <div class="panel panel--flush" id="domainList"></div>
+      </div>
+
+      <p class="calib">Umbrales calibrados sobre normativos de hombre de ~75 kg. Si eres mujer, la referencia de fuerza ronda el 0,7× de estos ratios y el S&amp;S usa 24/32 kg.</p>
+    </div>
+  </div>
+
+  <!-- ═══ CUERPO ═══════════════════════════════════════════════════════════ -->
+  <div class="section" id="secCuerpo" data-sec="secCuerpo">
+    <div class="page-head" style="display:flex;align-items:flex-end;gap:var(--sp-3)">
+      <div style="flex:1">
+        <h2 class="page-title">Cuerpo</h2>
+        <p class="page-sub">8 registros · último el 28/07/2026</p>
+      </div>
+      <button class="btn" id="medidasBtn">Registrar medidas</button>
+    </div>
+
+    <div class="stack stack--group">
+      <div class="panel">
+        <h3 class="sec-title">Estado actual</h3>
+        <div class="tiles">
+          <div class="tile"><span class="tile-label">Peso</span><span class="tile-value">75,4 <span class="tile-unit">kg</span></span><span class="tile-delta" style="color:var(--color-state-success)">−0,2 desde 23/06</span></div>
+          <div class="tile"><span class="tile-label">% grasa</span><span class="tile-value">16,0 <span class="tile-unit">%</span></span><span class="tile-delta" style="color:var(--color-state-success)">−0,2 desde 23/06</span></div>
+        </div>
+        <!-- AU-06: el tile «SIN MEDIR / 9 medidas» deja de ser un tile -->
+        <div class="notice" style="margin-top:var(--gap-tight)">
+          <svg class="notice-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-ruler"/></svg>
+          <span style="flex:1">9 medidas sin registrar — muñeca, bíceps, pecho, cintura, cadera, muslo, rodilla, pantorrilla, cuello.</span>
+          <button class="chip" data-open-sheet="medidas">Añadir</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="sec-title">Calorías estimadas</h3>
+        <div class="cal-primary">
+          <div class="tile tile--quiet"><span class="tile-label">Mantenimiento</span><span class="tile-value">2.838 <span class="tile-unit">kcal</span></span><span class="tile-note">con tu actividad de esta semana</span></div>
+          <div class="tile tile--quiet"><span class="tile-label">Déficit del 15 %</span><span class="tile-value">2.412 <span class="tile-unit">kcal</span></span><span class="tile-note">−0,4 kg/semana aprox.</span></div>
+        </div>
+        <button class="disc" id="calDisc" aria-expanded="false" aria-controls="calDetail">
+          Cómo se calcula
+          <svg class="caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+        <table class="cal-detail" id="calDetail" hidden>
+          <tr><td>TMB estimada (Mifflin-St Jeor)</td><td>1.720 kcal</td></tr>
+          <tr><td>Factor de actividad</td><td>×1,65</td></tr>
+          <tr><td>Superávit de volumen</td><td>+10 a 15 %</td></tr>
+          <tr><td>Suelo de definición</td><td>×22 por kg de peso</td></tr>
+        </table>
+      </div>
+
+      <div>
+        <!-- AU-07: sin «Editar» en cada fila; la fila es el objetivo -->
+        <h3 class="sec-title">Historial corporal</h3>
+        <div class="panel panel--flush">
+          <div class="table-scroll">
+            <table><thead><tr><th>Fecha</th><th class="num">Peso</th><th class="num">% grasa</th></tr></thead>
+            <tbody id="bodyTable"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AJUSTES ══════════════════════════════════════════════════════════ -->
+  <div class="section" id="secAjustes" data-sec="secAjustes">
+    <div class="page-head">
+      <h2 class="page-title">Ajustes</h2>
+      <p class="page-sub">Versión 2.1.0</p>
+    </div>
+
+    <div class="set-group">
+      <!-- AE-08: el mismo vocabulario de título de bloque que el resto de la app -->
+      <h3 class="sec-title">Entrenamiento</h3>
+      <div class="panel panel--flush">
+        <button class="listrow" data-open-sheet="zonas">
+          <span class="listrow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-profile"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name">Mis zonas</span></span>
+          <span class="listrow-status">5K 21:45 · FC máx 186</span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+        <button class="listrow" data-open-sheet="planes">
+          <span class="listrow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-layer"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name">Tus planes</span></span>
+          <span class="listrow-status">Solo los incluidos</span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+        <button class="listrow" data-open-sheet="semanal">
+          <span class="listrow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-today"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name">Programación semanal</span></span>
+          <span class="listrow-status">Fuerza L·X·V · Running M·J·D</span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="set-group">
+      <h3 class="sec-title">Coach</h3>
+      <div class="panel panel--flush">
+        <button class="listrow" data-open-sheet="coach">
+          <span class="listrow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-quiron"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name">Quirón (IA)</span></span>
+          <span class="listrow-status">Sin configurar</span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="set-group">
+      <h3 class="sec-title">Tus datos</h3>
+      <div class="panel panel--flush">
+        <button class="listrow" data-open-sheet="backup">
+          <span class="listrow-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-shield"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name">Copia de seguridad</span></span>
+          <span class="listrow-status">Al día · hace 4 min</span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+        <button class="listrow" id="wipeBtn">
+          <span class="listrow-ic" style="color:var(--color-state-danger)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-alert"/></svg></span>
+          <span class="listrow-body"><span class="listrow-name" style="color:var(--color-state-danger)">Borrar todos los datos</span></span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="set-group">
+      <h3 class="sec-title">Apariencia</h3>
+      <div class="panel">
+        <div class="theme-seg">
+          <div class="seg" role="group" aria-label="Tema">
+            <button data-theme="auto" aria-pressed="true">Auto</button>
+            <button data-theme="light" aria-pressed="false">Claro</button>
+            <button data-theme="dark" aria-pressed="false">Oscuro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-group">
+      <h3 class="sec-title">Acerca de</h3>
+      <div class="panel panel--flush">
+        <button class="listrow" data-open-sheet="atajos"><span class="listrow-body"><span class="listrow-name">Atajos de teclado</span></span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg></button>
+        <button class="listrow" data-open-sheet="plan-propio"><span class="listrow-body"><span class="listrow-name">Cómo crear tu propio plan</span></span>
+          <svg class="listrow-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<nav id="mainNav" aria-label="Navegación principal">
+  <button data-sec="secHoy" aria-selected="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-today"/></svg><span class="nav-label">Hoy</span></button>
+  <button data-sec="secEntrenar" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-train"/></svg><span class="nav-label">Entrenar</span></button>
+  <button data-sec="secPerfil" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-profile"/></svg><span class="nav-label">Perfil</span></button>
+  <button data-sec="secCuerpo" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-body"/></svg><span class="nav-label">Cuerpo</span></button>
+  <button data-sec="secAjustes" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-more"/></svg><span class="nav-label">Más</span></button>
+  <span class="nav-sep" aria-hidden="true"></span>
+  <span class="nav-spacer" aria-hidden="true"></span>
+  <button id="navQuiron"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#i-quiron"/></svg><span class="nav-label">Quirón</span></button>
+</nav>
+
+<!-- ── Quirón ─────────────────────────────────────────────────────────────── -->
+<div class="quiron" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
+  <div class="quiron-head">
+    <div class="quiron-brand">
+      <span class="quiron-title">Quirón</span><span class="quiron-sub">tu coach</span>
+    </div>
+    <!-- AU-05: 4 botones etiquetados en 390 px → 1 botón + menú -->
+    <button class="btn btn--ghost btn--icon" id="qMenuBtn" aria-haspopup="true" aria-expanded="false" aria-label="Más acciones" data-tip="Más acciones">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-dots"/></svg>
+    </button>
+    <button class="btn btn--ghost btn--icon" id="qClose" aria-label="Cerrar" data-tip="Cerrar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-close"/></svg>
+    </button>
+    <div class="quiron-menu" id="qMenu" hidden>
+      <button data-q="Informe semanal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-layer"/></svg>Informe semanal</button>
+      <button data-q="Memoria del agente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-profile"/></svg>Memoria</button>
+      <button data-q="Historial de conversaciones"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-today"/></svg>Historial</button>
+      <button data-q="Nueva conversación"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-plus"/></svg>Nueva conversación</button>
+    </div>
+  </div>
+  <div class="quiron-body" id="qBody">
+    <div class="quiron-inner" id="qMsgs"></div>
+    <div class="chips" id="qChips"></div>
+  </div>
+  <div class="inputbar">
+    <div class="inputbar-inner">
+      <button class="btn btn--ghost btn--icon" aria-label="Dictar" data-tip="Dictar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-profile"/></svg></button>
+      <textarea class="ask" id="qAsk" rows="1" placeholder="Pregunta a tu coach…"></textarea>
+      <button class="btn btn--icon" id="qSend" aria-label="Enviar" data-tip="Enviar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-chev-right"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── hoja genérica ──────────────────────────────────────────────────────── -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h3 class="sheet-title" id="sheetTitle">Título</h3>
+      <button class="btn btn--ghost btn--icon" id="sheetClose" aria-label="Cerrar" data-tip="Cerrar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-foot" id="sheetFoot"></div>
+  </div>
+</div>
+
+<aside class="demo-notes" id="notesPanel" aria-live="polite">
+  <h3 id="notesTitle">Qué cambia en esta pantalla</h3>
+  <ul id="notesList"></ul>
+  <h3 style="margin-top:14px">Sistema (transversal)</h3>
+  <ul id="notesSystem"></ul>
+</aside>
+
+<div class="toast-host" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════════
+   DATOS DE LA DEMO · mismo perfil que usa la auditoría (fixture arete-hibrido)
+   ══════════════════════════════════════════════════════════════════════════════ */
+const DOMAINS = [
+  { id:'strength', name:'Fuerza máxima',       short:'Fuerza máx',  level:2, of:5, measured:true,  limiter:true,  ratio:'111 kg sentadilla · 1,47×PC', color:'var(--color-domain-strength)' },
+  { id:'pull',     name:'Fuerza de tracción',  short:'Tracción',    level:3, of:5, measured:true,  stale:true,    ratio:'8 dominadas · 1,81×PC' },
+  { id:'glyco',    name:'Capacidad glucolítica', short:'Glicolítico', level:null, of:5, measured:false,              ratio:'sin medir' },
+  { id:'aerobic',  name:'Resistencia aeróbica', short:'Cardio',     level:4, of:5, measured:true,  ratio:'5K 21:45 · 44,6 VO₂máx est.' },
+  { id:'strres',   name:'Resistencia de fuerza', short:'Res. fuerza', level:null, of:5, measured:false, ratio:'sin medir' },
+  { id:'core',     name:'Resistencia de core',  short:'Core',        level:null, of:5, measured:false, ratio:'sin medir' },
+  { id:'mobility', name:'Movilidad funcional',  short:'Movilidad',   level:null, of:5, measured:false, ratio:'sin medir' }
+];
+
+const TODAY = {
+  name:'Sesión A', sub:'Full-body · 3×5 · Progresión lineal',
+  exercises:[
+    { name:'Sentadilla',     target:'3×5',     kg:102.5, why:'Última sesión: 3×5 a 100 kg cumplida. Sube 2,5 kg.' },
+    { name:'Press de Banca', target:'3×5',     kg:72.5,  why:'Última sesión: 3×5 a 70 kg cumplida. Sube 2,5 kg.' },
+    { name:'Peso Muerto',    target:'2×5',     kg:132.5, why:'Última sesión: 2×5 a 130 kg cumplida. Sube 2,5 kg.' },
+    { name:'Dominada Prono', target:'3×F',     kg:null,  why:'Peso corporal: 3 series al fallo técnico.' },
+    { name:'Plancha Abdominal', target:'2×2min', kg:null, why:'Aguante cronometrado: no lleva carga.' }
+  ]
+};
+
+const QUEUE = [
+  { date:'mié 01/10', name:'Sesión B',      meta:'Full-body' },
+  { date:'jue 02/10', name:'Rodaje suave',  meta:'45 min · Z2' },
+  { date:'vie 03/10', name:'Sesión A',      meta:'Full-body' },
+  { date:'sáb 04/10', name:'HIIT-1',        meta:'3 rondas · 5 movimientos' },
+  { date:'dom 05/10', name:'Media Maratón', meta:'Semana 8 · 18 km' },
+  { date:'lun 06/10', name:'HIIT-2',        meta:'4 rondas · 5 movimientos' },
+  { date:'mar 07/10', name:'Descanso',      meta:'movilidad 10 min' }
+];
+
+const HISTORY = [
+  { date:'06/08/2026', label:'Fase I · Sesión B', sets:16, vol:4820, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 100 kg' },
+      { name:'Press Militar', sets:'3×5 @ 43,75 kg' },
+      { name:'Clean', sets:'5×3 @ 55 kg' },
+      { name:'Dominada Supino', sets:'12 reps' },
+      { name:'Plancha Lateral', sets:'1 min' } ] },
+  { date:'05/08/2026', label:'Fase I · Sesión A', sets:13, vol:4310, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 110 kg' },
+      { name:'Press de Banca', sets:'3×5 @ 72,5 kg' },
+      { name:'Peso Muerto', sets:'2×5 @ 130 kg' },
+      { name:'Dominada Prono', sets:'3×F' },
+      { name:'Plancha Abdominal', sets:'2×2 min' } ] },
+  { date:'04/08/2026', label:'Fase I · Sesión B', sets:16, vol:4700, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 100 kg' },
+      { name:'Press Militar', sets:'3×5 @ 43,75 kg' },
+      { name:'Clean', sets:'5×3 @ 55 kg' },
+      { name:'Dominada Supino', sets:'12 reps' },
+      { name:'Plancha Lateral', sets:'1 min' } ] },
+  { date:'03/08/2026', label:'Fase I · Sesión A', sets:13, vol:4310, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 110 kg' },
+      { name:'Press de Banca', sets:'3×5 @ 72,5 kg' },
+      { name:'Peso Muerto', sets:'2×5 @ 130 kg' },
+      { name:'Dominada Prono', sets:'3×F' },
+      { name:'Plancha Abdominal', sets:'2×2 min' } ] },
+  { date:'30/07/2026', label:'Fase I · Sesión B', sets:16, vol:4620, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 100 kg' },
+      { name:'Press Militar', sets:'3×5 @ 42,5 kg' },
+      { name:'Clean', sets:'5×3 @ 55 kg' },
+      { name:'Dominada Supino', sets:'12 reps' },
+      { name:'Plancha Lateral', sets:'1 min' } ] },
+  { date:'27/07/2026', label:'Fase I · Sesión A', sets:13, vol:4250, exercises:[
+      { name:'Sentadilla', sets:'3×5 @ 110 kg' },
+      { name:'Press de Banca', sets:'3×5 @ 70 kg' },
+      { name:'Peso Muerto', sets:'2×5 @ 127,5 kg' },
+      { name:'Dominada Prono', sets:'3×F' },
+      { name:'Plancha Abdominal', sets:'2×2 min' } ] }
+];
+
+/* AU-12: dos variantes del plan, dos series. Antes iban mezcladas en una sola
+   línea y el resultado era un serrucho de ±10 kg que escondía la tendencia. */
+const PROGRESS = {
+  'Sentadilla': {
+    unit:'kg',
+    A:{ label:'Sesión A', color:'var(--color-domain-strength)', points:[
+      ['24/06',97.5],['01/07',100],['08/07',100],['15/07',102.5],['22/07',105],
+      ['29/07',105],['05/08',105],['12/08',107.5],['19/08',107.5],['26/08',110]] },
+    B:{ label:'Sesión B', color:'var(--color-domain-running)', points:[
+      ['27/06',90],['04/07',92.5],['11/07',92.5],['18/07',95],['25/07',95],
+      ['01/08',97.5],['08/08',100],['15/08',100],['22/08',102.5],['29/08',105]] },
+    rows:[
+      ['05/08','A',110,5,'1,6 t'],['04/08','B',100,5,'1,5 t'],['03/08','A',110,5,'1,6 t'],
+      ['30/07','B',100,5,'1,5 t'],['27/07','A',110,5,'1,6 t'],['24/07','A',107.5,5,'1,6 t'],
+      ['22/07','B',97.5,5,'1,5 t'],['20/07','A',107.5,5,'1,6 t'],['17/07','B',97.5,5,'1,5 t'] ]
+  },
+  'Press de Banca': {
+    unit:'kg',
+    A:{ label:'Sesión A', color:'var(--color-domain-strength)', points:[
+      ['24/06',67.5],['01/07',67.5],['08/07',70],['15/07',70],['22/07',70],
+      ['29/07',70],['05/08',72.5],['12/08',72.5]] },
+    B:{ label:'Sesión B', color:'var(--color-domain-running)', points:[
+      ['27/06',62.5],['04/07',65],['11/07',65],['18/07',67.5],['25/07',67.5],
+      ['01/08',70],['08/08',70],['15/08',70]] },
+    rows:[['05/08','A',72.5,5,'1,1 t'],['04/08','B',70,5,'1,1 t'],['03/08','A',72.5,5,'1,1 t'],
+          ['30/07','B',70,5,'1,1 t'],['27/07','A',72.5,5,'1,1 t'],['24/07','B',70,5,'1,1 t']]
+  },
+  'Peso Muerto': {
+    unit:'kg',
+    A:{ label:'Sesión A', color:'var(--color-domain-strength)', points:[
+      ['24/06',120],['08/07',125],['22/07',125],['05/08',130],['19/08',130]] },
+    B:{ label:'Sesión B', color:'var(--color-domain-running)', points:[
+      ['27/06',115],['11/07',117.5],['25/07',120],['08/08',125],['22/08',127.5]] },
+    rows:[['05/08','A',130,5,'1,3 t'],['04/08','B',120,5,'1,2 t'],['03/08','A',130,5,'1,3 t'],
+          ['30/07','B',120,5,'1,2 t'],['27/07','A',127.5,5,'1,3 t'],['24/07','B',120,5,'1,2 t']]
+  }
+};
+
+const BODY_LOGS = [
+  ['28/07/2026',75.4,16.0],['23/06/2026',75.6,16.2],['19/05/2026',76.0,16.5],
+  ['21/04/2026',76.2,16.9],['17/03/2026',76.6,17.2],['17/02/2026',77.0,17.6],
+  ['13/01/2026',77.4,18.1],['16/12/2025',78.0,18.5]
+];
+
+/* ── notas por pantalla ──────────────────────────────────────────────────── */
+const NOTES = {
+  secHoy: [
+    ['AU-17','La acción ya no se estira: mide 200 px y se ancla al borde final. A la izquierda queda el dato que ayuda a decidir (última A, series, volumen). Aplicado también en la app desde 640 px.'],
+    ['AU-02','Fuera el titular rojo y las 7 etiquetas «atrasada». Una línea de estado sin adjetivos y la cola plegada en una fila.'],
+    ['AU-02','La sesión de hoy sube a la primera posición con su «Empezar».'],
+    ['AU-08','Los cinco objetivos de la tarjeta miden 44 px; el descartar ya no es un «×» de 1 carácter.'],
+    ['AE-10','«Nivel II de V» en lugar del glifo suelto.'],
+    ['AE-03','El texto de estado sube a 4,74:1 (antes 3,53:1).']
+  ],
+  secEntrenar: [
+    ['AU-17','«Guardar y cerrar», «Anterior / Siguiente» y las acciones del plan miden lo que dicen y se anclan al borde final. En móvil siguen a ancho completo.'],
+    ['AU-18','La sub-nav se mide por contenido: cuatro pestañas de 280 px no se leen, se barren.'],
+    ['AU-03','Todo el contexto de la sesión en una línea de 44 px: el primer campo de kg entra sin scroll.'],
+    ['AU-11','Una sola fila de navegación: modo + plan/fase comparten control.'],
+    ['AU-12','La gráfica se separa por variante A/B: la tendencia se lee.'],
+    ['AU-13','El PR solo se marca si se supera el récord, no si se iguala.'],
+    ['AU-14','Una línea explica la diferencia entre 1RM estimado y peso máximo.'],
+    ['AU-04','El historial va plegado por sesión, con «3×5 @ 100 kg» en vez de la serie repetida.']
+  ],
+  secPerfil: [
+    ['AE-02','Etiquetas del radar a 12 px (estaban a 10,5 hardcodeados, por debajo del suelo de 11).'],
+    ['AE-10','«Nivel II de V» junto al numeral.'],
+    ['AE-05','El séptimo dominio usa un token semántico, no el primitivo --red-200 (1,7:1).']
+  ],
+  secCuerpo: [
+    ['AU-06','Cinco tiles de calorías → dos cifras primarias y un desplegable «Cómo se calcula».'],
+    ['AU-06','El tile «SIN MEDIR / 9 medidas» pasa a ser un aviso con su propia acción.'],
+    ['AU-07','Fuera el «Editar» de las 8 filas: la fila abre la hoja de esa fecha.']
+  ],
+  secAjustes: [
+    ['AE-08','Los títulos de bloque usan el mismo rótulo en versalitas que el resto de la app.'],
+    ['AU-09','«Programación semanal» ya no se parte a mitad de palabra.'],
+    ['AE-03','«Al día · hace 4 min» es información, no decoración: texto secundario.']
+  ],
+  quiron: [
+    ['AU-05','Cuatro botones etiquetados → título + menú. El cierre queda separado y visible.'],
+    ['AU-05','El campo crece con el contenido: el placeholder ya no se corta (medido: 44 px de alto con 64 de contenido).']
+  ],
+  onboarding: [
+    ['AE-01','Radio de tarjeta (xl), no --radius-pill: la tarjeta dejaba de ser un círculo de 340×345.'],
+    ['AU-01','«Saltar y explorar» desde el primer paso.'],
+    ['AU-16','El último paso captura peso y altura: con eso ya existen las métricas derivadas.']
+  ]
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   UTILIDADES
+   ══════════════════════════════════════════════════════════════════════════════ */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const ico = (id, size = 20, w = 2) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"><use href="#${id}"/></svg>`;
+/* AU-15 in situ: pluralización real, no «1 ejercicios». */
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+function toast(msg) {
+  const host = $('#toasts');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TEMA
+   PROPUESTA 1 · La fuente de verdad es el atributo `data-theme` de <html>, y lo
+   escribe el script inline del <head> ANTES del primer pintado. Acá solo se
+   cambia en caliente. `auto` quita el atributo a propósito: así manda la media
+   query del sistema y no hace falta ningún listener de matchMedia (antes había
+   uno, para volver a pintar a mano lo que el CSS ahora resuelve solo).
+   ══════════════════════════════════════════════════════════════════════════════ */
+const THEME_KEY = 'areteProtoTheme';
+function applyTheme(mode) {
+  if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', mode);
+  localStorage.setItem(THEME_KEY, mode);
+  $$('.demo-bar [data-theme], .theme-seg [data-theme]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.theme === mode)));
+}
+$$('[data-theme]').forEach(b => { if (b !== document.documentElement) b.addEventListener('click', () => applyTheme(b.dataset.theme)); });
+applyTheme(localStorage.getItem(THEME_KEY) || 'auto');
+
+/* PROPUESTA 6 · El alto del teclado, publicado como token.
+   Areté no tiene una sola referencia a visualViewport (medido: 0). El campo de
+   Quirón vive al fondo de un panel position:fixed, así que en iOS el teclado lo
+   tapa: escribís y no ves lo que escribís. BookReader publica `--kb-inset` desde
+   visualViewport y lo resta de la altura del panel; el mismo contrato, sin
+   librería. Sin teclado abierto vale 0 y no cambia nada. */
+(function publishKeyboardInset() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const set = () => {
+    const inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    document.documentElement.style.setProperty('--kb-inset', inset + 'px');
+  };
+  vv.addEventListener('resize', set);
+  vv.addEventListener('scroll', set);
+  window.addEventListener('orientationchange', set);
+  set();
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NAVEGACIÓN
+   ══════════════════════════════════════════════════════════════════════════════ */
+let currentSec = 'secHoy';
+function switchTab(sec) {
+  currentSec = sec;
+  $$('.section').forEach(s => s.classList.toggle('active', s.id === sec));
+  $$('#mainNav button[data-sec]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sec === sec)));
+  $$('.quiron, .ob').forEach(el => el.classList.remove('open'));
+  /* El radar se mide contra su contenedor y una .section oculta mide 0: se
+     re-renderiza al entrar, no solo al cargar. */
+  if (sec === 'secPerfil') renderRadar();
+  renderNotes(sec);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+$$('#mainNav button[data-sec]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.sec)));
+$$('[data-goto]').forEach(b => b.addEventListener('click', () => {
+  switchTab(b.dataset.goto);
+  if (b.dataset.mode) setMode(b.dataset.mode);
+}));
+$('#limitanteBtn').addEventListener('click', () => switchTab('secPerfil'));
+
+/* sub-pestañas de Entrenar */
+$$('.subnav button').forEach(b => b.addEventListener('click', () => switchTrainTab(b.dataset.tab)));
+function switchTrainTab(tab) {
+  $$('.subnav button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  $('#panelCaptura').hidden  = tab !== 'captura';
+  $('#panelHistorial').hidden = tab !== 'historial';
+  $('#panelProgreso').hidden = tab !== 'progreso';
+  $('#panelPlan').hidden     = tab !== 'plan';
+  renderNotes(tab === 'captura' ? 'secEntrenar' : 'secEntrenar');
+}
+let trainMode = 'str';
+function setMode(m) {
+  trainMode = m;
+  $$('.seg [data-mode]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === m)));
+}
+$$('.seg [data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   HOY
+   ══════════════════════════════════════════════════════════════════════════════ */
+const hora = new Date().getHours();
+$('#greeting').textContent = hora < 6 ? 'Buenas noches' : hora < 13 ? 'Buenos días' : hora < 20 ? 'Buenas tardes' : 'Buenas noches';
+
+$('#hoyExercises').innerHTML = TODAY.exercises.map(e => `
+  <div class="ej">
+    <span class="ej-name">${esc(e.name)}</span>
+    <span class="ej-target">${esc(e.target)}${e.kg ? ` · ${String(e.kg).replace('.', ',')} kg` : ''}</span>
+  </div>`).join('');
+$('#planExercises').innerHTML = $('#hoyExercises').innerHTML;
+
+$('#colaLabel').textContent = `${plural(QUEUE.length, 'sesión en cola', 'sesiones en cola')}`;
+$('#colaList').innerHTML = QUEUE.map(q => `
+  <div class="cola-item">
+    <span class="cola-date">${esc(q.date)}</span>
+    <span class="cola-name">${esc(q.name)}</span>
+    <span class="cola-meta">${esc(q.meta)}</span>
+  </div>`).join('');
+$('#colaToggle').addEventListener('click', () => {
+  const open = $('#colaToggle').getAttribute('aria-expanded') === 'true';
+  $('#colaToggle').setAttribute('aria-expanded', String(!open));
+  $('#colaList').hidden = open;
+});
+
+$('#actStrip').innerHTML = HISTORY.slice(0, 4).map(h => `
+  <div class="act-card">
+    <div class="act-card-top">${ico('i-train', 14)}${esc(h.label)}</div>
+    <div class="act-name">${esc(h.date)}</div>
+    <div class="act-meta">${plural(h.sets, 'serie', 'series')} · ${h.vol.toLocaleString('es-ES')} kg</div>
+  </div>`).join('');
+
+$('#startToday').addEventListener('click', () => {
+  switchTab('secEntrenar'); switchTrainTab('captura');
+  toast('Sesión A empezada · descanso 2:00');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENTRENAR · captura
+   ══════════════════════════════════════════════════════════════════════════════ */
+let exIdx = 0;
+const setsDone = {};
+
+function renderRunner() {
+  const e = TODAY.exercises[exIdx];
+  $('#exName').textContent = e.name;
+  $('#exTarget').textContent = `${e.target}${e.kg ? ` @ ${String(e.kg).replace('.', ',')} kg` : ''}`;
+  $('#progWhy').textContent = e.why;
+  const n = Number(e.target.match(/^(\d+)×/)?.[1]) || 3;
+  const reps = e.target.split('×')[1] || '5';
+  $('#setList').innerHTML = Array.from({ length: n }, (_, i) => `
+    <div class="set-row${setsDone[exIdx + ':' + i] ? ' done' : ''}" data-set="${i}">
+      <span class="set-idx">${i + 1}</span>
+      <input class="set-in" type="text" inputmode="decimal" value="${e.kg ? String(e.kg).replace('.', ',') : ''}" placeholder="kg" aria-label="Kilos serie ${i + 1}">
+      <input class="set-in" type="text" inputmode="numeric" value="${reps}" placeholder="reps" aria-label="Repeticiones serie ${i + 1}">
+      <button class="set-done" aria-label="Marcar serie ${i + 1} como hecha" data-tip="Marcar hecha">${ico('i-check', 20, 2.5)}</button>
+    </div>`).join('');
+  $('#exDots').innerHTML = TODAY.exercises.map((_, i) => `<i class="${i === exIdx ? 'on' : ''}"></i>`).join('');
+  updateProgress();
+}
+function updateProgress() {
+  const total = TODAY.exercises.reduce((a, e) => a + (Number(e.target.match(/^(\d+)×/)?.[1]) || 3), 0);
+  const done = Object.values(setsDone).filter(Boolean).length;
+  $('#sessionProg').textContent = `${done} de ${total} series`;
+}
+$('#setList').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.set-done'); if (!btn) return;
+  const row = btn.closest('.set-row');
+  const key = exIdx + ':' + row.dataset.set;
+  setsDone[key] = !setsDone[key];
+  row.classList.toggle('done', setsDone[key]);
+  if (setsDone[key]) startRest(120);
+  updateProgress();
+});
+$('#prevEx').addEventListener('click', () => { exIdx = (exIdx - 1 + TODAY.exercises.length) % TODAY.exercises.length; renderRunner(); });
+$('#nextEx').addEventListener('click', () => { exIdx = (exIdx + 1) % TODAY.exercises.length; renderRunner(); });
+$('#resetPrefill').addEventListener('click', () => toast('Empezando de cero: sin cargar la última sesión'));
+$('#guidedSwitch').addEventListener('click', (e) => {
+  const on = e.currentTarget.getAttribute('aria-checked') === 'true';
+  e.currentTarget.setAttribute('aria-checked', String(!on));
+  toast(on ? 'Modo guiado desactivado' : 'Modo guiado activado');
+});
+$('#saveSession').addEventListener('click', () => toast('Sesión guardada · 15 series'));
+$('#startPlan').addEventListener('click', () => { switchTrainTab('captura'); toast('Empezando Sesión A'); });
+$('#askQuiron').addEventListener('click', () => openQuiron());
+
+/* descanso: cuenta atrás real */
+let restLeft = 0, restTimer = null;
+function startRest(secs) {
+  restLeft = secs;
+  $('#restBar')?.remove();
+  const bar = document.createElement('div');
+  bar.className = 'rest'; bar.id = 'restBar';
+  bar.innerHTML = `
+    <span class="rest-label">Descanso</span>
+    <span class="rest-time" id="restTime">2:00</span>
+    <span class="rest-sp"></span>
+    <button id="restPlus" aria-label="Añadir 30 segundos" data-tip="Añadir 30 s">+30 s</button>
+    <button class="solid" id="restToggle" aria-label="Pausar" data-tip="Pausar">${ico('i-pause', 18)}</button>`;
+  $('#setList').closest('.ex-runner').before(bar);
+  let running = true;
+  clearInterval(restTimer);
+  restTimer = setInterval(() => {
+    if (!running) return;
+    restLeft--;
+    paint();
+    if (restLeft <= 0) { clearInterval(restTimer); bar.remove(); toast('Descanso terminado'); }
+  }, 1000);
+  function paint() {
+    $('#restTime').textContent = `${Math.floor(restLeft / 60)}:${String(restLeft % 60).padStart(2, '0')}`;
+  }
+  $('#restPlus').addEventListener('click', () => { restLeft += 30; paint(); });
+  $('#restToggle').addEventListener('click', (ev) => {
+    running = !running;
+    ev.currentTarget.innerHTML = running ? ico('i-pause', 18) : ico('i-play', 18);
+    ev.currentTarget.setAttribute('aria-label', running ? 'Pausar' : 'Reanudar');
+    ev.currentTarget.setAttribute('data-tip', running ? 'Pausar' : 'Reanudar');
+  });
+  paint();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENTRENAR · historial (AU-04: plegado + resumen de series)
+   ══════════════════════════════════════════════════════════════════════════════ */
+$('#histList').innerHTML = HISTORY.map((h, i) => `
+  <button class="hist-head" aria-expanded="false" aria-controls="hist-${i}" data-hist="${i}">
+    <span>
+      <span class="hist-date">${esc(h.date)}</span>
+      <span class="hist-meta">${esc(h.label)}</span>
+    </span>
+    <span class="hist-sum">${plural(h.sets, 'serie', 'series')} · ${h.vol.toLocaleString('es-ES')} kg</span>
+  </button>
+  <div class="hist-body" id="hist-${i}" hidden>
+    ${h.exercises.map(x => `
+      <div class="hist-row"><span class="hist-row-name">${esc(x.name)}</span><span class="hist-row-sets">${esc(x.sets)}</span></div>`).join('')}
+  </div>`).join('');
+$('#histList').addEventListener('click', (ev) => {
+  const head = ev.target.closest('.hist-head'); if (!head) return;
+  const body = document.getElementById('hist-' + head.dataset.hist);
+  const open = head.getAttribute('aria-expanded') === 'true';
+  head.setAttribute('aria-expanded', String(!open));
+  body.hidden = open;
+});
+$('#moreHist').addEventListener('click', () => toast('Cargando 73 sesiones más…'));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENTRENAR · progreso  (AU-12 series separadas · AU-13 PR estricto)
+   ══════════════════════════════════════════════════════════════════════════════ */
+function renderProgress(name) {
+  const P = PROGRESS[name];
+  $('#histExName').textContent = name;
+
+  const bestA = Math.max(...P.A.points.map(p => p[1]));
+  const bestB = Math.max(...P.B.points.map(p => p[1]));
+  const best = Math.max(bestA, bestB);
+  const e1rm = Math.round(best * (1 + 5 / 30) * 10) / 10;   // Epley con la mejor serie 5 reps
+  const first = P.A.points[0][1];
+  const pct = Math.round(((best - first) / first) * 100);
+
+  $('#progStats').innerHTML = `
+    <div class="tile"><span class="tile-label">Mejor carga</span><span class="tile-value">${String(best).replace('.', ',')} <span class="tile-unit">kg</span></span><span class="tile-delta" style="color:var(--color-state-success)">+${pct} % en 10 semanas</span></div>
+    <div class="tile"><span class="tile-label">1RM estimado</span><span class="tile-value">${String(e1rm).replace('.', ',')} <span class="tile-unit">kg</span></span><span class="tile-note">Epley sobre 5 reps</span></div>
+    <div class="tile"><span class="tile-label">Frecuencia</span><span class="tile-value">2 <span class="tile-unit">/sem</span></span><span class="tile-note">A y B</span></div>`;
+
+  /* Gráfica: una serie por variante, no todas mezcladas. */
+  const W = 720, H = 260, pad = { l: 44, r: 14, t: 16, b: 30 };
+  const all = [...P.A.points, ...P.B.points];
+  const min = Math.min(...all.map(p => p[1])) - 5;
+  const max = Math.max(...all.map(p => p[1])) + 5;
+  const dates = [...new Set(all.map(p => p[0]))].sort((a, b) => {
+    const n = d => Number(d.split('/')[1]) * 100 + Number(d.split('/')[0]); return n(a) - n(b);
+  });
+  const x = d => pad.l + (dates.indexOf(d) / Math.max(1, dates.length - 1)) * (W - pad.l - pad.r);
+  const y = v => pad.t + (1 - (v - min) / (max - min)) * (H - pad.t - pad.b);
+
+  const grid = [min, min + (max - min) / 2, max].map(v =>
+    `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--color-border-ghost)" stroke-width="1"/>
+     <text x="${pad.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--color-text-secondary)" font-family="var(--font)">${Math.round(v)}</text>`).join('');
+
+  const series = ['A', 'B'].map(k => {
+    const pts = P[k].points.filter(p => dates.includes(p[0]));
+    const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+    return `<path d="${line}" fill="none" stroke="${P[k].color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${pts.map(p => `<circle cx="${x(p[0]).toFixed(1)}" cy="${y(p[1]).toFixed(1)}" r="3" fill="${P[k].color}"/>`).join('')}`;
+  }).join('');
+
+  $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución de ${esc(name)} por variante de sesión">
+    ${grid}${series}</svg>`;
+
+  $('#variantKey').innerHTML = ['A', 'B'].map(k =>
+    `<span><i style="background:${P[k].color}"></i>${esc(P[k].label)}</span>`).join('');
+
+  /* AU-14: la frase que faltaba. */
+  $('#chartCap').innerHTML = `El 1RM (${String(e1rm).replace('.', ',')} kg) es una <b>estimación</b> con Epley sobre tu mejor serie de 5 reps; la gráfica es el <b>peso que levantaste</b>. Se separan las dos variantes del plan: antes iban mezcladas y el serrucho escondía la subida.`;
+
+  /* AU-13: PR solo si SUPERA el récord, y el récord es POR VARIANTE (AU-12):
+     la sentadilla del día A y la del día B son dos series distintas, así que
+     110 kg en A no puede ser récord contra un 100 kg de B. */
+  const record = { A: 0, B: 0 };
+  $('#exTable').innerHTML = P.rows.map(([d, variant, kg, reps, vol]) => {
+    const isPR = kg > record[variant];
+    const isEq = !isPR && kg === record[variant];
+    record[variant] = Math.max(record[variant], kg);
+    const color = P[variant].color;
+    return `<tr${isPR ? ' class="row-pr"' : ''}>
+      <td>${esc(d)}</td>
+      <td><span class="badge" style="background:transparent;color:var(--color-text-secondary);border-left:3px solid ${color};border-radius:2px">${variant}</span></td>
+      <td class="num"><b>${String(kg).replace('.', ',')} kg</b>${isPR ? ' <span class="badge badge-pr">PR</span>' : isEq ? ' <span class="badge badge-eq">= récord</span>' : ''}</td>
+      <td class="num">${reps}</td><td class="num">${esc(vol)}</td></tr>`;
+  }).join('');
+}
+$('#exSelect').addEventListener('change', (e) => renderProgress(e.target.value));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PERFIL
+   ══════════════════════════════════════════════════════════════════════════════ */
+function renderRadar() {
+  /* AE-02. Dos trampas en una:
+     1. Las etiquetas de la app van a `font-size="10.5"` —por debajo del suelo de
+        11 px— y en un viewBox de 300 que NO sigue al ancho real.
+     2. Un viewBox que no mide lo mismo que el contenedor escala también el texto:
+        12 unidades de usuario sobre 380 de viewBox renderizadas en 330 px se leen
+        a 10,4 px reales. Es el mismo problema que progress.js ya resolvió con
+        `chartWidth()`: el viewBox se construye con el ancho medido, así 1 unidad
+        de usuario = 1 px de CSS y `font-size="12"` son 12 px de verdad.
+     De paso, el radar ocupa el ancho disponible en vez de quedarse en 282 px. */
+  const host = $('#radar');
+  const W = Math.round(host.clientWidth) || 340;
+  const H = Math.round(W * 0.78);
+  const cx = W / 2, cy = H / 2 + 4;
+  const R = Math.min(W, H) * 0.30;
+  const n = DOMAINS.length;
+  const ang = i => (Math.PI * 2 * i) / n - Math.PI / 2;
+
+  const rings = [1, 2, 3, 4, 5].map(r => {
+    const rr = (R * r) / 5;
+    const pts = Array.from({ length: n }, (_, i) => `${cx + rr * Math.cos(ang(i))},${cy + rr * Math.sin(ang(i))}`).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="var(--color-border-ghost)" stroke-width="1"/>`;
+  }).join('');
+
+  const axes = DOMAINS.map((_, i) =>
+    `<line x1="${cx}" y1="${cy}" x2="${(cx + R * Math.cos(ang(i))).toFixed(1)}" y2="${(cy + R * Math.sin(ang(i))).toFixed(1)}" stroke="var(--color-border-ghost)" stroke-width="1"/>`).join('');
+
+  const points = DOMAINS.map((d, i) => {
+    const v = d.measured ? d.level / d.of : 0;
+    return [cx + R * v * Math.cos(ang(i)), cy + R * v * Math.sin(ang(i))];
+  });
+  const poly = points.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+
+  const labels = DOMAINS.map((d, i) => {
+    const lx = cx + (R + 22) * Math.cos(ang(i));
+    const ly = cy + (R + 22) * Math.sin(ang(i));
+    const anchor = Math.abs(lx - cx) < 14 ? 'middle' : lx > cx ? 'start' : 'end';
+    const fill = d.limiter ? 'var(--color-accent-text)' : 'var(--color-text-secondary)';
+    const weight = d.limiter ? '700' : '500';
+    return `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="${anchor}"
+      font-family="var(--font)" font-size="12" font-weight="${weight}" fill="${fill}">${esc(d.short)}</text>`;
+  }).join('');
+
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Radar de los 7 dominios">
+    ${rings}${axes}${labels}
+    <polygon points="${poly}" fill="var(--color-accent-wash)" stroke="var(--color-action-primary)" stroke-width="2"/>
+    ${points.map((p, i) => DOMAINS[i].measured
+      ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="${DOMAINS[i].limiter ? 'var(--color-action-primary)' : 'var(--color-domain-running)'}"/>`
+      : '').join('')}
+  </svg>`;
+}
+renderRadar();
+let radarRaf;
+addEventListener('resize', () => { cancelAnimationFrame(radarRaf); radarRaf = requestAnimationFrame(renderRadar); });
+
+$('#domainList').innerHTML = DOMAINS.map(d => {
+  const pct = d.measured ? (d.level / d.of) * 100 : 0;
+  const badge = d.stale ? ' <span class="badge badge--quiet">caducado</span>'
+    : !d.measured ? ' <span class="badge badge--quiet">sin medir</span>' : '';
+  const lvlColor = d.limiter ? 'var(--color-accent-text)' : 'var(--color-text-primary)';
+  const barColor = d.limiter ? 'var(--color-domain-strength)'
+    : d.measured ? 'var(--color-domain-running)' : 'var(--color-surface-2)';
+  return `<div class="dom">
+    <span class="dom-ic" style="color:${d.limiter ? 'var(--color-accent-text)' : d.measured ? 'var(--color-domain-running)' : 'var(--color-text-secondary)'}">${ico('i-profile', 20)}</span>
+    <span class="dom-body">
+      <span class="dom-name">${esc(d.name)}${d.limiter ? ' <span class="badge badge--brand">tu limitante</span>' : ''}${badge}</span>
+      <span class="dom-bar"><i style="width:${pct}%;background:${barColor}"></i></span>
+    </span>
+    <span class="dom-lvl" style="color:${lvlColor}">${d.measured ? ['I','II','III','IV','V'][d.level - 1] : '—'}</span>
+  </div>`;
+}).join('');
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CUERPO
+   ══════════════════════════════════════════════════════════════════════════════ */
+function renderBody() {
+  $('#bodyTable').innerHTML = BODY_LOGS.map(([d, kg, fat], i) => `
+    <tr data-body="${i}" tabindex="0" role="button" aria-label="Editar el registro del ${esc(d)}">
+      <td>${esc(d)}</td>
+      <td class="num">${String(kg).replace('.', ',')} kg</td>
+      <td class="num">${String(fat).replace('.', ',')} %</td>
+    </tr>`).join('');
+}
+renderBody();
+$('#bodyTable').addEventListener('click', (ev) => {
+  const tr = ev.target.closest('tr[data-body]'); if (!tr) return;
+  const [d, kg, fat] = BODY_LOGS[tr.dataset.body];
+  openSheet('Editar el registro', `
+    <p class="page-sub" style="margin-bottom:var(--sp-3)">${esc(d)}</p>
+    <label class="field" style="margin-bottom:var(--sp-3)"><span class="field-label">Peso (kg)</span><input type="number" value="${kg}" step="0.1"></label>
+    <label class="field"><span class="field-label">% grasa</span><input type="number" value="${fat}" step="0.1"></label>`,
+    [{ label:'Guardar', primary:true }, { label:'Cancelar' }]);
+});
+$('#calDisc').addEventListener('click', () => {
+  const open = $('#calDisc').getAttribute('aria-expanded') === 'true';
+  $('#calDisc').setAttribute('aria-expanded', String(!open));
+  $('#calDetail').hidden = open;
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   HOJAS
+   ══════════════════════════════════════════════════════════════════════════════ */
+let lastFocus = null;
+function openSheet(title, body, actions = [{ label:'Entendido', primary:true }]) {
+  lastFocus = document.activeElement;
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = body;
+  $('#sheetFoot').innerHTML = actions.map((a, i) =>
+    `<button class="btn${a.primary ? '' : ' btn--secondary'}" data-act="${i}">${esc(a.label)}</button>`).join('');
+  $('#sheet').classList.add('open');
+  $('#sheetClose').focus();
+  $('#sheetFoot').onclick = () => closeSheet();
+}
+function closeSheet() {
+  $('#sheet').classList.remove('open');
+  lastFocus?.focus?.();
+}
+$('#sheetClose').addEventListener('click', closeSheet);
+$('#sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') closeSheet(); });
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSheet(); closeQuiron(); } });
+
+const SHEETS = {
+  medidas: { title:'Registrar medidas', body:`
+      <label class="field" style="margin-bottom:var(--sp-3)"><span class="field-label">Fecha del registro</span><input type="date" value="2026-09-29"></label>
+      <p class="field-hint" style="margin-bottom:var(--sp-3)">Centímetros, salvo peso (kg) y grasa (%). Basta con una.</p>
+      <div class="tiles">
+        <label class="field"><span class="field-label">Peso (kg)</span><input type="number" value="75.4" step="0.1"></label>
+        <label class="field"><span class="field-label">% grasa</span><input type="number" value="16" step="0.1"></label>
+        <label class="field"><span class="field-label">Muñeca</span><input type="number" placeholder="—"></label>
+        <label class="field"><span class="field-label">Bíceps</span><input type="number" placeholder="—"></label>
+        <label class="field"><span class="field-label">Cintura</span><input type="number" placeholder="—"></label>
+        <label class="field"><span class="field-label">Muslo</span><input type="number" placeholder="—"></label>
+      </div>`,
+      actions:[{ label:'Guardar medidas', primary:true },{ label:'Cancelar' }] },
+  test: { title:'Capacidad glucolítica', body:`
+      <div class="notice" style="margin-bottom:var(--sp-3)">${ico('i-info', 20).replace('width="20" height="20"','class="notice-ic" width="20" height="20"')}
+        <span>400 m en pista, a tope, con calentamiento previo. Un solo intento.</span></div>
+      <label class="field" style="margin-bottom:var(--sp-3)"><span class="field-label">400 m (segundos)</span><input type="text" inputmode="numeric" placeholder="p. ej. 78"></label>
+      <p class="field-hint">Sin medida previa. Caduca a las 6 semanas.</p>`,
+      actions:[{ label:'Guardar medida', primary:true },{ label:'Cancelar' }] },
+  zonas: { title:'Mis zonas', body:`<p class="field-hint">FC máx 186 bpm · 5K 21:45</p>
+      <table class="cal-detail"><tr><td>Z1 recuperación</td><td>119-130</td></tr><tr><td>Z2 aeróbico</td><td>130-145</td></tr><tr><td>Z3 tempo</td><td>145-158</td></tr><tr><td>Z4 umbral</td><td>158-170</td></tr><tr><td>Z5 máximo</td><td>170-186</td></tr></table>` },
+  planes: { title:'Tus planes', body:`<p style="font:var(--type-body)">Areté · Fase I — activo<br><span class="field-hint">Full-body 3×5, progresión lineal</span></p>` },
+  /* AU-09 in situ */
+  semanal: { title:'Programación semanal', body:`
+      <label class="field" style="margin-bottom:var(--sp-3)"><span class="field-label">Días de fuerza</span><select><option>Lunes · Miércoles · Viernes</option><option>Martes · Jueves · Sábado</option></select></label>
+      <label class="field"><span class="field-label">Días de carrera</span><select><option>Martes · Jueves · Domingo</option><option>Lunes · Miércoles · Sábado</option></select></label>
+      <p class="field-hint">Las sesiones atrasadas se re-acomodan solas sin perder el orden del plan.</p>` },
+  coach: { title:'Quirón (IA)', body:`<p style="font:var(--type-body);margin-bottom:var(--sp-3)">Sin configurar.</p>
+      <p class="field-hint">Puedes probarlo con el cupo de demo antes de poner tu propia clave.</p>`,
+      actions:[{ label:'Probar sin API key', primary:true },{ label:'Ir a la app' }] },
+  backup: { title:'Copia de seguridad', body:`
+      <div class="notice" style="margin-bottom:var(--sp-3)">${ico('i-check', 20)}<span>Al día · última copia hace 4 minutos · 214 KB</span></div>
+      <p class="field-hint">Google Drive, carpeta privada de la app. El token nunca sale del navegador.</p>` },
+  atajos: { title:'Atajos de teclado', body:`<table class="cal-detail"><tr><td>Buscar</td><td>/</td></tr><tr><td>Cerrar</td><td>Esc</td></tr><tr><td>Plegar el rail</td><td>N</td></tr><tr><td>Ayuda</td><td>?</td></tr></table>` },
+  'plan-propio': { title:'Cómo crear tu propio plan', body:`<p style="font:var(--type-body)">Pídele una sesión a Quirón y aparecerá en «Tus sesiones». No hace falta construir un plan entero: las sesiones sueltas se guardan solas.</p>` }
+};
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-open-sheet]'); if (!t) return;
+  const s = SHEETS[t.dataset.openSheet];
+  if (s) openSheet(s.title, s.body, s.actions);
+});
+$('#medidasBtn').addEventListener('click', () => openSheet(SHEETS.medidas.title, SHEETS.medidas.body, SHEETS.medidas.actions));
+$('#medirBtn').addEventListener('click', () => openSheet(SHEETS.test.title, SHEETS.test.body, SHEETS.test.actions));
+$('#wipeBtn').addEventListener('click', () => openSheet('Borrar todos los datos',
+  `<div class="notice notice--danger">${ico('i-alert', 20)}<span>Se borran los entrenos, las medidas y el perfil de este dispositivo. La copia de Drive no se toca.</span></div>`,
+  [{ label:'Entendido', primary:true },{ label:'Cancelar' }]));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   QUIRÓN
+   ══════════════════════════════════════════════════════════════════════════════ */
+function openQuiron() {
+  $('#quironPanel').classList.add('open');
+  renderNotes('quiron');
+  setTimeout(() => $('#qAsk').focus(), 120);
+}
+function closeQuiron() {
+  $('#quironPanel').classList.remove('open');
+  $('#qMenu').hidden = true;
+  $('#qMenuBtn').setAttribute('aria-expanded', 'false');
+}
+$('#navQuiron').addEventListener('click', openQuiron);
+$('#qClose').addEventListener('click', closeQuiron);
+$('#qMenuBtn').addEventListener('click', () => {
+  const open = $('#qMenu').hidden;
+  $('#qMenu').hidden = !open;
+  $('#qMenuBtn').setAttribute('aria-expanded', String(open));
+});
+$('#qMenu').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  pushMsg('me', b.dataset.q); closeQuironMenu(); setTimeout(() => pushMsg('coach', `Abriendo «${b.dataset.q}»…`), 320);
+});
+function closeQuironMenu() { $('#qMenu').hidden = true; $('#qMenuBtn').setAttribute('aria-expanded', 'false'); }
+
+function pushMsg(who, text) {
+  const el = document.createElement('div');
+  el.className = 'bubble bubble--' + (who === 'me' ? 'me' : 'coach');
+  el.innerHTML = esc(text).replace(/\n/g, '<br>');
+  $('#qMsgs').appendChild(el);
+  $('#qBody').scrollTop = $('#qBody').scrollHeight;
+}
+pushMsg('coach', 'Hola, soy Quirón. Cuéntame qué te ronda la cabeza —una duda, una molestia, qué hacer hoy—.\n\nLo duradero lo guardo en Memoria —horarios, molestias, objetivos—; tus datos de entrenos los leo de la app, siempre al día.');
+
+const CHIPS = ['¿Qué toca hoy?', 'Analiza mi última semana', '¿Subo peso en sentadilla?', 'Necesito una descarga'];
+$('#qChips').innerHTML = CHIPS.map(c => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('');
+$('#qChips').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-chip]'); if (!b) return;
+  sendAsk(b.dataset.chip);
+});
+function sendAsk(text) {
+  if (!text.trim()) return;
+  pushMsg('me', text);
+  $('#qAsk').value = ''; autoGrow();
+  setTimeout(() => pushMsg('coach',
+    'Con tus datos de hoy: la Sesión A te espera con 102,5 kg en sentadilla (sube 2,5 kg porque cumpliste 3×5 a 100). Llevas 3 de 4 sesiones esta semana y el volumen va +8 % sobre la anterior. Si el viernes entra la cuarta, la progresión sigue igual.'), 420);
+}
+$('#qSend').addEventListener('click', () => sendAsk($('#qAsk').value));
+/* AU-05 in situ: el campo crece con el contenido. */
+const ask = $('#qAsk');
+function autoGrow() { ask.style.height = 'auto'; ask.style.height = Math.min(120, Math.max(44, ask.scrollHeight)) + 'px'; }
+ask.addEventListener('input', autoGrow);
+ask.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAsk(ask.value); } });
+autoGrow();
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ONBOARDING
+   ══════════════════════════════════════════════════════════════════════════════ */
+let obStep = 0;
+const OB = [
+  { title:'Empecemos por el suelo', text:'Areté mide 7 dominios y tu nivel es <b>el más bajo</b>, no la media. Con tu peso y tu altura ya se calculan solas cuatro métricas de fuerza.', form:true },
+  { title:'Registra tus series', text:'Elige la sesión del día e introduce kg y reps. El peso que te toca ya viene calculado, y te dice <b>por qué</b> es ese.', form:false },
+  { title:'Mira lo que sube', text:'Perfil y Progreso responden una sola pregunta: <b>¿estoy mejor que hace un mes?</b> El nivel es el del dominio más flojo, así que no se puede maquillar.', form:false }
+];
+function renderOb() {
+  const s = OB[obStep];
+  $('#obTitle').innerHTML = s.title;
+  $('#obText').innerHTML = s.text;
+  $('#obFields').hidden = !s.form;
+  $('#obDots').innerHTML = OB.map((_, i) => `<i class="${i === obStep ? 'on' : ''}"></i>`).join('');
+  $('#obNext').textContent = obStep === OB.length - 1 ? 'Empezar' : 'Siguiente';
+}
+/* AU-16: el paso que captura algo de verdad. */
+$('#obNext').addEventListener('click', () => {
+  if (obStep === 0) {
+    const w = Number($('#obWeight').value) || 75, h = Number($('#obHeight').value) || 178;
+    toast(`Guardado: ${w} kg y ${h} cm — ya hay 4 métricas derivadas`);
+  }
+  if (obStep === OB.length - 1) { endOnboarding(true); return; }
+  obStep++; renderOb();
+});
+$('#obSkip').addEventListener('click', () => endOnboarding(false));
+function endOnboarding(saved) {
+  $('#onboarding').classList.remove('open');
+  renderNotes('secHoy');
+  if (saved) toast('Perfil listo · fuerza máxima nivel II');
+}
+if (!localStorage.getItem('areteProtoOnboarded')) {
+  $('#onboarding').classList.add('open');
+  renderOb();
+  renderNotes('onboarding');
+} else {
+  renderNotes('secHoy');
+}
+/* Si el arranque cae en Perfil (o al entrar por primera vez), el radar necesita
+   una vuelta más una vez el layout está asentado. */
+requestAnimationFrame(() => { if (document.getElementById('secPerfil').classList.contains('active')) renderRadar(); });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NOTAS DE PROPUESTA
+   ══════════════════════════════════════════════════════════════════════════════ */
+function renderNotes(key) {
+  const list = NOTES[key] || [];
+  $('#notesList').innerHTML = list.map(([id, txt]) => `<li><b>${id}</b> ${txt}</li>`).join('');
+}
+/* Los nueve cambios de sistema valen en todas las pantallas, así que no van en la
+   lista de ninguna: tienen su propio bloque. */
+const NOTAS_SISTEMA = [
+  ['1','Tema sin flash: «dark» lo escribe un script inline del <head> antes del primer pintado y el sistema se sigue con @media en CSS. Antes lo ponía un módulo ES a los ~430 ms, con el fondo crema ya pintado.'],
+  ['2','viewport-fit=cover: sin él, los 14 env(safe-area-inset-*) de la app computan 0 y no hacen nada.'],
+  ['3','Placa de la marca con token: el logo medía 1,02:1 contra el fondo oscuro; ahora el canto mide 2,9:1.'],
+  ['4','color-mix(): los washes, el anillo de foco y el glow se derivan del token semántico. Siete declaraciones duplicadas menos en el bloque oscuro.'],
+  ['5','Sombras de dos capas con canal --shadow-color. Eran de una capa y --shadow-1 y --shadow-3 medían igual en claro y oscuro.'],
+  ['6','--kb-inset desde visualViewport: el teclado encoge el panel de Quirón en lugar de taparlo.'],
+  ['7','overscroll-behavior: sin él, un tirón en medio de una serie recarga la app desde la pestaña del navegador.'],
+  ['8','text-wrap y hyphens: los títulos se equilibran y las etiquetas ya no parten a mitad de palabra.'],
+  ['9','Tooltips propios con [data-tip]: los 24 `title` de la app no existen en táctil ni se ven con teclado.'],
+  ['★','Superficie del control activo: en oscuro el relleno era MÁS OSCURO que la pista, así que el segmentado activo se leía hundido en vez de elevado.'],
+];
+$('#notesSystem').innerHTML = NOTAS_SISTEMA.map(([id, txt]) => `<li><b>${id}</b> ${txt}</li>`).join('');
+$('#notesBtn').addEventListener('click', (e) => {
+  const on = e.currentTarget.getAttribute('aria-pressed') === 'true';
+  e.currentTarget.setAttribute('aria-pressed', String(!on));
+  $('#notesPanel').hidden = on;
+});
+/* En móvil las notas tapan media pantalla: se abren a demanda. En escritorio
+   caben al lado del contenido y ayudan a leer la propuesta. */
+if (!matchMedia('(min-width:1024px)').matches) {
+  $('#notesPanel').hidden = true;
+  $('#notesBtn').setAttribute('aria-pressed', 'false');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ARRANQUE
+   ══════════════════════════════════════════════════════════════════════════════ */
+renderRunner();
+renderProgress('Sentadilla');
+swInit();
+function swInit() {
+  /* Igual que en la app: avisar antes de registrar nada. Aquí no se registra
+     ningún service worker — el prototipo se sirve desde el árbol de trabajo. */
+  $('#syncText').textContent = 'Copia al día';
+}
+</script>
+</body>
+</html>
