@@ -377,8 +377,38 @@ select{cursor:pointer}
 /* --lg no lleva min-height: en escritorio el relleno se aprieta a 12/20 (§5) y
    un mínimo de 52 dejaría los botones más altos de lo que están hoy. */
 .btn--lg{padding:var(--pad-y-lg) var(--pad-x-lg);font-size:var(--fs-lg)}
-/* Ancho */
+/* Ancho.
+
+   `.btn--block` = «soy la acción principal de mi contenedor». El ancho completo
+   vale donde el contenedor es estrecho y se usa a una mano: por debajo de 640 px
+   y dentro de una hoja. De 640 para arriba el botón mide lo que dice.
+
+   El diagnóstico ya estaba escrito en esta hoja, componente a componente
+   («dejaban de ser vallas de ancho completo», «seis vallas del color de la
+   marca», «era el resto de un ancho completo de móvil»), pero la cura se aplicó
+   tres veces a mano y **solo a partir de 1024**:
+
+     #strTrain>.save-bar #saveWorkoutBtn   width:auto;min-width:240px;margin-left:auto
+     .run-start-btn                        width:auto;min-width:260px
+     .str-plan-start-btn.btn--block        width:auto;min-width:200px;margin-left:auto
+
+   Tres min-width distintos, dos alineaciones distintas y —lo que importaba—
+   toda la franja 640-1023 se quedaba con el ancho de móvil, porque las tres
+   reglas empezaban en 1024. Medido a 900 px antes de subir esto: «Empezar
+   entreno» 528 de 560 (94 %), «Iniciar sesión» 528 de 560 (94 %), «Importar del
+   reloj» 520 de 560 (93 %). A 1440: 94 %, 36 % y 23 %.
+
+   La regla sube aquí, a la capa de sistema, y empieza en 640. El ancho completo
+   se queda donde es la única forma cómoda de pulsarlo a una mano; el min-width
+   no es decoración, es lo que mantiene un objetivo grande sin estirarlo. */
 .btn--block{width:100%}
+@media(min-width:640px){
+  .btn--block{width:auto;min-width:200px}
+  /* Ancla al borde final de su fila. Dos formas y no una porque el contenedor
+     puede ser una fila flex o flujo normal: en el segundo caso un hijo
+     inline-flex no reparte márgenes automáticos, así que necesita caja propia. */
+  .btn--end{display:flex;width:fit-content;margin-inline-start:auto}
+}
 /* Icono. El aria-label no es opcional: sin él es un botón sin nombre. */
 .btn--icon{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border-radius:var(--radius-md);gap:0}
 .btn:disabled,.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
@@ -555,6 +585,14 @@ a.listrow--action{text-decoration:none}
 /* La acción principal de una hoja móvil: éste es el caso para el que existe
    .btn--block, y prácticamente el único. */
 .sheet-foot .btn--block{flex:1}
+/* De 640 arriba la hoja ya es un diálogo centrado: las acciones se miden por
+   contenido y se anclan al borde final, que es como las alinean Material y
+   macOS. El ancho completo de la hoja deja de tener sentido cuando el panel
+   mide 520 px y ya no ocupa la pantalla. */
+@media(min-width:640px){
+  .sheet-foot>.btn{flex:0 1 260px}
+  .sheet-foot>.btn:first-child{margin-inline-start:auto}
+}
 /* ── 3.10 BANNER DE ESTADO ──────────────────────────────────────────────────
    Fondo teñido e icono. NUNCA una banda de acento lateral: en una tarjeta, en
    una fila o en una alerta, la barra de color a la izquierda está prohibida en
@@ -2401,7 +2439,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    la primaria y "Guardar sesión" su secundaria al terminar. */
 #startRunnerBtn{width:auto;min-width:240px;justify-self:end;margin-bottom:0}
 #strTrain>.save-bar{justify-self:end;max-width:var(--measure-form)}
-#strTrain>.save-bar #saveWorkoutBtn{width:auto;min-width:240px;margin-left:auto;display:block}
+#strTrain>.save-bar #saveWorkoutBtn{min-width:240px}  /* iguala con #startRunnerBtn */
 /* Los cinco puntos son un SCROLL SPY de una lista vertical. Con las tarjetas en
    rejilla de dos columnas el recorrido deja de ser lineal y el indicador deja
    de poder decir dónde estás; además flotaba arriba a la derecha sin nada a lo
@@ -2446,25 +2484,24 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .quiron-panel:has(.quiron-setup:not([hidden])) .quiron-msgs{flex:1 1 auto;min-height:0}
 /* ── Entrenar/Carrera · Actividad ─────────────────────────
    "Importar del reloj" era un relleno rojo de 520px alineado a la izquierda
-   debajo de dos paneles de 915: ni acompañaba al contenido ni era un botón,
-   era el resto de un ancho completo de móvil. Ancho automático y centrado con
-   lo que hay debajo, que es su alternativa ("Registro manual"). */
-@media(min-width:1024px){
-.run-start-btn{width:auto;min-width:260px;margin-inline:auto}
-}
+   debajo de dos paneles de 915: ni acompañaba al contenido ni era un botón, era
+   el resto de un ancho completo de móvil. Ahora lo resuelve la regla de sistema
+   (.btn--block, §3.1) desde 640 y no desde 1024, así que este bloque se fue. */
 /* ── Entrenar/Fuerza · Plan ───────────────────────────────
    Mismo fallo que Actividad y misma cura. Las seis sesiones del plan eran seis
    tarjetas de 915px apiladas, cada una rematada por un "Iniciar sesión" rojo a
    ancho completo: seis vallas del color de la marca en una pantalla cuyo
    trabajo es enseñarte el plan, no arrancarlo. Las tarjetas pasan a rejilla
    —crecen en número por fila, no de tamaño— y el botón deja de ser primario y
-   de ocupar el ancho: es la acción de una tarjeta, no la de la vista. */
+   de ocupar el ancho: es la acción de una tarjeta, no la de la vista.
+   El ancho lo pone ahora la regla de sistema (§3.1, desde 640) y el ancla la
+   clase .btn--end en la plantilla, que es lo que reemplazó al margin-left:auto
+   que vivía aquí. */
 @media(min-width:1024px){
 #strPlanContent{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
   gap:var(--gap-stack);align-items:start}
 #strPlanContent>.str-plan-session{margin-bottom:0;max-width:var(--measure-panel)}
 .str-plan-header,.str-plan-desc{grid-column:1/-1}
-.str-plan-start-btn.btn--block{width:auto;min-width:200px;margin-left:auto;display:block}
 }
 /* ── Entrenar/Fuerza · Historial: calendario y lista a la vez ──
    A 1440, no a 1024, y el motivo es aritmético. Historial no dispone del ancho
@@ -2626,7 +2663,23 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .progress-history th.ph-num,.body-history th.bh-num{text-align:right}
 .ph-date,.bh-date{color:var(--color-text-secondary);font-weight:500}
 .body-history .bh-date{text-align:left;font-size:var(--fs-base);text-transform:none;letter-spacing:0;color:var(--color-text-secondary);border-bottom:.5px solid var(--color-border-subtle);padding:8px}
-.ph-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
+/* El relleno del distintivo de récord era --color-accent-text, que en oscuro es
+   #ff5545: con el texto blanco encima son 3,16:1 y el AA de texto se pierde. Es
+   exactamente el fallo que el §1.3 ya documenta y arregló una vez para el botón
+   primario —el acento tipográfico no es un relleno, y para eso hay dos tokens—.
+   Ahora usa --color-action-primary, que es el que existe para rellenar (4,79:1). */
+.ph-pr{font-size:var(--fs-2xs);background:var(--color-action-primary);color:var(--color-action-primary-fg);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
+/* Igualar el récord no es batirlo: mismo sitio en la fila, otro peso visual. Sin
+   relleno y en el gris de etiqueta, para que la insignia siga siendo del PR. */
+.ph-eq{font-size:var(--fs-2xs);background:var(--color-surface-2);color:var(--color-text-secondary);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;vertical-align:1px;white-space:nowrap}
+/* La columna de variante solo aparece cuando el plan tiene más de una sesión, y
+   es lo que hace explicable una fila con PR junto a otra al mismo peso sin él. */
+.ph-session{color:var(--color-text-secondary);font-weight:500}
+/* Dos líneas sin nombre no dicen nada: el color no es información hasta que algo
+   lo ancla a una etiqueta. */
+.ph-legend{display:flex;flex-wrap:wrap;gap:var(--sp-4);margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--color-border-subtle);font-size:var(--fs-sm);color:var(--color-text-secondary)}
+.ph-legend span{display:inline-flex;align-items:center;gap:6px}
+.ph-legend i{width:14px;height:3px;border-radius:2px;display:block}
 .progress-history tr.is-pr td{background:var(--color-accent-glow)}
 .bh-action{text-align:right}
 .bh-action .hi-edit-btn{margin-top:0}
