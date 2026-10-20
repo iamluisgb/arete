@@ -82,8 +82,15 @@
   --color-border-ghost:rgba(0,0,0,.06);
   /* Acción. Dos tokens y no uno: el relleno del botón y el acento tipográfico
      tienen requisitos de contraste opuestos, y en oscuro divergen (§1.3). */
-  --color-action-primary:var(--red-600);       /* relleno del botón primario */
+  --color-action-primary:var(--red-600);       /* relleno de DOMINIO (fuerza, PR) */
   --color-action-primary-fg:var(--sand-0);     /* texto sobre ese relleno */
+  /* La acción principal NO es roja: es tinta. Con el rojo en el botón, el
+     nav activo, la gráfica y el récord, el acento aparecía diez veces por
+     pantalla y dejaba de acentuar. El rojo sobrevive donde significa algo:
+     tu dominio de fuerza y tu récord. Misma decisión que BookReader
+     (--btn-bg en tinta) y por la misma razón. */
+  --color-action-ink:var(--brown-900);
+  --color-action-ink-fg:var(--sand-0);
   --color-accent-text:var(--red-600);          /* acento como texto o icono */
   --color-accent-soft:var(--red-200);
   --color-accent-wash:rgba(var(--red-600-rgb),.08);   /* fondo teñido */
@@ -257,6 +264,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
   --color-border-ghost:rgba(var(--brown-700-rgb),.15);
   --color-action-primary:var(--red-600);
   --color-action-primary-fg:var(--sand-0);
+  --color-action-ink:var(--ash-50);
+  --color-action-ink-fg:var(--ink-900);
   --color-accent-text:var(--red-500);
   --color-accent-soft:var(--red-200);
   --color-accent-wash:rgba(var(--red-500-rgb),.14);
@@ -356,12 +365,11 @@ select{cursor:pointer}
    vista. La segunda acción es --secondary; la tercera, --ghost. Un acento que
    aparece diez veces por pantalla ya no acentúa. */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  background:var(--color-action-primary);color:var(--color-action-primary-fg);border:none;
-  font-family:var(--font);font-size:var(--fs-md);font-weight:700;
+  background:var(--color-action-ink);color:var(--color-action-ink-fg);border:none;
+  font-family:var(--font);font-size:var(--fs-md);font-weight:600;
   padding:var(--pad-y-md) var(--pad-x-md);border-radius:var(--radius-lg);
   cursor:pointer;width:auto;min-height:44px;
-  transition:transform var(--dur-instant),opacity var(--dur-fast),background var(--dur-fast);
-  box-shadow:var(--shadow-action)}
+  transition:transform var(--dur-instant),opacity var(--dur-fast),background var(--dur-fast)}
 .btn:active{transform:scale(.97);opacity:.85}
 /* Secundario: mismo peso de forma, cero peso de color. */
 .btn--secondary,.btn-outline{background:var(--color-surface-2);color:var(--color-text-primary);font-weight:500;box-shadow:none}
@@ -784,7 +792,10 @@ body{line-height:1.5}
   --ease-sheet:cubic-bezier(.32,.72,0,1);
   --ease-linear:linear;
 }
-nav button.active{color:var(--color-on-fill);background:var(--color-accent-text);box-shadow:var(--shadow-action)}
+/* La píldora roja del nav era el uso más repetido del acento —siete veces en
+   la barra, una por pestaña— y el que más lo gastaba: la sección en la que
+   estás no es una alarma. Fondo y peso, como el resto de selecciones. */
+nav button.active{color:var(--color-text-primary);background:var(--color-surface-2);font-weight:700}
 nav button .material-symbols-outlined{font-size:24px}
 .header-logo{width:24px;height:24px;border-radius:var(--radius-xs)}
 .save-bar{margin-top:var(--sp-3)}
@@ -2113,7 +2124,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .sr-tip{font-size:var(--fs-base);color:var(--color-text-secondary);text-align:center;margin-top:var(--sp-2);line-height:1.45}
 .sr-next{font-size:var(--fs-base);color:var(--color-text-secondary);text-align:center;font-weight:600;margin-top:var(--sp-2)}
 .sr-next b{color:var(--color-text-primary)}
-.sr-cta{width:100%;background:var(--color-accent-text);color:var(--color-on-fill);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:700;padding:16px;border-radius:var(--radius-lg);cursor:pointer;min-height:54px;box-shadow:var(--shadow-action);margin-top:var(--sp-3)}
+.sr-cta{width:100%;background:var(--color-action-ink);color:var(--color-action-ink-fg);border:none;font-family:var(--font);font-size:var(--fs-lg);font-weight:600;padding:16px;border-radius:var(--radius-lg);cursor:pointer;min-height:54px;margin-top:var(--sp-3)}
 .sr-cta:active{transform:scale(.985);opacity:.9}
 .sr-cta.ready{background:var(--color-state-success);box-shadow:none}
 .sr-sub{width:100%;background:none;border:none;color:var(--color-text-secondary);font-family:var(--font);font-size:var(--fs-base);font-weight:600;padding:12px;cursor:pointer;min-height:44px}
@@ -2968,7 +2979,7 @@ a:hover{opacity:.8}
 .dash-sched-pie{display:flex;gap:var(--sp-3);flex-wrap:wrap;
   border-top:1px solid var(--color-border);padding-top:var(--sp-2)}
 .dash-sched-pie-link{background:none;border:none;padding:0;cursor:pointer;
-  font:var(--type-caption);font-weight:600;color:var(--color-accent-text)}
+  font:var(--type-caption);font-weight:600;color:var(--color-text-secondary)}
 
 /* Cola de pendientes en el Plan tab de Entrenar (N4): discreta, una línea. */
 .plan-queue{margin:0 0 var(--sp-2);font:var(--type-caption);color:var(--color-text-tertiary)}

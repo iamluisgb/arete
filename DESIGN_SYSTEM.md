@@ -63,16 +63,23 @@ hoja invocada; la pantalla por defecto es la de lectura.
 
 > Rechaza: la Cuerpo anterior, once campos vacíos apilados sobre cuatro paneles de resultado.
 
-### 2.3 Una sola acción primaria en rojo por vista
+### 2.3 La acción principal va en tinta; el rojo es dominio
 
-El rojo `#d4372c` es la marca. Hoy se usaba para la acción primaria, los títulos de sección, las
-cifras destacadas, los chips, los enlaces y el botón de borrar. Un acento que aparece diez veces por
-pantalla deja de acentuar y se convierte en textura.
+El rojo `#d4372c` es la marca. Llegó a usarse para la acción primaria, los títulos de sección, las
+cifras destacadas, los chips, los enlaces, la pestaña activa del nav y el botón de borrar. Un acento
+que aparece diez veces por pantalla deja de acentuar y se convierte en textura.
 
-**Presupuesto:** un relleno rojo por vista. La segunda acción es `--secondary`; la tercera,
-`--ghost`. Los títulos de sección **no** son rojos: son `--color-text-secondary` en caja baja. Lo
-destructivo usa el rojo de **estado**, no el de marca, y nunca compite con la acción primaria en la
-misma fila.
+**El relleno de la acción principal es tinta** (`--color-action-ink`, que en oscuro invierte): un
+botón negro en un lienzo claro dice "pulsa esto" sin gastar el color de la marca, y el rojo queda
+libre para lo que de verdad significa algo — **tu dominio de fuerza y tu récord**. Es la misma
+decisión que tomó BookReader con `--btn-bg` y por la misma razón: cuando todo era verde, nada
+destacaba.
+
+**Presupuesto:** el rojo solo rellena lo que es del atleta (día entrenado en el calendario, chip de
+PR, serie de la gráfica, badge de tu limitante). La segunda acción es `--secondary`; la tercera,
+`--ghost`. La pestaña activa del nav **no** es una banda roja: es fondo y peso, como cualquier otra
+selección (§2.4). Lo destructivo usa el rojo de **estado**, no el de marca, y nunca compite con la
+acción primaria en la misma fila.
 
 > Rechaza: diez botones "Editar" rojos en las filas de una tabla (lo que hacía el historial
 > corporal).
@@ -113,9 +120,10 @@ Dicen para qué sirve el color, no cuál es:
   `-3` (hover de una superficie 1) · `--color-surface-glass`.
 - **Texto:** `--color-text-primary` / `-secondary` / `-tertiary` / `-inverse`.
 - **Bordes:** `--color-border-subtle`, `--color-border-ghost`.
-- **Acción:** `--color-action-primary` (el relleno del botón), `--color-action-primary-fg` (el texto
-  sobre ese relleno), `--color-accent-text` (el acento cuando es texto o icono),
-  `--color-accent-soft`, `--color-accent-wash`, `--color-accent-glow`, `--color-focus-ring`.
+- **Acción:** `--color-action-ink` (el relleno del botón principal) y `--color-action-ink-fg` (su
+  texto). `--color-action-primary` queda para el **relleno de dominio** (PR, badge de limitante).
+  `--color-accent-text` (el acento cuando es texto o icono), `--color-accent-soft`,
+  `--color-accent-wash`, `--color-accent-glow`, `--color-focus-ring`.
 - **Estado:** `--color-state-success` / `-warning` / `-danger` / `-info`.
 - **Dominio:** `--color-domain-strength` (rojo) y `--color-domain-running` (cian). Son dominios, no
   estados: carrera no es "info".
@@ -136,7 +144,8 @@ color, vuelves a medir y actualizas esta tabla y el comentario de `app.css`.
 | `--color-text-secondary` | 4,96 | 5,34 | **4,68** | 4,85 | AA de texto |
 | `--color-text-tertiary` | 3,36 | 3,53 | **3,23** | 3,30 | AA no textual (1.4.11) |
 | `--color-action-primary` | 4,29 | 4,79 | 3,93 | 4,14 | — |
-| blanco sobre la acción primaria | — | — | — | — | **4,79** → AA |
+| blanco sobre la acción primaria (ya solo dominio) | — | — | — | — | **4,79** → AA |
+| texto del botón sobre `--color-action-ink` | **15,39** | 17,19 | 14,08 | 14,84 | AAA |
 
 El alfa `.80`/`.64` del secundario y el terciario está calibrado al límite: con `.78`, el secundario
 caía a **4,46** sobre `surface2` y fallaba el AA por tres centésimas justo dentro de las tarjetas.
