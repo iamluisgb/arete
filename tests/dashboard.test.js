@@ -159,8 +159,13 @@ const PLAN_RUN_TEST = {
 const TODOS_LOS_DIAS = [1, 2, 3, 4, 5, 6, 7];
 
 function seedSchedDb(over = {}) {
+  // Un entreno suelto antiguo en cada plan: el atleta ya empezó, que es la
+  // condición para que el plan tenga sesiones ATRASADAS (dashboard.js no
+  // inventa deuda antes del primer entreno). No es una sesión del plan, así
+  // que no altera la cola que comprueban estos tests.
   const db = {
-    workouts: [], runningLogs: [],
+    workouts: [{ date: '2026-01-02', session: 'Suelta', program: 't-fuerza', phase: 1, exercises: [] }],
+    runningLogs: [{ date: '2026-01-02', session: 'Suelta', program: 't-run' }],
     settings: { schedule: { arete: { anchors: TODOS_LOS_DIAS }, running: { anchors: TODOS_LOS_DIAS } } },
     customPrograms: [PLAN_FUERZA_TEST, PLAN_RUN_TEST],
     program: 't-fuerza', phase: 1, runningProgram: 't-run', runningWeek: 1,

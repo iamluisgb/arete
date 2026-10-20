@@ -7,61 +7,11 @@ import { scheduleDay, scheduleAll, scheduleOverdue, pendingCount, getScheduleCon
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
 
-const QUOTES = [
-  { text: 'La disciplina es el puente entre las metas y los logros.', author: 'Jim Rohn' },
-  { text: 'No se trata de ser el mejor. Se trata de ser mejor que ayer.', author: null },
-  { text: 'La constancia no es glamurosa, pero es lo que funciona.', author: null },
-  { text: 'Enamórate del proceso y los resultados llegarán.', author: 'Eric Thomas' },
-  { text: 'Cada repetición cuenta, aunque no la sientas.', author: null },
-  { text: 'La fuerza no viene de lo que puedes hacer. Viene de superar lo que creías que no podías.', author: 'Rikki Rogers' },
-  { text: 'El cuerpo logra lo que la mente cree.', author: null },
-  { text: 'No cuentes los días, haz que los días cuenten.', author: 'Muhammad Ali' },
-  { text: 'El dolor que sientes hoy será la fuerza que sentirás mañana.', author: null },
-  { text: 'La diferencia entre querer y lograr es la disciplina.', author: null },
-  { text: 'Entrena porque tu cuerpo lo merece, no como castigo por lo que comiste.', author: null },
-  { text: 'El éxito no se regala. Se entrena.', author: null },
-  { text: 'Hoy es un buen día para ser mejor que ayer.', author: null },
-  { text: 'Los límites solo existen si los aceptas.', author: null },
-  { text: 'No busques inspiración. Sé la inspiración.', author: null },
-  { text: 'El talento te pone en el juego. El esfuerzo te hace ganar.', author: null },
-  { text: 'Sufre la disciplina o sufre el arrepentimiento.', author: 'Jim Rohn' },
-  { text: 'Tu yo del futuro te lo va a agradecer.', author: null },
-  { text: 'Cada día es una nueva oportunidad para mejorar.', author: null },
-  { text: 'La motivación te pone en marcha. El hábito te mantiene.', author: null },
-  { text: 'El progreso, no la perfección, es lo que importa.', author: null },
-  { text: 'Lo que hoy parece imposible, mañana será tu calentamiento.', author: null },
-  { text: 'La mente se rinde antes que el cuerpo. No la dejes.', author: null },
-  { text: 'Pequeños pasos cada día llevan a grandes resultados.', author: null },
-  { text: 'Si fuera fácil, todo el mundo lo haría.', author: null },
-  { text: 'Estar incómodo es el precio del crecimiento.', author: null },
-  { text: 'No esperes a estar motivado. Actúa y la motivación vendrá.', author: null },
-  { text: 'La mejor versión de ti se construye día a día.', author: null },
-  { text: 'El hierro no miente. Siempre te da lo que mereces.', author: 'Henry Rollins' },
-  { text: 'Más fuerte que ayer, más listo que mañana.', author: null },
-  { text: 'Corre cuando puedas, camina cuando debas, pero nunca te rindas.', author: 'Dean Karnazes' },
-  { text: 'No entreno para ser rápido. Entreno para no rendirme.', author: 'Eliud Kipchoge' },
-  { text: 'Cada kilómetro que corres es un kilómetro que te separa de quien eras.', author: null },
-  { text: 'La carrera más difícil es la que empieza en la puerta de casa.', author: null },
-  { text: 'Correr es la forma más honesta de competir contigo mismo.', author: null },
-  { text: 'Los primeros kilómetros son del cuerpo. Los últimos, de la mente.', author: null },
-  { text: 'No necesitas ir rápido. Solo necesitas no parar.', author: null },
-  { text: 'Soy lento, pero estoy delante de todos los que se quedaron en el sofá.', author: null },
-  { text: 'Cada paso cuenta, aunque sea pequeño.', author: null },
-  { text: 'La línea de meta siempre merece el esfuerzo.', author: null },
-];
-
-function getDailyQuote() {
-  const today = new Date().toISOString().slice(0, 10);
-  const saved = localStorage.getItem('blQuoteDate');
-  let idx;
-  if (saved === today) {
-    idx = parseInt(localStorage.getItem('blQuoteIdx')) || 0;
-  } else {
-    idx = Math.floor(Math.random() * QUOTES.length);
-    localStorage.setItem('blQuoteDate', today);
-    localStorage.setItem('blQuoteIdx', idx);
-  }
-  return QUOTES[idx];
+/** Muestra u oculta una tarjeta del resumen semanal. `hidden` y no `display`,
+ *  para que el lector de pantalla tampoco la anuncie. */
+function showCard(id, visible) {
+  const el = document.getElementById(id);
+  if (el) el.hidden = !visible;
 }
 
 function getWeekStart() {
@@ -390,7 +340,19 @@ function renderSchedule(db) {
 
   const hoy = today();
   const deHoy = scheduleDay(db, hoy, new Date());
-  const atrasadas = scheduleOverdue(db);
+  // Atrasadas solo desde TU primer entreno de ese plan. La ventana mira 14 días
+  // atrás sin preguntar cuándo empezaste: a quien abre la app por primera vez le
+  // presenta seis sesiones de deuda que no ha contraído, y el plan entero lee
+  // como una factura. Lo pendiente sí se dice: es la cola, no una falta.
+  const primerDia = (plan) => {
+    const fechas = (plan === PLAN_RUNNING ? (db.runningLogs || []) : db.workouts)
+      .map(x => x.date).filter(Boolean).sort();
+    return fechas[0] || null;
+  };
+  const atrasadas = scheduleOverdue(db).filter(e => {
+    const desde = primerDia(e.plan);
+    return desde != null && e.date >= desde;
+  });
   const pendientes = pendingCount(db);
   const totalPend = pendientes[PLAN_STRENGTH] + pendientes[PLAN_RUNNING];
 
@@ -525,6 +487,22 @@ export function renderDashboard(db) {
   const weekStart = getWeekStart();
   const weekWorkouts = db.workouts.filter(w => new Date(w.date + 'T12:00:00') >= weekStart);
 
+  // Qué se pinta del resumen semanal. Un atleta nuevo no necesita cuatro anillos
+  // a cero —ya tiene delante los primeros pasos— y quien solo entrena fuerza no
+  // necesita dos tarjetas de kilómetros que siempre dirán 0. Una raya a cero no
+  // informa de nada; un 0 sobre una disciplina que sí practicas, sí: dice que
+  // esta semana no has ido.
+  const hasStrength = db.workouts.length > 0;
+  const hasRunning = (db.runningLogs || []).length > 0;
+  showCard('dashVolume', hasStrength);
+  showCard('dashSessions', hasStrength);
+  showCard('dashRunKm', hasRunning);
+  showCard('dashRunSessions', hasRunning);
+  const weekSection = document.getElementById('dashWeek');
+  const weekTitle = document.getElementById('dashWeekTitle');
+  if (weekSection) weekSection.hidden = !(hasStrength || hasRunning);
+  if (weekTitle) weekTitle.hidden = !(hasStrength || hasRunning);
+
   // Volume: total kg lifted this week
   let totalKg = 0;
   for (const w of weekWorkouts) {
@@ -576,13 +554,6 @@ export function renderDashboard(db) {
   if (greetEl) {
     const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
     greetEl.textContent = greeting;
-  }
-
-  // Daily quote
-  const quoteEl = document.getElementById('dashQuote');
-  if (quoteEl) {
-    const q = getDailyQuote();
-    quoteEl.textContent = q.author ? `"${q.text}" — ${q.author}` : `"${q.text}"`;
   }
 
   // Recent activity (last 5 — workouts + runs unified)

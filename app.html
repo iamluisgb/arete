@@ -59,16 +59,14 @@
      lo que cambia es que ya no hay dos acciones primarias compitiendo. -->
 <main><div class="section active" id="secDashboard" data-ds aria-label="Hoy">
   <section class="dash-greeting">
-    <p class="dash-greeting-label">Areté</p>
     <h2 class="dash-greeting-title" id="dashGreeting">Hola</h2>
-    <p class="dash-greeting-quote" id="dashQuote"></p>
   </section>
   <button class="dash-level" id="dashLevel" type="button"></button>
   <!-- Primeros pasos (UX-2): solo para una db esencialmente nueva; el contenido
        lo pinta dashboard.js y desaparece al completar los pasos u ocultarla. -->
   <div id="dashStarter"></div>
-  <h3 class="group-title dash-week-title">Esta semana</h3>
-  <section class="dash-bento" aria-label="Resumen de la semana">
+  <h3 class="group-title dash-week-title" id="dashWeekTitle">Esta semana</h3>
+  <section class="dash-bento" id="dashWeek" aria-label="Resumen de la semana">
     <div class="dash-card" id="dashVolume">
       <div class="dash-card-label"><span class="material-symbols-outlined" aria-hidden="true">fitness_center</span> Volumen</div>
       <div class="dash-ring-wrap">

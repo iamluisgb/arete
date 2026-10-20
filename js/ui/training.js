@@ -351,7 +351,7 @@ function renderSessionOverview(db, sess, exercises) {
     <div class="session-overview-card">
       <div class="so-header">
         <span class="so-name">${esc(session)}</span>
-        <span class="so-count">${sess.customId ? 'Tu sesión · ' : ''}${exercises.length} ejercicios</span>
+        <span class="so-count">${sess.customId ? 'Tu sesión · ' : ''}${exercises.length} ${exercises.length === 1 ? 'ejercicio' : 'ejercicios'}</span>
       </div>
       <div class="so-list">${exercises.map(ex => {
         if (ex.type === 'hiit' && ex.exercises && ex.exercises.length > 0) {

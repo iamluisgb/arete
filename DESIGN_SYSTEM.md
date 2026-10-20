@@ -70,7 +70,7 @@ cifras destacadas, los chips, los enlaces y el botón de borrar. Un acento que a
 pantalla deja de acentuar y se convierte en textura.
 
 **Presupuesto:** un relleno rojo por vista. La segunda acción es `--secondary`; la tercera,
-`--ghost`. Los títulos de sección **no** son rojos: son `--color-text-secondary` en versalitas. Lo
+`--ghost`. Los títulos de sección **no** son rojos: son `--color-text-secondary` en caja baja. Lo
 destructivo usa el rojo de **estado**, no el de marca, y nunca compite con la acción primaria en la
 misma fila.
 
@@ -202,7 +202,7 @@ Lo que faltaba eran los **roles**, que atan las cuatro propiedades:
 | `--type-title` | Título de tarjeta |
 | `--type-body` / `--type-body-strong` | Texto corrido y su versión de énfasis |
 | `--type-caption` | Apoyo, meta, notas |
-| `--type-label` | Etiquetas en versalitas |
+| `--type-label` | Etiquetas, en caja baja |
 | `--type-metric` / `--type-metric-lg` | **Cifras.** Siempre `tabular-nums` |
 
 Dos cautelas prácticas:
@@ -371,7 +371,7 @@ obligatorio, y `title` cuando además sea útil el tooltip nativo.
 
 ### 5.3 Input / Select / Textarea — `.field`
 
-**Anatomía:** `.field-label` (versalitas, **siempre encima**) · el control · `.field-hint` o
+**Anatomía:** `.field-label` (**siempre encima**) · el control · `.field-hint` o
 `.field-error`.
 
 La etiqueta encima y no al lado, siempre: con la etiqueta a la izquierda y un campo de 85px a la
@@ -390,7 +390,7 @@ que el lector de pantalla no ve.
 
 ### 5.5 Card — `.panel`
 
-Superficie 1, radio `xl`, relleno `--pad-card`. `.panel-title` en versalitas secundarias (**no en
+Superficie 1, radio `xl`, relleno `--pad-card`. `.panel-title` en secundario y caja baja (**no en
 rojo**: eso era parte del problema del acento). `.panel--flush` quita el relleno para cuando el hijo
 trae el suyo, como una tabla con scroll.
 
@@ -703,6 +703,35 @@ Dos decisiones dentro de la decisión:
   mirada antes de que empezara la navegación de verdad. Es un cuadrado de 44 alineado al borde del
   rail, con la etiqueta solo para el lector de pantalla y el nombre en `title`. Se lee como el asa
   del panel, que es lo que es.
+
+### 7.4 Menos cromo, menos gritos — *implementado*
+
+**Las etiquetas dejan las versalitas y los títulos bajan de peso; el panel vacío deja de
+pintarse.**
+
+48 declaraciones de `text-transform:uppercase` hacían que todo el cromo gritara a la vez: la
+etiqueta de una tarjeta, el título de un panel y la cabecera de una tabla pesaban lo mismo, así
+que el ojo no tenía por dónde entrar. En caja baja el texto se lee antes y las cifras ganan el
+contraste que les corresponde. Se quedan en versalitas solo las **etiquetas que son etiquetas**:
+badges (`SIN MEDIR`, `TU LIMITANTE`), iniciales del calendario y cabeceras de tabla.
+
+Los `font-weight: 800` se retiran de títulos y etiquetas (a 700) y **se quedan en las cifras que
+se leen a un metro**: cronómetros del entrenador de series, temporizador de HIIT, reloj de
+carrera. Ahí el peso no es decoración, es legibilidad en movimiento.
+
+Y el resumen semanal de **Hoy** deja de pintar tarjetas a cero:
+
+- las de una disciplina que el atleta **no practica** no se dibujan (un corredor no necesita dos
+  tarjetas de fuerza diciendo 0);
+- sin historial de ningún tipo no se dibuja la sección: la pantalla es la lista de primeros pasos;
+- las **atrasadas solo cuentan desde tu primer entreno de ese plan**. La ventana mira 14 días
+  atrás sin preguntar cuándo empezaste, así que a quien abre la app por primera vez le presentaba
+  seis sesiones de deuda que no había contraído. La cola pendiente sí se dice: es una cola, no
+  una falta.
+
+Fuera también la **frase motivacional del día**: era la línea más leída de la app y no decía
+nada que la propia pantalla no dijera mejor. Y fuera la etiqueta "Areté" encima del saludo, que
+repetía el logo que está tres píxeles más arriba.
 
 ---
 

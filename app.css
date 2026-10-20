@@ -176,14 +176,14 @@ nav button svg{width:24px;height:24px;stroke-width:1.8}
 .nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 @media (max-width:359px){ nav button{font-size:.6875rem} }
 header{padding:max(12px,env(safe-area-inset-top)) 20px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:var(--z-header)}
-header h1{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+header h1{font-size:var(--fs-xl);font-weight:700;letter-spacing:-.03em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 header h1 span{color:var(--color-accent-text)}
 /* La .context-bar ya no existe: sus chips viven en la cabecera de la pantalla
    (.page-head-ctx). Era estado disfrazado de barra de navegación, y sticky. */
 .section{display:none;padding:16px 20px}
 .section.active{display:block;animation:fadeIn var(--dur-base) ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-label{display:block;font-size:var(--fs-base);color:var(--color-text-secondary);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+label{display:block;font-size:var(--fs-base);color:var(--color-text-secondary);margin-bottom:5px;font-weight:500}
 /* Y su neutralización en lo migrado. La regla de arriba es de elemento y sus
    versalitas se HEREDAN: un .field o una .listrow-name que sean un <label>
    convertían en mayúsculas su propia ayuda y su mensaje de error. Va con
@@ -214,8 +214,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
    pantalla: un acento que titula secciones deja de acentuar acciones. Ahora es
    el mismo gris de etiqueta del sistema, y la clase sobrevive como alias vacío
    hasta que se borre de las plantillas. */
-.sec-title{font:var(--type-label);letter-spacing:var(--track-label);
-  text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:var(--sp-2)}
+.sec-title{font:var(--type-label);letter-spacing:0;
+  color:var(--color-text-secondary);margin-bottom:var(--sp-2)}
 .sec-title-accent{color:var(--color-text-secondary)}
 .sec-title-mt{margin-top:var(--sp-5)}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -393,7 +393,7 @@ select{cursor:pointer}
 .t-body{font:var(--type-body);letter-spacing:var(--track-body)}
 .t-body-strong{font:var(--type-body-strong);letter-spacing:var(--track-body-strong)}
 .t-caption{font:var(--type-caption);letter-spacing:var(--track-caption);color:var(--color-text-secondary)}
-.t-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.t-label{font:var(--type-label);letter-spacing:0;color:var(--color-text-secondary)}
 .t-metric{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums}
 .t-metric-lg{font:var(--type-metric-lg);letter-spacing:var(--track-metric-lg);font-variant-numeric:tabular-nums}
 /* ── 3.4 SECTIONHEADER ──────────────────────────────────────────────────────
@@ -403,7 +403,7 @@ select{cursor:pointer}
 .page-head{display:flex;align-items:flex-start;justify-content:space-between;
   gap:var(--gap-tight);flex-wrap:wrap;margin-bottom:var(--gap-group)}
 .page-head-txt{min-width:0}
-.page-title{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);text-transform:uppercase}
+.page-title{font:var(--type-title-lg);letter-spacing:var(--track-title-lg)}
 .page-sub{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
 /* ── 3.5 PANEL (Card) ───────────────────────────────────────────────────────
    La superficie 1 con su cabecera. Es el contenedor de lectura por defecto:
@@ -415,7 +415,7 @@ select{cursor:pointer}
 .panel-head{display:flex;align-items:baseline;justify-content:space-between;
   gap:var(--gap-tight);margin-bottom:var(--sp-3)}
 .panel-title{font:var(--type-label);letter-spacing:var(--track-label);
-  text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
+  color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
 .panel-note{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-3);
   padding-bottom:var(--pad-card)}
 .panel:not(.panel--rows)>.panel-note:last-child{padding-bottom:0}
@@ -432,7 +432,7 @@ select{cursor:pointer}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:var(--gap-tight)}
 .tile{background:var(--color-surface-2);border-radius:var(--radius-lg);padding:var(--sp-3) var(--sp-4)}
 .tile-label{font:var(--type-label);letter-spacing:var(--track-label);
-  text-transform:uppercase;color:var(--color-text-secondary)}
+  color:var(--color-text-secondary)}
 .tile-value{font:var(--type-metric);letter-spacing:var(--track-metric);
   font-variant-numeric:tabular-nums;margin-top:2px}
 .tile-unit{font:var(--type-caption);color:var(--color-text-secondary);margin-left:3px}
@@ -527,8 +527,8 @@ a.listrow--action{text-decoration:none}
 .field{display:block;margin-bottom:var(--sp-3);
   text-transform:none;letter-spacing:normal;font-weight:400;
   font-size:var(--fs-md);color:var(--color-text-primary)}
-.field-label{display:block;font:var(--type-label);letter-spacing:var(--track-label);
-  text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:4px}
+.field-label{display:block;font:var(--type-label);letter-spacing:0;
+  color:var(--color-text-secondary);margin-bottom:4px}
 .field-hint{display:block;font:var(--type-caption);color:var(--color-text-secondary);margin-top:4px}
 .field-error{display:block;font:var(--type-caption);color:var(--color-state-danger);margin-top:4px}
 /* Un formulario no se ensancha nunca más allá de su medida. */
@@ -709,8 +709,8 @@ body{line-height:1.5}
      están las clases .t-* (§3), que además ponen las cifras tabulares donde
      tocan. El shorthand `font` resetea font-variant-numeric: por eso --type-
      metric SIEMPRE se aplica con .t-metric o con su tabular-nums al lado. */
-  --type-display:800 var(--fs-3xl)/1.1 var(--font);      --track-display:-.04em;
-  --type-title-lg:800 var(--fs-xl)/1.2 var(--font);      --track-title-lg:-.03em;
+  --type-display:700 var(--fs-2xl)/1.15 var(--font);     --track-display:-.02em;
+  --type-title-lg:700 var(--fs-xl)/1.2 var(--font);      --track-title-lg:-.03em;
   --type-title:700 var(--fs-lg)/1.25 var(--font);        --track-title:-.01em;
   --type-body:400 var(--fs-md)/1.5 var(--font);          --track-body:0;
   --type-body-strong:600 var(--fs-md)/1.45 var(--font);  --track-body-strong:0;
@@ -1219,7 +1219,7 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 #shareCardInner{position:relative;z-index:var(--z-raised)}
 .share-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4);flex-direction:column;text-align:center;gap:6px}
 #detailDate{font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-accent-text)}
-#detailSession{font-weight:800;letter-spacing:-.02em;color:var(--color-text-primary);margin-top:2px}
+#detailSession{font-weight:700;letter-spacing:-.02em;color:var(--color-text-primary);margin-top:2px}
 #detailPhase{font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:var(--color-accent-wash);color:var(--color-accent-text);padding:4px 10px;border-radius:var(--radius-md)}
 #detailExercises{display:flex;flex-direction:column;gap:var(--sp-2)}
 .detail-ex-name{font-size:var(--fs-lg);font-weight:700;color:var(--color-accent-text);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -1257,7 +1257,7 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 #prCelebration{display:none;position:fixed;inset:0;z-index:var(--z-alert);background:var(--color-scrim);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center}
 .pr-card{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:28px 24px;max-width:320px;width:90%;text-align:center;animation:slideUp var(--dur-slower) ease}
 .pr-icon{font-size:var(--fs-3xl);margin-bottom:var(--sp-2)}
-.pr-title{font-size:var(--fs-xl);font-weight:800;color:var(--color-text-primary);margin-bottom:4px}
+.pr-title{font-size:var(--fs-xl);font-weight:700;color:var(--color-text-primary);margin-bottom:4px}
 .pr-subtitle{font-size:var(--fs-md);color:var(--color-text-secondary);margin-bottom:var(--sp-4)}
 #prList{text-align:left}
 .pr-confirm-btn{margin-top:var(--sp-4);background:var(--color-accent-text);color:var(--color-on-fill);font-weight:700;font-size:var(--fs-lg)}
@@ -1673,7 +1673,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .run-type-elev-label{font-size:var(--fs-base);color:var(--color-text-secondary)}
 /* ── Running: Post-run summary ───────────────────────── */
 .run-summary-screen{padding:max(16px,env(safe-area-inset-top)) 20px 20px;overflow-y:auto;height:100%}
-.run-summary-header{font-size:var(--fs-xl);font-weight:800;text-align:center;margin-bottom:var(--sp-4);color:var(--color-text-primary)}
+.run-summary-header{font-size:var(--fs-xl);font-weight:700;text-align:center;margin-bottom:var(--sp-4);color:var(--color-text-primary)}
 .run-summary-big-stats{display:flex;justify-content:center;gap:var(--sp-6);margin-bottom:var(--sp-4)}
 .run-summary-stat{text-align:center}
 .run-summary-stat-value{font-size:var(--fs-2xl);font-weight:800;color:var(--color-text-primary);font-variant-numeric:tabular-nums;line-height:1.1}
@@ -1758,23 +1758,24 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
    Migrada. El bento de anillos se queda —es identidad, no sedimento—; lo que
    cambia es el peso relativo de las cosas. */
 .dash-greeting{margin-bottom:var(--gap-group)}
-.dash-greeting-label{font:var(--type-label);letter-spacing:.15em;text-transform:uppercase;
-  color:var(--color-text-secondary);margin-bottom:var(--sp-1)}
 .dash-greeting-title{font:var(--type-display);letter-spacing:var(--track-display)}
-.dash-greeting-quote{font:var(--type-caption);color:var(--color-text-secondary);
-  font-style:italic;margin-top:var(--sp-2)}
+/* El resumen semanal solo se pinta si hay algo que resumir: dashboard.js pone
+   `hidden` en las tarjetas de la disciplina que el atleta no practica y en la
+   sección entera cuando no hay historial. `hidden` no basta por sí solo: las
+   reglas de abajo declaran display y ganan al estilo del navegador. */
+#dashWeek[hidden],#dashWeekTitle[hidden],.dash-card[hidden]{display:none}
 .dash-week-title{margin-top:var(--gap-group)}
 .dash-bento{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-stack);margin-bottom:var(--gap-group)}
 .dash-card{background:var(--color-surface-1);border-radius:var(--radius-xl);padding:var(--pad-card);
   display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)}
 .dash-card-wide{grid-column:span 2}
-.dash-card-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+.dash-card-label{font:var(--type-label);letter-spacing:0;
   color:var(--color-text-secondary);align-self:flex-start;display:flex;align-items:center;gap:4px}
 .dash-card-label .material-symbols-outlined{font-size:14px}
 .dash-ring-wrap{position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center}
 .dash-ring{width:80px;height:80px}
 .dash-ring-fill{transition:stroke-dashoffset var(--dur-slow) var(--ease-standard)}
-.dash-ring-value{position:absolute;font:var(--type-body-strong);font-weight:800;
+.dash-ring-value{position:absolute;font:var(--type-body-strong);font-weight:700;
   font-variant-numeric:tabular-nums;color:var(--color-text-primary);text-align:center}
 /* La racha en tinta. "0 días" en rojo lee como un error, y no lo es: es un
    hecho neutro que la propia tarjeta remata con "Empieza hoy". Las cifras
@@ -1846,7 +1847,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-panel{position:fixed;inset:0;z-index:var(--z-overlay);background:var(--color-surface-0);display:none;flex-direction:column}
 .quiron-panel.open{display:flex;animation:fadeIn var(--dur-fast) ease-out}
 .quiron-header{display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.quiron-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em}
+.quiron-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-xl);font-weight:700;letter-spacing:-.03em}
 .quiron-title svg{width:21px;height:21px;color:var(--color-accent-text);stroke-width:2}
 .quiron-sub{font-size:var(--fs-sm);font-weight:500;color:var(--color-text-secondary);text-transform:none;letter-spacing:0}
 /* U1: botones de cabecera con etiqueta visible (icono arriba, palabra debajo).
@@ -2068,7 +2069,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .sr-done{gap:var(--sp-4);overflow-y:auto;justify-content:flex-start;padding-top:var(--sp-8)}
 /* En el cierre la cabecera ya no aplica: el ejercicio y la serie son pasado. */
 .set-runner.is-done .sr-top{visibility:hidden}
-.sr-done-title{font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.02em;text-align:center}
+.sr-done-title{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;text-align:center}
 .sr-done-sub{font-size:var(--fs-lg);font-weight:600;color:var(--color-text-secondary);margin-top:calc(var(--sp-4) * -1 + 2px)}
 .sr-done-stats{display:flex;gap:var(--sp-8);margin-top:var(--sp-2)}
 .sr-done-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
@@ -2084,7 +2085,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .sr-done-vol b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
 .sr-done-delta.up{color:var(--color-state-success);font-weight:700}
 .sr-done-delta.down{color:var(--color-text-secondary);font-weight:700}
-.sr-name{font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.02em;text-align:center}
+.sr-name{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;text-align:center}
 .sr-load{display:flex;align-items:flex-start;gap:var(--sp-3);margin-top:var(--sp-2)}
 .sr-load label{display:flex;flex-direction:column;align-items:center;gap:2px}
 .sr-load span{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-secondary);font-weight:700}
@@ -2218,7 +2219,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .prof-domain-why{font:var(--type-caption);color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
 .prof-metric-src{flex-shrink:0}
 .prof-metric-val{min-width:62px}
-.prof-metric-lvl{font:var(--type-caption);font-weight:800;color:var(--color-text-secondary);
+.prof-metric-lvl{font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);
   min-width:24px;text-align:right;font-variant-numeric:tabular-nums}
 .prof-metric-none .listrow-name,.prof-metric-none .listrow-value{color:var(--color-text-secondary)}
 .prof-domain-rule{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-3)}
@@ -2250,7 +2251,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dtest-res-delta.up{color:var(--color-state-success)}
 .dtest-res-delta.down{color:var(--color-text-secondary)}
 .dtest-res-metrics{margin:var(--gap-group) 0;text-align:left}
-.dtest-res-mlvl{font:var(--type-caption);font-weight:800;color:var(--color-text-secondary);
+.dtest-res-mlvl{font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);
   min-width:24px;text-align:right;font-variant-numeric:tabular-nums}
 .dtest-res-note{font:var(--type-caption);color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
 .dtest-res-next{font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);margin:var(--gap-stack) 0}
