@@ -30,6 +30,11 @@ interno: **no** está en `PUBLIC`, no se despliega ni se precachea).
   llevaban meses dejando bordes transparentes y radios cuadrados sin ningún error en consola.
 - **La acción principal va en tinta** (`--color-action-ink`); el rojo es dominio y récord. El nav
   activo es fondo y peso, nunca una banda de acento.
+- **En una cabecera no se mezclan sitios y acciones.** Quirón tenía cinco botones iguales: tres
+  abrían un sitio (informe, memoria, historial) y dos actuaban (nueva, cerrar). Los sitios van a un
+  menú con su nombre escrito; en la cabecera quedan las acciones y el `aria-label`.
+- **Un nombre propio no explica nada.** "Quirón" necesita su subtítulo ("tu coach") y un icono que
+  se lea a 24px: el avión de papel que llevaba decía "enviar".
 
 ## Los 7 dominios — el núcleo del producto
 

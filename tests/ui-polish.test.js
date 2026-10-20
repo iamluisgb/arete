@@ -167,10 +167,12 @@ describe('markup audit (mobile visual fixes)', () => {
   // botón de cabecera necesita su aria-label (es solo icono) y el modal su
   // lista y contador; el estado vacío vive en el render de quiron.js, como el
   // chip del calendario: se audita el fuente.
-  it('Memoria: botón de cabecera con aria-label y modal con lista y contador', () => {
-    const btn = HTML.match(/<button[^>]*id="quironMemoryBtn"[^>]*>/)?.[0];
+  it('Memoria: entrada con nombre visible en el menú y modal con lista y contador', () => {
+    // Ya no es un botón de cabecera solo-icono: es una fila del menú de Quirón,
+    // donde el nombre se lee. El aria-label sobraba; el texto es el nombre.
+    const btn = HTML.match(/<button[^>]*id="quironMemoryBtn"[\s\S]*?<\/button>/)?.[0];
     expect(btn).toBeTruthy();
-    expect(btn).toContain('aria-label="Memoria del agente"');
+    expect(btn).toContain('Memoria del coach');
     expect(HTML).toMatch(/<div class="modal-overlay[^"]*"[^>]*id="quironMemoryModal"/);
     expect(HTML).toContain('id="quironMemoryList"');
     expect(HTML).toContain('id="quironMemoryCount"');
@@ -223,36 +225,62 @@ async function cargarQuiron(seed = {}) {
 
 const H = 60 * 60 * 1000;
 
-describe('Quirón · cabecera con etiquetas visibles (U1)', () => {
-  it('los cuatro botones de contenido llevan etiqueta visible y Cerrar queda solo-icono', () => {
+describe('Quirón · cabecera de tres controles y menú con nombre (U1 bis)', () => {
+  // U1 pedía cuatro botones con etiqueta visible. No cabían: cinco cuadrados
+  // idénticos sin rótulo en móvil no se distinguían entre sí. El contrato pasa
+  // a: tres controles icono (cada uno con nombre accesible) y los tres SITIOS
+  // —informe, memoria, historial— más ajustes en un menú con su texto.
+  it('la cabecera son volver, quién es, nueva y más — y cada icono tiene nombre', () => {
     const start = APP_HTML.indexOf('<div class="quiron-header"');
-    const end = APP_HTML.indexOf('<div class="quiron-msgs"', start); // el header cierra tras los 5 botones
+    const end = APP_HTML.indexOf('<div class="quiron-msgs"', start);
     document.body.innerHTML = APP_HTML.slice(start, end);
 
     for (const [id, label] of [
-      ['quironReportBtn', 'Informe'], ['quironMemoryBtn', 'Memoria'],
-      ['quironHistoryBtn', 'Historial'], ['quironNewBtn', 'Nueva'],
+      ['quironCloseBtn', 'Volver'],
+      ['quironNewBtn', 'Nueva conversación'],
+      ['quironMenuBtn', 'Más opciones'],
     ]) {
       const btn = document.getElementById(id);
-      expect(btn).not.toBeNull();
-      const text = btn.querySelector('.quiron-hbtn-label');
-      expect(text, `falta .quiron-hbtn-label en #${id}`).not.toBeNull();
-      expect(text.textContent.trim()).toBe(label);
-      // La etiqueta visible es un refuerzo: el aria-label y el title siguen mandando.
-      expect(btn.getAttribute('aria-label')).toBeTruthy();
+      expect(btn, `falta #${id}`).not.toBeNull();
+      expect(btn.querySelector('.material-symbols-outlined')).not.toBeNull();
+      expect(btn.getAttribute('aria-label')).toBe(label);
       expect(btn.getAttribute('title')).toBeTruthy();
     }
 
-    const close = document.getElementById('quironCloseBtn');
-    expect(close.querySelector('.quiron-hbtn-label')).toBeNull(); // universal ✕
-    expect(close.getAttribute('aria-label')).toBe('Cerrar');
+    // El título dice qué es, no solo cómo se llama: "Quirón" es un nombre propio.
+    expect(document.querySelector('.quiron-name').textContent.trim()).toBe('Quirón');
+    expect(document.querySelector('.quiron-sub').textContent.trim()).toBe('tu coach');
+
+    // Los cuatro botones de antes ya no cuelgan de la cabecera.
+    // El menú cuelga del header (para posicionarse), pero los botones ya no son
+    // hijos directos: no compiten por el ancho de la fila.
+    for (const id of ['quironReportBtn', 'quironMemoryBtn', 'quironHistoryBtn', 'quironSettingsBtn']) {
+      const el = document.getElementById(id);
+      expect(el.closest('#quironMenu'), `#${id} no está en el menú`).not.toBeNull();
+      expect(el.parentElement.id, `#${id} sigue colgando de la cabecera`).toBe('quironMenu');
+    }
   });
 
-  // Igual que .detail-share-label: en 320px el espacio manda. La etiqueta cede
-  // (icono solo) pero el aria-label/title sostienen el significado.
-  it('app.css degrada las etiquetas a icono bajo 360px (cabecera sin scroll a 320px)', () => {
+  it('informe, memoria, historial y ajustes viven en el menú, con su nombre escrito', () => {
+    const menu = APP_HTML.match(/<div class="q-plus-menu quiron-menu" id="quironMenu"[\s\S]*?<\/div>/)?.[0];
+    expect(menu).toBeTruthy();
+    for (const [id, texto] of [
+      ['quironReportBtn', 'Informe semanal'],
+      ['quironMemoryBtn', 'Memoria del coach'],
+      ['quironHistoryBtn', 'Conversaciones anteriores'],
+      ['quironSettingsBtn', 'Ajustes de Quirón'],
+    ]) {
+      const btn = menu.match(new RegExp(`id="${id}"[\\s\\S]*?<\\/button>`))?.[0];
+      expect(btn, `falta #${id} en el menú`).toBeTruthy();
+      expect(btn).toContain(texto);
+    }
+  });
+
+  it('el subtítulo "tu coach" no se oculta ni a 320px', () => {
+    // Es la única línea que explica qué es Quirón. Se ocultó para que cupieran
+    // cinco botones; con tres, cabe.
     const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
-    expect(css).toContain('@media(max-width:359px){.quiron-hbtn-label{display:none}');
+    expect(css).not.toContain('.quiron-sub{display:none');
   });
 
   it('U2: las sugerencias siguen accesibles desde el composer, ahora en el menú del "+"', () => {

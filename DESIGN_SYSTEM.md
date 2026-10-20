@@ -502,9 +502,10 @@ una hoja móvil.
   tarjeta con borde alrededor de veinte líneas es un bloque que se lee peor que un párrafo.
 - **La hora va fuera de la conversación**: `--fs-2xs` en `--color-text-tertiary`, a la derecha en
   las burbujas del atleta. El separador de día, centrado.
-- **La cabecera pierde los rótulos en móvil**: cinco botones con texto no caben a 430px y partían
-  el título en dos líneas. Quedan los iconos —cada uno con su `aria-label`— y el rótulo vuelve a
-  partir de 640.
+- **La cabecera tiene tres controles, no cinco**: volver · *Quirón / tu coach* · nueva · `···`.
+  Informe, Memoria, Historial y Ajustes no eran acciones, eran **sitios**, y como cinco cuadrados
+  idénticos sin rótulo no se distinguían entre sí. Viven en un menú con su nombre escrito. El
+  subtítulo "tu coach" es la única línea que dice **qué** es Quirón: no se oculta en móvil.
 - **Sin proveedor configurado**, el estado es una tarjeta discreta arriba, no un bloque centrado
   de 315px que parte en dos una conversación que ya existe.
 - **La barra de escribir tiene tres controles, no cuatro**: `＋` (menú con sugerencias y captura),

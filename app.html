@@ -1185,7 +1185,7 @@
        de arriba son pantallas con tus datos, éste es una conversación. No lleva
        data-sec — no es una .section, es un panel — y por eso lo abre quiron.js
        en vez de switchTab. -->
-  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg><span class="nav-label">Quirón</span></button>
+  <button id="navQuiron" type="button" class="nav-quiron" aria-haspopup="dialog" title="Quirón, tu coach (/)"><span class="material-symbols-outlined">forum</span><span class="nav-label">Quirón</span></button>
 </nav>
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="revisionsModalTitle" id="revisionsModal"><div class="modal" style="max-height:80vh;overflow-y:auto">
   <h3 id="revisionsModalTitle">Versiones anteriores en Drive</h3>
@@ -1201,13 +1201,23 @@
   <button class="btn btn-outline" id="revisionsCloseBtn" style="margin-top:12px">Cerrar</button>
 </div></div>
 <div class="quiron-panel" id="quironPanel" role="dialog" aria-modal="true" aria-label="Quirón, tu coach">
+  <!-- Cabecera: volver, quién es, escribir nuevo y "lo demás". Los tres
+       botones que abrían Informe, Memoria e Historial no eran acciones, eran
+       SITIOS: cinco cuadrados idénticos sin rótulo no se distinguían. Ahora
+       viven en un menú con su nombre escrito y quedan dos acciones visibles. -->
   <div class="quiron-header">
-    <div class="quiron-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg> QUIRÓN <span class="quiron-sub">tu coach</span></div>
-    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironReportBtn" aria-label="Informe" title="Informe semanal / mensual"><span class="material-symbols-outlined">summarize</span><span class="quiron-hbtn-label">Informe</span></button>
-    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironMemoryBtn" aria-label="Memoria del agente" title="Lo que Quirón recuerda"><span class="material-symbols-outlined">psychology</span><span class="quiron-hbtn-label">Memoria</span></button>
-    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironHistoryBtn" aria-label="Conversaciones anteriores" title="Conversaciones anteriores"><span class="material-symbols-outlined">history</span><span class="quiron-hbtn-label">Historial</span></button>
-    <button class="quiron-hbtn quiron-hbtn--labeled" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span><span class="quiron-hbtn-label">Nueva</span></button>
-    <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined">close</span></button>
+    <button class="quiron-hbtn" id="quironCloseBtn" aria-label="Volver" title="Volver (Esc)"><span class="material-symbols-outlined">arrow_back</span></button>
+    <div class="quiron-title">
+      <b class="quiron-name">Quirón</b><span class="quiron-sub">tu coach</span>
+    </div>
+    <button class="quiron-hbtn" id="quironNewBtn" aria-label="Nueva conversación" title="Nueva conversación"><span class="material-symbols-outlined">edit_square</span></button>
+    <button class="quiron-hbtn" id="quironMenuBtn" type="button" aria-label="Más opciones" aria-expanded="false" aria-controls="quironMenu" title="Informe, memoria e historial"><span class="material-symbols-outlined">more_horiz</span></button>
+    <div class="q-plus-menu quiron-menu" id="quironMenu" hidden>
+      <button type="button" id="quironReportBtn"><span class="material-symbols-outlined">summarize</span>Informe semanal</button>
+      <button type="button" id="quironMemoryBtn"><span class="material-symbols-outlined">psychology</span>Memoria del coach</button>
+      <button type="button" id="quironHistoryBtn"><span class="material-symbols-outlined">history</span>Conversaciones anteriores</button>
+      <button type="button" id="quironSettingsBtn"><span class="material-symbols-outlined">settings</span>Ajustes de Quirón</button>
+    </div>
   </div>
   <div class="quiron-msgs" id="quironMsgs"></div>
   <div class="quiron-setup" id="quironSetup" hidden>

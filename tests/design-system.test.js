@@ -45,7 +45,6 @@ describe('design system: escala tipográfica', () => {
   const TOLERADOS = new Set([
     '16px',       // html{font-size}: la raíz del rem, no es texto
     '.6875rem',   // nav a 320px (max-width:359): 11px para que quepan 6 pestañas
-    '.625rem',    // .quiron-hbtn-label: rótulo de 10px dentro de un botón de 44
     '.6rem',      // .hi-plan: chip de plan en el historial
     '.68rem',     // .q-code: monoespaciado del chat
     // Cifras del entrenador de series: se leen a un metro, en movimiento, y su
