@@ -10,6 +10,13 @@ sin build step: lo que hay en el repo es lo que se sirve.
 - **Al iterar en el navegador, el service worker sirve la versión cacheada** y tus cambios en
   `js/` no aparecen. Desregístralo y vacía cachés desde DevTools, o abre desde otro puerto.
 
+## Datos largos no rompen la app
+
+Un nombre de ejercicio de 70 caracteres, seis series de doce repeticiones o una nota de 200 no
+pueden empujar el documento en horizontal. Las tablas van dentro de `.table-scroll`; los valores que
+no caben bajan un escalón (`.tile-value--sm`) o envuelven, nunca parten la página. Se comprueba con
+datos patológicos a 390 y 320px **midiendo `scrollWidth` contra el viewport**, no a ojo.
+
 ## Sistema de diseño: las reglas son tests
 
 `DESIGN_SYSTEM.md` es la doctrina; [`tests/design-system.test.js`](tests/design-system.test.js) es

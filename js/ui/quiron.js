@@ -1426,6 +1426,11 @@ export function initQuiron(db, opts = {}) {
     if (e.key !== 'Escape' || e.defaultPrevented) return;
     if (!els.panel.classList.contains('open')) return;
     if (document.querySelector('.modal-overlay.open, .sheet.open')) return;
+    // El menú del "+" es lo primero que se cierra: un Escape debe quitar la
+    // capa de arriba, no la de abajo. Este listener corre antes que el del
+    // menú (mismo target y fase, se registró antes), así que la decisión va
+    // aquí y no en un segundo oyente.
+    if (!plusMenu.hidden) { e.preventDefault(); setPlus(false); return; }
     e.preventDefault();
     closePanel();
   }, { capture: true });
@@ -1448,6 +1453,20 @@ export function initQuiron(db, opts = {}) {
   });
 
   document.getElementById('quironReportBtn').addEventListener('click', () => offerReport(db));
+
+  // Menú del "+": sugerencias y captura, que antes eran dos botones más en la
+  // barra. Cuatro controles dejaban el campo en ~190px a 430px.
+  const plusBtn = document.getElementById('quironPlusBtn');
+  const plusMenu = document.getElementById('quironPlusMenu');
+  const setPlus = (abierto) => {
+    plusMenu.hidden = !abierto;
+    plusBtn.setAttribute('aria-expanded', String(abierto));
+  };
+  plusBtn.addEventListener('click', (e) => { e.stopPropagation(); setPlus(plusMenu.hidden); });
+  plusMenu.addEventListener('click', (e) => { if (e.target.closest('button')) setPlus(false); });
+  document.addEventListener('click', (e) => {
+    if (!plusMenu.hidden && !e.target.closest('#quironPlusMenu') && !e.target.closest('#quironPlusBtn')) setPlus(false);
+  });
 
   // Adjuntar captura → ingesta de entreno
   els.attach.addEventListener('click', () => { if (!busy) els.imageInput.click(); });

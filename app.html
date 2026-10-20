@@ -1225,8 +1225,14 @@
   <div class="quiron-inputbar" id="quironInputBar">
     <!-- Toggle de sugerencias (U2): los chips solo salen solos con la conversación
          vacía; este botón los trae de vuelta cuando el atleta quiere ideas. -->
-    <button id="quironChipsBtn" aria-label="Sugerencias" title="Ideas de qué preguntar"><span class="material-symbols-outlined">lightbulb</span></button>
-    <button id="quironAttachBtn" aria-label="Cargar entreno desde captura" title="Cargar entreno desde captura"><span class="material-symbols-outlined">add_a_photo</span></button>
+    <!-- Dos acciones secundarias en un solo botón: cuatro controles en la
+         barra dejaban el campo en ~190px a 430. El menú guarda los mismos ids,
+         así que los listeners de quiron.js no cambian. -->
+    <button id="quironPlusBtn" type="button" aria-label="Más opciones" aria-expanded="false" aria-controls="quironPlusMenu" title="Sugerencias y captura"><span class="material-symbols-outlined">add</span></button>
+    <div class="q-plus-menu" id="quironPlusMenu" hidden>
+      <button type="button" id="quironChipsBtn"><span class="material-symbols-outlined">lightbulb</span>Ideas de qué preguntar</button>
+      <button type="button" id="quironAttachBtn"><span class="material-symbols-outlined">add_a_photo</span>Cargar entreno desde captura</button>
+    </div>
     <input type="file" id="quironImageInput" accept="image/*" hidden>
     <textarea id="quironInput" rows="1" placeholder="Pregunta a tu coach…" enterkeyhint="send"></textarea>
     <button id="quironMicBtn" aria-label="Dictar" title="Dictar"><span class="material-symbols-outlined">mic</span></button>

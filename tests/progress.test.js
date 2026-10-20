@@ -206,3 +206,22 @@ describe('Progreso: dos variantes del plan no son una sola tendencia', () => {
     expect(document.querySelectorAll('#progressChart path').length).toBe(1);
   });
 });
+
+describe('Progreso: la tabla no arrastra la página', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('el historial vive en un contenedor con scroll horizontal', async () => {
+    // La tabla mide max-content. Sin un contenedor que la desplace, la página
+    // entera se arrastra en horizontal en cuanto la escalera de series o el
+    // nombre del ejercicio se alargan (742px de documento en 390 de viewport).
+    const db = freshDB({
+      workouts: [w('2026-03-02', [
+        { kg: '100', reps: '12' }, { kg: '100', reps: '12' }, { kg: '100', reps: '12' },
+        { kg: '100', reps: '12' }, { kg: '100', reps: '12' }, { kg: '100', reps: '12' },
+      ], 'Sentadilla búlgara con barra y pausa de tres segundos en el punto más bajo')],
+    });
+    await cargar(db, 'Sentadilla búlgara con barra y pausa de tres segundos en el punto más bajo');
+    const $hist = document.getElementById('progressHistory');
+    expect($hist.querySelector(':scope > .table-scroll > table.progress-history')).toBeTruthy();
+  });
+});

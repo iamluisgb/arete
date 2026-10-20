@@ -345,8 +345,11 @@ export function calcCalories(db) {
   const lbm = peso * (1 - grasa / 100);
   const t2 = 370 + 21.6 * lbm;
   const tmb = (t1 + t2) / 2, m = tmb * 1.65;
-  const tile = (label, value, sub) =>
-    `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value">${value}<span class="tile-unit">kcal</span></div>${sub ? `<div class="tile-delta tile-delta--flat">${sub}</div>` : ''}</div>`;
+  const tile = (label, value, sub) => {
+    // Un rango no cabe a tamaño de cifra en media tarjeta: baja un escalón.
+    const cls = String(value).length > 6 ? ' tile-value--sm' : '';
+    return `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value${cls}">${value}<span class="tile-unit">kcal</span></div>${sub ? `<div class="tile-delta tile-delta--flat">${sub}</div>` : ''}</div>`;
+  };
   $caloriesPanel.innerHTML = `<div class="tiles">
       ${tile('TMB (media)', Math.round(tmb), `Peso ${peso}kg · Grasa ${grasa}%`)}
       ${tile('Mantenimiento', Math.round(m), '×1.65')}

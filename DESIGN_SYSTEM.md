@@ -292,6 +292,21 @@ mano en seis sitios y cualquier cambio dejaba elementos descentrados.
 El rail plegable añade `--rail-w-open` (232) y `--rail-w-icon` (64). Ni 232 ni 64 se escriben a mano
 en ninguna otra regla.
 
+### 4.2b Nada desborda la página
+
+**Un dato largo no puede empujar el documento.** Dos reglas, y las dos se comprueban con datos
+patológicos (nombres de 70 caracteres, seis series de doce repeticiones, notas de 200) a 390 y a
+320px:
+
+- **Una tabla vive dentro de `.table-scroll`** (`overflow-x:auto` + `position:relative`). La tabla
+  mide `max-content`; sin el contenedor, la página entera se arrastra en horizontal. Pasaba en
+  Progreso: 742px de documento en un viewport de 390 en cuanto la escalera de series crecía.
+- **Un valor que no cabe baja un escalón antes que partirse.** `.tile-value--sm` para rangos
+  ("2989–3125" partía el número en dos líneas), el contador de una fila no se parte nunca
+  (`white-space:nowrap`) y el nombre cede (`min-width:0;overflow-wrap:anywhere`).
+
+Medido con la página real, no a ojo: es la diferencia entre "se ve apretado" y "la app se mueve".
+
 ### 4.3 Medidas máximas por tipo de contenido
 
 No todo debe ocupar la shell:
@@ -492,6 +507,10 @@ una hoja móvil.
   partir de 640.
 - **Sin proveedor configurado**, el estado es una tarjeta discreta arriba, no un bloque centrado
   de 315px que parte en dos una conversación que ya existe.
+- **La barra de escribir tiene tres controles, no cuatro**: `＋` (menú con sugerencias y captura),
+  el campo y micrófono + enviar. Con cuatro botones sueltos el campo se queda en ~190px a 430. El
+  menú guarda los ids de los dos botones que absorbe, así que sus listeners no cambian; cierra al
+  elegir, al tocar fuera y con Escape **antes** que el panel.
 
 **Cuándo NO usarlo:** para mensajes de sistema o errores dentro del chat, que hablan en
 `.q-typing` / `.q-err` dentro de la misma forma del agente.

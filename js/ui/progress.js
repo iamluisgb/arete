@@ -553,7 +553,11 @@ function renderHistory(points, name, { hasKg, hasE1rm, loadKey }) {
     </tr>`;
   }).join('');
 
-  return `<table class="progress-history">
+  // El contenedor de scroll no es decoración: la tabla mide `max-content`, y sin
+  // él la página entera se arrastraba en horizontal (742px de documento en un
+  // viewport de 390) en cuanto la escalera de series o el nombre del ejercicio
+  // se alargaban. Es el mismo patrón que Cuerpo y el historial de carrera.
+  return `<div class="table-scroll"><table class="progress-history">
     <caption>Historial de ${esc(name)}</caption>
     <thead><tr>
       <th scope="col">Fecha</th>
@@ -564,5 +568,5 @@ function renderHistory(points, name, { hasKg, hasE1rm, loadKey }) {
       ${hasKg && hasE1rm ? '<th scope="col" class="ph-num">e1RM</th>' : ''}
     </tr></thead>
     <tbody>${filas}</tbody>
-  </table>`;
+  </table></div>`;
 }

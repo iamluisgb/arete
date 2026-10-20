@@ -255,16 +255,29 @@ describe('Quirón · cabecera con etiquetas visibles (U1)', () => {
     expect(css).toContain('@media(max-width:359px){.quiron-hbtn-label{display:none}');
   });
 
-  it('U2: el toggle de sugerencias vive junto al composer, con icono lightbulb y aria-label', () => {
-    const bar = APP_HTML.match(/<div class="quiron-inputbar"[\s\S]*?<\/div>/)?.[0];
-    expect(bar).toBeTruthy();
-    const btn = bar.match(/<button[^>]*id="quironChipsBtn"[^>]*>/)?.[0];
-    expect(btn).toBeTruthy();
-    expect(btn).toContain('aria-label="Sugerencias"');
-    expect(btn).toContain('title="Ideas de qué preguntar"');
-    expect(bar.match(/id="quironChipsBtn"[\s\S]*?<\/button>/)?.[0]).toContain('lightbulb');
-    // Al lado del composer: dentro de la barra de escribir, antes del botón de cámara.
-    expect(bar.indexOf('quironChipsBtn')).toBeLessThan(bar.indexOf('quironAttachBtn'));
+  it('U2: las sugerencias siguen accesibles desde el composer, ahora en el menú del "+"', () => {
+    // La barra tenía cuatro controles (sugerencias, captura, micro, enviar) y el
+    // campo se quedaba en ~190px a 430. Los dos secundarios viven en un menú
+    // que abre un único "+", que es el único botón de la barra antes de enviar.
+    const barStart = APP_HTML.indexOf('<div class="quiron-inputbar"');
+    const plusIdx = APP_HTML.indexOf('id="quironPlusBtn"');
+    const sendIdx = APP_HTML.indexOf('id="quironSendBtn"');
+    expect(barStart).toBeGreaterThan(-1);
+    expect(plusIdx).toBeGreaterThan(barStart);
+    expect(plusIdx).toBeLessThan(sendIdx);
+
+    const plus = APP_HTML.match(/<button[^>]*id="quironPlusBtn"[^>]*>/)?.[0];
+    expect(plus).toContain('aria-expanded="false"');
+    expect(plus).toContain('aria-controls="quironPlusMenu"');
+
+    const menu = APP_HTML.match(/<div class="q-plus-menu"[\s\S]*?<\/div>/)?.[0];
+    expect(menu).toBeTruthy();
+    expect(menu).toContain('id="quironChipsBtn"');
+    expect(menu).toContain('lightbulb');
+    expect(menu).toContain('Ideas de qué preguntar');
+    expect(menu).toContain('id="quironAttachBtn"');
+    // Sugerencias primero, captura después.
+    expect(menu.indexOf('quironChipsBtn')).toBeLessThan(menu.indexOf('quironAttachBtn'));
   });
 });
 
