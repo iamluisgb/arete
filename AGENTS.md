@@ -225,6 +225,14 @@ para mirar `dist/` en local; no lo despliegues.
 Al tocar ficheros precacheados hay que subir `CACHE_NAME` en [`sw.js`](sw.js) y añadirlos a
 `ASSETS`, o los clientes instalados seguirán con la versión vieja.
 
+**Y `CACHE_NAME` es la única caché que manda.** Pages sirve el HTML con `max-age=0` pero el
+JS y el CSS con **cuatro horas**, y esta app no tiene build ni nombres con hash: los ficheros se
+llaman igual en todas las versiones. El 2026-10-20 eso produjo un despliegue a medias —HTML nuevo
+sin `#quironMemoryBtn` + `quiron.js` viejo que lo busca en `init`— y Quirón se quedó sin un solo
+botón. Por eso el service worker **precachea con `cache: 'reload'`** (salta la caché HTTP) y
+**pide con `no-cache`** lo del mismo origen: un `CACHE_NAME` nuevo significa código nuevo de
+verdad. `_headers` no sirve aquí: Pages lo publica como fichero y no aplica las reglas.
+
 ### Dónde vive
 - `https://arete.raiatech.com` — **producción**. El DNS de `raiatech.com` está en **Namecheap**,
   no en Cloudflare: el CNAME hacia el deploy de Pages se añade a mano allí.

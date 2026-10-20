@@ -1,6 +1,6 @@
 // Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
 // changes — the SW is cache-first, so a stale name keeps serving old bytes.
-const CACHE_NAME = 'arete-v174';
+const CACHE_NAME = 'arete-v175';
 const ASSETS = [
   './',
   './app.html',
@@ -197,11 +197,23 @@ const ASSETS = [
   './js/ai/soul.js'
 ];
 
-// Install: cache all assets and activate immediately
+// Install: cache all assets and activate immediately.
+//
+// `cache: 'reload'` en cada asset, no `cache.addAll`: esa API va por la caché
+// HTTP, y esta app no tiene build ni nombres con hash. Con el TTL de 4h de
+// Pages, un service worker nuevo podía precachear el JavaScript VIEJO —el del
+// navegador— y quedarse ahí. `reload` salta la caché HTTP y trae el fichero del
+// servidor: es lo que hace que "CACHE_NAME subió" signifique "código nuevo".
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
+      .then(cache => Promise.all(ASSETS.map(url =>
+        fetch(new Request(url, { cache: 'reload' }))
+          .then(res => { if (res.ok) return cache.put(url, res); })
+          // Un asset que falla no puede tumbar la instalación entera: la app
+          // sigue funcionando con lo que sí entró y red lo reintenta al usarlo.
+          .catch(() => {})
+      )))
       .then(() => self.skipWaiting())
   );
 });
@@ -236,8 +248,16 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // `no-cache` en las peticiones del mismo origen: obliga a revalidar contra el
+  // servidor (ETag → 304 si no cambió). Sin esto, el navegador podía servir un
+  // JS de hace cuatro horas junto a un HTML recién desplegado, que es
+  // exactamente cómo Quirón se quedó sin botones el 2026-10-20.
+  const peticion = url.startsWith(self.location.origin)
+    ? new Request(event.request, { cache: 'no-cache' })
+    : event.request;
+
   event.respondWith(
-    fetch(event.request)
+    fetch(peticion)
       .then(response => {
         if (response.ok && event.request.method === 'GET') {
           const clone = response.clone();
