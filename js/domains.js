@@ -200,8 +200,12 @@ export const REP_CAP = 12;
  * 1RM estimado de Epley — misma fórmula que usa Quirón, sin importarla.
  * Devuelve null por encima de REP_CAP: no estimar es más honesto que estimar mal,
  * y es la misma decisión que marca `provisional` un perfil incompleto.
+ *
+ * Exportada para que Progreso dibuje la MISMA carga que el perfil mide. Si la
+ * gráfica calculara su propio 1RM, la pantalla que dice "cómo voy" y la que
+ * dice "de qué estoy limitado" podrían contradecirse con el mismo entreno.
  */
-function epley(kg, reps) {
+export function epley(kg, reps) {
   const k = parseFloat(kg), r = parseInt(reps);
   if (!Number.isFinite(k) || k <= 0 || !Number.isFinite(r) || r < 1) return null;
   if (r > REP_CAP) return null;

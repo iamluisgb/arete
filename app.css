@@ -1265,7 +1265,12 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 .progress-label{font-size:var(--fs-base);font-weight:600;color:var(--color-text-secondary);margin-bottom:6px;display:block}
 #progressExercise{width:100%;padding:12px;border-radius:var(--radius-lg);border:none;background:var(--color-surface-2);color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);font-weight:600}
 #progressChart{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:16px;border:none;min-height:240px;position:relative}
-#progressStats{display:flex;gap:var(--sp-2);margin-top:var(--sp-3)}
+/* Rejilla y no flex: los tiles son el mismo componente que en el resto de la
+   app (`.tile`), y con cuatro hijos a flex:1 el ancho se reparte por igual
+   hasta estrechar etiquetas como "1RM estimado". auto-fit decide solo. */
+#progressStats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:var(--sp-2);margin-top:var(--sp-3)}
+.progress-note{color:var(--color-text-secondary);text-align:center;padding:60px 0;font-size:var(--fs-base)}
+.progress-note span{font-size:var(--fs-sm)}
 #progressHistory{margin-top:var(--sp-4)}
 .progress-select-wrap{margin-bottom:var(--sp-4)}
 /* Exercise mode cards */
@@ -2625,6 +2630,13 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    clase suelta, así que las cabeceras quedaban a la izquierda de sus números. */
 .progress-history th.ph-num,.body-history th.bh-num{text-align:right}
 .ph-date,.bh-date{color:var(--color-text-secondary);font-weight:500}
+/* La escalera de series ("100×5 · 100×5 · 95×6") es el dato principal de la
+   fila: cifras de ancho fijo para que las series se comparen en vertical. */
+.ph-ladder{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+/* El volumen es la columna más derivada de la tabla y la que menos decide una
+   serie; en el móvil, donde la tabla ya arrastra scroll horizontal, se cae
+   antes que el peso y las reps. */
+@media(max-width:639px){.progress-history .ph-vol{display:none}}
 .body-history .bh-date{text-align:left;font-size:var(--fs-base);text-transform:none;letter-spacing:0;color:var(--color-text-secondary);border-bottom:.5px solid var(--color-border-subtle);padding:8px}
 .ph-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
 .progress-history tr.is-pr td{background:var(--color-accent-glow)}

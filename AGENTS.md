@@ -125,6 +125,34 @@ descarga a las dos sesiones falladas") y no solo era no determinista: **contrade
 el tren inferior sube de 5 en 5, una pesa rusa sube a la siguiente pesa, y el estancamiento son
 tres sesiones al mismo peso. Dos fuentes de verdad para el mismo número es una de más.
 
+## Progreso: qué se dibuja y qué se cuenta
+
+[`js/ui/progress.js`](js/ui/progress.js) responde "¿estoy mejorando?". Lo que no es obvio:
+
+- **La serie es la unidad, no el resumen.** La tabla enseña la sesión tal como se hizo
+  (`100×5 · 100×5 · 95×6`), no el máximo de cada columna. El resumen anterior —peso máx, reps
+  máx, volumen— mezclaba en una fila el peso de una serie con las reps de otra.
+- **Una serie hecha es una fila con algo escrito.** El formulario guarda un hueco por serie
+  prescrita, así que contar huecos daría adherencia falsa: los vacíos no cuentan.
+- **La carga es `epley()` importada de [`js/domains.js`](js/domains.js)**, con su `REP_CAP`. Es la
+  misma función que decide el nivel de Fuerza máxima: si Progreso calculara su propio 1RM, la
+  pantalla que dice "cómo voy" y la que dice "de qué estoy limitado" podrían contradecirse con
+  el mismo entreno. Por encima de 12 reps no se estima: queda el hueco.
+- **Dos pistas, un eje X; nunca dos unidades en un eje Y.** Arriba la carga en kg, abajo la
+  escalera de series (una barra por serie, altura = reps). Un gráfico con kg y reps en el mismo
+  eje es un gráfico que miente, y el doble eje es la forma más rápida de inventarse una
+  correlación.
+- **Una línea por variante del plan, no una sola.** Un plan con sesión A y B entrena el mismo
+  ejercicio con objetivos distintos; una única línea dibuja un serrucho de ±10 kg donde no hay
+  tendencia que ver. El hilo es (ejercicio, sesión), el mismo que usa el motor de progresión. Con
+  más de una variante la leyenda va en la línea del título de abajo, no junto al de la carga:
+  arriba se pisan en móvil.
+- **Sin suavizado en la línea.** Una curva entre dos sesiones afirma valores que nadie midió.
+- **La tendencia son las 4 últimas sesiones contra las 4 anteriores**, no contra la primera de
+  la historia: a las treinta sesiones ese número solo puede crecer y ya no dice nada.
+- **Un aguante cronometrado no es una serie de reps** (`2min`, `1min/lado`): se queda fuera de
+  la gráfica y se enseña crudo en la tabla.
+
 ## Running: se importa, no se trackea
 
 Areté no compite en tracking GPS contra Strava y Garmin. El tracker se ofrece **solo donde el
