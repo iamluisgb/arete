@@ -406,9 +406,10 @@ export function initRunning(db) {
   // Plan tab: la semana se elige desde el chip de contexto (N5); acá solo se
   // repueblan las sesiones de la semana activa y la cola visible (N4).
 
-  // Running program context bar
-  document.getElementById('runProgramContext').addEventListener('click', () => {
+  // Contexto de carrera: plan y semana en una sola hoja y un solo chip.
+  document.getElementById('runCtxChip').addEventListener('click', () => {
     renderRunProgramModal(db);
+    renderRunWeekModal(db);
     document.getElementById('runProgramModal').classList.add('open');
   });
   document.getElementById('runProgramModal').addEventListener('click', (e) => {
@@ -428,26 +429,16 @@ export function initRunning(db) {
     document.getElementById('runProgramModal').classList.remove('open')
   );
 
-  // Running week context bar
-  document.getElementById('runWeekContext').addEventListener('click', () => {
-    renderRunWeekModal(db);
-    document.getElementById('runWeekModal').classList.add('open');
-  });
-  document.getElementById('runWeekModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('runWeekModal'))
-      document.getElementById('runWeekModal').classList.remove('open');
+  // La semana se elige en la misma hoja que el plan.
+  document.getElementById('runWeekOptions').addEventListener('click', (e) => {
     const item = e.target.closest('[data-week]');
-    if (item) {
-      db.runningWeek = parseInt(item.dataset.week);
-      saveDB(db);
-      document.getElementById('runWeekModal').classList.remove('open');
-      updateRunContextBar(db);
-      populateRunWeeks(db);
-    }
+    if (!item) return;
+    db.runningWeek = parseInt(item.dataset.week);
+    saveDB(db);
+    document.getElementById('runProgramModal').classList.remove('open');
+    updateRunContextBar(db);
+    populateRunWeeks(db);
   });
-  document.getElementById('runWeekModalClose').addEventListener('click', () =>
-    document.getElementById('runWeekModal').classList.remove('open')
-  );
 
   // Tracker callbacks
   tracker.onUpdate(data => { updateLiveUI(data); saveActiveRun(); });

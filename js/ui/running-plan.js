@@ -4,7 +4,7 @@ import { ZONE_COLORS, ZONE_LABELS, parseSegDistance, parseSegDuration, estimateZ
 
 // ── Plan tab (programs) ──────────────────────────────
 // N5: el <select> de semana del Plan tab se eliminó; el chip de contexto
-// (runWeekContext) + modal es el único camino de selección. Este módulo solo
+// (runCtxChip) + la hoja de plan es el único camino de selección. Este módulo solo
 // pinta las sesiones de la semana activa (db.runningWeek).
 
 let _onStartSession = null;

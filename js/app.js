@@ -421,7 +421,7 @@ function bindEvents() {
   restoreLastTab(db);
 
   // Program selector modal
-  document.getElementById('programContext').addEventListener('click', () => {
+  document.getElementById('ctxChip').addEventListener('click', () => {
     renderProgramSelector();
     document.getElementById('programModal').classList.add('open');
   });

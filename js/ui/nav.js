@@ -231,12 +231,15 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
   });
 }
 
+/* La fase ya no tiene hoja propia: vive dentro de la de plan, porque es el
+   mismo contexto y dos chips no cabían en una fila a 360px. Estos dos nombres
+   se conservan porque son la API que usan training.js y los tests. */
 export function openPhaseModal() {
-  document.getElementById('phaseModal').classList.add('open');
+  document.getElementById('programModal').classList.add('open');
 }
 
 export function closePhaseModal() {
-  document.getElementById('phaseModal').classList.remove('open');
+  document.getElementById('programModal').classList.remove('open');
 }
 
 export function renderPhaseModal(db) {
@@ -276,16 +279,12 @@ export function initNav(db) {
   document.querySelectorAll('.train-mode-btn[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => switchTrainMode(btn.dataset.mode, db));
   });
-  document.getElementById('phaseContext').addEventListener('click', () => {
-    renderPhaseModal(db);
-    openPhaseModal();
-  });
-  document.getElementById('phaseModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('phaseModal')) closePhaseModal();
+  // La fase se elige dentro de la hoja de plan. El listener va sobre su lista,
+  // no sobre el modal entero: ahí dentro también se eligen planes.
+  document.getElementById('phaseOptions').addEventListener('click', (e) => {
     const option = e.target.closest('.phase-option[data-phase]');
     if (option) selectPhase(parseInt(option.dataset.phase), db);
   });
-  document.querySelector('#phaseModal .btn-outline').addEventListener('click', () => closePhaseModal());
 }
 
 /**

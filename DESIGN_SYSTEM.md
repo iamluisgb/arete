@@ -587,7 +587,7 @@ Antes de que apareciera un solo dato, Entrenar apilaba el segmentado Fuerza/Carr
 `.context-bar` con los chips de programa y fase, y las pestañas
 Actividad/Historial/Progreso/Plan: ~180px verticales de navegación consecutiva. Lo aplicado:
 
-1. **El contexto sube a la cabecera.** Los chips de programa y fase son **estado**, no navegación:
+1. **El contexto sube a la cabecera.** El chip de programa · fase es **estado**, no navegación:
    dicen dónde estás, no te llevan a ningún sitio. Se van al `SectionHeader` de la sección, en la
    misma línea que el título, y dejan de ser `sticky`. Desaparece una barra entera.
 2. **Fuerza/Carrera se queda como modo**, pero en escritorio deja de ser una barra horizontal y pasa
@@ -741,6 +741,14 @@ Y el resumen semanal de **Hoy** deja de pintar tarjetas a cero:
 Fuera también la **frase motivacional del día**: era la línea más leída de la app y no decía
 nada que la propia pantalla no dijera mejor. Y fuera la etiqueta "Areté" encima del saludo, que
 repetía el logo que está tres píxeles más arriba.
+
+**Y un chip, no dos, para el contexto.** "Areté" y "Fase I" son la misma pregunta —en qué plan
+estás— y se contestan en la misma hoja, así que van en un solo chip y una sola hoja ("Plan y fase",
+"Plan y semana" en carrera). En 430px los dos chips cabían; a 360 —el móvil más común— empujaban
+la fila del modo a una segunda línea y el contenido empezaba **56px más abajo** (262 en vez de 206
+sobre 780). Medido, no estimado: el modo se ajustó a 155px de ancho y el chip recorta el nombre del
+plan en vez de envolver la fila. La selección de fase y semana pasa a tinta: elegir fase no es tu
+dominio ni tu récord.
 
 ---
 

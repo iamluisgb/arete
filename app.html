@@ -158,20 +158,17 @@
     </div>
     <!-- El contexto: dónde estás, no a dónde vas. Chips, porque se pulsan para
          cambiar de programa, de fase o de semana. -->
+    <!-- Un chip, no dos: plan y fase son el mismo contexto ("Areté · Fase I")
+         y se eligen en la misma hoja. A 360px los dos chips empujaban la fila
+         del modo a una segunda línea y el contenido empezaba 56px más abajo. -->
     <div class="page-head-ctx" id="strCtx">
-      <button class="chip" type="button" id="programContext">
-        <span id="activeProgramName">Areté</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-      </button>
-      <button class="chip" type="button" id="phaseContext">
-        <span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      <button class="chip" type="button" id="ctxChip">
+        <span id="activeProgramName">Areté</span><span class="ctx-dot" aria-hidden="true">·</span><span id="phaseName">Fase I</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
       </button>
     </div>
     <div class="page-head-ctx" id="runCtx" hidden>
-      <button class="chip" type="button" id="runProgramContext">
-        <span id="runProgramName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
-      </button>
-      <button class="chip" type="button" id="runWeekContext">
-        <span id="runWeekName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
+      <button class="chip" type="button" id="runCtxChip">
+        <span id="runProgramName">—</span><span class="ctx-dot" aria-hidden="true">·</span><span id="runWeekName">—</span><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5L5 6.5L7.5 3.5"/></svg>
       </button>
     </div>
     </div>
@@ -413,7 +410,7 @@
   </div>
 
   <!-- TAB 4: Plan (programas estructurados). N5: la semana se elige solo
-       desde el chip de contexto (runWeekContext + modal); acá se lee. La cola
+       desde el chip de contexto (runCtxChip + hoja de plan); acá se lee. La cola
        de la semana activa la pinta running.js con buildQueue. -->
   <div class="run-panel" id="runPlan">
     <p class="plan-queue" id="runPlanQueue" hidden></p>
@@ -871,26 +868,22 @@
 </div>
 
 </div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Elegir plan de fuerza</h3>
+<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Plan y fase</h3>
   <p class="modal-note">Al cambiar de plan la fase vuelve a la primera y la cola de sesiones pendientes se recalcula.</p>
   <div id="programOptions"></div>
+  <h4 class="modal-sub">Fase</h4>
+  <div id="phaseOptions"></div>
   <button class="btn btn-outline" id="programModalClose">Cerrar</button>
 </div></div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="phaseModalTitle" id="phaseModal"><div class="modal"><h3 id="phaseModalTitle">Seleccionar Fase</h3>
-  <p class="modal-note">Al cambiar de fase las sesiones pendientes se recalculan con la fase elegida.</p>
-  <div id="phaseOptions"></div>
-  <button class="btn btn-outline">Cerrar</button>
-</div></div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Elegir plan de carrera</h3>
+
+<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Plan y semana</h3>
   <p class="modal-note">Al cambiar de plan vuelves a la Semana 1 y la cola de sesiones pendientes se recalcula.</p>
   <div id="runProgramOptions"></div>
+  <h4 class="modal-sub">Semana</h4>
+  <div id="runWeekOptions"></div>
   <button class="btn btn-outline" id="runProgramModalClose">Cerrar</button>
 </div></div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runWeekModalTitle" id="runWeekModal"><div class="modal"><h3 id="runWeekModalTitle">Seleccionar Semana</h3>
-  <p class="modal-note">Las sesiones pendientes se recalculan con la semana elegida.</p>
-  <div id="runWeekOptions"></div>
-  <button class="btn btn-outline" id="runWeekModalClose">Cerrar</button>
-</div></div>
+
 <div class="modal-overlay detail-modal" role="dialog" aria-modal="true" aria-label="Detalle de entrenamiento" id="detailModal"><div class="modal">
   <div id="shareCard">
     <div class="share-bubble-1"></div>
