@@ -1193,7 +1193,34 @@ function markNavActive(on) {
   }
 }
 
+/** Cambia de pestaña dentro del panel: Chat o Memoria. Una sola función porque
+ *  hay tres caminos que pueden pedirlo (la pestaña, el menú y un evento externo)
+ *  y ninguno debe inventarse el estado. */
+function switchQuironTab(tab) {
+  const esMem = tab === 'memory';
+  const chat = document.getElementById('qpanelChat');
+  const mem = document.getElementById('qpanelMemory');
+  if (!chat || !mem) return;
+  chat.classList.toggle('active', !esMem);
+  chat.hidden = esMem;
+  mem.classList.toggle('active', esMem);
+  mem.hidden = !esMem;
+  document.querySelectorAll('.q-tab[data-qtab]').forEach(b => {
+    const on = b.dataset.qtab === tab;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  if (esMem) {
+    memoryEditUid = null;
+    renderMemoryList();
+    // Al entrar, el foco va a la lista: quien navega con teclado aterriza en
+    // el contenido de la pestaña y no en el botón que acaba de pulsar.
+    mem.focus({ preventScroll: true });
+  }
+}
+
 function openPanel() {
+  switchQuironTab('chat');
   els.panel.classList.add('open');
   document.body.classList.add('quiron-open');
   markNavActive(true);
@@ -1431,6 +1458,13 @@ export function initQuiron(db, opts = {}) {
     // panel (mismo target y fase, registrado antes), así que la decisión va
     // aquí y no en un segundo oyente.
     if (!plusMenu.hidden || !headMenu.hidden) { e.preventDefault(); cerrarMenus(); return; }
+    // Misma lógica de capas: primero se sube un nivel (Memoria → Chat).
+    if (document.getElementById('qpanelMemory')?.classList.contains('active')) {
+      e.preventDefault();
+      switchQuironTab('chat');
+      document.getElementById('qtabChat')?.focus();
+      return;
+    }
     e.preventDefault();
     closePanel();
   }, { capture: true });
@@ -1495,6 +1529,7 @@ export function initQuiron(db, opts = {}) {
     if (file) handleImage(db, file);
   });
   document.getElementById('quironNewBtn').addEventListener('click', () => {
+    switchQuironTab('chat');
     if (busy) abortCtrl?.abort();
     archiveCurrent();
     convo = [];
@@ -1534,17 +1569,24 @@ export function initQuiron(db, opts = {}) {
     }
   });
 
-  // Memoria duradera (D6): mismo patrón que el historial — modal hermano, lista
-  // re-renderizada tras cada acción, cierre con el botón y con el overlay.
-  const memoryModal = document.getElementById('quironMemoryModal');
-  document.getElementById('quironMemoryBtn').addEventListener('click', () => {
-    memoryEditUid = null;
-    renderMemoryList();
-    memoryModal.classList.add('open');
+  // Memoria duradera (D6): pestaña, no modal. Mismos items y mismos data-*;
+  // el contenedor es el panel, así que la lista convive con la conversación en
+  // vez de taparla.
+  const tabs = [...document.querySelectorAll('.q-tab[data-qtab]')];
+  tabs.forEach((b, i) => {
+    b.addEventListener('click', () => switchQuironTab(b.dataset.qtab));
+    // Un tablist se recorre con las flechas; sin esto hay que tabular por el
+    // botón para cambiar de pestaña.
+    b.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      next.click();
+    });
   });
-  document.getElementById('quironMemoryClose').addEventListener('click', () => memoryModal.classList.remove('open'));
-  memoryModal.addEventListener('click', (e) => {
-    if (e.target === memoryModal) { memoryModal.classList.remove('open'); return; }
+  const memoryPanel = document.getElementById('qpanelMemory');
+  memoryPanel.addEventListener('click', (e) => {
     if (e.target.closest('[data-cancel]')) { memoryEditUid = null; renderMemoryList(); return; }
     const edit = e.target.closest('[data-edit]');
     if (edit) { memoryEditUid = edit.dataset.edit; renderMemoryList(); return; }
@@ -1552,7 +1594,7 @@ export function initQuiron(db, opts = {}) {
     if (save) {
       // upsertMemoria resuelve `id` contra el uid persistente, no contra el
       // [Mn] posicional (js/quiron-memory.js): un id desconocido sería null.
-      const row = memoryModal.querySelector(`[data-uid="${save.dataset.save}"]`);
+      const row = memoryPanel.querySelector(`[data-uid="${save.dataset.save}"]`);
       const texto = row?.querySelector('.qm-edit-text')?.value ?? '';
       const categoria = row?.querySelector('.qm-edit-cat')?.value || 'otro';
       const mems = loadMemorias();
@@ -1620,6 +1662,7 @@ export function initQuiron(db, opts = {}) {
   // panel con el prompt escrito, sin acoplar esas vistas a este módulo.
   document.addEventListener('arete:ask-quiron', (e) => {
     openPanel();
+    switchQuironTab('chat');
     const prompt = e.detail?.prompt;
     if (prompt && !busy) { els.input.value = prompt; autoGrow(); els.input.focus(); }
   });

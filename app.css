@@ -1886,6 +1886,19 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-hbtn{background:var(--color-surface-2);border:none;color:var(--color-text-primary);width:40px;height:40px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
 .quiron-hbtn .material-symbols-outlined{font-size:var(--icon-xl)}
 .quiron-hbtn .material-symbols-outlined{font-size:var(--icon-md)}
+/* Pestañas del panel: Chat y Memoria. Reutilizan el segmentado del sistema
+   (.subnav-tabs) — no hay una pestaña nueva que aprender. */
+.quiron-tabs{margin:0 12px 10px;flex-shrink:0}
+/* Cada pestaña es una columna que se queda con el alto libre. La barra de
+   escribir vive dentro de la de Chat: en Memoria no se conversa. */
+.q-panel{display:none}
+.q-panel.active{display:flex;flex-direction:column;flex:1;min-height:0}
+.q-panel--mem{overflow-y:auto;padding:4px 14px 20px}
+.q-mem-head{display:flex;align-items:baseline;justify-content:space-between;
+  padding:6px 2px 10px;font:var(--type-caption);font-weight:600;color:var(--color-text-secondary)}
+/* En el modal la fila era de una línea y el texto se recortaba con puntos
+   suspensivos. En la pestaña hay ancho y alto: la memoria se lee entera. */
+.q-panel--mem .qh-title{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.4}
 .quiron-msgs{flex:1;min-height:0;overflow-y:auto;padding:20px 18px 10px;display:flex;flex-direction:column;gap:18px}
 /* ── La conversación ────────────────────────────────────────────────────────
    Dos formas y no una caja para todo, como el panel del agente de BookReader:
@@ -2762,7 +2775,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    monitor eso son ~200 caracteres por línea. El óptimo está en 45-75. Es la
    superficie donde el usuario lee más texto seguido de toda la app. */
 @media(min-width:640px){
-.quiron-msgs,.quiron-chips,.quiron-inputbar,.quiron-setup{width:100%;max-width:var(--measure-prose);margin-inline:auto}
+.quiron-msgs,.quiron-chips,.quiron-inputbar,.quiron-setup,.quiron-tabs,.q-panel--mem{width:100%;max-width:var(--measure-prose);margin-inline:auto}
 .q-bubble{max-width:min(88%,34rem)}
 .quiron-header{padding-inline:max(16px,calc(50% - var(--measure-prose)/2))}
 }

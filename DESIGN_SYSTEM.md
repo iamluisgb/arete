@@ -512,6 +512,12 @@ una hoja móvil.
   el campo y micrófono + enviar. Con cuatro botones sueltos el campo se queda en ~190px a 430. El
   menú guarda los ids de los dos botones que absorbe, así que sus listeners no cambian; cierra al
   elegir, al tocar fuera y con Escape **antes** que el panel.
+- **Dos pestañas, no tres: `Chat · Memoria`.** De lo que había en la cabecera, solo Memoria y
+  Historial eran sitios. **Informe es una acción** (pega una tarjeta en el chat y genera un turno);
+  **Historial es un selector** que devuelve al chat, y una pestaña que solo sirve para salir de ella
+  es un callejón; **Ajustes** navega fuera. Los tres siguen en el menú del `···`. Memoria deja de
+  ser un modal que tapa la conversación: se administra en su pestaña, sin barra de escribir (ahí no
+  se conversa). Escape sube un nivel: Memoria → Chat → cerrar.
 
 **Cuándo NO usarlo:** para mensajes de sistema o errores dentro del chat, que hablan en
 `.q-typing` / `.q-err` dentro de la misma forma del agente.

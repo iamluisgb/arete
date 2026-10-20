@@ -1214,11 +1214,19 @@
     <button class="quiron-hbtn" id="quironMenuBtn" type="button" aria-label="Más opciones" aria-expanded="false" aria-controls="quironMenu" title="Informe, memoria e historial"><span class="material-symbols-outlined">more_horiz</span></button>
     <div class="q-plus-menu quiron-menu" id="quironMenu" hidden>
       <button type="button" id="quironReportBtn"><span class="material-symbols-outlined">summarize</span>Informe semanal</button>
-      <button type="button" id="quironMemoryBtn"><span class="material-symbols-outlined">psychology</span>Memoria del coach</button>
       <button type="button" id="quironHistoryBtn"><span class="material-symbols-outlined">history</span>Conversaciones anteriores</button>
       <button type="button" id="quironSettingsBtn"><span class="material-symbols-outlined">settings</span>Ajustes de Quirón</button>
     </div>
   </div>
+  <!-- Dos pestañas, no tres: Informe es una acción (genera un mensaje en el
+       chat), Historial es un selector que devuelve al chat y Ajustes se va fuera
+       del panel. Memoria sí es un sitio, y deja de ser un modal que tapa la
+       conversación. -->
+  <div class="subnav-tabs quiron-tabs" role="tablist" aria-label="Quirón">
+    <button type="button" class="q-tab active" id="qtabChat" data-qtab="chat" role="tab" aria-selected="true" aria-controls="qpanelChat">Chat</button>
+    <button type="button" class="q-tab" id="qtabMemory" data-qtab="memory" role="tab" aria-selected="false" aria-controls="qpanelMemory">Memoria</button>
+  </div>
+  <div class="q-panel active" id="qpanelChat" role="tabpanel" aria-labelledby="qtabChat">
   <div class="quiron-msgs" id="quironMsgs"></div>
   <div class="quiron-setup" id="quironSetup" hidden>
     <p><strong>Quirón necesita un proveedor de IA.</strong></p>
@@ -1248,6 +1256,17 @@
     <button id="quironMicBtn" aria-label="Dictar" title="Dictar"><span class="material-symbols-outlined">mic</span></button>
     <button id="quironSendBtn" aria-label="Enviar"><span class="material-symbols-outlined">arrow_upward</span></button>
   </div>
+  </div>
+
+  <!-- Memoria: se administra lo que el coach recuerda. Sin compositor: aquí no
+       se conversa. Los mismos items y los mismos data-* que el modal anterior. -->
+  <div class="q-panel q-panel--mem" id="qpanelMemory" role="tabpanel" aria-labelledby="qtabMemory" tabindex="-1" hidden>
+    <div class="q-mem-head">
+      <span>Lo que recuerdo</span>
+      <span class="qh-count" id="quironMemoryCount"></span>
+    </div>
+    <div id="quironMemoryList"></div>
+  </div>
 </div>
 <div class="modal-overlay quiron-history-modal" role="dialog" aria-modal="true" aria-labelledby="quironHistoryTitle" id="quironHistoryModal"><div class="modal">
   <h3 id="quironHistoryTitle">Conversaciones</h3>
@@ -1256,11 +1275,6 @@
 </div></div>
 <!-- Memoria duradera (D6): hermano del modal de historial, misma estructura.
      La lista y el contador N/50 los rellena renderMemoryList() en js/ui/quiron.js. -->
-<div class="modal-overlay quiron-memory-modal" role="dialog" aria-modal="true" aria-labelledby="quironMemoryTitle" id="quironMemoryModal"><div class="modal">
-  <h3 id="quironMemoryTitle">Memoria de Quirón <span class="qh-count" id="quironMemoryCount"></span></h3>
-  <div id="quironMemoryList"></div>
-  <button class="btn btn-outline" id="quironMemoryClose">Cerrar</button>
-</div></div>
 <!-- Captura de medidas. Hoja inferior en el móvil, diálogo centrado a partir de
      640 (mismo componente, .sheet). Vive fuera de #secBody a propósito: la
      sección se oculta con display:none al cambiar de pestaña, y una hoja que

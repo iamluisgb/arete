@@ -566,7 +566,7 @@ function setupDOM() {
   window.scrollTo = () => {};
   const doc = new JSDOM(HTML).window.document;
   document.body.innerHTML = '';
-  for (const id of ['setQuiron', 'quironPanel', 'quironHistoryModal', 'quironMemoryModal']) {
+  for (const id of ['setQuiron', 'quironPanel', 'quironHistoryModal']) {
     document.body.appendChild(doc.getElementById(id).cloneNode(true));
   }
   document.body.insertAdjacentHTML('beforeend',

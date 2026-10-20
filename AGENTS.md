@@ -35,6 +35,9 @@ interno: **no** está en `PUBLIC`, no se despliega ni se precachea).
   menú con su nombre escrito; en la cabecera quedan las acciones y el `aria-label`.
 - **Un nombre propio no explica nada.** "Quirón" necesita su subtítulo ("tu coach") y un icono que
   se lea a 24px: el avión de papel que llevaba decía "enviar".
+- **Pestañas solo para sitios.** Las pestañas de Quirón son `Chat · Memoria`; Informe es una acción,
+  Historial un selector y Ajustes navega fuera — esos viven en el menú. Una pestaña que solo sirve
+  para salir de ella es un callejón.
 
 ## Los 7 dominios — el núcleo del producto
 
