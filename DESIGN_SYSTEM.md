@@ -475,6 +475,27 @@ el foco se queda en el `<body>` y el teclado tiene que recorrer la página enter
 **Es aquí donde existe `.btn--block`**, y prácticamente en ningún otro sitio: la acción principal de
 una hoja móvil.
 
+### 5.10b Conversación del agente — Quirón
+
+**Dos formas, no una caja para todo** (portado del panel de BookReader):
+
+- **El atleta habla en burbuja**: alineada a la derecha, `--color-surface-2`, radio asimétrico
+  (la esquina de abajo a la derecha entra). Ya no es roja: el rojo es dominio y récord (§2.3), y
+  "tú" no lo eres.
+- **El agente responde en texto limpio**, a todo el ancho de la medida de lectura, sin fondo ni
+  borde, con `line-height 1.6`. La mayoría de las respuestas de Quirón son de veinte líneas: una
+  tarjeta con borde alrededor de veinte líneas es un bloque que se lee peor que un párrafo.
+- **La hora va fuera de la conversación**: `--fs-2xs` en `--color-text-tertiary`, a la derecha en
+  las burbujas del atleta. El separador de día, centrado.
+- **La cabecera pierde los rótulos en móvil**: cinco botones con texto no caben a 430px y partían
+  el título en dos líneas. Quedan los iconos —cada uno con su `aria-label`— y el rótulo vuelve a
+  partir de 640.
+- **Sin proveedor configurado**, el estado es una tarjeta discreta arriba, no un bloque centrado
+  de 315px que parte en dos una conversación que ya existe.
+
+**Cuándo NO usarlo:** para mensajes de sistema o errores dentro del chat, que hablan en
+`.q-typing` / `.q-err` dentro de la misma forma del agente.
+
 ### 5.11 Toast
 
 `.toast` + `.toast-container`. Ya existía y es correcto. Pendiente: pasar sus valores a tokens.
