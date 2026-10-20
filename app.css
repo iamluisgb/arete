@@ -572,7 +572,7 @@ a.listrow--action{text-decoration:none}
   padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-3)}
 .banner-text{flex:1;min-width:0;font:var(--type-caption);
   font-weight:600;color:var(--color-accent-text)}
-.banner .material-symbols-outlined{font-size:20px;color:var(--color-accent-text);flex-shrink:0}
+.banner .material-symbols-outlined{font-size:var(--icon-md);color:var(--color-accent-text);flex-shrink:0}
 /* ── 3.11 SEGMENTED / TABS ──────────────────────────────────────────────────
    Un único componente donde había tres con CSS casi idéntico y tres nombres:
    .str-subnav, .run-subnav y .train-mode. La pastilla activa se marca con fondo
@@ -709,6 +709,11 @@ body{line-height:1.5}
 :root{
   --font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
   --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* Iconos. Un paso por tamaño, nunca un px a mano: Material Symbols usa
+     font-size como tamaño del glifo, así que sin escala cada pantalla elegía
+     el suyo (14, 16, 20, 22, 24, 32, 48) y dos iconos del mismo papel salían
+     de distinto tamaño. Estos siete valores son los que ya había. */
+  --icon-xs:14px;--icon-sm:16px;--icon-md:20px;--icon-lg:22px;--icon-xl:24px;--icon-2xl:32px;--icon-3xl:48px;
   --fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;
   --fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;
 
@@ -796,7 +801,7 @@ body{line-height:1.5}
    la barra, una por pestaña— y el que más lo gastaba: la sección en la que
    estás no es una alarma. Fondo y peso, como el resto de selecciones. */
 nav button.active{color:var(--color-text-primary);background:var(--color-surface-2);font-weight:700}
-nav button .material-symbols-outlined{font-size:24px}
+nav button .material-symbols-outlined{font-size:var(--icon-xl)}
 .header-logo{width:24px;height:24px;border-radius:var(--radius-xs)}
 .save-bar{margin-top:var(--sp-3)}
 .save-bar-notes-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -1194,7 +1199,7 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
   gap:var(--sp-3);margin-bottom:var(--sp-3)}
 .history-filters .history-filter-wrap{margin-top:0}
 .date-filter-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
-  background:var(--color-surface-2);border-radius:var(--radius);padding:8px 8px 8px 14px;
+  background:var(--color-surface-2);border-radius:var(--radius-lg);padding:8px 8px 8px 14px;
   margin-bottom:var(--sp-3);font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:500}
 #importFile{display:none}
 /* La pastilla mide 50×30, pero el objetivo son 44: el área de toque se estira
@@ -1567,7 +1572,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .run-ui-lock{display:none;position:fixed;inset:0;z-index:var(--z-immersive-top);background:var(--color-blackout);flex-direction:column;align-items:center;justify-content:center;color:var(--color-blackout-text);user-select:none;-webkit-user-select:none;touch-action:none}
 .run-ui-lock.active{display:flex}
 .run-ui-lock-content{text-align:center}
-.run-ui-lock-content .material-symbols-outlined{font-size:48px}
+.run-ui-lock-content .material-symbols-outlined{font-size:var(--icon-3xl)}
 .run-ui-lock-content p{margin:8px 0 0;font-size:var(--fs-base);font-weight:600}
 .run-ui-lock-hint{font-size:var(--fs-sm)!important;font-weight:400!important;color:var(--color-blackout-hint)}
 .run-ui-lock-progress{position:absolute;bottom:0;left:0;height:4px;background:var(--color-accent-text);width:0;transition:width var(--dur-instant) linear}
@@ -1784,7 +1789,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .dash-card-wide{grid-column:span 2}
 .dash-card-label{font:var(--type-label);letter-spacing:0;
   color:var(--color-text-secondary);align-self:flex-start;display:flex;align-items:center;gap:4px}
-.dash-card-label .material-symbols-outlined{font-size:14px}
+.dash-card-label .material-symbols-outlined{font-size:var(--icon-xs)}
 .dash-ring-wrap{position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center}
 .dash-ring{width:80px;height:80px}
 .dash-ring-fill{transition:stroke-dashoffset var(--dur-slow) var(--ease-standard)}
@@ -1814,7 +1819,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
   display:flex;align-items:center;gap:6px}
 /* El tipo de actividad y el récord se marcan con el icono y un badge, nunca con
    una banda de acento en el borde. */
-.dash-act-card .dash-act-icon{font-size:16px}
+.dash-act-card .dash-act-icon{font-size:var(--icon-sm)}
 .dash-act-card.dash-act-run .dash-act-icon{color:var(--color-domain-running)}
 .dash-act-card.has-pr .dash-act-icon{color:var(--color-accent-text)}
 .dash-act-chip{margin-bottom:var(--sp-1)}
@@ -1855,7 +1860,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .se-action-row{display:flex;gap:8px}
 .se-share-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 24px}
 .se-copy-btn,.se-download-btn{display:flex;align-items:center;justify-content:center;width:52px;padding:0;border-radius:var(--radius-lg);flex-shrink:0}
-.se-share-btn .material-symbols-outlined{font-size:20px}
+.se-share-btn .material-symbols-outlined{font-size:var(--icon-md)}
 .se-share-btn:disabled{opacity:.5;pointer-events:none}
 .quiron-panel{position:fixed;inset:0;z-index:var(--z-overlay);background:var(--color-surface-0);display:none;flex-direction:column}
 .quiron-panel.open{display:flex;animation:fadeIn var(--dur-fast) ease-out}
@@ -1868,7 +1873,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-hbtn{background:var(--color-surface-2);border:none;color:var(--color-text-primary);width:38px;height:38px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;cursor:pointer}
 .quiron-hbtn--labeled{width:auto;padding:0 8px}
 .quiron-hbtn-label{font-size:.625rem;font-weight:600;line-height:1;letter-spacing:.01em}
-.quiron-hbtn .material-symbols-outlined{font-size:20px}
+.quiron-hbtn .material-symbols-outlined{font-size:var(--icon-md)}
 .quiron-msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px}
 /* Radio fijo, no pill: con --radius-pill (999px) un mensaje largo se convierte
    en una elipse y el texto se sale de la viñeta. */
@@ -1901,18 +1906,18 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .quiron-inputbar{display:flex;align-items:flex-end;gap:8px;padding:8px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
 /* U2: toggle de sugerencias, mismo lenguaje visual que la cámara y el micro. */
 #quironChipsBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-#quironChipsBtn .material-symbols-outlined{font-size:24px}
+#quironChipsBtn .material-symbols-outlined{font-size:var(--icon-xl)}
 #quironChipsBtn.on{color:var(--color-accent-text)}
 #quironChipsBtn:active{opacity:.6}
 /* Mismo motivo que .q-bubble: con pill, al crecer hasta max-height el radio
    escala a la mitad de la altura y el campo se deforma en elipse. */
 .quiron-inputbar textarea{flex:1;min-height:44px;max-height:120px;border-radius:var(--radius-xl);padding:12px 16px;font-size:var(--fs-md);resize:none}
 #quironSendBtn{width:44px;height:44px;border-radius:50%;border:none;background:var(--color-accent-text);color:var(--color-on-fill);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-#quironSendBtn .material-symbols-outlined{font-size:22px}
+#quironSendBtn .material-symbols-outlined{font-size:var(--icon-lg)}
 #quironSendBtn.q-stop{background:var(--color-text-secondary)}
 .quiron-setup{padding:24px;text-align:center;color:var(--color-text-secondary);font-size:var(--fs-md);display:flex;flex-direction:column;gap:10px;align-items:center}
 .quiron-setup strong{color:var(--color-text-primary)}
-.quiron-setup-icon{font-size:2rem}
+.quiron-setup-icon{font-size:var(--icon-2xl)}
 .quiron-setup .btn{width:auto}
 .quiron-setup[hidden]{display:none}
 .quiron-history-modal{z-index:var(--z-overlay-top)}
@@ -1964,7 +1969,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .q-proposal{align-self:stretch;background:var(--color-surface-1);border:1px solid var(--color-accent-soft);border-radius:var(--radius-lg);padding:14px;margin:2px 0 6px;display:flex;flex-direction:column;gap:10px}
 .q-proposal.applied{border-color:var(--color-border-subtle);opacity:.85}
 .q-prop-head{display:flex;align-items:flex-start;gap:10px}
-.q-prop-head .material-symbols-outlined{color:var(--color-accent-text);font-size:22px;flex-shrink:0}
+.q-prop-head .material-symbols-outlined{color:var(--color-accent-text);font-size:var(--icon-lg);flex-shrink:0}
 .q-prop-titles{min-width:0}
 .q-prop-title{font-size:var(--fs-lg);font-weight:700;line-height:1.2}
 .q-prop-tag{font-size:var(--fs-sm);color:var(--color-text-secondary);margin-top:2px}
@@ -1979,7 +1984,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .q-prop-actions-3 .q-prop-start{flex:1 1 100%}
 .q-proposal.applied .q-prop-apply{background:var(--color-state-success);box-shadow:none}
 #quironAttachBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-#quironAttachBtn .material-symbols-outlined{font-size:24px}
+#quironAttachBtn .material-symbols-outlined{font-size:var(--icon-xl)}
 #quironAttachBtn:active{opacity:.6}
 /* ── Dictado (barra estilo WhatsApp) ──────────────────────
    Ocupa el hueco del textarea mientras se graba, con su mismo alto para que el
@@ -1987,13 +1992,13 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
 .mic-bar{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-xl);background:var(--color-surface-1)}
 #quironInput.is-recording{display:none}
 #quironMicBtn{width:40px;height:44px;background:none;border:none;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-#quironMicBtn .material-symbols-outlined{font-size:24px}
+#quironMicBtn .material-symbols-outlined{font-size:var(--icon-xl)}
 #quironMicBtn.is-on{color:#e53935}
 #quironMicBtn:disabled{opacity:.5;cursor:default}
 /* Papelera: solo con el motor del proveedor (ver mic.js): con el del navegador el texto ya
    está escrito en el textarea y "descartar" no podría deshacer nada. */
 .mic-bar-cancel{display:none;align-items:center;padding:2px;border:0;background:none;color:var(--color-text-secondary);cursor:pointer;flex-shrink:0}
-.mic-bar-cancel .material-symbols-outlined{font-size:20px}
+.mic-bar-cancel .material-symbols-outlined{font-size:var(--icon-md)}
 .mic-bar.is-provider .mic-bar-cancel{display:inline-flex}
 .mic-bar-cancel:hover{color:#e53935}
 /* Punto latiendo: rojo aunque el acento no lo sea — grabando es grabando, y es el código
@@ -2005,7 +2010,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
    Se enciende de dentro afuera, como un vúmetro de verdad. */
 .mic-bar-level{display:none;align-items:center;gap:2px;flex:1;min-width:0}
 .mic-bar.is-provider .mic-bar-level{display:flex}
-.mic-bar-level i{flex:1;height:4px;border-radius:2px;background:var(--color-border-subtle);transition:height 80ms linear,background-color 80ms linear}
+.mic-bar-level i{flex:1;height:4px;border-radius:var(--radius-xs);background:var(--color-border-subtle);transition:height 80ms linear,background-color 80ms linear}
 .mic-bar-level i.on{height:14px;background:var(--color-accent-text)}
 .mic-bar-hint{font-size:var(--fs-xs);color:var(--color-text-secondary);white-space:nowrap}
 .mic-bar.is-provider .mic-bar-hint{display:none}
@@ -2013,7 +2018,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
    Va a la DERECHA (margin-left:auto), enfrente de la papelera: destructivo a un extremo,
    confirmar al otro. */
 .mic-bar-stop{margin-left:auto;flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--color-accent-text);color:var(--color-on-fill);cursor:pointer}
-.mic-bar-stop .material-symbols-outlined{font-size:18px}
+.mic-bar-stop .material-symbols-outlined{font-size:var(--icon-md)}
 /* Transcribiendo: la barra se queda (el texto tarda en llegar y un textarea vacío hace
    pensar que el audio se perdió); cronómetro, vúmetro y botones se van y el punto rojo
    pasa a spinner. */
@@ -2032,7 +2037,7 @@ input.prefilled:focus{background:var(--color-surface-1);border:1px solid transpa
   .mic-bar.is-busy .mic-bar-dot{animation:micDot 1.6s ease-in-out infinite}
 }
 .q-img-chip{display:inline-flex;align-items:center;gap:6px}
-.q-img-chip .material-symbols-outlined{font-size:18px;vertical-align:middle}
+.q-img-chip .material-symbols-outlined{font-size:var(--icon-md);vertical-align:middle}
 /* ══ Ilustraciones de ejercicio ══════════════════════════
    Flipbook de N fotogramas: cada uno visible 1/N del ciclo, repartido por
    retardo negativo. Fondo transparente, así que no necesitan ficha. */
@@ -2164,7 +2169,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
   background:none;border:none;border-radius:var(--radius-pill);padding:9px 4px;min-height:44px;
   cursor:pointer;font-family:var(--font);font-size:var(--fs-base);font-weight:700;
   color:var(--color-text-secondary);transition:background var(--dur-base),color var(--dur-base)}
-.train-mode-btn .material-symbols-outlined{font-size:18px}
+.train-mode-btn .material-symbols-outlined{font-size:var(--icon-md)}
 /* En la cabecera el segmentado se mide por su contenido. `flex:1 1 0` era para
    repartir el ancho FIJO del carril de 168px; dentro de un flex sin ancho que
    repartir la pastilla se colapsaba y "Fuerza" y "Carrera" salían impresos uno
@@ -2223,7 +2228,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
   cursor:pointer;text-align:left;font-family:var(--font);color:var(--color-text-primary);
   transition:background var(--dur-fast)}
 .prof-domain-head:active{background:var(--color-surface-2)}
-.prof-domain-icon{font-size:22px;flex-shrink:0}
+.prof-domain-icon{font-size:var(--icon-lg);flex-shrink:0}
 .prof-domain-main{flex:1;min-width:0}
 .prof-domain-name{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:var(--type-body-strong);font-weight:700}
 .prof-domain-bar{display:block;height:4px;border-radius:var(--radius-pill);
@@ -2251,7 +2256,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 /* ── Hoja de test de dominio ─────────────────────────────
    Es un .sheet del sistema (§3.9): hoja inferior en móvil, diálogo centrado en
    escritorio. Solo quedan aquí las particularidades del test. */
-.dtest-icon{font-size:24px;flex-shrink:0}
+.dtest-icon{font-size:var(--icon-xl);flex-shrink:0}
 .dtest-proto{background:var(--color-surface-1);margin-bottom:var(--gap-stack)}
 .dtest-proto-text{font:var(--type-caption);color:var(--color-text-secondary)}
 /* El campo del test es grande a propósito: se rellena una vez cada seis semanas
@@ -2274,7 +2279,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dtest-res-note{font:var(--type-caption);color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
 .dtest-res-next{font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);margin:var(--gap-stack) 0}
 .run-import-hint{font-size:var(--fs-sm);color:var(--color-text-secondary);text-align:center;line-height:1.5;margin-top:var(--sp-3)}
-#runImportBtn .material-symbols-outlined{font-size:22px}
+#runImportBtn .material-symbols-outlined{font-size:var(--icon-lg)}
 /* Nivel en "Hoy": un resumen que lleva al Perfil, no un segundo radar. */
 .dash-level{display:flex;align-items:center;gap:var(--sp-3);width:100%;
   background:var(--color-surface-1);border:none;border-radius:var(--radius-xl);
@@ -2292,7 +2297,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dash-level-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .dash-level-txt b{font:var(--type-body-strong);font-weight:700}
 .dash-level-txt span{font:var(--type-caption);color:var(--color-text-secondary)}
-.dash-level-go{flex-shrink:0;color:var(--color-text-secondary);font-size:22px}
+.dash-level-go{flex-shrink:0;color:var(--color-text-secondary);font-size:var(--icon-lg)}
 
 /* UX-1: resaltado temporal del dominio limitante al llegar desde Hoy. Contorno
    en acento + un halo que se apaga; con prefers-reduced-motion solo queda el
@@ -2321,7 +2326,7 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .dash-starter-steps button{display:flex;align-items:center;gap:var(--sp-2);width:100%;
   background:none;border:none;padding:var(--sp-1) 0;text-align:left;cursor:pointer;
   font:var(--type-body);font-family:var(--font);color:var(--color-text-primary)}
-.dash-starter-steps .material-symbols-outlined{font-size:20px;color:var(--color-text-tertiary)}
+.dash-starter-steps .material-symbols-outlined{font-size:var(--icon-md);color:var(--color-text-tertiary)}
 .dash-starter-steps li.done button{color:var(--color-text-secondary)}
 .dash-starter-steps li.done .material-symbols-outlined{color:var(--color-accent-text)}
 
@@ -2943,16 +2948,16 @@ a:hover{opacity:.8}
    dashboard y sesiones futuras en el calendario. */
 .sched-anchors{display:flex;flex-wrap:wrap;gap:var(--sp-2);padding:var(--sp-2) 0}
 .sched-anchor{display:inline-flex;align-items:center;gap:var(--sp-1);padding:var(--sp-1) var(--sp-3);
-  border:1px solid var(--color-border);border-radius:999px;cursor:pointer;
+  border:1px solid var(--color-border-subtle);border-radius:var(--radius-pill);cursor:pointer;
   font:var(--type-body);color:var(--color-text-secondary);user-select:none;transition:all var(--dur-base)}
 .sched-anchor input{accent-color:var(--color-accent-text);margin:0}
-.sched-anchor.on{border-color:var(--color-accent-text);color:var(--color-text);font-weight:600}
+.sched-anchor.on{border-color:var(--color-accent-text);color:var(--color-text-primary);font-weight:600}
 
 .dash-sched{margin-top:var(--sp-4)}
 .dash-sched-card{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2)}
 .dash-sched-empty{align-items:flex-start}
 .dash-sched-row{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
-.dash-sched-row .dash-act-icon{font-size:20px;color:var(--color-text-tertiary)}
+.dash-sched-row .dash-act-icon{font-size:var(--icon-md);color:var(--color-text-tertiary)}
 .dash-sched-name{flex:1;font:var(--type-body-strong);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dash-sched-note{margin:0;font:var(--type-body);color:var(--color-text-secondary)}
 .dash-sched-overdue{font:var(--type-caption);color:var(--color-state-danger)}
@@ -2968,7 +2973,7 @@ a:hover{opacity:.8}
 .dash-sched-grupo-head{display:flex;align-items:center;gap:var(--sp-1);
   font:var(--type-caption);font-weight:700;color:var(--color-text-secondary);
   text-transform:uppercase;letter-spacing:.04em}
-.dash-sched-grupo-head .material-symbols-outlined{font-size:14px}
+.dash-sched-grupo-head .material-symbols-outlined{font-size:var(--icon-xs)}
 
 /* Atrasadas (N1/N3): marca en la fila y línea-cabecera enlazada al calendario
    cuando existe la sección. */
@@ -2978,13 +2983,13 @@ a:hover{opacity:.8}
 
 /* Descanso y plan completado (N1), y la línea que explica el modelo (N6). */
 .dash-sched-done{display:flex;align-items:center;gap:var(--sp-1);font-weight:600}
-.dash-sched-done .material-symbols-outlined{font-size:18px;color:var(--color-accent-text)}
+.dash-sched-done .material-symbols-outlined{font-size:var(--icon-md);color:var(--color-accent-text)}
 .dash-sched-modelo{font:var(--type-caption);color:var(--color-text-tertiary)}
 
 /* Pie de la tarjeta (N2): CTAs etiquetados por plan, degradación de los
    botones genéricos Fuerza/Running que antes competían con la tarjeta. */
 .dash-sched-pie{display:flex;gap:var(--sp-3);flex-wrap:wrap;
-  border-top:1px solid var(--color-border);padding-top:var(--sp-2)}
+  border-top:1px solid var(--color-border-subtle);padding-top:var(--sp-2)}
 .dash-sched-pie-link{background:none;border:none;padding:0;cursor:pointer;
   font:var(--type-caption);font-weight:600;color:var(--color-text-secondary)}
 

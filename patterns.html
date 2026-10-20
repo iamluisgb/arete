@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Areté · Biblioteca de patrones</title>
+<!--
+  Galería viva del sistema de diseño. Uso interno: NO se despliega (no está en
+  PUBLIC de scripts/build-pages.mjs) y no va en el precache del service worker.
+
+  Regla: esta página carga las MISMAS hojas que la app y lee los tokens del
+  navegador (getComputedStyle), así que no puede quedarse desfasada. Si un
+  patrón no está aquí, no existe: se define en app.css y se añade a esta página
+  en el mismo commit.
+
+  Servir:  python3 -m http.server   →  http://localhost:8000/patterns.html
+-->
+<link rel="stylesheet" href="app.css">
+<style>
+  body{background:var(--color-surface-0);color:var(--color-text-primary);
+    font-family:var(--font);margin:0;padding:24px 20px 80px;max-width:1080px;margin-inline:auto}
+  h1{font-size:var(--fs-2xl);margin:0 0 4px}
+  h2{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);margin:40px 0 4px;
+    padding-top:16px;border-top:1px solid var(--color-border-subtle)}
+  h3{font:var(--type-title);letter-spacing:var(--track-title);margin:24px 0 8px}
+  p.intro{font:var(--type-body);color:var(--color-text-secondary);margin:0 0 8px;max-width:var(--measure-prose)}
+  .nota{font:var(--type-caption);color:var(--color-text-secondary);margin:4px 0 16px}
+  .fila{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px}
+  .col{display:flex;flex-direction:column;gap:8px}
+  /* Muestras de token */
+  .sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+  .sw>div{border-radius:var(--radius-lg);padding:10px 12px;border:1px solid var(--color-border-subtle);
+    background:var(--color-surface-1)}
+  .sw i{display:block;height:34px;border-radius:var(--radius-md);margin-bottom:8px}
+  .sw code{font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--color-text-secondary);display:block}
+  .sw b{font-size:var(--fs-sm);font-weight:600}
+  /* Tabla de la escala tipográfica */
+  table{width:100%;border-collapse:collapse;font-size:var(--fs-base)}
+  th{font:var(--type-label);letter-spacing:0;text-align:left;color:var(--color-text-secondary);
+    padding:6px 8px;border-bottom:1px solid var(--color-border-subtle)}
+  td{padding:8px;border-bottom:.5px solid var(--color-border-subtle);vertical-align:baseline}
+  td code{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--color-text-secondary)}
+  .demo{font:var(--type-body)}
+  .muestra{margin:0;padding:16px;border-radius:var(--radius-lg);background:var(--color-surface-1)}
+  .icono{display:inline-flex;flex-direction:column;align-items:center;gap:4px;
+    padding:10px 8px;border-radius:var(--radius-md);background:var(--color-surface-1);min-width:82px}
+  .icono small{font-size:var(--fs-2xs);color:var(--color-text-secondary)}
+  #tema{position:fixed;top:16px;right:16px;z-index:var(--z-alert)}
+</style>
+</head>
+<body>
+<button class="btn btn--secondary btn--sm" id="tema" type="button">Tema: claro</button>
+
+<h1>Biblioteca de patrones</h1>
+<p class="intro">El sistema de Areté, en vivo. Las muestras usan las clases reales y los valores
+se leen del propio CSS: si algo aquí no coincide con la app, es que la app cambió y esta página
+no. <strong>Si un patrón no está aquí, no existe.</strong></p>
+<p class="nota">Reglas ejecutables: <code>tests/design-system.test.js</code> (<code>npm test</code>).
+Doctrina: <code>DESIGN_SYSTEM.md</code>.</p>
+
+<h2>1 · Principios</h2>
+<table>
+  <tr><th>Principio</th><th>Qué decide</th></tr>
+  <tr><td><b>El contenido manda</b></td><td>El cromo se aparta; la pantalla es el dato, no la navegación.</td></tr>
+  <tr><td><b>La acción va en tinta</b></td><td>El botón principal no gasta el color de marca. El rojo es dominio y récord.</td></tr>
+  <tr><td><b>El estado es fondo y peso</b></td><td>Nunca una banda de acento pegada al borde.</td></tr>
+  <tr><td><b>Solo tokens</b></td><td>Ningún color, tamaño, radio o capa a mano. Lo comprueba el test.</td></tr>
+  <tr><td><b>Legible antes que sutil</b></td><td>La jerarquía la dan tamaño y peso, no un gris ilegible.</td></tr>
+</table>
+
+<h2>2 · Color</h2>
+<p class="nota">Superficies, texto, acción, estado y dominio. Los valores se leen del tema activo.</p>
+<div class="sw" id="colores"></div>
+
+<h2>3 · Tipografía</h2>
+<p class="nota">La escala y los roles. El suelo es 11px; el cuerpo, 14px en móvil y 15px en ≥1024.</p>
+<table id="tipografia"></table>
+
+<h2>4 · Espacio, radio y sombra</h2>
+<div class="fila" id="radios"></div>
+<div class="fila" id="espacios"></div>
+
+<h2>5 · Componentes</h2>
+<h3>Botón</h3>
+<div class="fila">
+  <button class="btn" type="button">Acción principal</button>
+  <button class="btn btn--secondary" type="button">Secundaria</button>
+  <button class="btn btn--ghost" type="button">Terciaria</button>
+  <button class="btn btn--danger" type="button">Destructiva</button>
+  <button class="btn btn--sm" type="button">Pequeña</button>
+  <button class="btn btn--icon" type="button" aria-label="Icono"><span class="material-symbols-outlined">add</span></button>
+</div>
+<p class="nota"><code>.btn</code> (primaria, tinta) · <code>--secondary</code> · <code>--ghost</code> · <code>--danger</code>.
+Una sola primaria por vista.</p>
+
+<h3>Chip y etiqueta</h3>
+<div class="fila">
+  <button class="chip" type="button">Chip <span class="material-symbols-outlined" style="font-size:var(--icon-sm)">expand_more</span></button>
+  <button class="chip is-on" type="button">Chip activo</button>
+  <span class="badge">Badge</span>
+  <span class="badge badge--accent">PR</span>
+  <span class="badge badge--success">Hecho</span>
+  <span class="badge badge--warning">Atrasada</span>
+</div>
+
+<h3>Segmentado y pestañas</h3>
+<div class="fila">
+  <div class="train-mode"><button class="train-mode-btn active" type="button">Fuerza</button><button class="train-mode-btn" type="button">Carrera</button></div>
+</div>
+<div class="subnav-tabs" style="max-width:420px"><button class="str-tab active" type="button">Actividad</button><button class="str-tab" type="button">Historial</button><button class="str-tab" type="button">Progreso</button></div>
+
+<h3>Tarjeta y panel</h3>
+<div class="fila" style="align-items:stretch">
+  <div class="dash-card" style="min-width:160px"><div class="dash-card-label">Volumen</div><div class="tile-value">1.3<span class="tile-unit">t</span></div></div>
+  <div class="panel" style="flex:1;min-width:220px"><div class="panel-title">Panel</div><p class="demo">Superficie 1, radio grande, sin borde. El título es una etiqueta, no un titular.</p></div>
+</div>
+
+<h3>Fila de lista</h3>
+<div class="panel" style="padding:0">
+  <div class="listrow"><div class="listrow-main"><div class="listrow-name">Sentadilla</div><div class="listrow-meta">3×5</div></div><span class="listrow-chevron">›</span></div>
+</div>
+
+<h3>Campo</h3>
+<div style="max-width:var(--measure-form)">
+  <label class="field" for="demo-campo"><span class="field-label">Peso</span>
+    <input id="demo-campo" type="number" value="80" inputmode="decimal">
+    <span class="field-hint">La etiqueta va encima, siempre.</span>
+  </label>
+</div>
+
+<h3>Estado vacío</h3>
+<div class="empty-state"><p>Sin actividad aún</p><button class="btn btn--secondary btn--sm" type="button">Empezar una sesión</button></div>
+
+<h3>Tabla</h3>
+<div class="table-scroll" style="max-width:520px">
+  <table class="progress-history">
+    <caption>Historial de Sentadilla</caption>
+    <thead><tr><th>Fecha</th><th>Series (kg × reps)</th><th class="ph-num">Nº</th><th class="ph-num">Reps</th></tr></thead>
+    <tbody>
+      <tr class="is-pr"><td class="ph-date">05/10</td><td class="ph-ladder">90×5 · 90×4 · 85×6 <span class="ph-pr">PR</span></td><td class="ph-num">3</td><td class="ph-num">15</td></tr>
+      <tr><td class="ph-date">02/10</td><td class="ph-ladder">85×5 · 85×5 · 80×6</td><td class="ph-num">3</td><td class="ph-num">16</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>6 · Iconos</h2>
+<p class="nota">Un solo set (Material Symbols, ligaduras) y un tamaño por paso: <code>--icon-xs 14 · sm 16 · md 20 · lg 22 · xl 24 · 2xl 32 · 3xl 48</code>.
+Nunca un px a mano — lo comprueba el test.</p>
+<div class="fila" id="iconos"></div>
+
+<h2>7 · Capas</h2>
+<p class="nota">Solo para lo que compite a nivel de pantalla. Dentro de un componente, enteros ≤ 10.</p>
+<div class="fila" id="capas"></div>
+
+<script type="module">
+const css = getComputedStyle(document.documentElement);
+const val = n => css.getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+
+// ── Color: se muestran los tokens semánticos, no la paleta cruda ──
+const COLORES = [
+  ['--color-surface-0', 'Lienzo'], ['--color-surface-1', 'Tarjeta / panel'],
+  ['--color-surface-2', 'Campo / chip / pista'], ['--color-surface-3', 'Hover de superficie 1'],
+  ['--color-text-primary', 'Texto'], ['--color-text-secondary', 'Texto secundario'],
+  ['--color-text-tertiary', 'Texto terciario'],
+  ['--color-action-ink', 'Acción (tinta)'], ['--color-action-primary', 'Dominio (rojo)'],
+  ['--color-state-success', 'Éxito'], ['--color-state-danger', 'Error'],
+  ['--color-state-warning', 'Aviso'], ['--color-state-info', 'Info'],
+  ['--color-domain-strength', 'Dominio fuerza'], ['--color-domain-running', 'Dominio carrera'],
+];
+$('colores').innerHTML = COLORES.map(([t, nombre]) => `
+  <div><i style="background:var(${t})"></i><b>${nombre}</b><code>${t}</code><code>${val(t) || '—'}</code></div>`).join('');
+
+// ── Tipografía: cada paso de la escala y cada rol ──
+const ESCALA = ['--fs-2xs', '--fs-xs', '--fs-sm', '--fs-base', '--fs-md', '--fs-lg', '--fs-xl', '--fs-2xl', '--fs-3xl'];
+const ROLES = [
+  ['--type-display', 'Saludo / cifra que domina'], ['--type-title-lg', 'Título de pantalla'],
+  ['--type-title', 'Título de tarjeta'], ['--type-body', 'Texto corrido'],
+  ['--type-caption', 'Apoyo, meta, notas'], ['--type-label', 'Etiquetas'],
+  ['--type-metric', 'Cifras'],
+];
+$('tipografia').innerHTML = `
+  <thead><tr><th>Token</th><th>Valor</th><th>Muestra</th></tr></thead>
+  <tbody>${ESCALA.map(t => `<tr><td><code>${t}</code></td><td><code>${val(t)}</code></td>
+    <td><span style="font-size:var(${t})">Buenas tardes · 123 kg</span></td></tr>`).join('')}
+  ${ROLES.map(([t, nombre]) => `<tr><td><code>${t}</code><br><span class="nota">${nombre}</span></td>
+    <td><code>${val(t).slice(0, 58)}</code></td><td><span style="font:var(${t});letter-spacing:var(--track-${t.replace('--type-', '')})">Areté entrena</span></td></tr>`).join('')}
+  </tbody>`;
+
+// ── Radios, espacios, sombras ──
+const RADIOS = ['--radius-xs', '--radius-sm', '--radius-md', '--radius-lg', '--radius-xl', '--radius-pill'];
+$('radios').innerHTML = RADIOS.map(t => `<div style="width:72px;height:48px;background:var(--color-surface-2);border-radius:var(${t});display:flex;align-items:center;justify-content:center;font-size:var(--fs-2xs);color:var(--color-text-secondary)">${t.replace('--radius-', '')}</div>`).join('');
+const ESPACIOS = ['--sp-1', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6', '--sp-8', '--sp-10'];
+$('espacios').innerHTML = ESPACIOS.map(t => `<div style="text-align:center;font-size:var(--fs-2xs);color:var(--color-text-secondary)"><div style="height:var(${t});width:var(${t});background:var(--color-accent-soft);border-radius:var(--radius-xs);margin:0 auto 4px"></div>${t.replace('--sp-', '')}</div>`).join('');
+
+// ── Iconos: nombres y pasos reales ──
+const ICONOS = ['today', 'exercise', 'radar', 'monitor_weight', 'tune', 'fitness_center',
+  'directions_run', 'check_circle', 'radio_button_unchecked', 'expand_more', 'chevron_right',
+  'add', 'close', 'delete', 'share', 'cloud', 'settings', 'timer', 'history', 'insights'];
+const PASOS = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
+$('iconos').innerHTML = ICONOS.slice(0, 12).map(n => `<div class="icono">
+  <span class="material-symbols-outlined" style="font-size:var(--icon-xl)">${n}</span><small>${n}</small></div>`).join('')
+  + PASOS.map(p => `<div class="icono"><span class="material-symbols-outlined" style="font-size:var(--icon-${p})">fitness_center</span><small>--icon-${p}</small></div>`).join('');
+
+// ── Capas ──
+const CAPAS = ['--z-raised', '--z-header', '--z-sheet', '--z-nav', '--z-overlay', '--z-toast', '--z-alert'];
+$('capas').innerHTML = CAPAS.map(t => `<div class="badge">${t} = ${val(t) || '—'}</div>`).join('');
+
+// ── Tema ──
+const btn = $('tema');
+const aplicar = oscuro => {
+  document.documentElement.classList.toggle('dark', oscuro);
+  btn.textContent = `Tema: ${oscuro ? 'oscuro' : 'claro'}`;
+};
+aplicar(matchMedia('(prefers-color-scheme: dark)').matches);
+btn.addEventListener('click', () => aplicar(!document.documentElement.classList.contains('dark')));
+</script>
+</body>
+</html>

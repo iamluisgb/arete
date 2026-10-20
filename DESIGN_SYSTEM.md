@@ -214,6 +214,13 @@ Lo que faltaba eran los **roles**, que atan las cuatro propiedades:
 | `--type-label` | Etiquetas, en caja baja |
 | `--type-metric` / `--type-metric-lg` | **Cifras.** Siempre `tabular-nums` |
 
+**Los iconos también tienen escala.** `--icon-xs 14 · --icon-sm 16 · --icon-md 20 ·
+--icon-lg 22 · --icon-xl 24 · --icon-2xl 32 · --icon-3xl 48`. Material Symbols usa `font-size` como
+tamaño del glifo, así que sin escala cada pantalla elegía el suyo —convivían 14, 16, 18, 20, 22, 24,
+32 y 48— y dos iconos con el mismo papel salían distintos. Los siete pasos son los que ya había: el
+test los congela y prohíbe un octavo. Las dos únicas excepciones son los glifos de 7 y 8px dentro de
+las celdas del calendario, donde un icono de 14 no cabe.
+
 Dos cautelas prácticas:
 
 1. El shorthand `font:` **no** admite `letter-spacing`, así que cada rol viene con su `--track-*`.
@@ -921,6 +928,25 @@ especificidad**, y eso es justo lo que pasó:
    **cuándo NO usarlo**. Esa última línea es la que evita el componente número 26.
 3. Solo tokens. Si te falta uno, añádelo a `:root` con un comentario que diga por qué existe.
 4. Documenta aquí su anatomía, variantes, estados y reglas de accesibilidad.
+5. **Añádelo a [`patterns.html`](patterns.html)**, la galería viva. No se despliega (no está en
+   `PUBLIC` del build) y carga las mismas hojas que la app, así que no puede desfasarse: lee los
+   valores de los tokens del navegador. Si un patrón no está en la galería, no existe.
+
+**Y desde 2026-10, el sistema se comprueba.** `tests/design-system.test.js` corre en `npm test` y
+falla si:
+
+- una `var(--x)` sin fallback no está definida (un token inexistente deja un borde transparente o
+  un radio cuadrado **sin ningún error**: pasó con `--radius`, `--color-border` y `--color-text`,
+  que llevaban meses en Ajustes y en el pie de "Toca hoy");
+- un `font-size` no sale de `--fs-*`, `--type-*` o `--icon-*`;
+- un `border-radius` no sale de `--radius-*` (o 0 / 50% / inherit);
+- un `z-index` de pantalla no usa `--z-*`;
+- aparece un breakpoint que no está en §4.1;
+- crecen los colores hex sueltos (hay un techo: solo puede bajar).
+
+Los techos existen porque arreglar 36 tamaños de golpe no es un cambio, es un rediseño: se congelan
+los que hay y se impide que entren nuevos. **Si un test te frena, no lo relajes**: crea el token o
+usa el patrón. Si de verdad hace falta una excepción, se añade a la lista con el porqué escrito.
 
 **Cómo se nombra.** Prefijo por módulo + BEM ligero: `bloque`, `bloque-elemento` (un guion),
 `bloque--modificador` (dos). Sin anidar más de un nivel de elemento. Los ids solo para lo que JS
@@ -933,12 +959,14 @@ necesita agarrar, nunca para estilar.
 - [ ] Cero colores, espacios, radios y duraciones escritos a mano; cero `style=""` en sus plantillas.
 - [ ] Ningún alias heredado (`--accent`, `--surface2`, `--text2`…): ya no existen.
 - [ ] Cada regla en su capa: componente → `sistema`, ajuste de pantalla → `pantallas`.
-- [ ] Como máximo **una** acción primaria en rojo en la vista.
+- [ ] Como máximo **una** acción primaria en la vista, y en tinta (§2.3). El rojo, solo para
+      dominio y récord.
 - [ ] Ningún componente crece de tamaño de móvil a escritorio.
 - [ ] Ningún estado marcado con barra de acento lateral.
 - [ ] Se recorre entera con teclado y el foco se ve siempre.
 - [ ] Contraste medido y las cifras escritas, si se ha tocado algún color.
 - [ ] Verificada a 375, 768, 1024, 1440 y 2560, en claro y en oscuro, **con el service worker
       desregistrado** (o verás la versión cacheada y creerás que tus cambios no se aplican).
-- [ ] `npm test` en verde y la consola limpia.
+- [ ] `npm test` en verde —incluido `design-system`— y la consola limpia.
+- [ ] El componente está en `patterns.html`.
 - [ ] `CACHE_NAME` subido en `sw.js`.

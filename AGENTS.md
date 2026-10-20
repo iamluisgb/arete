@@ -10,6 +10,20 @@ sin build step: lo que hay en el repo es lo que se sirve.
 - **Al iterar en el navegador, el service worker sirve la versión cacheada** y tus cambios en
   `js/` no aparecen. Desregístralo y vacía cachés desde DevTools, o abre desde otro puerto.
 
+## Sistema de diseño: las reglas son tests
+
+`DESIGN_SYSTEM.md` es la doctrina; [`tests/design-system.test.js`](tests/design-system.test.js) es
+lo que la hace cumplir en `npm test`, y [`patterns.html`](patterns.html) es la galería viva (uso
+interno: **no** está en `PUBLIC`, no se despliega ni se precachea).
+
+- **Si un test te frena, no lo relajes**: crea el token o usa el patrón. Los techos de tamaños
+  sueltos y de hex ("solo pueden bajar") congelan la deuda que ya había para que no crezca.
+- **Un componente nuevo se añade a `patterns.html` en el mismo commit.**
+- El test ya cazó tres tokens inexistentes (`--radius`, `--color-border`, `--color-text`) que
+  llevaban meses dejando bordes transparentes y radios cuadrados sin ningún error en consola.
+- **La acción principal va en tinta** (`--color-action-ink`); el rojo es dominio y récord. El nav
+  activo es fondo y peso, nunca una banda de acento.
+
 ## Los 7 dominios — el núcleo del producto
 
 Areté no es un tracker: mide **7 dominios de rendimiento** y tu nivel es **el más bajo**. La
