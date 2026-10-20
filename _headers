@@ -1,0 +1,17 @@
+# Cabeceras de Cloudflare Pages.
+#
+# Areté no tiene build ni hashing de nombres: un fichero se llama igual en todas
+# las versiones. Cachear código con max-age produce versiones MEZCLADAS — el
+# HTML se sirve revalidado (max-age=0) y el JS se queda cuatro horas en el
+# navegador. El 2026-10-20 eso dejó a Quirón sin botones: HTML nuevo (sin
+# #quironMemoryBtn) + quiron.js viejo (que lo busca en init) = TypeError y todos
+# los listeners posteriores sin enganchar.
+#
+# La regla: el código se revalida siempre. La caché de verdad es el service
+# worker, y esa sí está versionada (CACHE_NAME).
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Imágenes e iconos sí pueden vivir en caché: cambian poco y no ejecutan nada.
+/assets/*
+  Cache-Control: public, max-age=86400

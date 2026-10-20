@@ -28,6 +28,7 @@ const PUBLIC = [
   'style.css',
   'sw.js',
   'manifest.json',
+  '_headers',
   'programs.json',
   'js',
   'auth',
