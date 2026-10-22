@@ -160,6 +160,74 @@ navegador ya sabe hacer y la app no le pide.
     `related_applications` (Chrome Android 44) es la señal antigua. Antes de decidir nada:
     ¿el wrapper sigue vivo, o es deuda que conviene retirar?
 
+## Encontrado investigando la importación de carreras (2026-10)
+
+La pregunta era si Areté puede descargarse las sesiones de Strava o de otra app con API. Se midió
+con **seis `.fit` reales** (Garmin fenix 2 y fenix 5, COROS Pace 2, developer fields, timestamps
+comprimidos y uno grabado con la app de Strava en Android), cruzados contra `python-fitparse`, y con
+un prototipo de parser de **190 líneas y cero dependencias** que se conserva en
+`activity-data-interop/scripts/fit-parse.mjs` del lado del agente. Todo lo de abajo sale de ese
+ejercicio, no de la documentación.
+
+20. **El `.FIT` sigue sin leerse, y es el formato nativo de cualquier Garmin.** `js/ui/run-import.js`
+    (línea ~192) lanza `ImportError('Los .FIT todavía no…')`, así que el atleta que graba con reloj
+    tiene que exportar GPX a mano actividad por actividad. Es la fricción más cara que queda en la
+    escalera "importar > manual > GPS". Medido: el prototipo lee los tres ficheros sanos con **cero
+    discrepancias** contra la implementación de referencia (records, cobertura GPS y de FC, distancia,
+    primer y último timestamp, totales del `session`), y además es **más tolerante que la referencia**:
+    el COROS Pace 2, que `fitparse` rechaza por tamaños de campo mal declarados, sale entero (11.272
+    records, 32.145,76 m que cuadran con el `session` al metro), y un fichero truncado no revienta.
+    Coste medido del prototipo: 190 líneas; con tests, **2–3 horas**. De paso, el `session` trae
+    `sport` (1 = running, 2 = cycling): hoy un `.fit` de bici entraría como carrera porque
+    `saveImportedRun` fija `type: 'libre'`.
+
+21. **Si entra FIT sin tocar el contrato de `metrics()`, el desnivel se multiplica por cuatro.**
+    Medido en `activity-small-fenix2-run.fit`: el `session` declara **64 m** de ascenso y sumar los
+    deltas positivos de la traza da **257 m** (4×). Con un umbral de histéresis de 3 m sigue dando
+    149 m (2,3×). `metrics()` suma deltas brutos sin suavizar; el reloj filtra con barómetro. La
+    distancia y la duración ya tienen vía declarada (`declarada.distancia` / `declarada.duracion`, la
+    misma que usa el TCX); **el desnivel no**. Hay que añadir `elevacion` al contrato *antes* de
+    enchufar cualquier formato nuevo, o el número que hoy está bien empeora al mejorar el importador.
+
+22. **`readFile` devuelve texto y eso bloquea todo binario.** `js/ui/run-import.js` usa
+    `FileReader.readAsText`, correcto para GPX/TCX y corrupto para `.fit`, `.fit.gz` y `.zip`. Hace
+    falta una `readFileBytes` con `readAsArrayBuffer` y elegir según la extensión, antes de tocar
+    cualquier parser nuevo.
+
+23. **Un historial de Strava son 140 arrastres de fichero, uno a uno.** El export masivo es un ZIP
+    **heterogéneo**: el mismo archivo trae `.fit`, `.fit.gz` y `.gpx`, más un `activities.csv` con
+    `activity_date, activity_type, elapsed_time, moving_time, distance, max_heart_rate,
+    averag_heart_rate, elevation_gain, filename` — y `filename` vacío cuando la actividad no tiene
+    fichero (carreras manuales, cinta). Diseño correcto: **dos pasadas**, CSV para los totales de las
+    que no tienen fichero y ficheros para las trazas, con `findDuplicate` (fecha + distancia ±0,05 km)
+    como cruce, que ya existe. Son ~100 líneas de lector de ZIP con `DecompressionStream('deflate-raw')`
+    (nativo, baseline) leyendo entrada a entrada, sin cargar el ZIP en memoria.
+
+24. **La API de Strava está descartada por política, no por dificultad.** Desde el 1-jun-2026 exige
+    suscripción de desarrollador (~11,99 $/mes) y tope de 10 atletas sin revisión; la API Policy
+    §5.3 prohíbe usar sus datos en cualquier aplicación de IA —"ingestion into a context window or
+    working memory"—, lo que deja a **Quirón ciego a esas carreras** porque el snapshot de
+    `js/ai/context.js` las mete en el prompt; y §6.2 limita la caché a 7 días, incompatible con un
+    historial que se guarda para siempre. Lo único que salva el diseño es §6.6: el export del atleta
+    es un derecho explícito, y un fichero que el atleta entrega no es dato de API. La alternativa viva
+    es **Intervals.icu**: clave personal en Ajustes (Basic auth `API_KEY:<clave>`), sin registrar app,
+    sin OAuth, sin servidor, sin cuota negociada, con `GET /api/v1/athlete/0/activities` y
+    `GET /api/v1/activity/{id}/file` (devuelve `.fit`, `.gpx` o `.tcx`, gzip; enrutar por `file_type`).
+    Su límite: **no reexpone por API lo que viene de Strava** (sus webhooks no se emiten para
+    actividades de Strava), así que la fuente tiene que ser el dispositivo o el fichero original.
+
+25. **La serie de FC y las zonas se tiran aunque el fichero las traiga.** `saveImportedRun`
+    (`js/ui/running.js:1594`) fija `hrTimeSeries: null` y `hrZoneTimes: null`, y el almacén pesado ya
+    existe (`js/run-store.js`, IndexedDB `areteRuns`, campos `route, splits, hrTimeSeries,
+    hrZoneTimes, segments`). Un `.fit` trae la FC segundo a segundo: zonas de FC y "tiempo en
+    intensidad" reales salen gratis, y es justo lo que le falta al informe de Quirón para hablar de
+    intensidad en vez de solo de media y máxima.
+
+**Orden propuesto:** (1) `parseFitActivity` + `readFileBytes` + `elevacion` declarada, con los seis
+tests de casos límite; (2) import de ZIP con la doble pasada CSV/ficheros; (3) cliente de Intervals,
+que es lo más corto de los tres. El paso (1) es el que desbloquea los otros dos y también el `.FIT`
+suelto de Garmin.
+
 ## Anterior (recuperar de la lista original si aparece)
 
 7. **Tabla de umbrales femenina.** Los umbrales de los 7 dominios están calibrados para hombre de
