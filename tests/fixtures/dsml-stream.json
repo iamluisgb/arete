@@ -1,0 +1,33 @@
+{
+ "nota": "Stream real de deepseek-v4-flash (alias arete-fast) por el gateway de la demo, 2026-10-26. La llamada a `remember` llegó como texto DSML en vez de por tool_calls. Troceado tal cual llegó: sirve para probar el filtro con marcas partidas entre chunks.",
+ "deltas": [
+  "<｜｜DSML｜｜ calls>\n",
+  "<｜｜DSML｜｜ invoke name=\"remember",
+  "\">\n<｜｜DSML｜｜ parameter name=\"",
+  "c",
+  "ategoria\" string=\"true\">",
+  "otro</｜｜DSML｜｜ parameter>\n",
+  "<｜｜DSML｜｜ parameter name=\"text",
+  "o\" string=\"true\">",
+  "Principiante absoluto:",
+  " nunca ha",
+  " entrenado con",
+  " pes",
+  "as",
+  "; empieza a",
+  " entren",
+  "ar la",
+  " semana del",
+  " 26",
+  "/10/",
+  "2026. Prior",
+  "idad inicial",
+  " =",
+  " técnica",
+  " y calibración, no",
+  " carga",
+  ".</｜｜DSML｜｜ parameter>\n</｜｜DSML｜｜",
+  " invoke>\n</｜｜DSML｜｜ calls>"
+ ],
+ "finish_reason": "stop"
+}

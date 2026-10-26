@@ -199,6 +199,111 @@ export function queueState() {
 }
 
 export function chatStream(opts)    { return enqueue(() => _chatStream(opts), opts?.background); }
+// ---- DSML: la llamada de herramienta escrita como TEXTO ----------------------
+//
+// deepseek-v4-flash (el modelo de la demo) tiene su propia sintaxis de tool-call. Cuando
+// no puede usar el canal `tool_calls` —o decide no usarlo— la escribe en `content`:
+//
+//   <｜｜DSML｜｜ calls>
+//   <｜｜DSML｜｜ invoke name="remember">
+//   <｜｜DSML｜｜ parameter name="texto" string="true">…</｜｜DSML｜｜ parameter>
+//   </｜｜DSML｜｜ invoke>
+//   </｜｜DSML｜｜ calls>
+//
+// Se midió el 2026-10-26 contra producción: pasaba en la ronda final de una pregunta de
+// principiante (18 marcas, 0 tool_calls), el atleta veía el markup en la burbuja y el
+// turno acababa sin respuesta; además quedaba guardado en `areteQuiron` y se reenviaba
+// al modelo en los turnos siguientes. La causa era quitar `tools` en la última ronda
+// "para forzar el cierre": el modelo seguía queriendo llamar y se quedaba sin canal.
+//
+// Tres piezas, y las tres hacen falta:
+//   1. `tools` viaja en TODAS las rondas (el cierre lo fuerza el presupuesto, no la
+//      ausencia de herramientas).
+//   2. `createDsmlFilter` lo retiene en streaming: ni un carácter llega a la burbuja,
+//      ni siquiera cuando la marca viene partida entre dos chunks.
+//   3. `parseDsmlCalls` la convierte en una llamada de verdad, se ejecuta y se abre una
+//      ronda más para que el modelo conteste con el resultado dentro.
+//
+// Lo que no se puede hacer es pedirle al modelo que no la emita: con `tools` +
+// `tool_choice: 'none'` la seguía escribiendo (medido). Por eso el filtro es del cliente.
+const DSML_OPEN = '<｜｜DSML｜｜';
+const DSML_CALLS_END = '</｜｜DSML｜｜ calls>';
+const DSML_INVOKE = /<｜｜DSML｜｜\s*invoke\s+name="([^"]+)"\s*>([\s\S]*?)<\/｜｜DSML｜｜\s*invoke>/g;
+const DSML_PARAM = /<｜｜DSML｜｜\s*parameter\s+name="([^"]+)"(?:\s+string="(true|false)")?\s*>([\s\S]*?)<\/｜｜DSML｜｜\s*parameter>/g;
+
+/** Lo que ve el atleta si la llamada llegó ilegible: una frase, nunca el volcado. */
+export const DSML_FALLBACK =
+  'No he podido completar la consulta. Repítemela, o acótala un poco.';
+
+/** Convierte el markup DSML de un texto en llamadas { name, args }. [] si no hay. */
+export function parseDsmlCalls(text) {
+  const out = [];
+  if (!text || !text.includes(DSML_OPEN)) return out;
+  for (const m of text.matchAll(DSML_INVOKE)) {
+    const args = {};
+    for (const p of m[2].matchAll(DSML_PARAM)) {
+      const [, name, isString, raw] = p;
+      if (isString === 'false') {
+        try { args[name] = JSON.parse(raw); } catch { args[name] = raw; }
+      } else args[name] = raw;
+    }
+    out.push({ name: m[1], args });
+  }
+  return out;
+}
+
+/**
+ * Filtro incremental: recibe los trozos de `content` y devuelve solo el texto que puede
+ * verse. Un bloque DSML se descarta entero, y una marca a medias se retiene hasta saber
+ * si lo es (si no, un `<` suelto se perdería o el markup se colaría por el corte).
+ */
+export function createDsmlFilter() {
+  let buf = '';
+  let inBlock = false;
+  let saw = false;
+  // Cuántos caracteres del final pueden ser el principio de la marca.
+  const tail = (s) => {
+    const max = Math.min(s.length, DSML_OPEN.length - 1);
+    for (let k = max; k > 0; k--) if (s.endsWith(DSML_OPEN.slice(0, k))) return k;
+    return 0;
+  };
+  return {
+    push(chunk) {
+      let out = '';
+      buf += chunk || '';
+      for (;;) {
+        if (inBlock) {
+          const i = buf.indexOf(DSML_CALLS_END);
+          // Sin cierre todavía: se conserva la cola por si el cierre viene partido.
+          if (i === -1) { buf = buf.slice(Math.max(0, buf.length - DSML_CALLS_END.length + 1)); return out; }
+          buf = buf.slice(i + DSML_CALLS_END.length);
+          inBlock = false;
+          continue;
+        }
+        const i = buf.indexOf(DSML_OPEN);
+        if (i === -1) {
+          const keep = tail(buf);
+          out += buf.slice(0, buf.length - keep);
+          buf = buf.slice(buf.length - keep);
+          return out;
+        }
+        out += buf.slice(0, i);
+        buf = buf.slice(i + DSML_OPEN.length);
+        inBlock = true;
+        saw = true;
+      }
+    },
+    /** Resto al cerrar el stream. Un bloque sin cerrar o una marca a medias se tiran. */
+    flush() {
+      const rest = inBlock || tail(buf) ? '' : buf;
+      buf = '';
+      inBlock = false;
+      return rest;
+    },
+    get sawDsml() { return saw; },
+  };
+}
+
 export function chatAgent(opts)     { return enqueue(() => _chatAgent(opts), opts?.background); }
 // Sin uso en la app desde que el chat pasó a `chatAgent`. Se conserva a propósito: es el
 // camino para un proveedor BYOK que no emita tool_calls fiables en streaming. Si algún día
@@ -351,14 +456,23 @@ async function _chatAgent({
   if (!key) throw new Error('Falta la API key. Configúrala en Ajustes → Quirón.');
   const convo = [...messages];
   const calls = [];
+  // Presupuesto de rondas: el normal más las que se gasten recuperando una llamada que
+  // llegó como texto DSML. Sin el extra, la recuperación se come la ronda de respuesta y
+  // el turno acaba sin que el modelo haya contestado.
+  let budget = maxRounds;
+  const BUDGET_MAX = maxRounds + 2;
+  let lastText = '';
 
-  for (let round = 1; round <= maxRounds; round++) {
+  for (let round = 1; round <= budget; round++) {
     const res = await fetchRetrying(`${getBaseUrl()}/chat/completions`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: getModel(), messages: convo, stream: true, max_tokens: maxTokens,
-        ...(tools && round < maxRounds ? { tools, tool_choice: 'auto' } : {}),
+        // Las herramientas viajan en TODAS las rondas. Quitarlas en la última "para forzar
+        // el cierre" era justo lo que provocaba el markup DSML (ver el bloque de arriba):
+        // el modelo seguía queriendo llamar y, sin canal, la escribía en `content`.
+        ...(tools ? { tools, tool_choice: 'auto' } : {}),
       }),
       signal,
     });
@@ -371,10 +485,12 @@ async function _chatAgent({
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '', text = '', finishReason = null;
+    let buffer = '', text = '', clean = '', finishReason = null;
     // Los tool_calls llegan troceados: el nombre en un delta y los argumentos en varios,
     // identificados por `index`. Se acumulan y solo se parsean al cerrar el stream.
     const partial = new Map();
+    // Nada de DSML llega a la burbuja, venga en el trozo que venga.
+    const dsml = createDsmlFilter();
 
     while (true) {
       const { done, value } = await reader.read();
@@ -394,7 +510,11 @@ async function _chatAgent({
           if (choice.finish_reason) finishReason = choice.finish_reason;
           const delta = choice.delta || {};
           if (delta.reasoning_content && onReasoning) onReasoning(delta.reasoning_content);
-          if (delta.content) { text += delta.content; if (onToken) onToken(delta.content); }
+          if (delta.content) {
+            text += delta.content;
+            const safe = dsml.push(delta.content);
+            if (safe) { clean += safe; if (onToken) onToken(safe); }
+          }
           for (const tc of (delta.tool_calls || [])) {
             const cur = partial.get(tc.index) || { id: '', name: '', args: '' };
             if (tc.id) cur.id += tc.id;
@@ -406,10 +526,33 @@ async function _chatAgent({
       }
     }
 
-    const toolCalls = [...partial.values()].filter(t => t.name);
+    let toolCalls = [...partial.values()].filter(t => t.name);
+
+    // La llamada llegó como TEXTO (DSML) en vez de por el canal de herramientas. Se
+    // convierte, se ejecuta y se abre una ronda más para que el modelo conteste con el
+    // resultado dentro. Si no hay ni una llamada legible, el atleta recibe una frase:
+    // el markup no se pinta nunca.
+    if (!toolCalls.length && dsml.sawDsml) {
+      const parsed = parseDsmlCalls(text);
+      if (parsed.length) {
+        toolCalls = parsed.map((c, i) => ({
+          id: `call_dsml_${round}_${i}`, name: c.name, args: JSON.stringify(c.args ?? {}),
+        }));
+        budget = Math.min(budget + 1, BUDGET_MAX);
+      } else {
+        if (onRoundReset) onRoundReset();
+        if (onToken) onToken(DSML_FALLBACK);
+        if (onDone) onDone({ finishReason, truncated: false });
+        return { content: DSML_FALLBACK, rounds: round, calls, recovered: 'fallback' };
+      }
+    }
+    const rest = dsml.flush();
+    if (rest) { clean += rest; if (onToken) onToken(rest); }
+    lastText = clean;
+
     if (!toolCalls.length) {
       if (onDone) onDone({ finishReason, truncated: finishReason === 'length' });
-      return { content: text, rounds: round, calls, truncated: finishReason === 'length' };
+      return { content: clean, rounds: round, calls, truncated: finishReason === 'length' };
     }
 
     // La ronda llevaba herramientas: lo escrito era preámbulo, no la respuesta.
@@ -418,7 +561,7 @@ async function _chatAgent({
 
     convo.push({
       role: 'assistant',
-      content: text || null,
+      content: clean || null,
       tool_calls: toolCalls.map((t, i) => ({
         id: t.id || `call_${round}_${i}`, type: 'function',
         function: { name: t.name, arguments: t.args || '{}' },
@@ -442,7 +585,11 @@ async function _chatAgent({
     if (stopAfterTools && stopAfterTools(calls)) return { content: '', rounds: round, calls, stopped: true };
   }
 
-  return { content: '', rounds: maxRounds, calls, exhausted: true };
+  // Se agotó el presupuesto pidiendo herramientas. Mejor el último texto limpio que una
+  // burbuja vacía, y si no hubo ni eso, una frase: el turno nunca termina en blanco.
+  const content = lastText || DSML_FALLBACK;
+  if (!lastText && onToken) onToken(content);
+  return { content, rounds: budget, calls, exhausted: true };
 }
 
 // Bucle multi-turno de tool-use. No-streaming (nan/DeepSeek solo emiten tool_calls
