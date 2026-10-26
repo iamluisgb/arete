@@ -235,6 +235,13 @@ const DSML_PARAM = /<｜｜DSML｜｜\s*parameter\s+name="([^"]+)"(?:\s+string="
 export const DSML_FALLBACK =
   'No he podido completar la consulta. Repítemela, o acótala un poco.';
 
+// Instrucción de la última ronda: sin ella el modelo sigue pidiendo herramientas hasta
+// agotar el presupuesto (y con `tool_choice: 'none'` a secas vuelve a escribir DSML).
+// Medido contra la API real: con este empujón responde en prosa, con o sin `none`.
+// Viaja solo en esa petición: no se guarda en la conversación.
+export const LAST_ROUND_NUDGE =
+  '[Sistema] Última vuelta: no llames a ninguna herramienta. Responde ya al atleta con lo que tengas, breve y en prosa.';
+
 /** Convierte el markup DSML de un texto en llamadas { name, args }. [] si no hay. */
 export function parseDsmlCalls(text) {
   const out = [];
@@ -464,15 +471,20 @@ async function _chatAgent({
   let lastText = '';
 
   for (let round = 1; round <= budget; round++) {
+    // Última ronda del presupuesto: se pide el cierre. Las herramientas siguen viajando
+    // (el canal existe) pero con `tool_choice: 'none'` y el empujón en el mensaje, que es
+    // lo que de verdad hace que conteste en vez de seguir explorando.
+    const isLast = round === budget;
+    const roundMessages = isLast ? [...convo, { role: 'user', content: LAST_ROUND_NUDGE }] : convo;
     const res = await fetchRetrying(`${getBaseUrl()}/chat/completions`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: getModel(), messages: convo, stream: true, max_tokens: maxTokens,
+        model: getModel(), messages: roundMessages, stream: true, max_tokens: maxTokens,
         // Las herramientas viajan en TODAS las rondas. Quitarlas en la última "para forzar
         // el cierre" era justo lo que provocaba el markup DSML (ver el bloque de arriba):
         // el modelo seguía queriendo llamar y, sin canal, la escribía en `content`.
-        ...(tools ? { tools, tool_choice: 'auto' } : {}),
+        ...(tools ? { tools, tool_choice: isLast ? 'none' : 'auto' } : {}),
       }),
       signal,
     });
@@ -533,17 +545,23 @@ async function _chatAgent({
     // resultado dentro. Si no hay ni una llamada legible, el atleta recibe una frase:
     // el markup no se pinta nunca.
     if (!toolCalls.length && dsml.sawDsml) {
-      const parsed = parseDsmlCalls(text);
+      // En la última ronda ya no queda presupuesto para contestar con el resultado, así
+      // que una llamada ahí no sirve de nada: se descarta igual que si fuera ilegible.
+      const parsed = isLast ? [] : parseDsmlCalls(text);
       if (parsed.length) {
         toolCalls = parsed.map((c, i) => ({
           id: `call_dsml_${round}_${i}`, name: c.name, args: JSON.stringify(c.args ?? {}),
         }));
         budget = Math.min(budget + 1, BUDGET_MAX);
       } else {
+        // Sin llamada utilizable: el markup se tira. Si quedó prosa, esa es la respuesta
+        // (lo escrito antes del bloque cuenta); si no, una frase. Nunca el volcado.
+        const prose = clean.trim();
+        const out = prose || DSML_FALLBACK;
         if (onRoundReset) onRoundReset();
-        if (onToken) onToken(DSML_FALLBACK);
+        if (onToken) onToken(out);
         if (onDone) onDone({ finishReason, truncated: false });
-        return { content: DSML_FALLBACK, rounds: round, calls, recovered: 'fallback' };
+        return { content: out, rounds: round, calls, recovered: 'drop' };
       }
     }
     const rest = dsml.flush();

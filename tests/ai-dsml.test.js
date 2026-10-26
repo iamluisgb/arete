@@ -173,6 +173,54 @@ describe('chatAgent con DSML', () => {
     for (const b of bodies) expect(Array.isArray(b.tools)).toBe(true);
   });
 
+  it('la última ronda pide el cierre: tool_choice none y el empujón', async () => {
+    // Sin esto el modelo sigue pidiendo herramientas hasta agotar el presupuesto, y con
+    // `none` a secas vuelve a escribir DSML (medido contra la API real).
+    const bodies = [];
+    let n = 0;
+    vi.stubGlobal('fetch', vi.fn(async (url, init) => {
+      bodies.push(JSON.parse(init.body));
+      n++;
+      const enc = new TextEncoder();
+      const chunk = { choices: [{ delta: { tool_calls: [{ index: 0, id: `c${n}`, function: { name: 'remember', arguments: '{}' } }] }, finish_reason: 'tool_calls' }] };
+      const raw = `data: ${JSON.stringify(chunk)}\n\ndata: [DONE]\n\n`;
+      return { ok: true, status: 200, headers: { get: () => null }, body: new ReadableStream({ start(c) { c.enqueue(enc.encode(raw)); c.close(); } }) };
+    }));
+
+    const { chatAgent, LAST_ROUND_NUDGE } = await freshLLM();
+    await chatAgent({
+      messages: [{ role: 'user', content: 'x' }],
+      tools: [{ type: 'function', function: { name: 'remember', parameters: { type: 'object', properties: {} } } }],
+      execute: async () => 'ok',
+      maxRounds: 2,
+    });
+
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0].tool_choice).toBe('auto');
+    expect(bodies[0].messages.some(m => m.content === LAST_ROUND_NUDGE)).toBe(false);
+    expect(bodies[1].tool_choice).toBe('none');
+    expect(bodies[1].messages.at(-1)).toEqual({ role: 'user', content: LAST_ROUND_NUDGE });
+    // El empujón no se queda en la conversación: solo viaja en esa petición.
+    expect(bodies[1].messages.filter(m => m.content === LAST_ROUND_NUDGE)).toHaveLength(1);
+  });
+
+  it('en la última ronda el markup se descarta y no se ejecuta nada', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => sse(FIXTURE.deltas)));
+    const { chatAgent, DSML_FALLBACK } = await freshLLM();
+    const ejecutadas = [];
+    const tokens = [];
+    const res = await chatAgent({
+      messages: [{ role: 'user', content: 'x' }],
+      tools: [{ type: 'function', function: { name: 'remember', parameters: { type: 'object', properties: {} } } }],
+      execute: async (name) => { ejecutadas.push(name); return 'ok'; },
+      maxRounds: 1,   // la primera ya es la última: no hay ronda para contestar
+      onToken: t => tokens.push(t),
+    });
+    expect(ejecutadas).toEqual([]);
+    expect(res.content).toBe(DSML_FALLBACK);
+    expect(tokens.join('').includes('DSML')).toBe(false);
+  });
+
   it('si el markup viene ilegible, el atleta recibe una frase y nunca el volcado', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => sse([`${OPEN} calls>\nbasura sin invoke\n</${OPEN} calls>`])));
     const { chatAgent, DSML_FALLBACK } = await freshLLM();
