@@ -741,6 +741,17 @@ preguntando algo o contándote algo.
 - **Sin barra de acento lateral en ningún sitio**, incluido el banner de edición, que usa fondo
   teñido e icono.
 
+**Octubre de 2026: en papel.** Cuerpo es también la primera pantalla sin tarjetas (§2.3, componentes
+`.band`, `.sec-head`, `.cols` y `.kv` de `app.css` §3.4b). Arriba, la franja de estado; debajo, la
+rejilla de 12 con peso (7) y calorías (5), y proporciones y registros a ancho completo. Lo nuevo:
+
+- **La gráfica de peso.** Es la pregunta que trae a la gente a esta pantalla, y antes había que
+  leerla restando filas de la tabla.
+- **Masa magra** en la franja, solo cuando peso y grasa son del mismo día: es la cifra que distingue
+  perder grasa de perder músculo.
+- **Columna "Cambio"** en los registros, por la misma razón. Las variaciones siguen sin colorearse.
+- **Proporciones sin muñeca** es una línea con su botón, que abre la misma hoja de captura.
+
 **Dos arreglos colaterales que salieron al migrar:**
 
 1. **`hidden` no funcionaba en toda la app.** La regla del navegador es `display:none` con
