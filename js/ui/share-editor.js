@@ -7,6 +7,7 @@ import {
   profileCardData, renderProfileCard, cardSize, shareText,
   readSeen, markSeen, levelUpSince,
 } from './profile-card.js';
+import { sessionCardData, sessionPresets, renderSessionCard, sessionShareText } from './session-card.js';
 
 // ── State ───────────────────────────────────────────────────
 let _data = null;       // normalized data
@@ -75,16 +76,6 @@ const RUN_PRESETS = {
   routeHero: { name: 'Ruta', needsRoute: true },
 };
 
-const STR_PRESETS = {
-  minimal: { name: 'Minimal' },
-  statsPro: { name: 'Stats Pro' },
-};
-
-const HIIT_PRESETS = {
-  minimal: { name: 'Minimal' },
-  statsPro: { name: 'Stats Pro' },
-};
-
 const PROFILE_PRESETS = {
   minimal: { name: 'Tarjeta' },
   sticker: { name: 'Adhesivo' },
@@ -93,8 +84,11 @@ const PROFILE_PRESETS = {
 function presetsFor(mode) {
   if (mode === 'profile') return PROFILE_PRESETS;
   if (mode === 'running') return RUN_PRESETS;
-  return mode === 'hiit' ? HIIT_PRESETS : STR_PRESETS;
+  return sessionPresets(_data);
 }
+
+/** Las tarjetas que se animan (y se pueden compartir como vídeo): todas menos las de carrera. */
+const isAnimated = () => _mode !== 'running';
 
 // ── Douglas-Peucker simplification ─────────────────────────
 
@@ -183,56 +177,6 @@ function normalizeRunData(log) {
     paceStr: formatPace(log.pace),
     dateStr: _formatDateLong(log.date),
     typeStr: RUN_TYPE_META[log.type]?.label || log.type || '',
-  };
-}
-
-function _parseRoundsFromResult(str) {
-  const m = str.match(/^(\d+)R/);
-  return m ? parseInt(m[1]) : 0;
-}
-
-function _parseTimeFromResult(str) {
-  const m = str.match(/(\d+:\d{2})$/);
-  return m ? m[1] : str;
-}
-
-function normalizeWorkoutData(w) {
-  let totalSets = 0, totalVolume = 0;
-  let isHiit = false, hiitRounds = 0, hiitTime = '', hiitExercises = [], hiitRest = '';
-
-  for (const ex of (w.exercises || [])) {
-    const repsStr = ex.sets?.[0]?.reps || '';
-    if (ex.type === 'hiit' || _parseRoundsFromResult(repsStr) > 0) {
-      isHiit = true;
-      hiitRounds    = ex.rounds    || _parseRoundsFromResult(repsStr);
-      hiitTime      = _parseTimeFromResult(repsStr);
-      hiitExercises = ex.exercises || [];
-      hiitRest      = ex.rest || '';
-    }
-    for (const s of (ex.sets || [])) {
-      totalSets++;
-      totalVolume += (parseFloat(s.kg) || 0) * (parseInt(s.reps) || 0);
-    }
-  }
-
-  return {
-    mode: isHiit ? 'hiit' : 'strength',
-    date: w.date || '',
-    session: w.session || '',
-    phase: w.phase || '',
-    exercises: w.exercises || [],
-    totalSets,
-    totalVolume,
-    prs: w.prs || [],
-    notes: w.notes || '',
-    dateStr: _formatDateLong(w.date),
-    sessionStr: w.session || 'Entrenamiento',
-    volumeStr: totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}t` : `${Math.round(totalVolume)} kg`,
-    isHiit,
-    hiitRounds,
-    hiitTime,
-    hiitExercises,
-    hiitRest,
   };
 }
 
@@ -622,321 +566,22 @@ function renderRouteHero(ctx, W, H, data, theme) {
   drawBranding(ctx, W, is916 ? H * 0.96 : H * 0.93, t);
 }
 
-// ── Strength presets rendering ──────────────────────────────
-
-function renderMinimalStrength(ctx, W, H, data, theme) {
-  const t = theme;
-  drawBackground(ctx, W, H, t.bg);
-  drawAccentGlow(ctx, W, H, t);
-
-  const is916 = H > 1200;
-  const pad = 60;
-
-  // Brand top-right
-  drawBrandingTopRight(ctx, W, t);
-
-  // PR pill badge (if any)
-  let headerY = 120;
-  if (data.prs?.length > 0) {
-    drawPillBadge(ctx, `${data.prs.length} PR batido${data.prs.length > 1 ? 's' : ''}`, W / 2, headerY - 22, t);
-    headerY += 50;
-  }
-
-  // Session name HERO - faux italic + glow
-  const name = data.sessionStr || 'Entrenamiento';
-  const nameSize = name.length > 15 ? (is916 ? 96 : 80) : (is916 ? 140 : 110);
-  drawTextGlow(ctx, name, W / 2, headerY + 60, {
-    size: nameSize, weight: 900, color: t.text, italic: true,
-    glowColor: t.sub(.1), glowBlur: 30
-  });
-
-  // Date below name
-  const dateY = headerY + 60 + (nameSize > 100 ? 85 : 65);
-  drawText(ctx, data.dateStr || '', W / 2, dateY, { size: 24, weight: 500, color: t.sub(.35) });
-
-  // Exercises as glass cards
-  const exStartY = dateY + (is916 ? 80 : 60);
-  const maxEx = is916 ? 7 : 5;
-  const cardH = 90;
-  const cardGap = 12;
-
-  for (let i = 0; i < Math.min(data.exercises.length, maxEx); i++) {
-    const ex = data.exercises[i];
-    const ey = exStartY + i * (cardH + cardGap);
-    const isPR = data.prs?.some(p => p.exercise === ex.name);
-
-    // Glass card
-    drawGlassPanel(ctx, pad, ey, W - 2 * pad, cardH, 16, t);
-
-    // Exercise name (left)
-    drawText(ctx, ex.name, pad + 30, ey + 35, {
-      size: 36, weight: 700, color: isPR ? t.accent : t.text, align: 'left'
-    });
-
-    // Best set (right) - "80 kg × 5" or duration for weight-0 exercises
-    const hasKg = ex.sets?.some(s => parseFloat(s.kg) > 0);
-    if (hasKg) {
-      const bestSet = ex.sets.reduce((a, b) =>
-        (parseFloat(b.kg) || 0) > (parseFloat(a.kg) || 0) ? b : a, ex.sets[0]);
-      const rx = W - pad - 30;
-      drawFauxItalic(ctx, `${bestSet.kg}`, rx - 120, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
-      drawText(ctx, 'kg', rx - 60, ey + 35, { size: 28, weight: 700, color: t.accent, align: 'center' });
-      drawFauxItalic(ctx, `×${bestSet.reps}`, rx, ey + 35, { size: 28, weight: 500, color: t.sub(.6), align: 'right' });
-    } else if (ex.sets?.[0]?.reps) {
-      const rx = W - pad - 30;
-      const numSets = ex.sets.length;
-      if (numSets > 1) {
-        drawFauxItalic(ctx, `${ex.sets[0].reps}`, rx - 80, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
-        drawFauxItalic(ctx, `×${numSets}`, rx, ey + 35, { size: 28, weight: 500, color: t.sub(.6), align: 'right' });
-      } else {
-        drawFauxItalic(ctx, `${ex.sets[0].reps}`, rx, ey + 35, { size: 36, weight: 900, color: t.text, align: 'right' });
-      }
-    }
-
-    // PR indicator
-    if (isPR) {
-      drawText(ctx, 'PR', pad + 30, ey + 68, { size: 18, weight: 700, color: t.accent, align: 'left', spacing: 0.1 });
-    }
-  }
-  if (data.exercises.length > maxEx) {
-    const overY = exStartY + maxEx * (cardH + cardGap) + 10;
-    drawText(ctx, `+${data.exercises.length - maxEx} más`, W / 2, overY, {
-      size: 22, weight: 500, color: t.sub(.3)
-    });
-  }
-
-  drawBranding(ctx, W, H * (is916 ? 0.94 : 0.92), t);
-}
-
-function renderStatsStrength(ctx, W, H, data, theme) {
-  const t = theme;
-  drawBackground(ctx, W, H, t.bgFlat);
-
-  const pad = 60;
-  const is916 = H > 1200;
-  let y = pad;
-
-  // Brand top-right
-  drawBrandingTopRight(ctx, W, t);
-
-  // Date + session
-  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 24, weight: 700, color: t.accent, align: 'left' });
-  y += 34;
-  drawFauxItalic(ctx, data.sessionStr, pad, y + 10, { size: 44, weight: 800, color: t.text, align: 'left' });
-  y += 56;
-
-  // Bento grid summary (3 columns)
-  const bentoGap = 14;
-  const bentoW = (W - 2 * pad - 2 * bentoGap) / 3;
-  const bentoH = 120;
-  const bentoItems = [
-    { val: `${data.totalSets}`, label: 'SERIES' },
-    { val: data.volumeStr, label: 'VOLUMEN' },
-    { val: `${data.prs?.length || 0}`, label: 'PRs' },
-  ];
-  for (let i = 0; i < 3; i++) {
-    const bx = pad + i * (bentoW + bentoGap);
-    drawGlassPanel(ctx, bx, y, bentoW, bentoH, 16, t);
-    drawText(ctx, bentoItems[i].label, bx + bentoW / 2, y + 30, { size: 22, weight: 700, color: t.accent, spacing: 0.1 });
-    drawFauxItalic(ctx, bentoItems[i].val, bx + bentoW / 2, y + 78, { size: 52, weight: 900, color: t.text });
-  }
-  y += bentoH + 30;
-
-  // Exercises section
-  drawText(ctx, 'EJERCICIOS', pad, y + 8, { size: 20, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
-  y += 42;
-
-  const maxEx = is916 ? 7 : 5;
-  for (let i = 0; i < Math.min(data.exercises.length, maxEx); i++) {
-    const ex = data.exercises[i];
-    const isPR = data.prs?.some(p => p.exercise === ex.name);
-
-    // Glass card for each exercise
-    const hasKg = ex.sets?.some(s => parseFloat(s.kg) > 0);
-    const setsStr = hasKg
-      ? ex.sets.map(s => `${s.kg || 0}kg × ${s.reps || 0}`).join('  ·  ')
-      : ex.sets?.length
-        ? ex.sets.map(s => s.reps || '—').join('  ·  ')
-        : '—';
-    const exCardH = 100;
-    drawGlassPanel(ctx, pad, y, W - 2 * pad, exCardH, 16, t);
-
-    // Exercise name + PR label
-    drawText(ctx, ex.name, pad + 24, y + 32, {
-      size: 30, weight: 700, color: isPR ? t.accent : t.text, align: 'left'
-    });
-    if (isPR) {
-      ctx.font = `700 30px ${FONT}`;
-      const nameW = ctx.measureText(ex.name).width;
-      drawText(ctx, 'PR', pad + 24 + nameW + 16, y + 32, {
-        size: 22, weight: 800, color: t.accent, align: 'left', spacing: 0.05
-      });
-    }
-
-    // Sets row
-    drawText(ctx, setsStr, pad + 24, y + 70, { size: 24, weight: 500, color: t.sub(.55), align: 'left' });
-    y += exCardH + 10;
-  }
-
-  drawBranding(ctx, W, H * (is916 ? 0.94 : 0.92), t);
-}
-
-// ── HIIT presets rendering ──────────────────────────────────
-
-function renderMinimalHiit(ctx, W, H, data, theme) {
-  const t = theme;
-  drawBackground(ctx, W, H, t.bg);
-  drawAccentGlow(ctx, W, H, t);
-
-  const is916 = H > 1200;
-  const pad = 60;
-
-  drawBrandingTopRight(ctx, W, t);
-
-  // Badge pill "HIIT"
-  let y = 100;
-  drawPillBadge(ctx, 'HIIT', W / 2, y, t);
-  y += 72;
-
-  // Session name HERO
-  const name = data.sessionStr || 'HIIT';
-  const nameSize = name.length > 10 ? (is916 ? 110 : 88) : (is916 ? 140 : 110);
-  drawTextGlow(ctx, name, W / 2, y + 60, {
-    size: nameSize, weight: 900, color: t.text, italic: true,
-    glowColor: t.sub(.1), glowBlur: 30,
-  });
-  y += 60 + (nameSize > 100 ? 90 : 70);
-
-  // Date
-  drawText(ctx, data.dateStr || '', W / 2, y, { size: 24, weight: 500, color: t.sub(.35) });
-  y += is916 ? 72 : 54;
-
-  // Bento 2-col: RONDAS | TIEMPO
-  const bentoGap = 14;
-  const bentoW = (W - 2 * pad - bentoGap) / 2;
-  const bentoH = 150;
-  const bentoItems = [
-    { val: data.hiitRounds > 0 ? String(data.hiitRounds) : '—', label: 'RONDAS' },
-    { val: data.hiitTime || '—', label: 'TIEMPO' },
-  ];
-  for (let i = 0; i < 2; i++) {
-    const bx = pad + i * (bentoW + bentoGap);
-    drawGlassPanel(ctx, bx, y, bentoW, bentoH, 20, t);
-    drawText(ctx, bentoItems[i].label, bx + bentoW / 2, y + 36, { size: 22, weight: 700, color: t.accent, spacing: 0.12 });
-    drawFauxItalic(ctx, bentoItems[i].val, bx + bentoW / 2, y + 108, { size: 66, weight: 900, color: t.text });
-  }
-  y += bentoH + 40;
-
-  // Circuit exercise list
-  if (data.hiitExercises.length > 0) {
-    drawText(ctx, 'CIRCUITO', pad, y, { size: 20, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
-    y += 36;
-
-    const maxEx = is916 ? 8 : 5;
-    const visEx = data.hiitExercises.slice(0, maxEx);
-    const exRowH = 72;
-
-    drawGlassPanel(ctx, pad, y, W - 2 * pad, visEx.length * exRowH, 16, t);
-
-    visEx.forEach((ex, idx) => {
-      const ey = y + idx * exRowH;
-      if (idx > 0) {
-        ctx.fillStyle = t.sub(.08);
-        ctx.fillRect(pad + 24, ey, W - 2 * pad - 48, 1);
-      }
-      drawText(ctx, ex.name, pad + 28, ey + exRowH / 2, { size: 30, weight: 600, color: t.text, align: 'left' });
-      const repsLabel = ex.duration ? ex.duration : (ex.perSide ? `${ex.reps} c/l` : `×${ex.reps}`);
-      drawFauxItalic(ctx, repsLabel, W - pad - 28, ey + exRowH / 2, { size: 30, weight: 800, color: t.accent, align: 'right' });
-    });
-    y += visEx.length * exRowH + 16;
-
-    if (data.hiitExercises.length > maxEx) {
-      drawText(ctx, `+${data.hiitExercises.length - maxEx} más`, W / 2, y + 20, { size: 22, weight: 500, color: t.sub(.3) });
-      y += 48;
-    }
-  }
-
-  // Rest note
-  if (data.hiitRest && data.hiitRest !== '0s') {
-    drawText(ctx, `Desc. entre rondas: ${data.hiitRest}`, W / 2, y + 20, { size: 20, weight: 500, color: t.sub(.25) });
-  }
-
-  drawBranding(ctx, W, H * (is916 ? 0.94 : 0.92), t);
-}
-
-function renderStatsHiit(ctx, W, H, data, theme) {
-  const t = theme;
-  drawBackground(ctx, W, H, t.bgFlat);
-
-  const pad = 60;
-  const is916 = H > 1200;
-  let y = pad;
-
-  drawBrandingTopRight(ctx, W, t);
-
-  // Date accent + session name
-  drawText(ctx, data.dateStr?.toUpperCase?.() || '', pad, y + 10, { size: 24, weight: 700, color: t.accent, align: 'left' });
-  y += 34;
-
-  // Hero card: session name + rounds sub-line
-  const heroH = 200;
-  drawGlassPanel(ctx, pad, y, W - 2 * pad, heroH, 20, t);
-  drawFauxItalic(ctx, data.sessionStr, W / 2, y + 80, { size: 100, weight: 900, color: t.text });
-  const roundsLabel = data.hiitRounds > 0 ? `${data.hiitRounds} rondas` : 'HIIT';
-  drawText(ctx, roundsLabel, W / 2, y + 148, { size: 28, weight: 700, color: t.accent, spacing: 0.05 });
-  y += heroH + 20;
-
-  // Bento 2-col: TIEMPO | RONDAS
-  const bentoGap = 14;
-  const bentoW = (W - 2 * pad - bentoGap) / 2;
-  const bentoH = 120;
-  const bentoItems = [
-    { val: data.hiitTime || '—', label: 'TIEMPO' },
-    { val: data.hiitRounds > 0 ? String(data.hiitRounds) : '—', label: 'RONDAS' },
-  ];
-  for (let i = 0; i < 2; i++) {
-    const bx = pad + i * (bentoW + bentoGap);
-    drawGlassPanel(ctx, bx, y, bentoW, bentoH, 16, t);
-    drawText(ctx, bentoItems[i].label, bx + bentoW / 2, y + 30, { size: 22, weight: 700, color: t.accent, spacing: 0.1 });
-    drawFauxItalic(ctx, bentoItems[i].val, bx + bentoW / 2, y + 84, { size: 52, weight: 900, color: t.text });
-  }
-  y += bentoH + 30;
-
-  // Exercises list
-  if (data.hiitExercises.length > 0) {
-    drawText(ctx, 'CIRCUITO', pad, y + 8, { size: 20, weight: 700, color: t.sub(.4), align: 'left', spacing: 0.15 });
-    y += 42;
-
-    const maxEx = is916 ? 7 : 5;
-    for (let i = 0; i < Math.min(data.hiitExercises.length, maxEx); i++) {
-      const ex = data.hiitExercises[i];
-      const exCardH = 90;
-      drawGlassPanel(ctx, pad, y, W - 2 * pad, exCardH, 16, t);
-      drawText(ctx, ex.name, pad + 24, y + 34, { size: 30, weight: 700, color: t.text, align: 'left' });
-      const repsLabel = ex.duration ? ex.duration : (ex.perSide ? `${ex.reps} c/l` : `×${ex.reps}`);
-      drawFauxItalic(ctx, repsLabel, W - pad - 24, y + 34, { size: 30, weight: 800, color: t.accent, align: 'right' });
-      if (data.hiitRest && data.hiitRest !== '0s') {
-        drawText(ctx, `${data.hiitRest} descanso`, pad + 24, y + 65, { size: 20, weight: 500, color: t.sub(.35), align: 'left' });
-      }
-      y += exCardH + 10;
-    }
-    if (data.hiitExercises.length > maxEx) {
-      drawText(ctx, `+${data.hiitExercises.length - maxEx} más`, W / 2, y + 10, { size: 22, weight: 500, color: t.sub(.3) });
-    }
-  }
-
-  drawBranding(ctx, W, H * (is916 ? 0.94 : 0.92), t);
-}
-
 // ── Main render ─────────────────────────────────────────────
 
 // La tarjeta de perfil se anima: los anillos aparecen, la forma crece eje a eje
 // y el eslabón débil late. La misma función da la imagen fija (t = 1) y el vídeo.
 const ANIM_MS = 4000;
 
-function drawProfile(t = 1) {
+function drawCard(t = 1) {
   const canvas = document.getElementById('seCanvas');
   if (!canvas || !_data) return;
+  if (_mode !== 'profile') {
+    const W = 1080, H = _format === '9:16' ? 1920 : 1080;
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    canvas.style.background = '';
+    renderSessionCard(canvas.getContext('2d'), W, H, _data, { preset: _preset, theme: _theme }, t);
+    return;
+  }
   const { W, H } = cardSize(_preset, _format);
   if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
   // El adhesivo es transparente y va sobre una foto: en la vista previa, un
@@ -953,15 +598,15 @@ function stopAnimation() {
 }
 
 /** Reproduce la animación entera; la última quinta parte deja la tarjeta quieta para leerla. */
-function animateProfile() {
+function animateCard() {
   stopAnimation();
   return new Promise(resolve => {
     const start = performance.now();
     const step = now => {
       const el = now - start;
-      drawProfile(Math.min(1, el / (ANIM_MS * 0.8)));
+      drawCard(Math.min(1, el / (ANIM_MS * 0.8)));
       if (el < ANIM_MS && _data) _raf = requestAnimationFrame(step);
-      else { _raf = 0; drawProfile(1); resolve(); }
+      else { _raf = 0; drawCard(1); resolve(); }
     };
     _raf = requestAnimationFrame(step);
   });
@@ -975,18 +620,19 @@ async function renderToCanvas({ animate = false } = {}) {
   if (document.fonts) {
     try {
       await document.fonts.load(`800 72px ${FONT}`);
-      if (_mode === 'profile') await document.fonts.load(`900 72px ${FONT}`);
+      if (isAnimated()) await document.fonts.load(`900 72px ${FONT}`);
     } catch {}
   }
 
-  if (_mode === 'profile') {
+  if (isAnimated()) {
     stopAnimation();
-    if (animate && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) animateProfile();
-    else drawProfile(1);
+    if (animate && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) animateCard();
+    else drawCard(1);
     return;
   }
 
   const ctx = canvas.getContext('2d');
+  canvas.style.background = '';   // el damero del adhesivo no se queda pegado
   const W = 1080;
   const H = _format === '9:16' ? 1920 : 1080;
   canvas.width = W;
@@ -995,23 +641,16 @@ async function renderToCanvas({ animate = false } = {}) {
   _projected = null;
   const theme = THEMES[_theme] || THEMES.dark;
 
-  if (_mode === 'running') {
-    if (_preset === 'minimal') renderMinimal(ctx, W, H, _data, theme);
-    else if (_preset === 'statsPro') renderStatsPro(ctx, W, H, _data, theme);
-    else if (_preset === 'routeHero') renderRouteHero(ctx, W, H, _data, theme);
-  } else if (_mode === 'hiit') {
-    if (_preset === 'minimal')       renderMinimalHiit(ctx, W, H, _data, theme);
-    else if (_preset === 'statsPro') renderStatsHiit(ctx, W, H, _data, theme);
-  } else {
-    if (_preset === 'minimal') renderMinimalStrength(ctx, W, H, _data, theme);
-    else if (_preset === 'statsPro') renderStatsStrength(ctx, W, H, _data, theme);
-  }
+  if (_preset === 'minimal') renderMinimal(ctx, W, H, _data, theme);
+  else if (_preset === 'statsPro') renderStatsPro(ctx, W, H, _data, theme);
+  else if (_preset === 'routeHero') renderRouteHero(ctx, W, H, _data, theme);
 }
 
 // ── Export ───────────────────────────────────────────────────
 
 function filePrefix() {
   if (_mode === 'profile') return _data?.before ? 'subida' : 'perfil';
+  if (_mode === 'hiit') return 'hiit';
   return _mode === 'running' ? 'run' : 'workout';
 }
 
@@ -1020,12 +659,18 @@ function shareTitle() {
   return _mode === 'running' ? 'Mi carrera — Areté' : 'Mi entreno — Areté';
 }
 
+/** El texto con el enlace: es lo que convierte una imagen compartida en alguien que prueba la app. */
+function shareTextFor() {
+  if (_mode === 'profile') return shareText(_data);
+  return _mode === 'running' ? '' : sessionShareText(_data);
+}
+
 async function exportImage() {
   const canvas = document.getElementById('seCanvas');
   const btn = document.getElementById('seShareBtn');
   if (!canvas || !btn) return;
   // Se comparte la tarjeta terminada, no el fotograma en el que iba la animación.
-  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
+  if (isAnimated()) { stopAnimation(); drawCard(1); }
 
   btn.disabled = true;
   btn.textContent = 'Exportando...';
@@ -1042,7 +687,7 @@ async function exportImage() {
       try {
         // La tarjeta de perfil lleva el enlace: es lo que convierte una imagen
         // compartida en alguien que mide sus dominios.
-        const extra = _mode === 'profile' ? { text: shareText(_data) } : {};
+        const extra = shareTextFor() ? { text: shareTextFor() } : {};
         await navigator.share({ files: [file], title: shareTitle(), ...extra });
       } catch (e) {
         if (e.name !== 'AbortError') toast('Error al compartir', 'error');
@@ -1067,7 +712,7 @@ async function exportImage() {
 async function copyToClipboard() {
   const canvas = document.getElementById('seCanvas');
   if (!canvas) return;
-  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
+  if (isAnimated()) { stopAnimation(); drawCard(1); }
   try {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) { toast('Error al copiar', 'error'); return; }
@@ -1081,7 +726,7 @@ async function copyToClipboard() {
 async function downloadImage() {
   const canvas = document.getElementById('seCanvas');
   if (!canvas) return;
-  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
+  if (isAnimated()) { stopAnimation(); drawCard(1); }
   try {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) { toast('Error al descargar', 'error'); return; }
@@ -1118,7 +763,7 @@ async function shareVideo() {
     rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     const stopped = new Promise(r => { rec.onstop = r; });
     rec.start();
-    await animateProfile();
+    await animateCard();
     rec.stop();
     await stopped;
 
@@ -1127,7 +772,7 @@ async function shareVideo() {
     const file = new File(chunks, `arete-${filePrefix()}-${date}.${ext}`, { type: mime.split(';')[0] });
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: shareTitle(), text: shareText(_data) });
+        await navigator.share({ files: [file], title: shareTitle(), text: shareTextFor() });
       } catch (e) {
         if (e.name !== 'AbortError') toast('Error al compartir', 'error');
       }
@@ -1178,7 +823,7 @@ function _bindUI() {
       btn.classList.add('active');
       _format = btn.dataset.format;
       savePrefs();
-      renderToCanvas({ animate: _mode === 'profile' });
+      renderToCanvas({ animate: isAnimated() });
     });
   });
 
@@ -1201,7 +846,7 @@ function _bindUI() {
       _preset = btn.dataset.preset;
       savePrefs();
       _syncToggles();
-      renderToCanvas({ animate: _mode === 'profile' });
+      renderToCanvas({ animate: isAnimated() });
     });
   });
 
@@ -1223,7 +868,7 @@ function _syncToggles() {
   const row = document.querySelector('.se-toggles-row');
   if (row) row.hidden = _mode === 'profile' && _preset === 'sticker';
   const video = document.getElementById('seVideoBtn');
-  if (video) video.hidden = _mode !== 'profile';
+  if (video) video.hidden = !isAnimated();
 }
 
 function _updatePresetChips() {
@@ -1270,14 +915,16 @@ export function openShareEditor(logData, options = {}) {
   } else if (_mode === 'running') {
     _data = normalizeRunData(logData);
   } else {
-    _data = normalizeWorkoutData(logData);
-    if (_data.isHiit) _mode = 'hiit';
+    _data = sessionCardData(logData);
+    _mode = _data.kind;
   }
 
   // Restore prefs
   const prefs = loadPrefs();
   const presets = presetsFor(_mode);
   _preset = (prefs.preset && presets[prefs.preset]) ? prefs.preset : 'minimal';
+  // Con récord, la tarjeta abre en el récord: es lo que se quiere enseñar.
+  if (presets.record) _preset = 'record';
   _format = prefs.format || '9:16';
   _theme = (prefs.theme && THEMES[prefs.theme]) ? prefs.theme : 'dark';
 
@@ -1301,7 +948,7 @@ export function openShareEditor(logData, options = {}) {
   // Show loading, render, hide loading
   const loading = document.getElementById('seLoading');
   loading.classList.remove('hidden');
-  renderToCanvas({ animate: _mode === 'profile' }).then(() => loading.classList.add('hidden'));
+  renderToCanvas({ animate: isAnimated() }).then(() => loading.classList.add('hidden'));
 }
 
 export function closeShareEditor() {
