@@ -63,7 +63,8 @@ export function formatDateShort(d) {
 export function phaseChipLabel(roman, name, modoActivo) {
   const n = (name || '').trim();
   const repite = n.toLowerCase() === (modoActivo || '').toLowerCase();
-  return n && !repite ? `Fase ${roman} · ${n}` : `Fase ${roman}`;
+  // Sin la palabra «Fase»: la pone la cabecera como etiqueta, igual que «Plan».
+  return n && !repite ? `${roman} · ${n}` : `${roman}`;
 }
 
 /** @returns {string} Today's date as 'YYYY-MM-DD' */

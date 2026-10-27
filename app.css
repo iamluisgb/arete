@@ -2872,7 +2872,16 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 /* Sin borde ya no compite con el modo: si no cabe a su lado baja a su línea
    y se lleva el ancho entero antes de recortar el nombre del plan. */
 #secTrain .page-head-ctx{min-width:0;max-width:100%}
-#secTrain .page-head-ctx .chip{max-width:100%}
+#secTrain .page-head-ctx .chip{max-width:100%;gap:var(--sp-5);color:var(--color-text-primary)}
+/* Plan y fase como pares etiqueta-valor, igual que los filtros de Historial
+   («Plan Areté»). Con un punto entre los dos y otro dentro del nombre de la
+   fase («Efecto Kettlebell · Fase III · Potencia») se leían como tres cosas
+   del mismo rango y no se sabía qué era el plan y qué la fase. */
+#secTrain .ctx-pair{display:inline-flex;align-items:baseline;gap:6px;min-width:0}
+#secTrain .ctx-pair>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#secTrain .ctx-k{color:var(--color-text-secondary);font-weight:400}
+#secTrain .ctx-act{display:inline-flex;align-items:center;gap:4px;color:var(--color-text-secondary);
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--color-line-strong)}
 /* El mes y sus flechas en una línea. calendar.js mete .cal-nav en .cal-header. */
 .cal-header{justify-content:flex-start;align-items:center;gap:var(--sp-2)}
 .cal-header .cal-count{font:var(--type-caption);color:var(--color-text-secondary);text-transform:none;letter-spacing:0}
