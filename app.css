@@ -1393,7 +1393,7 @@ body{transition:padding-left var(--dur-base) var(--ease-standard)}
 /* Exercise inline timer */
 .ex-timer-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin:8px 0;border-radius:var(--radius-lg);border:1.5px dashed var(--color-border-subtle);background:none;color:var(--color-text-secondary);font-size:var(--fs-base);font-weight:600;cursor:pointer;transition:all var(--dur-base)}
 .ex-timer-btn:active{transform:scale(.97)}
-.ex-timer-btn.hiit-start{background:var(--color-accent-text);color:var(--color-on-fill);border:none;padding:14px 16px;font-size:var(--fs-lg)}
+.ex-timer-btn.hiit-start{background:var(--color-action-ink);color:var(--color-action-ink-fg);border:none;padding:14px 16px;font-size:var(--fs-lg)}
 input.partial{border-color:var(--color-text-tertiary);color:var(--color-text-secondary)}
 .ex-timer-btn.hiit-start:active{opacity:.85;transform:scale(.97)}
 .ex-timer{margin:8px 0;padding:12px;border-radius:var(--radius-lg);text-align:center;transition:background var(--dur-slow),border-color var(--dur-slow)}
@@ -1516,7 +1516,7 @@ body.hiit-focus .ex-mode-info{display:none}
    quita la clase y la cifra pasa a tinta: el cambio de peso visual es la
    confirmación. El discontinuo va en --color-text-tertiary (3,36:1 en claro,
    4,85:1 en oscuro sobre el lienzo), por encima del 3,0 de 1.4.11. */
-input.prefilled{background:var(--color-surface-2);border:1px dashed var(--color-text-tertiary);color:var(--color-text-secondary)}
+input.prefilled{background:var(--color-surface-0);border:1px dashed var(--color-text-tertiary);color:var(--color-text-secondary)}
 input.prefilled:focus{background:var(--color-surface-1);border:1px solid transparent;color:var(--color-text-primary)}
 /* Custom programs list */
 /* Los planes importados son filas del sistema con un badge y una acción de
@@ -3146,10 +3146,17 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #strTrain.active{grid-template-columns:minmax(0,1fr);justify-items:stretch}
 #strTrain.active>*,#strTrain.active>.row{max-width:none}
 #strTrain.active .so-start{width:auto;min-width:240px}
-/* Registro: un ejercicio por fila. En 840 px no caben dos tarjetas de 400 y
-   una sola, topada a 560, dejaba a su derecha el hueco de otra. */
-#exerciseList{grid-template-columns:minmax(0,1fr)}
+/* Registro: dos ejercicios por fila. Con uno, los campos de kg y reps se
+   estiraban a 260 px cada uno para cifras de tres caracteres; con el mínimo
+   de 400 de antes no cabían dos en 840 y la única tarjeta, topada a 560,
+   dejaba a su lado el hueco de otra. */
+#exerciseList{grid-template-columns:repeat(2,minmax(0,1fr))}
 #exerciseList>*{max-width:none}
+#exerciseList:has(>:only-child){grid-template-columns:minmax(0,1fr)}
+/* Los presets del descanso, en contorno: en gris eran cuatro botones de
+   relleno compitiendo con el display, que es lo que se mira. */
+#strTrain .timer-btn,#strTrain .timer-start{background:none;box-shadow:inset 0 0 0 1px var(--color-line-strong)}
+#strTrain .timer-btn.active-dur{background:var(--color-surface-2);box-shadow:none}
 }
 /* ── Cuerpo en escritorio: la misma columna ──────────────────────────────
    Con la gráfica en 7 y las calorías en 5, la columna de calorías medía el
@@ -3159,6 +3166,57 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #secBody{max-width:var(--measure-column);margin-inline:auto}
 #secBody .cols>*{grid-column:1/-1}
 #secBody .body-calc-args{max-width:var(--measure-form)}
+}
+/* ── Hoy en escritorio: una columna, la acción primero ───────────────────
+   Era 1,35 + 1: la actividad reciente, cinco tarjetas apiladas, medía el
+   doble que la columna izquierda y le dejaba debajo un hueco. En una columna
+   el orden es el de la pregunta que trae aquí: qué toca hoy, cómo va la
+   semana y qué hice. La semana es una franja de cifras y la actividad, filas
+   con filetes, como Historial. En el móvil no cambia nada. */
+@media(min-width:1024px){
+#secDashboard.active{display:flex;flex-direction:column;max-width:var(--measure-column);margin-inline:auto}
+/* Todo a la anchura de la columna: los topes que traía cada bloque del
+   reparto anterior dejaban cuatro bordes derechos distintos. */
+#secDashboard.active>*:not(.sr-only){width:100%;max-width:none}
+#secDashboard .dash-sched-card{background:none;border:0;border-radius:0;padding:0}
+#secDashboard .dash-sched-row{padding:var(--sp-2) 0;border-bottom:1px solid var(--color-line)}
+/* «Toca hoy» es el título de la sección, al nivel de «Esta semana». */
+#secDashboard .dash-sched-card .dash-sched-head .dash-card-label{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);color:var(--color-text-primary)}
+.dash-week-title,.dash-bento{order:2}
+.dash-activity{order:3}
+.dash-sched{margin-top:var(--gap-group)}
+.dash-bento{grid-template-columns:repeat(5,minmax(0,1fr));gap:0;
+  border-top:1px solid var(--color-line-strong);border-bottom:1px solid var(--color-line)}
+.dash-bento .dash-card{background:none;border:0;border-radius:0;padding:var(--sp-4);
+  border-left:1px solid var(--color-line);align-items:flex-start}
+.dash-bento .dash-card:first-child{border-left:0;padding-left:0}
+.dash-bento .dash-card-wide{grid-column:auto;justify-content:flex-start}
+.dash-ring-wrap,.dash-ring{width:64px;height:64px}
+.dash-ring-value{font:500 var(--fs-sm) var(--font-mono)}
+.dash-streak-value{font:var(--type-metric)}
+.dash-activity-scroll{gap:0}
+.dash-act-card{display:flex;align-items:baseline;gap:var(--sp-4);min-width:0;
+  background:none;border:0;border-radius:0;padding:var(--sp-3) 0;border-bottom:1px solid var(--color-line)}
+.dash-act-card:first-child{border-top:1px solid var(--color-line-strong)}
+.dash-act-name{flex:0 0 14rem;min-width:0;margin:0}
+.dash-act-chip{order:1;margin:0}
+.dash-act-detail{order:2}
+.dash-act-detail:first-of-type{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dash-act-time{order:3;margin:0 0 0 auto;font:500 var(--fs-xs) var(--font-mono);white-space:nowrap}
+}
+/* ── Perfil en escritorio: la misma columna ──────────────────────────────
+   Nivel y radar a la izquierda y los siete dominios a la derecha: la lista
+   acababa a media altura del radar y bajo el siguiente test quedaba otro
+   hueco. En una columna: tu nivel, el radar, los dominios y qué medir. */
+@media(min-width:1024px){
+#secProfile.active{display:flex;flex-direction:column;max-width:var(--measure-column);margin-inline:auto}
+.prof-domains-title,#profDomains{order:1}
+.prof-next{order:2;margin-top:var(--gap-group)}
+.prof-note{order:3}
+#secProfile.active>*:not(.sr-only){width:100%;max-width:none;align-self:stretch}
+#secProfile.active>.prof-domains-title{align-self:stretch;text-align:left}
+#secProfile.active>.radar-wrap{max-width:440px;margin-inline:auto}
+#profDomains>*{max-width:none}
 }
 
 }

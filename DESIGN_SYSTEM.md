@@ -977,6 +977,8 @@ Los controles de Entrenar estaban repartidos entre los dos bordes. El modo y el 
 - Las flechas del mes van en la línea del mes. `calendar.js` y `running-calendar.js` mueven el nodo `.cal-nav` dentro de `.cal-header`. Como el nodo se mueve y no se copia, conserva su listener.
 - La sesión de Actividad es una lista con filetes, sin tarjeta.
 - En escritorio, Entrenar es una sola columna centrada de `--measure-column` (840 px), como en el móvil. Se probaron dos columnas: calendario y lista en 4 + 8, y fecha y sesión en 4 junto a la sesión en 8. La columna lateral se quedaba vacía en cuanto el contenido bajaba. El calendario arranca plegado en todos los anchos y, abierto, ocupa la columna con casillas de 52 px de alto. Esto deja sin efecto el reparto 4 + 8 de §9.2d.
+- Cuerpo, Hoy, Perfil y Quirón usan la misma columna en escritorio. En Hoy el orden es: qué toca hoy, la semana como franja de cifras y la actividad reciente en filas. En Perfil: el nivel, el radar, los dominios y el siguiente test.
+- En el entreno empezado van dos ejercicios por fila, o uno a todo el ancho si la sesión solo tiene uno. Los campos precargados son blancos y conservan el trazo discontinuo, y el botón de «Iniciar HIIT» va en tinta.
 - Los campos (`select` e `input`) son blancos con un filete de `--color-line-strong`, como los filtros, en vez del relleno gris.
 
 ### 9.3 La deuda que sigue viva
