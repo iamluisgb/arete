@@ -2961,9 +2961,15 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    monitor eso son ~200 caracteres por línea. El óptimo está en 45-75. Es la
    superficie donde el usuario lee más texto seguido de toda la app. */
 @media(min-width:640px){
-.quiron-msgs,.quiron-chips,.quiron-inputbar,.quiron-setup,.quiron-tabs,.q-panel--mem{width:100%;max-width:var(--measure-prose);margin-inline:auto}
-.q-bubble{max-width:min(88%,34rem)}
-.quiron-header{padding-inline:max(16px,calc(50% - var(--measure-prose)/2))}
+.quiron-msgs,.quiron-chips,.quiron-inputbar,.quiron-setup,.quiron-tabs,.q-panel--mem{width:100%;max-width:var(--measure-column);margin-inline:auto}
+/* La respuesta ocupa la columna; el tope de 34rem la dejaba en 544 px dentro
+   de un panel de más de 1.000 y era lo que hacía estrecho a Quirón. La columna
+   es la de Entrenar (840): unos 90 caracteres, en el límite alto de lo cómodo
+   para leer, y con listas y tablas cortas que piden ese ancho. La burbuja del
+   atleta sigue siendo una burbuja, a la derecha. */
+.q-assistant{max-width:none}
+.q-user{max-width:min(75%,36rem)}
+.quiron-header{padding-inline:max(16px,calc(50% - var(--measure-column)/2))}
 }
 /* ── Rejillas que solo cambian de conteo ────────────────── */
 @media(min-width:1024px){
