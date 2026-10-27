@@ -2671,7 +2671,10 @@ body.session-focus{padding-bottom:0;overflow:hidden}
    que "Entrenamiento". Vuelve a una columna, con el ancho de una lista y no el
    de la pantalla: una fila de 1.100px con dos palabras en cada extremo obliga a
    cruzar el monitor entero para emparejar el ajuste con su valor. */
-#secSettings .set-page{max-width:680px}
+/* La misma columna centrada que el resto de pantallas. A 680 y pegada a la
+   izquierda, Más era la única que no compartía borde con las demás. */
+#secSettings{max-width:var(--measure-column);margin-inline:auto}
+#secSettings .set-page{max-width:none}
 #secSettings .panel{break-inside:avoid}
 }
 /* ── Importar arrastrando (J3) ──────────────────────────── */

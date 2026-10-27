@@ -11,6 +11,8 @@ import { saveDB } from '../data.js';
 import { esc, today, trapFocus } from '../utils.js';
 import { toast } from './toast.js';
 import { ROMAN, LEVEL_NAMES, levelFor, computeProfile, formatMetric } from '../domains.js';
+import { markSeen } from './profile-card.js';
+import { openShareEditor } from './share-editor.js';
 
 let sheet = null;
 let domain = null, db = null, onDone = null, releaseFocus = null;
@@ -86,6 +88,8 @@ function renderResult(guardados, antes) {
   const d = profile.domains.find(x => x.id === domain.id);
   const subio = antes > 0 && d.level > antes;
   const bajo = antes > 0 && d.level < antes;
+  // Esta hoja ya enseña la subida: queda vista, y Hoy y Perfil no la celebran otra vez.
+  markSeen(profile);
 
   sheet.innerHTML = `
     <div class="sheet-panel">
@@ -106,6 +110,7 @@ function renderResult(guardados, antes) {
         ${domain.retest ? `<div class="dtest-res-next">Repítelo en ${Math.round(domain.retest / 7)} semanas</div>` : ''}
       </div>
       <div class="sheet-foot">
+        ${subio ? `<button class="btn btn--secondary" type="button" data-share data-from="${antes}"><span class="material-symbols-outlined" aria-hidden="true">share</span>Compartir</button>` : ''}
         <button class="btn btn--block" type="button" data-close>Hecho</button>
       </div>
     </div>`;
@@ -140,6 +145,12 @@ function save() {
 
 function onClick(e) {
   if (e.target.closest('[data-save]')) { save(); return; }
+  const share = e.target.closest('[data-share]');
+  if (share) {
+    close();
+    openShareEditor(computeProfile(db), { mode: 'profile', raised: domain, from: Number(share.dataset.from) });
+    return;
+  }
   if (e.target.closest('[data-close]') || e.target === sheet) close();
 }
 

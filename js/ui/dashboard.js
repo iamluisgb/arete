@@ -2,6 +2,7 @@ import { esc, today } from '../utils.js';
 import { ROMAN as ROMAN_FASE } from '../constants.js';
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
+import { maybeCelebrateLevelUp } from './share-editor.js';
 import { getProgramById, getRunningProgram } from '../programs.js';
 import { scheduleDay, scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
@@ -481,6 +482,7 @@ function bindScheduleActions() {
 
 export function renderDashboard(db) {
   renderLevel(db);
+  maybeCelebrateLevelUp(db);
   renderStarter(db);
   bindScheduleActions();
   renderSchedule(db);

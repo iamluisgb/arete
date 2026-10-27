@@ -2,15 +2,21 @@
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { formatDate } from '../utils.js';
 import { toast } from './toast.js';
+import { computeProfile } from '../domains.js';
+import {
+  profileCardData, renderProfileCard, cardSize, shareText,
+  readSeen, markSeen, levelUpSince,
+} from './profile-card.js';
 
 // ── State ───────────────────────────────────────────────────
 let _data = null;       // normalized data
-let _mode = 'running';  // 'running' | 'strength'
+let _mode = 'running';  // 'running' | 'strength' | 'hiit' | 'profile'
 let _preset = 'minimal';
 let _format = '9:16';
 let _theme = 'dark';
 let _projected = null;  // cached projected coords
 let _onClose = null;
+let _raf = 0;           // animación de la tarjeta de perfil
 
 const PREF_KEY = 'areteSharePrefs';
 const FONT = "'Inter', -apple-system, system-ui, sans-serif";
@@ -78,6 +84,17 @@ const HIIT_PRESETS = {
   minimal: { name: 'Minimal' },
   statsPro: { name: 'Stats Pro' },
 };
+
+const PROFILE_PRESETS = {
+  minimal: { name: 'Tarjeta' },
+  sticker: { name: 'Adhesivo' },
+};
+
+function presetsFor(mode) {
+  if (mode === 'profile') return PROFILE_PRESETS;
+  if (mode === 'running') return RUN_PRESETS;
+  return mode === 'hiit' ? HIIT_PRESETS : STR_PRESETS;
+}
 
 // ── Douglas-Peucker simplification ─────────────────────────
 
@@ -913,19 +930,62 @@ function renderStatsHiit(ctx, W, H, data, theme) {
 
 // ── Main render ─────────────────────────────────────────────
 
-async function renderToCanvas() {
+// La tarjeta de perfil se anima: los anillos aparecen, la forma crece eje a eje
+// y el eslabón débil late. La misma función da la imagen fija (t = 1) y el vídeo.
+const ANIM_MS = 4000;
+
+function drawProfile(t = 1) {
   const canvas = document.getElementById('seCanvas');
   if (!canvas || !_data) return;
+  const { W, H } = cardSize(_preset, _format);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  renderProfileCard(canvas.getContext('2d'), W, H, _data, { preset: _preset, theme: _theme }, t);
+}
+
+function stopAnimation() {
+  cancelAnimationFrame(_raf);
+  _raf = 0;
+}
+
+/** Reproduce la animación entera; la última quinta parte deja la tarjeta quieta para leerla. */
+function animateProfile() {
+  stopAnimation();
+  return new Promise(resolve => {
+    const start = performance.now();
+    const step = now => {
+      const el = now - start;
+      drawProfile(Math.min(1, el / (ANIM_MS * 0.8)));
+      if (el < ANIM_MS && _data) _raf = requestAnimationFrame(step);
+      else { _raf = 0; drawProfile(1); resolve(); }
+    };
+    _raf = requestAnimationFrame(step);
+  });
+}
+
+async function renderToCanvas({ animate = false } = {}) {
+  const canvas = document.getElementById('seCanvas');
+  if (!canvas || !_data) return;
+
+  // Ensure font is loaded
+  if (document.fonts) {
+    try {
+      await document.fonts.load(`800 72px ${FONT}`);
+      if (_mode === 'profile') await document.fonts.load(`900 72px ${FONT}`);
+    } catch {}
+  }
+
+  if (_mode === 'profile') {
+    stopAnimation();
+    if (animate && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) animateProfile();
+    else drawProfile(1);
+    return;
+  }
+
   const ctx = canvas.getContext('2d');
   const W = 1080;
   const H = _format === '9:16' ? 1920 : 1080;
   canvas.width = W;
   canvas.height = H;
-
-  // Ensure font is loaded
-  if (document.fonts) {
-    try { await document.fonts.load(`800 72px ${FONT}`); } catch {}
-  }
 
   _projected = null;
   const theme = THEMES[_theme] || THEMES.dark;
@@ -945,10 +1005,22 @@ async function renderToCanvas() {
 
 // ── Export ───────────────────────────────────────────────────
 
+function filePrefix() {
+  if (_mode === 'profile') return _data?.before ? 'subida' : 'perfil';
+  return _mode === 'running' ? 'run' : 'workout';
+}
+
+function shareTitle() {
+  if (_mode === 'profile') return 'Mi perfil — Areté';
+  return _mode === 'running' ? 'Mi carrera — Areté' : 'Mi entreno — Areté';
+}
+
 async function exportImage() {
   const canvas = document.getElementById('seCanvas');
   const btn = document.getElementById('seShareBtn');
   if (!canvas || !btn) return;
+  // Se comparte la tarjeta terminada, no el fotograma en el que iba la animación.
+  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
 
   btn.disabled = true;
   btn.textContent = 'Exportando...';
@@ -958,13 +1030,15 @@ async function exportImage() {
     if (!blob) { toast('Error al generar imagen', 'error'); return; }
 
     const date = _data?.date || new Date().toISOString().slice(0, 10);
-    const prefix = _mode === 'running' ? 'run' : 'workout';
-    const fileName = `arete-${prefix}-${date}.png`;
+    const fileName = `arete-${filePrefix()}-${date}.png`;
     const file = new File([blob], fileName, { type: 'image/png' });
 
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: _mode === 'running' ? 'Mi carrera — Areté' : 'Mi entreno — Areté' });
+        // La tarjeta de perfil lleva el enlace: es lo que convierte una imagen
+        // compartida en alguien que mide sus dominios.
+        const extra = _mode === 'profile' ? { text: shareText(_data) } : {};
+        await navigator.share({ files: [file], title: shareTitle(), ...extra });
       } catch (e) {
         if (e.name !== 'AbortError') toast('Error al compartir', 'error');
       }
@@ -988,6 +1062,7 @@ async function exportImage() {
 async function copyToClipboard() {
   const canvas = document.getElementById('seCanvas');
   if (!canvas) return;
+  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
   try {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) { toast('Error al copiar', 'error'); return; }
@@ -1001,20 +1076,69 @@ async function copyToClipboard() {
 async function downloadImage() {
   const canvas = document.getElementById('seCanvas');
   if (!canvas) return;
+  if (_mode === 'profile') { stopAnimation(); drawProfile(1); }
   try {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) { toast('Error al descargar', 'error'); return; }
     const date = _data?.date || new Date().toISOString().slice(0, 10);
-    const prefix = _mode === 'running' ? 'run' : 'workout';
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `arete-${prefix}-${date}.png`;
+    a.download = `arete-${filePrefix()}-${date}.png`;
     a.click();
     URL.revokeObjectURL(url);
     toast('Imagen descargada');
   } catch {
     toast('Error al descargar', 'error');
+  }
+}
+
+/**
+ * Graba la animación del lienzo (4 s) y la comparte como vídeo. En Reels y
+ * TikTok el movimiento llega mucho más lejos que una imagen fija. MP4 donde el
+ * navegador lo graba (Safari, Chrome reciente); si no, WebM.
+ */
+async function shareVideo() {
+  const canvas = document.getElementById('seCanvas');
+  const btn = document.getElementById('seVideoBtn');
+  const mime = typeof MediaRecorder !== 'undefined' && canvas?.captureStream
+    ? ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m))
+    : null;
+  if (!mime) { toast('Este navegador no puede grabar vídeo', 'error'); return; }
+
+  btn.disabled = true;
+  try {
+    const rec = new MediaRecorder(canvas.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(r => { rec.onstop = r; });
+    rec.start();
+    await animateProfile();
+    rec.stop();
+    await stopped;
+
+    const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
+    const date = new Date().toISOString().slice(0, 10);
+    const file = new File(chunks, `arete-${filePrefix()}-${date}.${ext}`, { type: mime.split(';')[0] });
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: shareTitle(), text: shareText(_data) });
+      } catch (e) {
+        if (e.name !== 'AbortError') toast('Error al compartir', 'error');
+      }
+    } else {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast('Vídeo descargado');
+    }
+  } catch {
+    toast('No se pudo grabar el vídeo', 'error');
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -1040,6 +1164,7 @@ function _bindUI() {
   document.getElementById('seShareBtn').addEventListener('click', exportImage);
   document.getElementById('seCopyBtn').addEventListener('click', copyToClipboard);
   document.getElementById('seDownloadBtn').addEventListener('click', downloadImage);
+  document.getElementById('seVideoBtn')?.addEventListener('click', shareVideo);
 
   // Format toggle
   document.querySelectorAll('.se-format-btn').forEach(btn => {
@@ -1048,7 +1173,7 @@ function _bindUI() {
       btn.classList.add('active');
       _format = btn.dataset.format;
       savePrefs();
-      renderToCanvas();
+      renderToCanvas({ animate: _mode === 'profile' });
     });
   });
 
@@ -1070,7 +1195,8 @@ function _bindUI() {
       btn.classList.add('active');
       _preset = btn.dataset.preset;
       savePrefs();
-      renderToCanvas();
+      _syncToggles();
+      renderToCanvas({ animate: _mode === 'profile' });
     });
   });
 
@@ -1087,8 +1213,16 @@ function _bindUI() {
   });
 }
 
+/** El adhesivo no tiene fondo ni formato: su tamaño y su color son fijos. Vídeo, solo en el perfil. */
+function _syncToggles() {
+  const row = document.querySelector('.se-toggles-row');
+  if (row) row.hidden = _mode === 'profile' && _preset === 'sticker';
+  const video = document.getElementById('seVideoBtn');
+  if (video) video.hidden = _mode !== 'profile';
+}
+
 function _updatePresetChips() {
-  const presets = _mode === 'running' ? RUN_PRESETS : (_mode === 'hiit' ? HIIT_PRESETS : STR_PRESETS);
+  const presets = presetsFor(_mode);
   const hasRoute = _data?.coords?.length > 1;
 
   document.querySelectorAll('.se-preset-chip').forEach(btn => {
@@ -1117,11 +1251,18 @@ function _updatePresetChips() {
 
 // ── Public API ──────────────────────────────────────────────
 
+/**
+ * `logData` es la carrera o el entreno; en modo 'profile' es el perfil de
+ * computeProfile, y `options.raised` + `options.from` lo convierten en la
+ * tarjeta de subida de nivel.
+ */
 export function openShareEditor(logData, options = {}) {
   _mode = options.mode || 'running';
   _onClose = options.onClose || null;
 
-  if (_mode === 'running') {
+  if (_mode === 'profile') {
+    _data = profileCardData(logData, { raised: options.raised, from: options.from });
+  } else if (_mode === 'running') {
     _data = normalizeRunData(logData);
   } else {
     _data = normalizeWorkoutData(logData);
@@ -1130,7 +1271,7 @@ export function openShareEditor(logData, options = {}) {
 
   // Restore prefs
   const prefs = loadPrefs();
-  const presets = _mode === 'running' ? RUN_PRESETS : (_mode === 'hiit' ? HIIT_PRESETS : STR_PRESETS);
+  const presets = presetsFor(_mode);
   _preset = (prefs.preset && presets[prefs.preset]) ? prefs.preset : 'minimal';
   _format = prefs.format || '9:16';
   _theme = (prefs.theme && THEMES[prefs.theme]) ? prefs.theme : 'dark';
@@ -1146,6 +1287,7 @@ export function openShareEditor(logData, options = {}) {
   document.querySelectorAll('.se-format-btn').forEach(b => b.classList.toggle('active', b.dataset.format === _format));
   document.querySelectorAll('.se-theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === _theme));
   _updatePresetChips();
+  _syncToggles();
 
   // Show overlay
   const overlay = document.getElementById('shareEditor');
@@ -1154,13 +1296,34 @@ export function openShareEditor(logData, options = {}) {
   // Show loading, render, hide loading
   const loading = document.getElementById('seLoading');
   loading.classList.remove('hidden');
-  renderToCanvas().then(() => loading.classList.add('hidden'));
+  renderToCanvas({ animate: _mode === 'profile' }).then(() => loading.classList.add('hidden'));
 }
 
 export function closeShareEditor() {
   const overlay = document.getElementById('shareEditor');
   if (overlay) overlay.classList.remove('open');
+  stopAnimation();
   _data = null;
   _projected = null;
   _onClose?.();
+}
+
+/**
+ * La celebración: si un dominio ha superado su máximo visto, abre la tarjeta de
+ * subida ya hecha y animada. El momento de compartir es justo ese — nadie va a
+ * buscar la opción a un menú.
+ *
+ * Se llama al pintar Hoy y Perfil, que es donde se mira el nivel. La primera vez
+ * solo apunta lo que hay (no se celebra un perfil entero de golpe), y con otra
+ * hoja abierta espera a la siguiente visita sin marcar nada como visto.
+ */
+export function maybeCelebrateLevelUp(db) {
+  if (!document.getElementById('shareEditor')) return;
+  const profile = computeProfile(db);
+  const seen = readSeen();
+  const up = levelUpSince(seen, profile);
+  if (!up) { markSeen(profile, seen); return; }
+  if (document.querySelector('.share-editor-overlay.open, .sheet.open, .modal-overlay.open, .onboarding-overlay.visible')) return;
+  markSeen(profile, seen);
+  openShareEditor(profile, { mode: 'profile', raised: up.raised, from: up.from });
 }
