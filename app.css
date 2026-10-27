@@ -169,6 +169,7 @@
   --measure-prose:46rem;   /* texto seguido: 45-75 caracteres */
   --measure-form:520px;    /* un formulario no se ensancha nunca */
   --measure-panel:560px;   /* filas etiqueta-valor y series */
+  --measure-column:840px;  /* Entrenar en escritorio: una columna de lectura */
   --measure-table:100%;    /* una tabla vale más cuantas más columnas se vean */
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -3112,26 +3113,36 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #calendarPanel,#runCalendarPanel,.cal-nav{max-width:none}
 }
 
-/* ── Entrenar en escritorio: cabecera a la izquierda y Actividad en 4 + 8 ──
-   El modo va pegado al título y el plan debajo, como subtítulo: la cabecera
-   deja de tener un segundo grupo de controles en el borde derecho. Actividad
-   abría con una columna centrada de 560 px entre dos huecos; ahora usa la
-   misma rejilla que Historial: qué y cuándo a la izquierda, la sesión a la
-   derecha. */
+/* ── Entrenar en escritorio: una columna, como en el móvil ─────────────────
+   Las dos columnas no ayudaban: el calendario dejaba vacía su columna en cuanto
+   la lista bajaba, y en Actividad fecha y sesión ocupaban un tercio del ancho
+   para dos campos. En el móvil se lee bien porque es una sola columna, así que
+   el escritorio hace lo mismo, centrada y con un ancho de lectura. El blanco
+   queda a los lados, como margen, y no entre los bloques. */
 @media(min-width:1024px){
+#secTrain{max-width:var(--measure-column);margin-inline:auto}
 #secTrain>.page-head{display:grid;grid-template-columns:auto auto;justify-content:start;
   align-items:center;column-gap:var(--sp-5);row-gap:0}
 #secTrain .page-head-state{display:contents}
 #secTrain .page-head-ctx{grid-column:1/-1;margin-left:calc(-1 * var(--sp-2))}
 #secTrain .page-head-ctx .chip{min-height:36px}
 .cal-header .cal-nav{margin:0 0 0 auto;max-width:none}
-#strTrain.active:not(:has(#exerciseList > *)){grid-template-columns:minmax(0,4fr) minmax(0,8fr);
-  column-gap:var(--sp-10);justify-items:stretch}
-#strTrain.active:not(:has(#exerciseList > *))>*{grid-column:2;max-width:none}
-#strTrain.active:not(:has(#exerciseList > *))>.row{grid-column:1;grid-row:1 / span 2;
-  flex-direction:column;gap:var(--sp-4);margin:0}
-#strTrain.active:not(:has(#exerciseList > *)) .so-start{width:auto;min-width:240px}
-#strTrain.active:not(:has(#exerciseList > *)) .session-overview-card{padding-top:0}
+/* Historial: filtros, calendario plegado y lista, uno debajo de otro. */
+#strHistory.active,#runHistory.active{display:block}
+.cal-fold>summary{display:flex}
+/* Abierto, el mes ocupa la columna a lo ancho con casillas más bajas que
+   anchas: cuadradas, a 840 px el mes medía 500 de alto. */
+#calendarPanel,#runCalendarPanel{max-width:none}
+.cal-container{padding:0}
+.cal-grid .cal-day{aspect-ratio:auto;min-height:52px}
+/* Actividad: la columna entera, sin el tope de 560 centrado ni el de 520. */
+#strTrain.active{grid-template-columns:minmax(0,1fr);justify-items:stretch}
+#strTrain.active>*,#strTrain.active>.row{max-width:none}
+#strTrain.active .so-start{width:auto;min-width:240px}
+/* Registro: un ejercicio por fila. En 840 px no caben dos tarjetas de 400 y
+   una sola, topada a 560, dejaba a su derecha el hueco de otra. */
+#exerciseList{grid-template-columns:minmax(0,1fr)}
+#exerciseList>*{max-width:none}
 }
 
 }

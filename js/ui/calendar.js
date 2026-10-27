@@ -36,26 +36,16 @@ export function calNav(d, db) {
   renderCalendar(db);
 }
 
-// A partir de 1024 el calendario tiene columna propia al lado de la lista (4 de
-// 12): ahí estar plegado solo esconde. Por debajo comparte columna con ella y su
-// mes entero se comía la primera pantalla, así que arranca cerrado.
-const DOS_COLUMNAS = '(min-width:1024px)';
-
 let _foldInit = false;
 
-/** Abre o cierra los plegables del calendario según haya columna para ellos.
- *  Solo en dos momentos: la primera vez que se pinta y al cruzar el umbral. Si
- *  se aplicara en cada render, cambiar un filtro cerraría de golpe el calendario
- *  que el usuario acaba de abrir. */
+/** El calendario arranca plegado en todos los anchos. En escritorio tuvo una
+ *  columna propia y se abría solo, pero la columna se quedaba vacía en cuanto
+ *  la lista bajaba; ahora Entrenar es una sola columna, como en el móvil. */
 export function syncCalendarFold() {
-  const abierto = matchMedia(DOS_COLUMNAS).matches;
   for (const id of ['calFold', 'runCalFold']) {
     const el = document.getElementById(id);
-    if (el) el.open = abierto;
+    if (el) el.open = false;
   }
-}
-if (typeof matchMedia !== 'undefined') {
-  matchMedia(DOS_COLUMNAS).addEventListener('change', syncCalendarFold);
 }
 
 const ICONO_PLAN = { [PLAN_STRENGTH]: 'fitness_center', [PLAN_RUNNING]: 'directions_run' };
