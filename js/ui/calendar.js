@@ -36,10 +36,10 @@ export function calNav(d, db) {
   renderCalendar(db);
 }
 
-// A partir de 1440 el calendario tiene columna propia al lado de la lista: ahí
-// estar plegado solo esconde. Por debajo comparte columna con ella y su mes
-// entero se comía la primera pantalla, así que arranca cerrado.
-const DOS_COLUMNAS = '(min-width:1440px)';
+// A partir de 1024 el calendario tiene columna propia al lado de la lista (4 de
+// 12): ahí estar plegado solo esconde. Por debajo comparte columna con ella y su
+// mes entero se comía la primera pantalla, así que arranca cerrado.
+const DOS_COLUMNAS = '(min-width:1024px)';
 
 let _foldInit = false;
 

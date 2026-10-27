@@ -950,6 +950,20 @@ especificidad**, y eso es justo lo que pasó:
   superficie —incluidas las tarjetas de compartir y las burbujas del chat, que no se instancian
   solas—, y no cabía en un pase de composición. **Queda anotado con el diagnóstico hecho.**
 
+### 9.2d Historial, en papel (octubre de 2026)
+
+- **Pestañas subrayadas** en vez de segmentado: el segmentado queda para el modo Fuerza/Carrera, que
+  es estado y no navegación. Así dejan de parecer la misma cosa.
+- **Filtros en píldora con borde**, clave en gris y valor en tinta. Siguen siendo `<select>`
+  nativos, para que en el móvil abran la rueda del sistema.
+- **Calendario como rejilla de casillas**: rojo es día entrenado; contorno de tinta, hoy.
+- **Cada sesión es una fila**, no una tarjeta: la fecha en su columna (día, número y mes en mono) y
+  los ejercicios en filas con filete y las series en mono, a su ancho. El nombre cede antes que las
+  series.
+- **Desde 1024 calendario y lista se reparten la rejilla, 4 + 8.** La lista estaba topada a
+  `--measure-panel` (560): a 1440 dejaba medio ancho en blanco, que era exactamente la queja. El
+  tope tenía sentido con tarjetas de nombre-a-un-lado y series-al-otro; con filas en columna ya no.
+
 ### 9.3 La deuda que sigue viva
 
 - **Los `style=""` que quedan en las plantillas de `js/` pasan un color de dato**, no maquetan: el
