@@ -1,210 +1,262 @@
 // Demo de la fase 0 (docs/PROPUESTA-ANIMACIONES-3D.md).
 //
 // Un ejercicio no es una animación hecha a mano: son poses descritas por un
-// parámetro de profundidad s (0 = arriba, 1 = abajo) y dos reglas que se
-// cumplen en cada fotograma — los pies no se mueven y la barra va sobre el
-// mediopié. Ángulos de tibia y muslo salen de s; el torso (o la cadera, en el
-// peso muerto) se calcula para que la barra caiga donde debe. Así la barra no
-// puede irse por delante de los dedos aunque se toquen las poses.
+// parámetro de profundidad s (0 = arriba, 1 = abajo) y unas reglas que se
+// cumplen en cada fotograma:
+//   · los pies no se mueven del suelo;
+//   · la barra va sobre el mediopié;
+//   · la barra no atraviesa el cuerpo (en el peso muerto las rodillas se
+//     retrasan para dejarla pasar, como en un levantamiento de verdad);
+//   · la espalda se mueve en bloque: neutra, sin doblarse.
+// El cálculo da dónde va cada articulación; luego se giran los huesos del
+// modelo para que lleguen ahí.
 //
-// Eje x: hacia donde mira el atleta. y: arriba. z: a su izquierda/derecha.
+// Estética: estatua clásica de mármol, como las romanas copiadas de originales
+// griegos: marfil cálido y mate, fondo negro y un solo foco que esculpe el músculo.
+// Modelo: Universal Base Characters de Quaternius (CC0).
+// Ejes del mundo: x hacia donde mira el atleta, y arriba, z a su derecha.
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => t * t * t * (t * (t * 6 - 15) + 10);   // smootherstep
 
-// ── Medidas (m), ~1,78 m de altura ───────────────────────
+// ── Medidas del modelo (m), sacadas de su esqueleto en reposo ─
 const M = {
-  ankleH: 0.08, shank: 0.45, thigh: 0.45, torso: 0.50,
-  upper: 0.32, fore: 0.30, headR: 0.105,
-  hipZ: 0.10, shoulderZ: 0.19,
+  ankleH: 0.086,
+  shank: 0.459, thigh: 0.429,
+  // Del centro de las caderas al centro de los hombros: 0,484 arriba y 0,029 atrás.
+  torsoLen: Math.hypot(0.484, 0.029), torsoOff: Math.atan2(-0.029, 0.484),
+  upper: 0.251, fore: 0.243,
+  toe: { dx: 0.143, dy: -0.071 },          // del tobillo a la bola del pie
+  shinR: 0.04, kneeR: 0.055, thighR: [0.06, 0.075],
 };
-const ANKLE_X = -0.05;
-const MID_X = ANKLE_X + 0.05;          // mediopié
-const PLATE_R = 0.225;                 // disco de 20 kg
+const ANKLE_X = -0.085;                     // así el mediopié queda en x = 0
+const MID_X = 0;
+const PLATE_R = 0.225;                      // disco de 20 kg
+const BAR_R = 0.014;
 
-// ── Geometría plana 2D (plano sagital) ───────────────────
+// ── Geometría plana (plano sagital) ──────────────────────
 const v2 = (x, y) => ({ x, y });
 const add2 = (a, b) => v2(a.x + b.x, a.y + b.y);
-const polar = (len, ang) => v2(len * Math.sin(ang), len * Math.cos(ang));   // ang desde la vertical, + hacia delante
+const polar = (len, ang) => v2(len * Math.sin(ang), len * Math.cos(ang));   // ángulo desde la vertical, + hacia delante
+const shoulderFrom = (H, tr) => add2(H, polar(M.torsoLen, tr + M.torsoOff));
 
-/** Cruce de dos circunferencias; devuelve el punto más atrasado (x menor). */
+/** Cruce de dos circunferencias; el punto más atrasado (x menor). */
 function circleCross(c1, r1, c2, r2) {
   const dx = c2.x - c1.x, dy = c2.y - c1.y;
-  let d = Math.hypot(dx, dy);
-  d = Math.min(Math.max(d, Math.abs(r1 - r2) + 1e-6), r1 + r2 - 1e-6);
+  const D = Math.hypot(dx, dy);
+  const d = Math.min(Math.max(D, Math.abs(r1 - r2) + 1e-6), r1 + r2 - 1e-6);
   const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
   const h = Math.sqrt(Math.max(r1 * r1 - a * a, 0));
-  const ux = dx / Math.hypot(dx, dy), uy = dy / Math.hypot(dx, dy);
+  const ux = dx / D, uy = dy / D;
   const px = c1.x + a * ux, py = c1.y + a * uy;
   const p1 = v2(px - h * uy, py + h * ux), p2 = v2(px + h * uy, py - h * ux);
   return p1.x < p2.x ? p1 : p2;
 }
 
-/** Bisección: el ángulo de torso que deja la barra en x = target. */
-function solveTorso(H, target, barBack) {
-  let lo = rad(-5), hi = rad(80);
-  const barX = a => H.x + M.torso * Math.sin(a) - barBack * Math.cos(a);
-  for (let i = 0; i < 40; i++) {
-    const mid = (lo + hi) / 2;
-    if (barX(mid) < target) lo = mid; else hi = mid;
+/** x del eje de un segmento a la altura y (null si y queda fuera). */
+function xAt(a, b, y) {
+  if (y < Math.min(a.y, b.y) || y > Math.max(a.y, b.y)) return null;
+  return lerp(a.x, b.x, (y - a.y) / (b.y - a.y || 1e-9));
+}
+
+/** ¿La barra pasa por delante de tibia, rodilla y muslo, sin tocarlos? */
+function barClear(A, K, H, bar) {
+  const gap = BAR_R + 0.002;                  // la barra puede rozar la tibia, como en la salida real
+  const xs = xAt(A, K, bar.y);
+  if (xs != null && xs + M.shinR + gap > bar.x) return false;
+  if (Math.abs(bar.y - K.y) < M.kneeR && K.x + M.kneeR + gap > bar.x) return false;
+  const xt = xAt(K, H, bar.y);
+  if (xt != null) {
+    const r = lerp(M.thighR[0], M.thighR[1], (bar.y - K.y) / (H.y - K.y || 1e-9));
+    if (xt + r + gap > bar.x) return false;
   }
-  return (lo + hi) / 2;
+  return true;
 }
 
 // ── Ejercicios: poses en función de s ────────────────────
 const EXERCISES = {
   squat: {
-    name: 'Sentadilla trasera',
-    // excéntrica 3 s · pausa abajo 1 s · concéntrica 1 s · arriba 1 s
     phases: [
       { label: 'Bajada', dur: 3, from: 0, to: 1 },
       { label: 'Pausa', dur: 1, from: 1, to: 1 },
       { label: 'Subida', dur: 1, from: 1, to: 0 },
       { label: 'Arriba', dur: 1, from: 0, to: 0 },
     ],
+    stance: { foot: 0.16, knee: 0.19 },
+    grip: 0.42,
     pose(s) {
       const A = v2(ANKLE_X, M.ankleH);
-      const K = add2(A, polar(M.shank, rad(36) * s));                 // rodilla por delante
-      const th = rad(112) * s;                                       // muslo: de vertical a por debajo de paralelo
+      const K = add2(A, polar(M.shank, rad(34) * s));
+      const th = rad(112) * s;
       const H = add2(K, v2(-M.thigh * Math.sin(th), M.thigh * Math.cos(th)));
-      const barBack = 0.05;                                          // barra sobre los trapecios
-      const tr = solveTorso(H, MID_X, barBack);
-      const S = add2(H, polar(M.torso, tr));
-      const bar = v2(S.x - barBack * Math.cos(tr), S.y + barBack * Math.sin(tr) + 0.03);
-      return { A, K, H, S, tr, bar, grip: 0.42, armPole: new THREE.Vector3(-0.6, -1, 0), kneeZ: 0.15, footZ: 0.15 };
+      // La barra va sobre los trapecios: detrás y algo por encima del hombro.
+      const barOf = tr => {
+        const S = shoulderFrom(H, tr);
+        return add2(S, v2(-0.075 * Math.cos(tr) + 0.05 * Math.sin(tr), 0.075 * Math.sin(tr) + 0.05 * Math.cos(tr)));
+      };
+      // Abajo, barra sobre el mediopié. Arriba se admite algo por detrás: de pie
+      // es todo el cuerpo el que se inclina, no solo el tronco.
+      const target = MID_X - 0.07 * (1 - s);
+      let lo = rad(-5), hi = rad(75);
+      for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (barOf(m).x < target) lo = m; else hi = m; }
+      const tr = (lo + hi) / 2;
+      const bar = barOf(tr);
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(0.02, -0.06)), handDir: new THREE.Vector3(0.35, 1, 0), curl: -1 };
     },
   },
   deadlift: {
-    name: 'Peso muerto',
-    // empieza en el suelo: subida 1 s · arriba 1 s · bajada 2 s · reset 1 s
     phases: [
       { label: 'Subida', dur: 1.2, from: 1, to: 0 },
       { label: 'Bloqueo', dur: 1, from: 0, to: 0 },
       { label: 'Bajada', dur: 2, from: 0, to: 1 },
       { label: 'Suelo', dur: 1, from: 1, to: 1 },
     ],
+    stance: { foot: 0.12, knee: 0.12 },
+    grip: 0.26,
     pose(s) {
       const A = v2(ANKLE_X, M.ankleH);
-      const K = add2(A, polar(M.shank, rad(16) * s));
-      const reach = M.upper + M.fore - 0.02;
-      const topBar = M.ankleH + M.shank + M.thigh + M.torso - reach + 0.01;
-      const barY = lerp(topBar, PLATE_R, s);
-      // Hombros algo por delante de la barra abajo, encima arriba.
-      const sx = MID_X + 0.08 * s;
+      const reach = M.upper + M.fore + 0.075;     // del hombro a la barra: el agarre queda a ~8 cm de la muñeca
+      const standS = M.ankleH + M.shank + M.thigh + 0.484;
+      const barY = lerp(standS - reach + 0.012, PLATE_R, s);
+      const bar = v2(MID_X, barY);
+      // Hombros por delante de la barra en el suelo; en el bloqueo, algo por
+      // detrás, con el tronco vertical y la barra apoyada en los muslos.
+      const sx = MID_X + lerp(-0.1, 0.05, s);
       const S = v2(sx, barY + Math.sqrt(reach * reach - (sx - MID_X) ** 2));
-      const H = circleCross(K, M.thigh, S, M.torso);
-      const tr = Math.atan2(S.x - H.x, S.y - H.y);
-      return { A, K, H, S, tr, bar: v2(MID_X, barY), grip: 0.24, armPole: new THREE.Vector3(-1, 0, 0), kneeZ: 0.12, footZ: 0.13 };
+      // Tibia: la que pida la profundidad, salvo que la barra choque. Entonces
+      // la rodilla se retrasa lo justo para dejarla pasar.
+      let K, H;
+      for (let a = rad(14) * s; a >= rad(-8); a -= rad(0.25)) {
+        K = add2(A, polar(M.shank, a));
+        H = circleCross(K, M.thigh, S, M.torsoLen);
+        if (barClear(A, K, H, bar)) break;
+      }
+      const tr = Math.atan2(S.x - H.x, S.y - H.y) - M.torsoOff;
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(-0.01, 0.075)), handDir: new THREE.Vector3(-0.15, -1, 0), curl: 1 };
     },
   },
 };
 
-// ── Escena ───────────────────────────────────────────────
+// ── Escena: sala de museo ────────────────────────────────
 const stage = document.getElementById('stage');
+const $phase = document.getElementById('phase');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 stage.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
+// Reflejos suaves de una sala: sin esto el bronce y el pulido del mármol salen planos.
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.2;
+
 const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
-controls.minDistance = 2.2;
+controls.minDistance = 1.8;
 controls.maxDistance = 7;
 controls.maxPolarAngle = rad(88);
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d0c8, 1.6));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6);
-sun.position.set(1.5, 4, 2.5);
-sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
-Object.assign(sun.shadow.camera, { left: -1.5, right: 1.5, top: 2, bottom: -0.5, near: 0.5, far: 10 });
-sun.shadow.radius = 4;
-scene.add(sun);
+// Luz de museo: un foco cálido alto y delantero que esculpe el músculo con
+// sombras hondas, casi nada de relleno y un borde tenue que separa la figura
+// del fondo negro. Es la luz de las fotos de catálogo de escultura.
+scene.add(new THREE.HemisphereLight(0xfff1e0, 0x1a1512, 0.25));
+const key = new THREE.SpotLight(0xffe6c8, 95, 14, rad(30), 0.55, 2);
+key.position.set(1.4, 4.6, 2.9);
+key.target.position.set(0, 0.9, 0);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.bias = -0.0003;
+key.shadow.normalBias = 0.02;
+key.shadow.radius = 8;
+scene.add(key, key.target);
+const fill = new THREE.DirectionalLight(0xe6dccf, 0.18);
+fill.position.set(-2.5, 1.2, 2.0);
+scene.add(fill);
+const rim = new THREE.DirectionalLight(0xfff0dc, 0.9);
+rim.position.set(-1.6, 3.0, -3.4);
+scene.add(rim);
 
-const floor = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), new THREE.ShadowMaterial({ opacity: 0.16 }));
+// Suelo de piedra con la sombra, y un plinto bajo los pies.
+const floor = new THREE.Mesh(new THREE.CircleGeometry(2.6, 96), new THREE.ShadowMaterial({ opacity: 0.45 }));
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
-const ring = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.006, 96), new THREE.MeshBasicMaterial({ color: 0xd6cfc8 }));
-ring.rotation.x = -Math.PI / 2; ring.position.y = 0.001;
-scene.add(ring);
 
-// Maniquí: cilindros entre articulaciones y esferas en ellas, un solo gris.
-// Las extremidades del lado izquierdo (z+, el de la cámara de lado) van un
-// tono más claro: sin eso, de lado brazos y piernas se funden en una mancha.
-const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4a4542, roughness: 0.75, metalness: 0 });
-const jointMat = new THREE.MeshStandardMaterial({ color: 0x3a3634, roughness: 0.7 });
-const nearMat = new THREE.MeshStandardMaterial({ color: 0x7a736e, roughness: 0.75 });
-const nearJoint = new THREE.MeshStandardMaterial({ color: 0x66605b, roughness: 0.7 });
-const ironMat = new THREE.MeshStandardMaterial({ color: 0x1f1d1c, roughness: 0.5, metalness: 0.3 });
-const steelMat = new THREE.MeshStandardMaterial({ color: 0x9a948f, roughness: 0.35, metalness: 0.7 });
-
-const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 20);
-const unitSph = new THREE.SphereGeometry(1, 24, 16);
-const Y = new THREE.Vector3(0, 1, 0);
-
-function mesh(geo, mat) {
-  const m = new THREE.Mesh(geo, mat);
-  m.castShadow = true;
-  scene.add(m);
-  return m;
-}
-function segment(r0, r1 = r0, mat = bodyMat) {
-  // Un cono truncado de altura 1 escalado entre dos puntos.
-  const geo = new THREE.CylinderGeometry(r1, r0, 1, 20);
-  const m = mesh(geo, mat);
-  m.place = (a, b) => {
-    const d = new THREE.Vector3().subVectors(b, a);
-    m.position.copy(a).addScaledVector(d, 0.5);
-    m.scale.set(1, d.length(), 1);
-    m.quaternion.setFromUnitVectors(Y, d.normalize());
-  };
-  return m;
-}
-function joint(r, mat = jointMat) {
-  const m = mesh(unitSph, mat);
-  m.scale.setScalar(r);
-  return m;
+// ── Materiales de estatua ────────────────────────────────
+/**
+ * Mármol envejecido: marfil cálido con grano fino y manchas muy suaves, sin
+ * vetas grises. Hecho en un canvas para no cargar otra imagen.
+ */
+function marbleTexture() {
+  const N = 1024;
+  const c = document.createElement('canvas');
+  c.width = c.height = N;
+  const g = c.getContext('2d');
+  g.fillStyle = '#e4d6bf';
+  g.fillRect(0, 0, N, N);
+  // Manchas amplias: zonas algo más tostadas y otras más claras, como la pátina.
+  for (let i = 0; i < 220; i++) {
+    const x = Math.random() * N, y = Math.random() * N, r = 40 + Math.random() * 160;
+    const grd = g.createRadialGradient(x, y, 0, x, y, r);
+    grd.addColorStop(0, Math.random() < 0.55 ? 'rgba(190,160,120,.10)' : 'rgba(250,242,228,.12)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grd;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // Grano: puntos finos, claros y oscuros.
+  const img = g.getImageData(0, 0, N, N);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 14;
+    img.data[i] += n; img.data[i + 1] += n; img.data[i + 2] += n * 0.9;
+  }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.flipY = false;
+  return t;
 }
 
-const P = {
-  shinL: segment(0.048, 0.06, nearMat), shinR: segment(0.048, 0.06),
-  thighL: segment(0.064, 0.085, nearMat), thighR: segment(0.064, 0.085),
-  upperL: segment(0.045, 0.05, nearMat), upperR: segment(0.045, 0.05),
-  foreL: segment(0.034, 0.042, nearMat), foreR: segment(0.034, 0.042),
-  neck: segment(0.045, 0.045),
-  ankleL: joint(0.05, nearJoint), ankleR: joint(0.05), kneeL: joint(0.062, nearJoint), kneeR: joint(0.062),
-  hipL: joint(0.085), hipR: joint(0.085), shL: joint(0.058, nearJoint), shR: joint(0.058),
-  elL: joint(0.045, nearJoint), elR: joint(0.045), handL: joint(0.045, nearJoint), handR: joint(0.045),
-  head: joint(M.headR, bodyMat),
+const marbleMap = marbleTexture();
+const FINISHES = {
+  // Mate: el mármol antiguo no brilla, se ve como piedra pulida hace siglos.
+  marble: normalMap => new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, map: marbleMap, normalMap, normalScale: new THREE.Vector2(1.25, 1.25),
+    roughness: 0.66, metalness: 0,
+    sheen: 0.35, sheenColor: new THREE.Color(0xfff0dc), sheenRoughness: 0.8,
+  }),
+  bronze: normalMap => new THREE.MeshPhysicalMaterial({
+    color: 0x8a5a33, normalMap, normalScale: new THREE.Vector2(1.2, 1.2),
+    roughness: 0.42, metalness: 0.9, clearcoat: 0.15, clearcoatRoughness: 0.6,
+  }),
 };
-const footGeo = new THREE.BoxGeometry(0.25, 0.06, 0.09);
-footGeo.translate(0.06, 0, 0);
-P.footL = mesh(footGeo, nearJoint); P.footR = mesh(footGeo, jointMat);
-// Pelvis y tronco: cápsulas aplanadas que siguen la inclinación.
-P.pelvis = mesh(new THREE.CapsuleGeometry(0.1, 0.12, 6, 16), bodyMat);
-P.chest = mesh(new THREE.CapsuleGeometry(0.13, 0.24, 8, 20), bodyMat);
 
-// Barra con discos.
+// Barra con discos de bronce. El lado que queda entre la cámara y el atleta se
+// vuelve transparente: en la vista de lado los discos taparían el cuerpo.
+const plateMat = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: 0.45, metalness: 0.85 });
+const steelMat = new THREE.MeshStandardMaterial({ color: 0xc9c3bc, roughness: 0.28, metalness: 0.9 });
+const plateMats = { 1: plateMat.clone(), [-1]: plateMat.clone() };
+for (const m of Object.values(plateMats)) m.transparent = true;
 const bar = new THREE.Group();
-const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 2.0, 16), steelMat);
+const shaft = new THREE.Mesh(new THREE.CylinderGeometry(BAR_R, BAR_R, 2.0, 20), steelMat);
 shaft.rotation.x = Math.PI / 2; shaft.castShadow = true;
 bar.add(shaft);
-// Cada lado con su material: el que queda entre la cámara y el atleta se
-// vuelve transparente, o en la vista de lado los discos tapan el cuerpo.
-const plateMats = { 1: ironMat.clone(), [-1]: ironMat.clone() };
-for (const m of Object.values(plateMats)) { m.transparent = true; }
 for (const side of [-1, 1]) {
-  for (const [z, r, w] of [[0.62, PLATE_R, 0.045], [0.675, PLATE_R, 0.045], [0.71, 0.05, 0.03]]) {
-    const plate = new THREE.Mesh(new THREE.CylinderGeometry(r, r, w, 40), r > 0.1 ? plateMats[side] : steelMat);
+  for (const [z, r, w] of [[0.64, PLATE_R, 0.045], [0.695, PLATE_R, 0.045], [0.735, 0.05, 0.03]]) {
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(r, r, w, 64), r > 0.1 ? plateMats[side] : steelMat);
     plate.rotation.x = Math.PI / 2; plate.position.z = side * z; plate.castShadow = true;
     bar.add(plate);
   }
@@ -215,14 +267,44 @@ scene.add(bar);
 const TRAIL_N = 160;
 const trailGeo = new THREE.BufferGeometry();
 trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRAIL_N * 3), 3));
-const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0x1d1b1a, transparent: true, opacity: 0.55 }));
+const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0xe9dcc8, transparent: true, opacity: 0.55 }));
 scene.add(trail);
-const guideGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(MID_X, 0.002, 0.78), new THREE.Vector3(MID_X, 1.75, 0.78)]);
-const guide = new THREE.Line(guideGeo, new THREE.LineDashedMaterial({ color: 0x9a918b, dashSize: 0.04, gapSize: 0.03 }));
+const guideGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(MID_X, 0.002, 0.8), new THREE.Vector3(MID_X, 1.85, 0.8)]);
+const guide = new THREE.Line(guideGeo, new THREE.LineDashedMaterial({ color: 0x6d655d, dashSize: 0.04, gapSize: 0.03 }));
 guide.computeLineDistances();
 scene.add(guide);
 
-// ── Cinemática inversa de dos huesos (brazos) ────────────
+// ── Modelo y su esqueleto ────────────────────────────────
+const B = {};                 // huesos por nombre
+const rest = new Map();       // pose de reposo, para empezar de cero cada fotograma
+let model = null;
+const finishMats = {};
+
+const _v = new THREE.Vector3(), _w = new THREE.Vector3(), _q = new THREE.Quaternion(), _p = new THREE.Quaternion();
+
+/** Gira un hueso en el espacio del mundo (delta · su orientación actual). */
+function rotateWorld(bone, delta) {
+  bone.getWorldQuaternion(_q);
+  bone.parent.getWorldQuaternion(_p);
+  bone.quaternion.copy(_p.invert().multiply(delta.clone().multiply(_q)));
+  bone.updateMatrixWorld(true);
+}
+
+/** Gira un hueso lo mínimo para que su hijo quede en la dirección de target. */
+function aim(bone, child, target) {
+  bone.getWorldPosition(_v);
+  child.getWorldPosition(_w);
+  const cur = _w.sub(_v).normalize();
+  const want = target.clone().sub(_v).normalize();
+  rotateWorld(bone, new THREE.Quaternion().setFromUnitVectors(cur, want));
+}
+
+function aimDir(bone, child, dir) {
+  bone.getWorldPosition(_v);
+  aim(bone, child, _v.clone().add(dir));
+}
+
+/** Codo a partir de hombro, muñeca y hacia dónde debe apuntar. */
 function twoBone(root, target, a, b, pole) {
   const dir = new THREE.Vector3().subVectors(target, root);
   const d = Math.min(Math.max(dir.length(), Math.abs(a - b) + 1e-4), a + b - 1e-4);
@@ -230,55 +312,88 @@ function twoBone(root, target, a, b, pole) {
   const along = (a * a - b * b + d * d) / (2 * d);
   const h = Math.sqrt(Math.max(a * a - along * along, 0));
   const p = pole.clone().addScaledVector(dir, -pole.dot(dir)).normalize();
-  const elbow = root.clone().addScaledVector(dir, along).addScaledVector(p, h);
-  const wrist = root.clone().addScaledVector(dir, d);
-  return { elbow, wrist };
+  return root.clone().addScaledVector(dir, along).addScaledVector(p, h);
 }
 
+const Z = new THREE.Vector3(0, 0, 1);
 const V = (p, z = 0) => new THREE.Vector3(p.x, p.y, z);
 
-function applyPose(pose) {
-  const { A, K, H, S, tr } = pose;
-  for (const [side, k] of [[1, 'L'], [-1, 'R']]) {
-    const ankle = V(A, side * pose.footZ);
-    const knee = V(K, side * pose.kneeZ);
-    const hip = V(H, side * M.hipZ);
-    P['ankle' + k].position.copy(ankle);
-    P['knee' + k].position.copy(knee);
-    P['hip' + k].position.copy(hip);
-    P['shin' + k].place(ankle, knee);
-    P['thigh' + k].place(knee, hip);
-    P['foot' + k].position.set(A.x, 0.03, side * pose.footZ);
+function applyPose(ex, pose) {
+  // 1. Reposo.
+  for (const [bone, r] of rest) { bone.position.copy(r.p); bone.quaternion.copy(r.q); }
+  model.updateMatrixWorld(true);
 
-    const sh = V(S, side * M.shoulderZ);
-    P['sh' + k].position.copy(sh);
-    const grip = new THREE.Vector3(pose.bar.x, pose.bar.y, side * pose.grip);
-    const { elbow, wrist } = twoBone(sh, grip, M.upper, M.fore, pose.armPole);
-    P['el' + k].position.copy(elbow);
-    P['hand' + k].position.copy(wrist);
-    P['upper' + k].place(sh, elbow);
-    P['fore' + k].place(elbow, wrist);
+  // 2. Pelvis: en su sitio y girada con todo el tronco (espalda en bloque).
+  rotateWorld(B.pelvis, new THREE.Quaternion().setFromAxisAngle(Z, -pose.tr));
+  const hipMid = B.thigh_l.getWorldPosition(new THREE.Vector3()).add(B.thigh_r.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
+  const pelvisW = B.pelvis.getWorldPosition(new THREE.Vector3());
+  B.pelvis.position.copy(B.pelvis.parent.worldToLocal(V(pose.H).add(pelvisW.sub(hipMid))));
+  model.updateMatrixWorld(true);
+  // Cuello: mirada neutra, algo más erguida que el tronco.
+  rotateWorld(B.neck_01, new THREE.Quaternion().setFromAxisAngle(Z, pose.tr * 0.45));
+
+  // 3. Piernas: muslo a la rodilla, tibia al tobillo, pie plano.
+  for (const [k, side] of [['l', -1], ['r', 1]]) {
+    const knee = V(pose.K, side * ex.stance.knee);
+    const ankle = V(pose.A, side * ex.stance.foot);
+    aim(B['thigh_' + k], B['calf_' + k], knee);
+    aim(B['calf_' + k], B['foot_' + k], ankle);
+    aim(B['foot_' + k], B['ball_' + k], ankle.clone().add(new THREE.Vector3(M.toe.dx, M.toe.dy, 0)));
   }
 
-  // Tronco: inclinado tr desde la vertical, alrededor del eje z.
-  const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -tr);
-  const up = new THREE.Vector3(0, 1, 0).applyQuaternion(q);
-  const hipC = V(H);
-  P.pelvis.position.copy(hipC).addScaledVector(up, 0.03);
-  P.pelvis.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2).premultiply(q);
-  P.pelvis.scale.set(1, 1, 0.85);
-  P.chest.position.copy(hipC).addScaledVector(up, M.torso * 0.6);
-  P.chest.quaternion.copy(q);
-  P.chest.scale.set(0.85, 1, 1.35);
-
-  // Cuello y cabeza: más erguidos que el tronco (mirada neutra, algo al frente).
-  const neckBase = V(S).addScaledVector(up, 0.03);
-  const headDir = up.clone().lerp(new THREE.Vector3(0, 1, 0), 0.35).normalize();
-  const neckTop = neckBase.clone().addScaledVector(headDir, 0.08);
-  P.neck.place(neckBase, neckTop);
-  P.head.position.copy(neckTop).addScaledVector(headDir, M.headR * 0.95);
+  // 4. Brazos: del hombro a la barra, y los dedos cerrados sobre ella.
+  for (const [k, side] of [['l', -1], ['r', 1]]) {
+    const sh = B['upperarm_' + k].getWorldPosition(new THREE.Vector3());
+    const wrist = V(pose.wrist, side * ex.grip);
+    const pole = ex === EXERCISES.squat ? new THREE.Vector3(-0.4, -1, side * 0.2) : new THREE.Vector3(-1, 0, side * 0.6);
+    const elbow = twoBone(sh, wrist, M.upper, M.fore, pole);
+    aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
+    aim(B['lowerarm_' + k], B['hand_' + k], wrist);
+    aimDir(B['hand_' + k], B['middle_01_' + k], pose.handDir);
+    for (const f of ['index', 'middle', 'ring', 'pinky']) {
+      for (const n of ['01', '02', '03']) {
+        rotateWorld(B[`${f}_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(Z, pose.curl * rad(n === '01' ? 40 : 55)));
+      }
+    }
+  }
 
   bar.position.set(pose.bar.x, pose.bar.y, 0);
+}
+
+// ── Acabados ─────────────────────────────────────────────
+function setFinish(name) {
+  if (!model) return;
+  model.traverse(o => { if (o.isMesh) o.material = finishMats[name]; });
+}
+
+async function loadModel() {
+  $phase.textContent = 'Cargando modelo…';
+  const gltf = await new GLTFLoader().loadAsync('model/hero.gltf');
+  model = gltf.scene;
+  // El modelo mira a +z; el atleta de la escena mira a +x.
+  model.rotation.y = Math.PI / 2;
+  scene.add(model);
+  let normalMap = null;
+  model.traverse(o => {
+    if (o.isBone) { B[o.name] = o; rest.set(o, { p: o.position.clone(), q: o.quaternion.clone() }); }
+    if (o.isMesh) {
+      o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
+      if (o.material.name.includes('Superhero')) normalMap = o.material.normalMap;
+      // Las estatuas no tienen cejas ni pelo pintado: se esculpen. Fuera.
+      if (o.material.name.includes('Hair')) o.visible = false;
+    }
+  });
+  // Pelo esculpido: el peinado viene colocado sobre el cuerpo en reposo; se
+  // cuelga del hueso de la cabeza conservando esa posición.
+  model.updateMatrixWorld(true);
+  const hair = (await new GLTFLoader().loadAsync('model/hair.gltf')).scene;
+  const toHead = new THREE.Matrix4().copy(B.Head.matrixWorld).invert().multiply(model.matrixWorld);
+  hair.applyMatrix4(toHead);
+  hair.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  B.Head.add(hair);
+
+  for (const [k, make] of Object.entries(FINISHES)) finishMats[k] = make(normalMap);
+  setFinish('marble');
 }
 
 // ── Reloj del ritmo ──────────────────────────────────────
@@ -287,33 +402,30 @@ let t = 0, speed = 1, playing = true;
 const cycle = () => ex.phases.reduce((a, p) => a + p.dur, 0);
 
 function sAt(time) {
-  let rest = time % cycle();
+  let left = time % cycle();
   for (let i = 0; i < ex.phases.length; i++) {
     const p = ex.phases[i];
-    if (rest < p.dur) return { s: lerp(p.from, p.to, ease(rest / p.dur)), i, left: p.dur - rest };
-    rest -= p.dur;
+    if (left < p.dur) return { s: lerp(p.from, p.to, ease(left / p.dur)), i, rest: p.dur - left };
+    left -= p.dur;
   }
-  return { s: ex.phases[0].from, i: 0, left: 0 };
+  return { s: ex.phases[0].from, i: 0, rest: 0 };
 }
 
 function fillTrail() {
   const pos = trailGeo.attributes.position;
   for (let i = 0; i < TRAIL_N; i++) {
     const p = ex.pose(i / (TRAIL_N - 1));
-    pos.setXYZ(i, p.bar.x, p.bar.y, 0.78);
+    pos.setXYZ(i, p.bar.x, p.bar.y, 0.8);
   }
   pos.needsUpdate = true;
   trailGeo.computeBoundingSphere();
 }
 
 // ── Interfaz ─────────────────────────────────────────────
-const $phase = document.getElementById('phase');
 const $tempo = document.getElementById('tempo');
-
 function renderTempo() {
   $tempo.innerHTML = ex.phases.map(p => `<span>${p.label} ${String(p.dur).replace('.', ',')} s</span>`).join('');
 }
-
 function segGroup(id, onPick) {
   const el = document.getElementById(id);
   el.addEventListener('click', e => {
@@ -324,20 +436,18 @@ function segGroup(id, onPick) {
   });
 }
 
-const CAMS = {
-  side: [0, 1.0, 3.7],
-  front: [3.7, 1.0, 0],
-  three: [2.6, 1.4, 2.7],
-};
+const CAMS = { side: [0, 1.0, 3.6], front: [3.6, 1.0, 0], three: [2.5, 1.35, 2.6] };
 function setCam(name) {
   camera.position.set(...CAMS[name]);
-  controls.target.set(0, 0.74, 0);
+  controls.target.set(0, 0.84, 0);
   controls.update();
 }
 
-segGroup('exSeg', d => { ex = EXERCISES[d.ex]; t = 0; renderTempo(); fillTrail(); });
+function setEx(k) { ex = EXERCISES[k]; t = 0; renderTempo(); fillTrail(); }
+segGroup('exSeg', d => setEx(d.ex));
 segGroup('camSeg', d => setCam(d.cam));
 segGroup('speedSeg', d => { speed = parseFloat(d.speed); });
+segGroup('finishSeg', d => setFinish(d.finish));
 document.getElementById('play').addEventListener('click', e => {
   playing = !playing;
   e.currentTarget.textContent = playing ? 'Pausa' : 'Seguir';
@@ -350,40 +460,53 @@ function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  // En vertical el maniquí tiene que caber a lo alto: se aleja un poco.
-  camera.fov = w < h ? 42 : 30;
+  camera.fov = 40;
   camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(stage);
 
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (reduce) { playing = false; document.getElementById('play').textContent = 'Seguir'; }
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  playing = false; document.getElementById('play').textContent = 'Seguir';
+}
 
-setCam('side');
+setCam('three');
 renderTempo();
 fillTrail();
 resize();
 
 let last = performance.now(), lastPhase = -1;
-renderer.setAnimationLoop(now => {
+function frame(now) {
   const dt = Math.min((now - last) / 1000, 0.1);
   last = now;
   if (playing) t += dt * speed;
-  const { s, i, left } = sAt(t);
-  applyPose(ex.pose(s));
+  const { s, i, rest: left } = sAt(t);
+  applyPose(ex, ex.pose(s));
   if (i !== lastPhase) {
     $tempo.querySelectorAll('span').forEach((el, j) => el.classList.toggle('on', j === i));
     lastPhase = i;
   }
   $phase.innerHTML = `<b>${ex.phases[i].label}</b> · ${Math.ceil(left / speed)} s`;
   controls.update();
-  // Cuanto más de lado mira la cámara, más transparente el disco cercano.
   const side = camera.position.z / Math.hypot(camera.position.x, camera.position.z);
   plateMats[1].opacity = 1 - 0.8 * Math.max(0, side - 0.3) / 0.7;
   plateMats[-1].opacity = 1 - 0.8 * Math.max(0, -side - 0.3) / 0.7;
   for (const m of Object.values(plateMats)) m.depthWrite = m.opacity > 0.95;
   renderer.render(scene, camera);
-});
+}
+
+loadModel()
+  .then(() => renderer.setAnimationLoop(frame))
+  .catch(err => { $phase.textContent = 'No se pudo cargar el modelo'; console.error(err); });
 
 // Para las pruebas: fijar el instante y la cámara desde fuera.
-window.__demo = { debug: () => ({ s: sAt(t).s, pose: ex.pose(sAt(t).s), hand: P.handL.position.toArray(), el: P.elL.position.toArray(), sh: P.shL.position.toArray(), bar: bar.position.toArray() }), setTime: x => { t = x; }, pause: () => { playing = false; }, setEx: k => { ex = EXERCISES[k]; fillTrail(); renderTempo(); }, setCam };
+window.__demo = {
+  ready: () => !!model,
+  pause: () => { playing = false; },
+  setTime: x => { t = x; },
+  setEx, setCam, setFinish,
+  debug: () => {
+    const p = ex.pose(sAt(t).s);
+    const w = n => { const v = B[n].getWorldPosition(new THREE.Vector3()); return [v.x, v.y, v.z]; };
+    return { s: sAt(t).s, K: p.K, H: p.H, bar: p.bar, tr: p.tr, bones: { thigh: w('thigh_r'), calf: w('calf_r'), foot: w('foot_r'), upperarm: w('upperarm_r'), hand: w('hand_r') } };
+  },
+};

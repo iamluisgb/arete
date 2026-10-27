@@ -15,11 +15,13 @@
   header{padding:16px 20px 4px;max-width:720px;width:100%;margin:0 auto}
   h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
   .sub{margin:2px 0 0;font-size:13px;color:var(--t2)}
-  #stage{position:relative;flex:1;min-height:380px;max-width:720px;width:100%;margin:0 auto}
+  /* Sala de museo: fondo oscuro y cálido, con la luz concentrada en la figura. */
+  #stage{position:relative;flex:1;min-height:420px;max-width:720px;width:calc(100% - 24px);margin:4px auto 0;border-radius:20px;overflow:hidden;
+    background:radial-gradient(110% 80% at 50% 40%,#1c1916 0%,#0d0b0a 55%,#050404 100%)}
   #stage canvas{display:block;width:100%;height:100%;touch-action:none}
-  .phase{position:absolute;left:20px;top:12px;font-size:13px;color:var(--t2);font-variant-numeric:tabular-nums}
-  .phase b{color:var(--ink);font-weight:600}
-  .hint{position:absolute;right:20px;top:12px;font-size:12px;color:var(--t3)}
+  .phase{position:absolute;left:16px;top:12px;z-index:1;font-size:13px;color:#a89d92;font-variant-numeric:tabular-nums}
+  .phase b{color:#fff;font-weight:600}
+  .hint{position:absolute;right:16px;top:12px;z-index:1;font-size:12px;color:#9c9188}
   .panel{max-width:720px;width:100%;margin:0 auto;padding:8px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);min-width:64px}
@@ -62,9 +64,15 @@
   </div>
   <div class="row"><span class="lbl">Cámara</span>
     <div class="seg" id="camSeg">
-      <button type="button" data-cam="side" aria-pressed="true">Lado</button>
+      <button type="button" data-cam="three" aria-pressed="true">3/4</button>
+      <button type="button" data-cam="side" aria-pressed="false">Lado</button>
       <button type="button" data-cam="front" aria-pressed="false">Frente</button>
-      <button type="button" data-cam="three" aria-pressed="false">3/4</button>
+    </div>
+  </div>
+  <div class="row"><span class="lbl">Acabado</span>
+    <div class="seg" id="finishSeg">
+      <button type="button" data-finish="marble" aria-pressed="true">Mármol</button>
+      <button type="button" data-finish="bronze" aria-pressed="false">Bronce</button>
     </div>
   </div>
   <div class="row"><span class="lbl">Ritmo</span><div class="tempo" id="tempo"></div></div>
@@ -76,7 +84,7 @@
     </div>
     <label class="chk"><input type="checkbox" id="trail" checked> Trayectoria de la barra</label>
   </div>
-  <p class="note">El maniquí está hecho con piezas geométricas para la demo; el movimiento sale de tres poses clave y de dos reglas (pies quietos en el suelo y barra sobre el mediopié), y el resto lo calcula el programa. En la fase 1 se cambia por el modelo de Quaternius sin tocar las poses.</p>
+  <p class="note">Figura: Universal Base Characters de Quaternius (CC0), con acabado de estatua de mármol. El movimiento no está animado a mano: sale de la profundidad de la repetición y de cuatro reglas que se cumplen en cada fotograma (pies quietos, barra sobre el mediopié, la barra no atraviesa el cuerpo y espalda en bloque).</p>
 </div>
 
 <script type="module" src="demo.js"></script>
