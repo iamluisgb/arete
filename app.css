@@ -204,7 +204,7 @@ label{display:block;font-size:var(--fs-base);color:var(--color-text-secondary);m
    gana. Se borra con la última pantalla sin migrar. */
 :where([data-ds],.sheet) label{display:block;font:inherit;color:inherit;
   margin-bottom:0;text-transform:none;letter-spacing:normal}
-select,input[type="date"],input[type="number"],input[type="text"],input[type="password"]{width:100%;background:var(--color-surface-2);border:none;color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;border-radius:var(--radius-md);outline:none;-webkit-appearance:none;transition:background var(--dur-base)}
+select,input[type="date"],input[type="number"],input[type="text"],input[type="password"]{width:100%;background:var(--color-surface-0);border:1px solid var(--color-line-strong);color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;border-radius:var(--radius-md);outline:none;-webkit-appearance:none;transition:background var(--dur-base)}
 select:focus,input:focus{background:var(--color-surface-1);box-shadow:0 0 0 2px var(--color-focus-ring)}
 input[type="number"]{font-size:var(--fs-xl);text-align:center;font-weight:600}
 textarea{width:100%;background:var(--color-surface-2);border:none;color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);padding:12px 14px;border-radius:var(--radius-md);outline:none;resize:vertical;min-height:60px;transition:background var(--dur-base)}
@@ -2786,7 +2786,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    pantallas que aún no se han rehecho en papel (sin tarjetas, con filetes)
    llevan el marco del panel: un borde de 1 px, nunca un relleno gris. Cada
    pantalla que se rehace sale de esta lista. */
-:is(.session-overview-card,.str-plan-session,.str-plan-custom-empty,.run-plan-session-card,
+:is(.str-plan-session,.str-plan-custom-empty,.run-plan-session-card,
   .ex-card,.calc-result,.run-segment-card,.run-history-card,
   .run-goal-card,.run-next-card,.run-prs-card,.wizard,.dash-card,.dash-act-card,
   .sr-done-pr,.sr-did,.prof-domain,.dtest-proto){border:1px solid var(--color-line)}
@@ -2809,7 +2809,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
   border:1px solid var(--color-line-strong);border-radius:var(--radius-pill);padding-left:var(--sp-4)}
 .history-filter-wrap>label{margin:0;font:500 var(--fs-sm)/1 var(--font);text-transform:none;
   letter-spacing:0;color:var(--color-text-secondary)}
-.history-filter-wrap>select{width:auto;max-width:none;background:none;min-height:42px;
+.history-filter-wrap>select{width:auto;max-width:none;background:none;border:0;min-height:42px;
   padding:0 var(--sp-8) 0 var(--sp-2);font:600 var(--fs-sm)/1 var(--font);border-radius:var(--radius-pill)}
 .history-filter-wrap>select:focus{background:none;box-shadow:none}
 .history-filter-wrap::after{content:'';position:absolute;right:var(--sp-4);top:50%;width:6px;height:6px;
@@ -2860,6 +2860,39 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
   /* En móvil las series se llevan el ancho; el nombre baja a dos líneas antes que cortarse. */
   .hi-ex{white-space:normal;overflow-wrap:anywhere}
 }
+
+/* ── Entrenar: cabecera, calendario y Actividad, en papel ──────────────────
+   Los controles iban a los dos bordes: el modo y el plan arriba a la derecha,
+   las pestañas y los filtros a la izquierda, y el calendario con su propia fila
+   «◀ Hoy ▶» encima de su título. Ahora todo cuelga del borde izquierdo y cada
+   control está junto a lo que controla. */
+/* El plan y la fase son contexto, no un segundo menú: texto que se pulsa. */
+#secTrain .page-head-ctx .chip{background:none;border-color:transparent;
+  padding-inline:var(--sp-2);font-weight:500;color:var(--color-text-secondary)}
+/* Sin borde ya no compite con el modo: si no cabe a su lado baja a su línea
+   y se lleva el ancho entero antes de recortar el nombre del plan. */
+#secTrain .page-head-ctx{min-width:0;max-width:100%}
+#secTrain .page-head-ctx .chip{max-width:100%}
+/* El mes y sus flechas en una línea. calendar.js mete .cal-nav en .cal-header. */
+.cal-header{justify-content:flex-start;align-items:center;gap:var(--sp-2)}
+.cal-header .cal-count{font:var(--type-caption);color:var(--color-text-secondary);text-transform:none;letter-spacing:0}
+.cal-header .cal-count span{display:inline;font:inherit;color:inherit;margin:0}
+.cal-header .cal-nav{display:flex;gap:0;margin:0 0 0 auto;max-width:none;justify-content:flex-end}
+.cal-header .cal-nav button{min-width:44px;min-height:44px;padding:0;display:grid;place-items:center;
+  background:none;color:var(--color-text-primary);border-radius:var(--radius-pill)}
+.cal-header .cal-nav .cal-nav-today{flex:none;padding:0 var(--sp-2);font:var(--type-caption);font-weight:600}
+.hi-month{font:var(--type-body-strong);letter-spacing:0;text-transform:none;color:var(--color-text-primary)}
+/* La sesión que toca: una lista con filetes, sin tarjeta ni filas grises. */
+.session-overview-card{background:none;border-radius:0;padding:var(--sp-4) 0 0;margin-bottom:var(--sp-3)}
+.so-header{align-items:baseline;margin-bottom:0;padding-bottom:var(--sp-3);border-bottom:1px solid var(--color-line-strong)}
+.so-list{gap:0}
+.so-ex,.so-ex-hiit{background:none;border-radius:0;padding:var(--sp-3) 0;border-bottom:1px solid var(--color-line)}
+.so-ex-name{font:var(--type-body-strong)}
+.so-ex-target{font:500 var(--fs-sm) var(--font-mono);color:var(--color-text-primary)}
+.so-hiit-list{border-top:0}
+.so-hiit-ex span:last-child{font:500 var(--fs-sm) var(--font-mono)}
+.so-last,.so-draft{text-align:left}
+#prefillBanner{background:none;border:1px solid var(--color-line-strong);border-radius:var(--radius-md)}
 
 }
 @layer escritorio {
@@ -3068,6 +3101,28 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 #runHistoryList{grid-row:2/-1}
 .cal-fold>summary{display:none}
 #calendarPanel,#runCalendarPanel,.cal-nav{max-width:none}
+}
+
+/* ── Entrenar en escritorio: cabecera a la izquierda y Actividad en 4 + 8 ──
+   El modo va pegado al título y el plan debajo, como subtítulo: la cabecera
+   deja de tener un segundo grupo de controles en el borde derecho. Actividad
+   abría con una columna centrada de 560 px entre dos huecos; ahora usa la
+   misma rejilla que Historial: qué y cuándo a la izquierda, la sesión a la
+   derecha. */
+@media(min-width:1024px){
+#secTrain>.page-head{display:grid;grid-template-columns:auto auto;justify-content:start;
+  align-items:center;column-gap:var(--sp-5);row-gap:0}
+#secTrain .page-head-state{display:contents}
+#secTrain .page-head-ctx{grid-column:1/-1;margin-left:calc(-1 * var(--sp-2))}
+#secTrain .page-head-ctx .chip{min-height:36px}
+.cal-header .cal-nav{margin:0 0 0 auto;max-width:none}
+#strTrain.active:not(:has(#exerciseList > *)){grid-template-columns:minmax(0,4fr) minmax(0,8fr);
+  column-gap:var(--sp-10);justify-items:stretch}
+#strTrain.active:not(:has(#exerciseList > *))>*{grid-column:2;max-width:none}
+#strTrain.active:not(:has(#exerciseList > *))>.row{grid-column:1;grid-row:1 / span 2;
+  flex-direction:column;gap:var(--sp-4);margin:0}
+#strTrain.active:not(:has(#exerciseList > *)) .so-start{width:auto;min-width:240px}
+#strTrain.active:not(:has(#exerciseList > *)) .session-overview-card{padding-top:0}
 }
 
 }

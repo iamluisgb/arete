@@ -968,6 +968,16 @@ de texto con alfa, para que funcionen sobre cualquier superficie sin añadir col
   `--measure-panel` (560): a 1440 dejaba medio ancho en blanco, que era exactamente la queja. El
   tope tenía sentido con tarjetas de nombre-a-un-lado y series-al-otro; con filas en columna ya no.
 
+### 9.2e Entrenar: un solo borde para los controles (octubre de 2026)
+
+Los controles de Entrenar estaban repartidos entre los dos bordes. El modo y el plan quedaban arriba a la derecha, y las pestañas y los filtros a la izquierda. El calendario, además, tenía su propia fila «◀ Hoy ▶» encima de su título. Ahora todo cuelga del borde izquierdo:
+
+- El segmentado Fuerza/Carrera va pegado al título.
+- El plan y la fase van debajo, como subtítulo: texto que se pulsa, sin borde, porque son contexto y no un menú.
+- Las flechas del mes van en la línea del mes. `calendar.js` y `running-calendar.js` mueven el nodo `.cal-nav` dentro de `.cal-header`. Como el nodo se mueve y no se copia, conserva su listener.
+- Actividad, en escritorio, usa el reparto 4 + 8 de Historial: fecha y sesión a la izquierda, y a la derecha la sesión como lista con filetes, sin tarjeta.
+- Los campos (`select` e `input`) son blancos con un filete de `--color-line-strong`, como los filtros, en vez del relleno gris.
+
 ### 9.3 La deuda que sigue viva
 
 - **Los `style=""` que quedan en las plantillas de `js/` pasan un color de dato**, no maquetan: el

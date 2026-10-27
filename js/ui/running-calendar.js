@@ -28,7 +28,7 @@ export function renderRunCalendar(db) {
     const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     if (byDate[ds]) mc++;
   }
-  let html = `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MN[m]} ${y}</div><div class="cal-count">Sesiones<span>${mc}</span></div></div><div class="cal-grid">`;
+  let html = `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MN[m]} ${y}</div><div class="cal-count"><span>${mc}</span> ${mc === 1 ? 'sesión' : 'sesiones'}</div></div><div class="cal-grid">`;
   DOW.forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
   for (let e = 0; e < fd; e++) html += '<div class="cal-day empty">·</div>';
   for (let d = 1; d <= dim; d++) {
@@ -41,7 +41,9 @@ export function renderRunCalendar(db) {
     html += `<div class="${c}"${dataAttr}>${d}</div>`;
   }
   html += '</div></div>';
+  const nav = document.getElementById('runCalNav');
   panel.innerHTML = html;
+  panel.querySelector('.cal-header').append(nav);
 }
 
 /** Initialize running calendar: navigation and day clicks */

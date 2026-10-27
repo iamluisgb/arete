@@ -142,7 +142,7 @@ export function renderCalendar(db) {
     const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     if (wd[ds]) mc++;
   }
-  html += `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MESES[m]} ${y}</div><div class="cal-count">Sesiones<span>${mc}</span></div></div><div class="cal-grid">`;
+  html += `<div class="cal-container"><div class="cal-header"><div class="cal-title">${MESES[m]} ${y}</div><div class="cal-count"><span>${mc}</span> ${mc === 1 ? 'sesión' : 'sesiones'}</div></div><div class="cal-grid">`;
   DOW.forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
   for (let e = 0; e < fd; e++) html += '<div class="cal-day empty">·</div>';
   for (let d = 1; d <= dim; d++) {
@@ -168,7 +168,12 @@ export function renderCalendar(db) {
     html += `<div class="${c}"${dataAttr}>${inner}</div>`;
   }
   html += '</div></div>';
+  // Las flechas del mes van en la misma línea que el mes, no en una fila propia
+  // encima: era un segundo título («◀ Hoy ▶») sobre el título de verdad. El
+  // nodo se mueve, no se copia, así que conserva su listener.
+  const nav = document.querySelector('#calFold .cal-nav');
   panel.innerHTML = html;
+  panel.querySelector('.cal-header').append(nav);
 }
 
 /** Initialize calendar: navigation buttons and day click events */
