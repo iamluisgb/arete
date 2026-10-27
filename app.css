@@ -2771,12 +2771,83 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    llevan el marco del panel: un borde de 1 px, nunca un relleno gris. Cada
    pantalla que se rehace sale de esta lista. */
 :is(.session-overview-card,.str-plan-session,.str-plan-custom-empty,.run-plan-session-card,
-  .ex-card,.cal-container,.history-item,.calc-result,.run-segment-card,.run-history-card,
+  .ex-card,.calc-result,.run-segment-card,.run-history-card,
   .run-goal-card,.run-next-card,.run-prs-card,.wizard,.dash-card,.dash-act-card,
   .sr-done-pr,.sr-did,.prof-domain,.dtest-proto){border:1px solid var(--color-line)}
 
+
+/* ── Entrenar · Historial, en papel ─────────────────────────────────────────
+   Pestañas subrayadas, filtros en píldora, el calendario como una rejilla de
+   casillas y cada sesión como una fila: la fecha en su columna, a la izquierda,
+   y sus ejercicios en filas con las series en mono. Sin una tarjeta. */
+.subnav-tabs{background:none;border-radius:0;padding:0;gap:var(--sp-6);
+  border-bottom:1px solid var(--color-line);overflow-x:auto;scrollbar-width:none}
+.subnav-tabs>button{flex:none;padding:0;min-height:44px;border-radius:0;font-weight:500;
+  border-bottom:2px solid transparent;margin-bottom:-1px}
+.subnav-tabs>button.active{background:none;box-shadow:none;font-weight:600;
+  border-bottom-color:var(--color-text-primary)}
+/* Filtros: la clave en gris y el valor en tinta, dentro de una píldora con borde.
+   Siguen siendo un <select> nativo: en móvil abre la rueda del sistema. */
+.history-filters{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-4)}
+.history-filter-wrap{display:inline-flex;align-items:center;position:relative;margin:0;
+  border:1px solid var(--color-line-strong);border-radius:var(--radius-pill);padding-left:var(--sp-4)}
+.history-filter-wrap>label{margin:0;font:500 var(--fs-sm)/1 var(--font);text-transform:none;
+  letter-spacing:0;color:var(--color-text-secondary)}
+.history-filter-wrap>select{width:auto;max-width:none;background:none;min-height:42px;
+  padding:0 var(--sp-8) 0 var(--sp-2);font:600 var(--fs-sm)/1 var(--font);border-radius:var(--radius-pill)}
+.history-filter-wrap>select:focus{background:none;box-shadow:none}
+.history-filter-wrap::after{content:'';position:absolute;right:var(--sp-4);top:50%;width:6px;height:6px;
+  margin-top:-5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);pointer-events:none;color:var(--color-text-secondary)}
+/* Calendario: casillas con filetes. Rojo = día entrenado; contorno de tinta = hoy. */
+.cal-container{background:none;border:0;border-radius:0;padding:0}
+.cal-header{margin-bottom:var(--sp-3)}
+.cal-header .cal-title{font:var(--type-body-strong)}
+.cal-header .cal-count{font:var(--type-label);letter-spacing:var(--track-label)}
+.cal-header .cal-count span{display:inline;font:inherit;color:var(--color-text-primary);margin-left:var(--sp-1)}
+.cal-grid{gap:0;text-align:left;border-top:1px solid var(--color-line-strong);border-left:1px solid var(--color-line)}
+.cal-grid .cal-dow{font:var(--type-label);letter-spacing:var(--track-label);padding:var(--sp-2) 6px;
+  border-right:1px solid var(--color-line);border-bottom:1px solid var(--color-line)}
+.cal-grid .cal-day{align-items:flex-start;justify-content:flex-start;border-radius:0;padding:5px 6px;
+  font:500 var(--fs-xs)/1 var(--font-mono);border-right:1px solid var(--color-line);border-bottom:1px solid var(--color-line)}
+.cal-grid .cal-day.has-workout{background:var(--color-accent-fill)}
+.cal-grid .cal-day.today{color:var(--color-text-primary);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--color-text-primary)}
+.cal-grid .cal-day.empty{background:repeating-linear-gradient(135deg,transparent 0 5px,var(--color-line) 5px 6px)}
+.cal-nav button{background:none;padding:6px 14px}
+/* La sesión: fecha en columna, cuerpo con filetes. */
+.hi-month{padding:var(--sp-6) 0 var(--sp-2);border-bottom:1px solid var(--color-line-strong)}
+.hi-month:first-child{padding-top:0}
+.history-item{display:grid;grid-template-columns:72px minmax(0,1fr);column-gap:var(--sp-4);
+  background:none;border-radius:0;margin:0;padding:var(--sp-5) 0;border-bottom:1px solid var(--color-line)}
+.history-item:active{transform:none}
+.hi-when{display:flex;flex-direction:column;gap:2px;font:var(--type-label);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--color-text-secondary)}
+.hi-when b{font:var(--type-metric);letter-spacing:var(--track-metric);color:var(--color-text-primary)}
+.hi-body{min-width:0;display:flex;flex-direction:column;gap:var(--sp-1)}
+.hi-head{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+.hi-name{font:var(--type-body-strong)}
+.hi-meta{margin-left:auto;font:var(--type-caption);color:var(--color-text-secondary)}
+.history-item .hi-session{font:var(--type-caption)}
+.history-item .hi-plan{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
+  background:none;padding:0;color:var(--color-text-tertiary)}
+.history-item .hi-summary{margin-top:var(--sp-2)}
+/* Las series miden lo que miden y el nombre cede (con su elipsis): con el 45 %
+   fijo de antes, cinco series de 55×3 rompían en dos líneas teniendo sitio. */
+.hi-rows{grid-template-columns:minmax(7em,1fr) minmax(0,max-content);column-gap:0;row-gap:0}
+.hi-ex,.hi-sets{padding:7px 0;border-top:1px solid var(--color-line)}
+.hi-ex{font-weight:500}
+.hi-sets{font:500 var(--fs-sm)/1.45 var(--font-mono);color:var(--color-text-primary);text-align:right;padding-left:var(--sp-4)}
+.load-more-btn{background:none;border:1px solid var(--color-line-strong);border-radius:var(--radius-pill);margin-top:var(--sp-5)}
+.date-filter-bar{background:none;border:1px solid var(--color-line-strong);border-radius:var(--radius-pill);color:var(--color-text-primary)}
+@media(max-width:639px){
+  .history-item{grid-template-columns:minmax(0,1fr);row-gap:var(--sp-2)}
+  .hi-when{flex-direction:row;align-items:baseline;gap:var(--sp-2)}
+  .hi-when b{font-size:var(--fs-xl)}
+  /* En móvil las series se llevan el ancho; el nombre baja a dos líneas antes que cortarse. */
+  .hi-ex{white-space:normal;overflow-wrap:anywhere}
 }
 
+}
 @layer escritorio {
 
 @media(min-width:640px){
@@ -2868,7 +2939,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    extremos opuestos con un vacío en medio — el mismo defecto que la lista de
    212px, por el otro lado. El ancho recuperado es para la rejilla de ejercicios
    y la gráfica de progreso, que sí saben qué hacer con él. */
-#historyList,#runHistoryList{max-width:var(--measure-panel)}
+
 /* La columna de 168px se retiró: aquí iban las reglas que volteaban las pestañas
    a vertical en ≥1024. La navegación secundaria de Entrenar es la misma fila
    horizontal en todos los anchos —el `.subnav-tabs` de la base— y la sección
@@ -2881,11 +2952,10 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    permanentes— y en esta pantalla el eje vertical es el barato.
    El modo Fuerza/Carrera se fue a la cabecera con el resto del estado. */
 @media(min-width:1024px){
-/* Las pestañas no se estiran a lo ancho de la pantalla: son cuatro palabras
-   cortas, y un segmentado de 900px con el texto flotando en el centro de cada
-   cuarto no se lee como un control. Ancho de contenido, alineado al principio. */
-.subnav-tabs{align-self:start;width:max-content;max-width:100%}
-.subnav-tabs>button{flex:0 0 auto;padding-inline:var(--sp-5)}
+/* Las pestañas no se estiran: cuatro palabras cortas, a su ancho y alineadas al
+   principio. Lo que cruza la pantalla es la línea de debajo, que es el borde de
+   la vista y no el de un control. */
+.subnav-tabs{align-self:stretch;width:auto}
 }
 /* ── Cuerpo, en papel ────────────────────────────────────
    Franja de estado arriba y la rejilla de 12 debajo (.cols): peso 7 + calorías
@@ -2966,8 +3036,26 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .progress-ex.active{background:var(--color-surface-2);color:var(--color-text-primary);font-weight:700}
 }
 
+
+/* ── Historial: calendario 4 + lista 8 (rejilla de 12) ─────────────────────
+   Era un reparto de 260 + resto a partir de 1440 y, por debajo, el calendario
+   plegado encima de una lista topada a --measure-panel: a 1440 eso dejaba 560px
+   de lista y medio ancho en blanco. Ahora la lista es una tabla de filas con
+   filetes y sabe qué hacer con el ancho; desde 1024 calendario y lista se
+   reparten la rejilla y el plegado se retira (calendar.js lo abre). */
+@media(min-width:1024px){
+#strHistory.active,#runHistory.active{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);
+  grid-template-rows:auto auto auto 1fr;gap:0 var(--sp-10);align-items:start}
+#strHistory>.history-filters,#runHistory>.history-filter-wrap{grid-column:1/-1;grid-row:1}
+#strHistory>.cal-fold,#runHistory>.cal-fold{grid-column:1;grid-row:2/-1;position:sticky;top:var(--sp-4)}
+#historyDateFilter{grid-column:2;grid-row:2}
+#historyList,#runHistoryList{grid-column:2;grid-row:3}
+#runHistoryList{grid-row:2/-1}
+.cal-fold>summary{display:none}
+#calendarPanel,#runCalendarPanel,.cal-nav{max-width:none}
 }
 
+}
 @layer overrides {
 
 @media(hover:hover) and (pointer:fine){

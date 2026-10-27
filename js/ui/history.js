@@ -67,12 +67,29 @@ function renderItems(items) {
 function renderItem(w) {
   const summary = summaryRows(w);
   const hasPR = w.prs && w.prs.length > 0;
-  const prBadge = hasPR ? '<span class="hi-pr">🏆 PR</span>' : '';
+  const prBadge = hasPR ? '<span class="badge badge--accent">Récord</span>' : '';
   const plan = `<span class="hi-plan">${esc(planName(w.program))}</span>`;
   // Una suelta no pertenece a la fase en la que estaba el atleta ese día: decirlo
   // sería inventar una relación con su plan que no existe.
   const origen = w.sessionId ? 'Tu sesión' : `Fase ${ROMAN[w.phase - 1] || w.phase}`;
-  return `<div class="history-item" data-id="${w.id}"><div class="hi-date">${formatDate(w.date)}</div><div class="hi-session">${origen} · ${w.session}${prBadge} ${plan}</div><div class="hi-summary">${summary || '—'}</div></div>`;
+  const series = w.exercises.reduce((n, e) => n + (e.sets?.length || 0), 0);
+  // La fecha en su propia columna, como un sello: día de la semana, número y mes.
+  // Es lo que se escanea al recorrer la lista, y en una columna fija las
+  // sesiones quedan alineadas entre sí. La fecha completa va para el lector.
+  return `<div class="history-item" data-id="${w.id}">
+      <div class="hi-when" aria-label="${formatDate(w.date)}"><span>${diaSemana(w.date)}</span><b>${parseInt(w.date.slice(8, 10))}</b><span>${MESES[parseInt(w.date.slice(5, 7)) - 1].slice(0, 3)}</span></div>
+      <div class="hi-body">
+        <div class="hi-head"><span class="hi-name">${esc(w.session)}</span>${prBadge}<span class="hi-meta">${w.exercises.length} ejercicios · ${series} series</span></div>
+        <div class="hi-session">${origen} ${plan}</div>
+        <div class="hi-summary">${summary || '—'}</div>
+      </div>
+    </div>`;
+}
+
+/** 'lun', 'mar'… de una fecha 'YYYY-MM-DD', sin que la zona horaria la mueva de día. */
+function diaSemana(date) {
+  const [y, m, d] = date.split('-').map(Number);
+  return ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][new Date(y, m - 1, d).getDay()];
 }
 
 // Por defecto el historial muestra el plan ACTIVO (vista limpia de siempre).
