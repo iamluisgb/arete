@@ -149,7 +149,6 @@ const ASSETS = [
   './js/ui/running-history.js',
   './js/ui/running-calendar.js',
   './js/ui/share-editor.js',
-  './js/ui/profile-card.js',
   './js/ui/running-progress.js',
   './js/ui/running-plan.js',
   './js/app.js',

@@ -398,17 +398,9 @@ function setBusy(b) {
   els.input.disabled = false;
 }
 
-// Sin clave el chat se puede usar igual: el primer envío pide la demo solo
-// (LLM.ensureKey). La pantalla de configuración sale únicamente cuando hoy no va a
-// haber demo automática, y dice por qué.
 function showSetupIfNeeded() {
-  const blocked = LLM.hasKey() ? null : LLM.autoDemoBlocked();
-  const needs = blocked !== null;
+  const needs = !LLM.hasKey();
   els.setup.hidden = !needs;
-  if (needs && blocked && els.setupStatus && !els.setupStatus.textContent) {
-    els.setupStatus.className = 'drive-status drive-error';
-    els.setupStatus.textContent = `No se pudo activar la demo: ${blocked}`;
-  }
   els.inputbar.style.display = needs ? 'none' : '';
   if (needs) els.chips.style.display = 'none';
   else updateChips();   // repone la fila de chips según convo/toggle (U2)
@@ -448,9 +440,8 @@ function renderQuota() {
 async function send(db, text, opts = {}) {
   const q = (text || '').trim();
   if (!q || busy) return;
+  if (showSetupIfNeeded()) return;
   if (!navigator.onLine) { toast('Quirón necesita conexión', 'error'); return; }
-  if (!(await keyReady())) return;
-  if (busy) return;   // otro envío ganó mientras se pedía la demo
 
   const userMsg = { role: 'user', content: q, ...newMsgStamp() };
   if (opts.label) userMsg.label = opts.label;
@@ -847,7 +838,7 @@ async function ingestFromImage(db, file, signal) {
 async function handleImage(db, file) {
   if (busy) return;
   if (!file || !file.type.startsWith('image/')) { toast('Selecciona una imagen', 'error'); return; }
-  if (!(await keyReady())) { openPanel(); return; }
+  if (showSetupIfNeeded()) { openPanel(); return; }
   if (!LLM.hasVision()) { toast('Configura un modelo de visión en Ajustes → Quirón', 'error'); return; }
   if (!navigator.onLine) { toast('Quirón necesita conexión', 'error'); return; }
 
@@ -1228,7 +1219,7 @@ function switchQuironTab(tab) {
   }
 }
 
-export function openPanel() {  // también app.js, para el enlace app.html#quiron
+function openPanel() {
   switchQuironTab('chat');
   els.panel.classList.add('open');
   document.body.classList.add('quiron-open');
@@ -1365,41 +1356,10 @@ function persistSettings() {
   renderSettingsIndex(dbRef);   // la fila "Quirón" del índice dice proveedor y modelo
 }
 
-// Lo que toca repintar cuando hay demo nueva, venga del botón o del primer envío.
-function onDemoReady() {
-  fillSettingsUI();            // repinta Ajustes con la config puesta
-  renderSettingsIndex(dbRef);
-  showSetupIfNeeded();         // el chat deja de pedir configuración
-}
-
-// ¿Hay clave para este turno? Sin clave pide la demo en el momento (un solo clic: el
-// de enviar). Si hoy no puede haberla, enseña la configuración con el motivo.
-async function keyReady() {
-  if (LLM.hasKey()) return true;
-  els.send.disabled = true;
-  const r = await LLM.ensureKey();
-  els.send.disabled = false;
-  if (r.ok) return true;
-  if (els.setupStatus && r.error) {
-    els.setupStatus.className = 'drive-status drive-error';
-    els.setupStatus.textContent = `No se pudo activar la demo: ${r.error}`;
-  }
-  showSetupIfNeeded();
-  return false;
-}
-
 // Demo self-service: un botón en Ajustes y otro en la pantalla de bienvenida del chat.
 // Los dos hacen lo mismo —pedir token y autoconfigurar— porque los dos son sitios
 // donde alguien se topa con "necesitas una API key" por primera vez.
 function wireDemoButtons() {
-  if (!wireDemoButtons.auto) {
-    wireDemoButtons.auto = true;
-    // La demo se activó sola en un envío: decirlo UNA vez, con cómo salir de ella.
-    window.addEventListener('llm:demo-auto', () => {
-      toast('Prueba gratuita de Quirón activada. Cuando quieras, pon tu propia clave en Ajustes → Quirón.', 'info');
-      onDemoReady();
-    });
-  }
   for (const [btn, out] of [[els.demoBtn, els.demoStatus], [els.setupDemoBtn, els.setupStatus]]) {
     if (!btn || btn.dataset.wired) continue;
     btn.dataset.wired = '1';
@@ -1409,7 +1369,9 @@ function wireDemoButtons() {
       try {
         await LLM.requestDemoToken();
         if (out) { out.className = 'drive-status drive-success'; out.textContent = '✓ Listo, ya puedes preguntar'; }
-        onDemoReady();
+        fillSettingsUI();            // repinta Ajustes con la config puesta
+        renderSettingsIndex(dbRef);
+        showSetupIfNeeded();         // el chat deja de pedir configuración
       } catch (e) {
         if (out) { out.className = 'drive-status drive-error'; out.textContent = `No se pudo activar la demo: ${e.message}`; }
         btn.disabled = false;

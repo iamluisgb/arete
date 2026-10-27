@@ -12,7 +12,6 @@ import {
   computeProfile, nextTest, formatMetric, bodyweight, unratedLifts, REP_CAP,
 } from '../domains.js';
 import { openTest } from './domain-test.js';
-import { openShareEditor, maybeCelebrateLevelUp } from './share-editor.js';
 
 let $level, $levelName, $limited, $radar, $next, $domains, $note;
 let _expanded = null;   // id del dominio desplegado, uno cada vez
@@ -242,10 +241,6 @@ export function renderProfile(db) {
   if (!$radar) return;
   const profile = computeProfile(db);
 
-  // Sin ningún dominio medido no hay tarjeta que enseñar.
-  const $share = document.getElementById('profShareBtn');
-  if ($share) $share.hidden = !profile.measured;
-
   renderHead(profile);
   renderRadar(profile);
   renderRadarTable(profile);
@@ -266,8 +261,6 @@ export function renderProfile(db) {
     ${sinPeso ? banner('Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.') : ''}
     ${sinEstimar.length ? banner(`Solo tienes series largas de ${lista}. Un 1RM estimado por encima de ${REP_CAP} repeticiones mide resistencia, no fuerza máxima, así que no se calcula. Registra una serie de ${REP_CAP} o menos y el dominio aparece solo.`) : ''}
     <div class="prof-calib">${esc(CALIBRATION_NOTE)}</div>`;
-
-  maybeCelebrateLevelUp(db);
 }
 
 export function initProfile(db) {
@@ -287,10 +280,6 @@ export function initProfile(db) {
     const id = head.closest('.prof-domain').dataset.domain;
     _expanded = _expanded === id ? null : id;   // uno abierto cada vez
     renderProfile(db);
-  });
-
-  document.getElementById('profShareBtn')?.addEventListener('click', () => {
-    openShareEditor(computeProfile(db), { mode: 'profile' });
   });
 
   $next.addEventListener('click', (e) => {

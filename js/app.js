@@ -18,7 +18,7 @@ import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
 import { renderDashboard, dismissStarter } from './ui/dashboard.js';
 import { initProfile, highlightDomain } from './ui/profile.js';
-import { initQuiron, openPanel as openQuiron } from './ui/quiron.js';
+import { initQuiron } from './ui/quiron.js';
 import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
 import { initRail, toggleRail } from './ui/rail.js';
 import { computeProfile } from './domains.js';
@@ -218,14 +218,6 @@ async function init() {
   }
   $maxHR.addEventListener('change', updateHRZonesPreview);
   updateHRZonesPreview();
-
-  // `app.html#quiron` (la landing) es un solo clic hasta el coach: sin bienvenida
-  // de tres pasos delante, el chat abierto y la demo pidiéndose en el primer envío.
-  const directoAQuiron = location.hash === '#quiron';
-  if (directoAQuiron) {
-    localStorage.setItem('areteOnboarded', '1');
-    history.replaceState(null, '', location.pathname + location.search);
-  }
 
   // Onboarding for first-time users
   if (!localStorage.getItem('areteOnboarded')) {
@@ -427,7 +419,6 @@ function bindEvents() {
     },
   });
   restoreLastTab(db);
-  if (directoAQuiron) openQuiron();
 
   // Program selector modal
   document.getElementById('ctxChip').addEventListener('click', () => {
