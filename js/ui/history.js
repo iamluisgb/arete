@@ -77,7 +77,7 @@ function renderItem(w) {
   // Es lo que se escanea al recorrer la lista, y en una columna fija las
   // sesiones quedan alineadas entre sí. La fecha completa va para el lector.
   return `<div class="history-item" data-id="${w.id}">
-      <div class="hi-when" aria-label="${formatDate(w.date)}"><span>${diaSemana(w.date)}</span><b>${parseInt(w.date.slice(8, 10))}</b><span>${MESES[parseInt(w.date.slice(5, 7)) - 1].slice(0, 3)}</span></div>
+      <div class="hi-when" aria-label="${formatDate(w.date)}"><span>${diaSemana(w.date)}</span><b>${parseInt(w.date.slice(8, 10))}</b><span>${MESES[parseInt(w.date.slice(5, 7)) - 1].slice(0, 3).toLowerCase()}</span></div>
       <div class="hi-body">
         <div class="hi-head"><span class="hi-name">${esc(w.session)}</span>${prBadge}<span class="hi-meta">${w.exercises.length} ejercicios · ${series} series</span></div>
         <div class="hi-session">${origen} ${plan}</div>

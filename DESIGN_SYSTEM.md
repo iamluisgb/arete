@@ -952,6 +952,10 @@ especificidad**, y eso es justo lo que pasó:
 
 ### 9.2d Historial, en papel (octubre de 2026)
 
+Las etiquetas siguen la regla del §7.4: en caja baja y en Inter. La mono es para los **datos**:
+cifras, series, fechas y ejes. Los filetes (`--color-line`, `--color-line-strong`) salen del marrón
+de texto con alfa, para que funcionen sobre cualquier superficie sin añadir colores sueltos.
+
 - **Pestañas subrayadas** en vez de segmentado: el segmentado queda para el modo Fuerza/Carrera, que
   es estado y no navegación. Así dejan de parecer la misma cosa.
 - **Filtros en píldora con borde**, clave en gris y valor en tinta. Siguen siendo `<select>`
