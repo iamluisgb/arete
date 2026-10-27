@@ -222,59 +222,118 @@ export function setDialogModality(el) {
   el.setAttribute('aria-modal', acoplado ? 'false' : 'true');
 }
 
+// ── Detalle de una sesión de fuerza ─────────────────────
+//
+// Antes era una copia en HTML de la tarjeta de compartir: todo centrado, en
+// rojo, con burbujas, el pie de marca y la letra encogida para que cupiera en
+// una pantalla. Desde que compartir dibuja su propia tarjeta (session-card.js),
+// esto ya no se fotografía: es para leer. Así que se lee de arriba abajo, el
+// rojo vuelve a ser solo récord, cada ejercicio cabe en una línea y dice cómo
+// fue respecto a la vez anterior, que es lo que se viene a mirar aquí.
+
+const kgOf = s => parseFloat(String(s?.kg ?? '').replace(',', '.')) || 0;
+const fmtKg = n => String(Math.round(n * 100) / 100).replace('.', ',');
+
+/** Series hechas de un ejercicio, sin los huecos que deja el formulario. */
+const doneSets = ex => (ex.sets || []).filter(s => kgOf(s) > 0 || String(s.reps ?? '').trim());
+
+/**
+ * Agrupa series iguales y consecutivas: tres de 110 × 3 son «3×3 · 110 kg».
+ * Una serie distinta abre otro grupo, así que la sesión se lee tal como se hizo.
+ */
+export function groupSets(sets) {
+  const groups = [];
+  for (const s of sets) {
+    const kg = kgOf(s);
+    const reps = String(s.reps ?? '').trim() || '—';
+    const last = groups[groups.length - 1];
+    if (last && last.kg === kg && last.reps === reps) last.count++;
+    else groups.push({ kg, reps, count: 1 });
+  }
+  return groups.map(g => `${g.count}×${g.reps}${g.kg > 0 ? ` · ${fmtKg(g.kg)} kg` : ''}`);
+}
+
+/** La carga más alta del ejercicio en la última sesión anterior a `w` que lo tenga. */
+export function previousTop(db, w, name) {
+  const before = (db.workouts || [])
+    .filter(x => x.id !== w.id && (x.date < w.date || (x.date === w.date && x.id < w.id)))
+    .sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : b.id - a.id));
+  for (const x of before) {
+    const ex = (x.exercises || []).find(e => e.name === name);
+    const top = ex ? Math.max(0, ...doneSets(ex).map(kgOf)) : 0;
+    if (top > 0) return { kg: top, date: x.date };
+  }
+  return null;
+}
+
+function detailDateLabel(date) {
+  const d = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return formatDate(date);
+  const txt = d.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'short' }).replace(',', '');
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+
+function exerciseRow(db, w, ex, isPR) {
+  const sets = doneSets(ex);
+  const top = Math.max(0, ...sets.map(kgOf));
+  let cmp = '';
+  if (isPR) cmp = '<span class="detail-ex-pr">Récord</span>';
+  else if (top > 0) {
+    const prev = previousTop(db, w, ex.name);
+    if (prev) {
+      const diff = top - prev.kg;
+      const when = formatDate(prev.date).slice(0, 5);
+      const txt = diff > 0 ? `+${fmtKg(diff)} kg` : diff < 0 ? `−${fmtKg(-diff)} kg` : 'Igual';
+      cmp = `<span class="detail-ex-cmp" title="Respecto al ${when}">${txt} <span class="detail-ex-when">vs ${when}</span></span>`;
+    }
+  }
+  const groups = sets.length ? groupSets(sets) : ['—'];
+  return `<li class="detail-ex">
+    <div class="detail-ex-head"><span class="detail-ex-name">${esc(ex.name)}</span>${cmp}</div>
+    <div class="detail-ex-sets">${groups.map(g => `<span>${esc(g)}</span>`).join('<span class="detail-ex-sep" aria-hidden="true">·</span>')}</div>
+  </li>`;
+}
+
 /** Open the workout detail modal for a given workout ID */
 export function showDetail(id, db) {
   detailWorkoutId = id;
   const w = db.workouts.find(x => x.id === id);
   if (!w) return;
-  const totalItems = w.exercises.reduce((a, e) => a + 1 + e.sets.length, 0);
-  let scale = totalItems <= 12 ? 1 : totalItems <= 18 ? .85 : totalItems <= 24 ? .72 : .62;
-  const fs = (base) => (base * scale).toFixed(2) + 'rem';
-  const gap = (base) => Math.round(base * scale) + 'px';
 
-  document.getElementById('detailDate').style.fontSize = fs(.82);
-  document.getElementById('detailSession').style.fontSize = fs(1.7);
-  document.getElementById('detailPhase').style.fontSize = fs(.68);
-  document.getElementById('detailDate').textContent = formatDate(w.date);
-  document.getElementById('detailSession').textContent = w.session;
-  document.getElementById('detailPhase').textContent = w.sessionId ? 'Tu sesión' : 'Fase ' + (ROMAN[w.phase - 1] || w.phase);
+  const planName = getProgramById(w.program || 'arete')?._meta?.name || '';
+  const phase = w.sessionId ? 'Tu sesión' : `Fase ${ROMAN[w.phase - 1] || w.phase}`;
+  document.getElementById('detailSession').textContent = w.session || 'Entrenamiento';
+  document.getElementById('detailMeta').textContent = [detailDateLabel(w.date), planName, phase].filter(Boolean).join(' · ');
 
-  let totalVol = 0, totalSets = 0, maxKg = 0;
   const prNames = new Set((w.prs || []).map(p => p.exercise));
-  const exHtml = w.exercises.map(e => {
-    const isPR = prNames.has(e.name);
-    const prTag = isPR ? `<span class="detail-pr-tag" style="font-size:${fs(.55)}">🏆 PR</span>` : '';
-    const hasKg = e.sets.some(s => parseFloat(s.kg) > 0);
-    const setsHtml = hasKg ? e.sets.map((s, i) => {
-      const kg = parseFloat(s.kg) || 0, reps = parseInt(s.reps) || 0;
-      totalVol += kg * reps; totalSets++; if (kg > maxKg) maxKg = kg;
-      return `<div class="detail-set-row" style="font-size:${fs(.9)}"><span class="detail-set-num">S${i + 1}</span><span class="detail-set-kg">${s.kg || '—'} kg</span><span class="detail-set-reps">× ${s.reps || '—'}</span></div>`;
-    }).join('') : `<div class="detail-set-single" style="font-size:${fs(.85)}">${e.sets[0]?.reps || '—'}</div>`;
-    return `<div><div class="detail-ex-name" style="font-size:${fs(.88)}"><span class="detail-ex-accent"></span>${esc(e.name)}${prTag}</div><div class="detail-sets">${setsHtml}</div></div>`;
-  }).join('');
-  const exContainer = document.getElementById('detailExercises');
-  exContainer.innerHTML = exHtml;
+  const exercises = (w.exercises || []).filter(e => doneSets(e).length);
+  const totalSets = exercises.reduce((a, e) => a + doneSets(e).length, 0);
+  const prCount = exercises.filter(e => prNames.has(e.name)).length;
+
+  const stats = [
+    { label: 'Ejercicios', value: exercises.length },
+    { label: 'Series', value: totalSets },
+    { label: prCount === 1 ? 'Récord' : 'Récords', value: prCount, hot: prCount > 0 },
+  ];
+  document.getElementById('detailStats').innerHTML = stats.map(s =>
+    `<div class="detail-stat${s.hot ? ' is-hot' : ''}"><span class="detail-stat-value">${s.value}</span><span class="detail-stat-label">${s.label}</span></div>`
+  ).join('');
+
+  document.getElementById('detailExercises').innerHTML =
+    exercises.map(e => exerciseRow(db, w, e, prNames.has(e.name))).join('');
 
   const notesEl = document.getElementById('detailNotes');
-  if (w.notes) { notesEl.textContent = '💬 ' + w.notes; notesEl.style.display = 'block'; notesEl.style.fontSize = fs(.75); }
-  else { notesEl.style.display = 'none'; }
-
-  const statsHtml = totalVol > 0 ? [
-    { label: 'Volumen', value: totalVol > 1000 ? (totalVol / 1000).toFixed(1) + 't' : Math.round(totalVol) + 'kg' },
-    { label: 'Series', value: totalSets },
-    { label: 'Máx peso', value: maxKg + 'kg' }
-  ].map(s => `<div class="detail-stat"><div class="detail-stat-value" style="font-size:${fs(1.4)}">${s.value}</div><div class="detail-stat-label" style="font-size:${fs(.65)}">${s.label}</div></div>`).join('') : `<div class="detail-stat"><div class="detail-stat-value" style="font-size:${fs(1.4)}">${w.exercises.length}</div><div class="detail-stat-label" style="font-size:${fs(.65)}">Ejercicios</div></div>`;
-  document.getElementById('detailStats').innerHTML = statsHtml;
-
-  document.querySelectorAll('.card-brand,.card-url').forEach(el => el.style.fontSize = fs(.68));
+  notesEl.textContent = w.notes || '';
+  notesEl.hidden = !w.notes;
 
   const modal = document.getElementById('detailModal');
   setDialogModality(modal);
   modal.classList.add('open');
+  modal.querySelector('.detail-view').scrollTop = 0;
   markSelected(id);
   const bb = document.getElementById('detailBtnBar'); bb.style.display = 'flex';
   const dbtn = document.getElementById('deleteBtn');
-  dbtn.dataset.confirm = 'false'; dbtn.textContent = 'Borrar'; dbtn.style.width = '70px';
+  dbtn.dataset.confirm = 'false'; dbtn.textContent = 'Borrar';
 }
 
 export function shareCard(db) {

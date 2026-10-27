@@ -894,33 +894,24 @@
   <button class="btn btn-outline" id="runProgramModalClose">Cerrar</button>
 </div></div>
 
-<div class="modal-overlay detail-modal" role="dialog" aria-modal="true" aria-label="Detalle de entrenamiento" id="detailModal"><div class="modal">
-  <div id="shareCard">
-    <div class="share-bubble-1"></div>
-    <div class="share-bubble-2"></div>
-    <div id="shareCardInner">
-      <div class="share-header">
-        <div>
-          <div id="detailDate"></div>
-          <div id="detailSession"></div>
-        </div>
-        <div id="detailPhase"></div>
+<div class="modal-overlay detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailSession" id="detailModal"><div class="modal">
+  <div class="detail-view">
+    <div class="detail-head">
+      <div class="detail-head-main">
+        <h3 class="detail-title" id="detailSession"></h3>
+        <p class="detail-meta" id="detailMeta"></p>
       </div>
-      <div id="detailExercises"></div>
-      <div id="detailNotes"></div>
-      <div id="detailStats"></div>
-      <div class="share-footer">
-        <div class="card-brand">ARETÉ</div>
-        <div class="card-url">·  arete.raiatech.com</div>
-      </div>
+      <button class="btn btn--ghost btn--icon detail-close-btn" type="button" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
     </div>
+    <div class="detail-stats" id="detailStats"></div>
+    <ol class="detail-exs" id="detailExercises" role="list"></ol>
+    <p class="detail-notes" id="detailNotes" hidden></p>
   </div>
 </div></div>
 <div class="detail-btn-bar" id="detailBtnBar">
-  <button class="btn btn-outline detail-close-btn">Cerrar</button>
-  <button class="btn detail-edit-btn" id="editBtn">Editar</button>
-  <button class="btn detail-share-btn" aria-label="Compartir"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">share</span> <span class="detail-share-label">Compartir</span></button>
-  <button id="deleteBtn" class="btn">Borrar</button>
+  <button id="deleteBtn" class="btn btn--ghost detail-delete-btn" type="button">Borrar</button>
+  <button class="btn btn--secondary detail-edit-btn" id="editBtn" type="button">Editar</button>
+  <button class="btn detail-share-btn" type="button" aria-label="Compartir"><span class="material-symbols-outlined" aria-hidden="true">ios_share</span><span class="detail-share-label">Compartir</span></button>
 </div>
 <div id="prCelebration">
   <div class="pr-card">

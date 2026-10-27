@@ -156,11 +156,13 @@ describe('markup audit (mobile visual fixes)', () => {
     expect(rule).toContain('grid-column:1/-1');
   });
 
-  // R2-2 (mismo caso): bajo 433px la etiqueta "Compartir" se oculta y queda
-  // solo el icono; el aria-label del botón es lo que sostiene la accesibilidad.
-  it('app.css oculta .detail-share-label bajo el breakpoint de 433px', () => {
+  // R2-2: con cuatro botones (Cerrar, Editar, Compartir, Borrar) la etiqueta
+  // se ocultaba bajo 433px. Cerrar pasó a la X de la cabecera y las tres que
+  // quedan caben con su texto a 320px: ocultarla dejaría un icono sin nombre
+  // visible en la acción principal.
+  it('la etiqueta Compartir del detalle ya no se oculta en móvil', () => {
     const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
-    expect(css).toContain('@media(max-width:433px){.detail-share-label{display:none}}');
+    expect(css).not.toContain('.detail-share-label{display:none}');
   });
 
   // D6 (memoria duradera): el atleta SIEMPRE ve lo que Quirón recuerda. Ahora
