@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Areté · demo de animación 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f4f2ef;--s1:#ffffff;--s2:#ebe7e3;--ink:#1d1b1a;--t2:#6b625d;--t3:#9a918b;--line:#ddd7d1;--r:14px}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;min-height:100dvh}
+  header{padding:16px 20px 4px;max-width:720px;width:100%;margin:0 auto}
+  h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .sub{margin:2px 0 0;font-size:13px;color:var(--t2)}
+  #stage{position:relative;flex:1;min-height:380px;max-width:720px;width:100%;margin:0 auto}
+  #stage canvas{display:block;width:100%;height:100%;touch-action:none}
+  .phase{position:absolute;left:20px;top:12px;font-size:13px;color:var(--t2);font-variant-numeric:tabular-nums}
+  .phase b{color:var(--ink);font-weight:600}
+  .hint{position:absolute;right:20px;top:12px;font-size:12px;color:var(--t3)}
+  .panel{max-width:720px;width:100%;margin:0 auto;padding:8px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);min-width:64px}
+  .seg{display:inline-flex;background:var(--s2);border-radius:999px;padding:3px}
+  .seg button{border:0;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--t2);padding:8px 14px;border-radius:999px;cursor:pointer;min-height:36px}
+  .seg button[aria-pressed="true"]{background:var(--s1);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .btn{border:0;font:inherit;font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:38px;background:var(--ink);color:#fff}
+  .btn.sec{background:var(--s2);color:var(--ink)}
+  .tempo{display:flex;gap:6px;flex-wrap:wrap}
+  .tempo span{font-size:13px;padding:5px 10px;border-radius:999px;background:var(--s2);color:var(--t2);font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+  .tempo span.on{background:var(--ink);color:#fff}
+  .note{font-size:12px;color:var(--t3);line-height:1.45;margin:2px 4px 0}
+  label.chk{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--t2);cursor:pointer;min-height:36px}
+  label.chk input{width:18px;height:18px;accent-color:var(--ink)}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header>
+  <h1>Animación de ejercicio en 3D</h1>
+  <p class="sub">Demo de la fase 0 · propuesta en docs/PROPUESTA-ANIMACIONES-3D.md</p>
+</header>
+
+<div id="stage">
+  <div class="phase" id="phase" aria-live="polite"></div>
+  <div class="hint">Arrastra para girar</div>
+</div>
+
+<div class="panel">
+  <div class="row"><span class="lbl">Ejercicio</span>
+    <div class="seg" id="exSeg">
+      <button type="button" data-ex="squat" aria-pressed="true">Sentadilla</button>
+      <button type="button" data-ex="deadlift" aria-pressed="false">Peso muerto</button>
+    </div>
+  </div>
+  <div class="row"><span class="lbl">Cámara</span>
+    <div class="seg" id="camSeg">
+      <button type="button" data-cam="side" aria-pressed="true">Lado</button>
+      <button type="button" data-cam="front" aria-pressed="false">Frente</button>
+      <button type="button" data-cam="three" aria-pressed="false">3/4</button>
+    </div>
+  </div>
+  <div class="row"><span class="lbl">Ritmo</span><div class="tempo" id="tempo"></div></div>
+  <div class="row">
+    <button class="btn" type="button" id="play">Pausa</button>
+    <div class="seg" id="speedSeg">
+      <button type="button" data-speed="1" aria-pressed="true">×1</button>
+      <button type="button" data-speed="0.5" aria-pressed="false">×0,5</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="trail" checked> Trayectoria de la barra</label>
+  </div>
+  <p class="note">El maniquí está hecho con piezas geométricas para la demo; el movimiento sale de tres poses clave y de dos reglas (pies quietos en el suelo y barra sobre el mediopié), y el resto lo calcula el programa. En la fase 1 se cambia por el modelo de Quaternius sin tocar las poses.</p>
+</div>
+
+<script type="module" src="demo.js"></script>
+</body>
+</html>
