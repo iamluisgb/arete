@@ -107,7 +107,7 @@ const EXERCISES = {
       for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (barOf(m).x < target) lo = m; else hi = m; }
       const tr = (lo + hi) / 2;
       const bar = barOf(tr);
-      return { A, K, H, tr, bar, wrist: add2(bar, v2(0.02, -0.06)), handDir: new THREE.Vector3(0.35, 1, 0), curl: -1 };
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(0.02, -0.06)), handDir: new THREE.Vector3(0.35, 1, 0), palm: new THREE.Vector3(1, -0.2, 0) };
     },
   },
   deadlift: {
@@ -138,7 +138,7 @@ const EXERCISES = {
         if (barClear(A, K, H, bar)) break;
       }
       const tr = Math.atan2(S.x - H.x, S.y - H.y) - M.torsoOff;
-      return { A, K, H, tr, bar, wrist: add2(bar, v2(-0.01, 0.075)), handDir: new THREE.Vector3(-0.15, -1, 0), curl: 1 };
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(-0.01, 0.075)), handDir: new THREE.Vector3(-0.15, -1, 0), palm: new THREE.Vector3(-1, 0, 0) };
     },
   },
 };
@@ -317,6 +317,30 @@ function twoBone(root, target, a, b, pole) {
 
 const Z = new THREE.Vector3(0, 0, 1);
 const V = (p, z = 0) => new THREE.Vector3(p.x, p.y, z);
+const wp = n => B[n].getWorldPosition(new THREE.Vector3());
+
+/**
+ * Mano cerrada sobre la barra. Primero gira la mano sobre el eje de sus dedos
+ * hasta que la palma mire hacia `palm` (delante en la sentadilla, atrás en el
+ * peso muerto); luego dobla cada falange alrededor del eje de los nudillos.
+ */
+function grip(k, palm) {
+  const hand = B['hand_' + k];
+  const along = wp('middle_01_' + k).sub(wp('hand_' + k)).normalize();
+  const across = wp('index_01_' + k).sub(wp('pinky_01_' + k)).normalize();
+  // Normal de la palma: perpendicular a dedos y nudillos, hacia el lado del pulgar flexionado.
+  const sideSign = k === 'l' ? 1 : -1;
+  const normal = new THREE.Vector3().crossVectors(along, across).multiplyScalar(sideSign).normalize();
+  const want = palm.clone().addScaledVector(along, -palm.dot(along)).normalize();
+  const ang = Math.atan2(new THREE.Vector3().crossVectors(normal, want).dot(along), normal.dot(want));
+  rotateWorld(hand, new THREE.Quaternion().setFromAxisAngle(along, ang));
+  const axis = wp('index_01_' + k).sub(wp('pinky_01_' + k)).normalize().multiplyScalar(sideSign);
+  for (const f of ['index', 'middle', 'ring', 'pinky']) {
+    for (const n of ['01', '02', '03']) {
+      rotateWorld(B[`${f}_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(axis, rad(n === '01' ? 45 : 60)));
+    }
+  }
+}
 
 function applyPose(ex, pose) {
   // 1. Reposo.
@@ -350,14 +374,79 @@ function applyPose(ex, pose) {
     aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
     aim(B['lowerarm_' + k], B['hand_' + k], wrist);
     aimDir(B['hand_' + k], B['middle_01_' + k], pose.handDir);
-    for (const f of ['index', 'middle', 'ring', 'pinky']) {
-      for (const n of ['01', '02', '03']) {
-        rotateWorld(B[`${f}_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(Z, pose.curl * rad(n === '01' ? 40 : 55)));
-      }
-    }
+    grip(k, pose.palm);
   }
 
   bar.position.set(pose.bar.x, pose.bar.y, 0);
+}
+
+// ── Proporciones clásicas ────────────────────────────────
+// El modelo viene con cuerpo de superhéroe: trapecios, deltoides y brazos de
+// culturista. El canon clásico (Policleto, los atletas romanos) es más
+// contenido: hombros anchos pero sin volumen de más, cuello largo, brazos y
+// muslos firmes y finos. Se esculpe una vez sobre la malla en reposo: cada
+// vértice se acerca al eje de sus huesos según cuánto sobra en esa zona. El
+// esqueleto no cambia, así que las poses valen igual.
+const SLIM = {
+  clavicle: 0.68, upperarm: 0.78, lowerarm: 0.87,
+  neck_01: 0.74, spine_03: 0.85, spine_02: 0.9, spine_01: 0.96,
+  thigh: 0.91, calf: 0.93,
+};
+const SLIM_CHILD = {
+  clavicle: 'upperarm', upperarm: 'lowerarm', lowerarm: 'hand',
+  neck_01: 'Head', spine_03: 'neck_01', spine_02: 'spine_03', spine_01: 'spine_02',
+  thigh: 'calf', calf: 'foot',
+};
+const proportions = [];       // { attr, athletic, classic } por malla
+
+function sculptClassic(mesh) {
+  const geo = mesh.geometry;
+  const pos = geo.attributes.position, si = geo.attributes.skinIndex, sw = geo.attributes.skinWeight;
+  const bones = mesh.skeleton.bones;
+  // Eje de cada hueso en el espacio de la malla, en reposo.
+  const toMesh = new THREE.Matrix4().copy(mesh.matrixWorld).invert();
+  const axis = bones.map(b => {
+    const base = b.name.replace(/_[lr]$/, '');
+    const f = SLIM[base];
+    if (!f) return null;
+    const side = b.name.endsWith('_l') ? '_l' : b.name.endsWith('_r') ? '_r' : '';
+    const child = B[SLIM_CHILD[base] + (['Head', 'neck_01', 'spine_02', 'spine_03'].includes(SLIM_CHILD[base]) ? '' : side)];
+    if (!child) return null;
+    const a = b.getWorldPosition(new THREE.Vector3()).applyMatrix4(toMesh);
+    const c = child.getWorldPosition(new THREE.Vector3()).applyMatrix4(toMesh);
+    return { a, d: c.clone().sub(a), f };
+  });
+  const athletic = pos.array.slice();
+  const out = pos.array.slice();
+  const v = new THREE.Vector3(), acc = new THREE.Vector3(), proj = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    acc.set(0, 0, 0);
+    let wsum = 0;
+    for (let k = 0; k < 4; k++) {
+      const w = sw.getComponent(i, k);
+      if (!w) continue;
+      const ax = axis[si.getComponent(i, k)];
+      if (ax) {
+        // Punto del eje más cercano y acercamiento radial hacia él.
+        const t = THREE.MathUtils.clamp(v.clone().sub(ax.a).dot(ax.d) / ax.d.lengthSq(), 0, 1);
+        proj.copy(ax.a).addScaledVector(ax.d, t);
+        acc.addScaledVector(proj.clone().lerp(v, ax.f), w);
+      } else {
+        acc.addScaledVector(v, w);
+      }
+      wsum += w;
+    }
+    if (wsum > 0) { acc.divideScalar(wsum); out[i * 3] = acc.x; out[i * 3 + 1] = acc.y; out[i * 3 + 2] = acc.z; }
+  }
+  proportions.push({ attr: pos, athletic, classic: out });
+}
+
+function setBuild(name) {
+  for (const p of proportions) {
+    p.attr.array.set(name === 'classic' ? p.classic : p.athletic);
+    p.attr.needsUpdate = true;
+  }
 }
 
 // ── Acabados ─────────────────────────────────────────────
@@ -391,6 +480,9 @@ async function loadModel() {
   hair.applyMatrix4(toHead);
   hair.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   B.Head.add(hair);
+
+  model.traverse(o => { if (o.isSkinnedMesh && o.material.name.includes('Superhero')) sculptClassic(o); });
+  setBuild('classic');
 
   for (const [k, make] of Object.entries(FINISHES)) finishMats[k] = make(normalMap);
   setFinish('marble');
@@ -448,6 +540,7 @@ segGroup('exSeg', d => setEx(d.ex));
 segGroup('camSeg', d => setCam(d.cam));
 segGroup('speedSeg', d => { speed = parseFloat(d.speed); });
 segGroup('finishSeg', d => setFinish(d.finish));
+segGroup('buildSeg', d => setBuild(d.build));
 document.getElementById('play').addEventListener('click', e => {
   playing = !playing;
   e.currentTarget.textContent = playing ? 'Pausa' : 'Seguir';
@@ -503,7 +596,8 @@ window.__demo = {
   ready: () => !!model,
   pause: () => { playing = false; },
   setTime: x => { t = x; },
-  setEx, setCam, setFinish,
+  setEx, setCam, setFinish, setBuild,
+  buildInfo: () => proportions.map(p => { let m = 0; for (let i = 0; i < p.classic.length; i++) m = Math.max(m, Math.abs(p.classic[i] - p.athletic[i])); return { n: p.classic.length / 3, maxMove: m }; }),
   debug: () => {
     const p = ex.pose(sAt(t).s);
     const w = n => { const v = B[n].getWorldPosition(new THREE.Vector3()); return [v.x, v.y, v.z]; };
