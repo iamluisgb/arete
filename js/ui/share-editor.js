@@ -8,6 +8,7 @@ import {
   readSeen, markSeen, levelUpSince,
 } from './profile-card.js';
 import { sessionCardData, sessionPresets, renderSessionCard, sessionShareText } from './session-card.js';
+import { loadLogo, logo } from './card-kit.js';
 
 // ── State ───────────────────────────────────────────────────
 let _data = null;       // normalized data
@@ -312,8 +313,10 @@ function drawBrandingTopRight(ctx, W, theme) {
   ctx.textBaseline = 'middle';
   ctx.letterSpacing = '0.08em';
   ctx.fillText('ARETÉ', x, y);
+  const wordW = ctx.measureText('ARETÉ').width;
   ctx.letterSpacing = '0em';
   ctx.restore();
+  logo(ctx, W - 60 - wordW - 12 - 42, y - 21, 42);
 }
 
 function drawBranding(ctx, W, y, theme) {
@@ -325,8 +328,14 @@ function drawBranding(ctx, W, y, theme) {
   ctx.moveTo(W / 2 - 28, y - 18);
   ctx.lineTo(W / 2 + 28, y - 18);
   ctx.stroke();
-  // ARETÉ
-  drawText(ctx, 'ARETÉ', W / 2, y, { size: 18, weight: 700, color: t.brandAccent, spacing: 0.2, upper: true, align: 'center' });
+  // Icono + ARETÉ, centrados juntos.
+  ctx.save(); ctx.font = `700 18px ${FONT}`; ctx.letterSpacing = '0.2em';
+  const wordW = ctx.measureText('ARETÉ').width;
+  ctx.restore();
+  const s = 28, gap = 8;
+  const left = W / 2 - (s + gap + wordW) / 2;
+  const hasLogo = logo(ctx, left, y - s / 2, s);
+  drawText(ctx, 'ARETÉ', hasLogo ? left + s + gap + wordW / 2 : W / 2, y, { size: 18, weight: 700, color: t.brandAccent, spacing: 0.2, upper: true, align: 'center' });
 }
 
 function drawRoundedRect(ctx, x, y, w, h, r) {
@@ -623,6 +632,7 @@ async function renderToCanvas({ animate = false } = {}) {
       if (isAnimated()) await document.fonts.load(`900 72px ${FONT}`);
     } catch {}
   }
+  await loadLogo();
 
   if (isAnimated()) {
     stopAnimation();

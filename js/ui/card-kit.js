@@ -93,8 +93,55 @@ export function background(ctx, W, H, th) {
   ctx.fillStyle = r; ctx.fillRect(0, 0, W, H);
 }
 
-export const brand = (ctx, x, y, th, align = 'right', size = 30) =>
-  text(ctx, 'ARETÉ', x, y, { size, weight: 800, color: th.accent, align, spacing: 0.1, italic: true });
+// ── Logo ─────────────────────────────────────────────────
+// El icono de la app junto a la palabra. El lienzo dibuja en síncrono, así que
+// la imagen se precarga (loadLogo, que el editor espera con las fuentes); si
+// aún no está o no carga, la marca queda en solo texto, como antes.
+const LOGO_SRC = 'assets/icons/icon-192.png';
+let _logo = null;
+
+export function loadLogo() {
+  if (_logo) return _logo.ready;
+  if (typeof Image === 'undefined') return Promise.resolve();
+  const img = new Image();
+  const ready = new Promise(resolve => {
+    img.onload = resolve;
+    img.onerror = resolve;
+    // jsdom y algún navegador raro no disparan ninguno de los dos.
+    setTimeout(resolve, 2000);
+  });
+  img.src = LOGO_SRC;
+  _logo = { img, ready };
+  return ready;
+}
+
+const logoReady = () => !!(_logo?.img.complete && _logo.img.naturalWidth > 0);
+
+/** El icono, cuadrado y con las esquinas de icono de app, con su esquina superior izquierda en (x, y). */
+export function logo(ctx, x, y, s) {
+  if (!logoReady()) return false;
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x, y, s, s, s * 0.22);
+  ctx.clip();
+  ctx.drawImage(_logo.img, x, y, s, s);
+  ctx.restore();
+  return true;
+}
+
+/**
+ * Icono + «ARETÉ». `x` es el borde que dice `align` (o el centro), `y` el centro
+ * vertical. Con `withLogo: false` solo la palabra: el icono va una vez por tarjeta.
+ */
+export function brand(ctx, x, y, th, align = 'right', size = 30, { withLogo = true } = {}) {
+  const word = { size, weight: 800, color: th.accent, spacing: 0.1, italic: true };
+  if (!withLogo || !logoReady()) { text(ctx, 'ARETÉ', x, y, { ...word, align }); return; }
+  const s = Math.round(size * 1.7), gap = Math.round(size * 0.4);
+  const total = s + gap + textWidth(ctx, 'ARETÉ', size, 800, 0.1);
+  const left = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x;
+  logo(ctx, left, y - s / 2, s);
+  text(ctx, 'ARETÉ', left + s + gap, y, { ...word, align: 'left' });
+}
 
 /** Fecha corta para el encabezado: «27 oct». */
 export function shortDate(iso) {

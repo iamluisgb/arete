@@ -2,9 +2,13 @@
 //
 // Las anteriores eran una lista de ejercicios en la mitad de arriba de un lienzo
 // negro: nada que leer de un vistazo en un Story, el récord como una etiqueta
-// "PR" de 18 px y ningún enlace. Estas tienen una cifra protagonista (el volumen,
-// el récord, el tiempo), el récord en rojo y en grande —el rojo es récord y
-// dominio, nada más—, y un pie con la marca y la dirección.
+// "PR" de 18 px y ningún enlace. Estas tienen el récord en rojo y en grande —el
+// rojo es récord y dominio, nada más—, y un pie con la marca y la dirección.
+//
+// La de fuerza no tiene cifra protagonista: es la sesión en el orden en que se
+// hizo. Abría con el volumen (kg × reps sumados), y es un número que no dice
+// nada: suma ejercicios que no se pueden sumar, una dominada lastrada cuenta
+// solo el lastre y en la fase de fuerza baja justo cuando subes de peso.
 //
 // Las barras son honestas: empiezan en cero. 100 → 102,5 kg se ve como lo que
 // es, una subida pequeña; inventarle un eje que la agrande sería mentir.
@@ -122,20 +126,14 @@ export function sessionCardData(w) {
   const exercises = w.exercises || [];
   const hiitEx = exercises.find(isHiitEx);
 
-  let totalSets = 0, volume = 0;
-  for (const ex of exercises) {
-    for (const s of (ex.sets || [])) {
-      totalSets++;
-      volume += num(s.kg) * (parseInt(s.reps) || 0);
-    }
-  }
+  let totalSets = 0;
+  for (const ex of exercises) totalSets += (ex.sets || []).length;
 
   return {
     kind: hiitEx ? 'hiit' : 'strength',
     name: w.session || (hiitEx ? 'HIIT' : 'Entrenamiento'),
     date: shortDate(w.date),
     totalSets,
-    volume,
     prs,
     exercises: hiitEx ? [] : exercises.map(ex => strengthExercise(ex, prs)).filter(e => e.sets.length),
     hiit: hiitEx ? hiitBlock(hiitEx) : null,
@@ -153,7 +151,13 @@ export function sessionShareText(d) {
     const p = d.prs[0];
     return `Récord en ${p.exercise.toLowerCase()}: ${fmtNum(p.kg)} kg. ${link}`;
   }
-  return d.volume ? `${fmtNum(d.volume, 0)} kg levantados hoy. ${link}` : `${d.name}. ${link}`;
+  const names = d.exercises.map(e => e.name.toLowerCase());
+  if (!names.length) return `${d.name}. ${link}`;
+  const shown = names.slice(0, 3);
+  const rest = names.length - shown.length;
+  const list = rest > 0 ? `${shown.join(', ')} y ${rest} más`
+    : shown.length > 1 ? `${shown.slice(0, -1).join(', ')} y ${shown[shown.length - 1]}` : shown[0];
+  return `${d.name}: ${list}. ${link}`;
 }
 
 // ── Dibujo: piezas comunes ───────────────────────────────
@@ -176,16 +180,16 @@ function footer(ctx, W, L, th, t) {
   ctx.save(); ctx.globalAlpha = a;
   ctx.fillStyle = th.sub(.1); ctx.fillRect(L.pad, L.foot - (L.sq ? 32 : 44), W - 2 * L.pad, 2);
   ctx.restore();
-  brand(ctx, L.pad, L.foot, th, 'left', L.sq ? 24 : 28);
+  brand(ctx, L.pad, L.foot, th, 'left', L.sq ? 24 : 28, { withLogo: false });
   text(ctx, SHARE_URL, W - L.pad, L.foot, { size: L.sq ? 22 : 26, weight: 600, color: th.sub(.55), align: 'right', alpha: a });
 }
 
-/** Una línea de segmentos centrada, cada uno con su color: "12 series · 2 récords". */
-function segments(ctx, parts, cx, y, size, alpha) {
+/** Una línea de segmentos, cada uno con su color: "12 series · 2 récords". Centrada en `cx`, o desde `cx` si align es 'left'. */
+function segments(ctx, parts, cx, y, size, alpha, align = 'center') {
   const sep = '  ·  ';
   const widths = parts.map(p => textWidth(ctx, p.s, size, 600));
   const sepW = textWidth(ctx, sep, size, 600);
-  let x = cx - (widths.reduce((a, b) => a + b, 0) + sepW * (parts.length - 1)) / 2;
+  let x = align === 'left' ? cx : cx - (widths.reduce((a, b) => a + b, 0) + sepW * (parts.length - 1)) / 2;
   parts.forEach((p, i) => {
     text(ctx, p.s, x, y, { size, weight: 600, color: p.color, align: 'left', alpha });
     x += widths[i];
@@ -225,25 +229,20 @@ const kickerOf = d => [d.name, d.date].filter(Boolean).join(' · ');
 function strengthSummary(ctx, W, H, d, th, t) {
   const L = layout(W, H);
   background(ctx, W, H, th);
-  header(ctx, W, L, th, kickerOf(d));
+  header(ctx, W, L, th, d.date || 'Sesión');
+  title(ctx, W, L, d.name, th);
 
-  // La cifra: el volumen. Una sesión solo de peso corporal cuenta series.
-  const a = span(t, 0.05, 0.5);
-  const byVolume = d.volume > 0;
-  const heroVal = byVolume ? fmtNum(Math.round(d.volume * a), 0) : String(Math.round(d.totalSets * a));
-  text(ctx, byVolume ? 'levantado hoy' : 'hoy', W / 2, L.sq ? 180 : 245, { size: L.sq ? 26 : 32, weight: 600, color: th.sub(.5), spacing: 0.04, alpha: a });
-  text(ctx, heroVal, W / 2, L.sq ? 275 : 390, { size: L.sq ? 140 : 200, weight: 900, color: th.text, italic: true });
-  text(ctx, byVolume ? 'kilos' : 'series', W / 2, L.sq ? 365 : 520, { size: L.sq ? 32 : 44, weight: 800, color: th.sub(.6), italic: true, alpha: a });
-
-  const parts = [{ s: `${d.totalSets} series`, color: th.sub(.6), sepColor: th.sub(.3) }];
-  parts.push({ s: `${d.exercises.length} ejercicio${d.exercises.length === 1 ? '' : 's'}`, color: th.sub(.6), sepColor: th.sub(.3) });
+  const parts = [{ s: `${d.exercises.length} ejercicio${d.exercises.length === 1 ? '' : 's'}`, color: th.sub(.6), sepColor: th.sub(.3) }];
+  parts.push({ s: `${d.totalSets} series`, color: th.sub(.6), sepColor: th.sub(.3) });
   if (d.prs.length) parts.push({ s: recordsTxt(d.prs.length), color: th.accent, sepColor: th.sub(.3) });
-  segments(ctx, parts, W / 2, L.sq ? 420 : 590, L.sq ? 24 : 30, span(t, 0.2, 0.5));
+  segments(ctx, parts, L.pad, L.sq ? 225 : 290, L.sq ? 24 : 30, span(t, 0.1, 0.4), 'left');
 
-  const top = L.sq ? 460 : 680, bottom = L.foot - (L.sq ? 60 : 90);
-  const maxRows = L.sq ? 4 : 6;
+  // Los ejercicios en el orden en que se hicieron, que es como se recuerda la sesión.
+  const top = L.sq ? 270 : 350, bottom = L.foot - (L.sq ? 60 : 90);
+  const maxRows = L.sq ? 5 : 8;
   const rows = d.exercises.slice(0, maxRows);
-  const rowH = Math.min(L.sq ? 112 : 160, (bottom - top) / Math.max(rows.length, 1));
+  // Con pocos ejercicios las filas crecen: en un Story, media tarjeta vacía no dice nada.
+  const rowH = Math.min(L.sq ? 112 : 230, (bottom - top) / Math.max(rows.length, 1));
   const nameSize = L.sq ? 28 : 34, bestSize = L.sq ? 32 : 40;
 
   rows.forEach((ex, i) => {
@@ -331,7 +330,7 @@ function strengthRecord(ctx, W, H, d, th, t) {
       y += L.sq ? 50 : 70;
     }
   }
-  const summary = [d.name, `${d.totalSets} series`, d.volume ? `${fmtNum(d.volume, 0)} kg` : ''].filter(Boolean).join('  ·  ');
+  const summary = [d.name, `${d.exercises.length} ejercicios`, `${d.totalSets} series`].join('  ·  ');
   text(ctx, summary, W / 2, L.foot - (L.sq ? 80 : 120), { size: L.sq ? 22 : 26, weight: 600, color: th.sub(.45), alpha: span(t, 0.75, 0.95) });
   footer(ctx, W, L, th, t);
 }
@@ -389,8 +388,8 @@ function strengthDetail(ctx, W, H, d, th, t) {
 
   let y = L.sq ? 225 : 290;
   y += bento(ctx, [
+    { label: 'ejercicios', value: g => String(Math.round(d.exercises.length * g)) },
     { label: 'series', value: g => String(Math.round(d.totalSets * g)) },
-    { label: 'volumen', value: g => (d.volume ? `${fmtNum(Math.round(d.volume * g), 0)} kg` : '—') },
     { label: 'récords', value: String(d.prs.length), hot: d.prs.length > 0 },
   ], L.pad, y, W - 2 * L.pad, L.sq ? 120 : 160, 3, th, t, L);
   y += L.sq ? 40 : 60;

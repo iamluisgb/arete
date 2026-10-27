@@ -48,9 +48,9 @@ describe('formato', () => {
 describe('sesión de fuerza', () => {
   const d = sessionCardData(FUERZA);
 
-  it('el volumen solo cuenta series con peso', () => {
+  it('no hay volumen: la tarjeta es la sesión, no una suma de kilos', () => {
     expect(d.kind).toBe('strength');
-    expect(d.volume).toBe(100 * 5 + 102.5 * 5);
+    expect(d).not.toHaveProperty('volume');
   });
 
   it('un ejercicio sin nada escrito no sale en la tarjeta', () => {
@@ -78,9 +78,15 @@ describe('sesión de fuerza', () => {
     expect(sessionShareText(d)).toBe('Récord en sentadilla: 102,5 kg. Entreno con Areté → https://arete.raiatech.com/?ref=sesion');
   });
 
+  it('sin récord, el texto dice los ejercicios en el orden en que se hicieron', () => {
+    const sin = sessionCardData({ ...FUERZA, prs: [] });
+    expect(sessionShareText(sin)).toBe('Sesión A: sentadilla, dominada prono y plancha abdominal. Entreno con Areté → https://arete.raiatech.com/?ref=sesion');
+    const largo = sessionCardData({ session: 'B', exercises: ['A', 'B', 'C', 'D', 'E'].map(n => ({ name: n, sets: [{ kg: '50', reps: '5' }] })) });
+    expect(sessionShareText(largo)).toContain('B: a, b, c y 2 más.');
+  });
+
   it('acepta números además de texto (lo que pueda traer una ingesta)', () => {
     const n = sessionCardData({ exercises: [{ name: 'Press', sets: [{ kg: 60, reps: 5 }] }] });
-    expect(n.volume).toBe(300);
     expect(n.exercises[0].best).toBe('60 kg × 5');
   });
 });
