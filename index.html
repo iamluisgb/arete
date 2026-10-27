@@ -89,6 +89,8 @@
   .cta-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:36px;flex-wrap:wrap}
   .btn-primary{display:inline-flex;align-items:center;gap:9px;font:600 16px var(--font);background:var(--accent);color:#fff;padding:15px 28px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 8px 24px var(--accent-glow)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px var(--accent-glow)}
+  .btn-ghost{display:inline-flex;align-items:center;gap:9px;font:600 16px var(--font);color:var(--ink);padding:14px 26px;border-radius:999px;border:1px solid var(--line);background:var(--card);transition:transform .15s ease;white-space:nowrap}
+  .btn-ghost:hover{transform:translateY(-2px)}
   .cta-note{margin-top:15px;font-size:13.5px;color:var(--ink-faint)}
   .beat-visual{margin:clamp(44px,7vh,72px) auto 0}
   .alt{background:var(--bg-soft);border-block:1px solid var(--line)}
@@ -258,6 +260,9 @@
         <a class="btn-primary" href="app.html">Empezar
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
         </a>
+        <!-- Un clic hasta el coach: app.html#quiron salta la bienvenida y abre el chat;
+             la demo sin clave se pide sola en el primer envío. -->
+        <a class="btn-ghost" href="app.html#quiron">Pregunta a tu coach</a>
       </div>
       <p class="cta-note">Gratis. Sin cuenta. Sin anuncios.</p>
     </div>

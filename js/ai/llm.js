@@ -123,6 +123,53 @@ export async function requestDemoToken() {
   return body;
 }
 
+// ---- Demo automática ----------------------------------------------------------
+// Un solo clic: quien abre Quirón sin clave escribe y envía; si no hay clave, la demo se
+// pide sola en ese momento y el turno sigue. Es el `ensureKey` de bookreader.
+//
+// En el momento de USARLO, no al cargar: el gateway da una demo por red y día y tiene un
+// disyuntor de emisión diaria, así que pedirla en cada visita gastaría el cupo para nada.
+// Un fallo («esta red ya tuvo su demo hoy», disyuntor, red) se recuerda HASTA MAÑANA, o
+// cada envío volvería a preguntar lo mismo al gateway.
+const AUTO_FAIL_KEY = 'areteAiDemoAutoFailed';
+let autoDemo = null;
+
+// Un navegador automatizado (Playwright, un bot) no pide demos solo: cada test que abre
+// Quirón sin clave gastaría una demo real del gateway de producción.
+const autoAllowed = () => !navigator.webdriver || localStorage.getItem('areteAiDemoAutoWebdriver') === '1';
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** Motivo por el que hoy no habrá demo automática ('' si no lo hay), o null si sí la habrá. */
+export function autoDemoBlocked() {
+  if (!autoAllowed()) return '';
+  let failed = null;
+  try { failed = JSON.parse(localStorage.getItem(AUTO_FAIL_KEY) || 'null'); } catch { /* corrupto */ }
+  return failed && failed.day === today() ? (failed.error || '') : null;
+}
+
+/** Deja una clave puesta (la del atleta o una demo nueva). → { ok, auto, error } */
+export function ensureKey() {
+  if (hasKey()) return Promise.resolve({ ok: true, auto: false });
+  const blocked = autoDemoBlocked();
+  if (blocked !== null) return Promise.resolve({ ok: false, auto: false, error: blocked });
+  // Dos envíos seguidos comparten UNA petición.
+  if (!autoDemo) {
+    autoDemo = requestDemoToken().then(
+      (body) => {
+        localStorage.removeItem(AUTO_FAIL_KEY);
+        window.dispatchEvent?.(new CustomEvent('llm:demo-auto', { detail: body }));
+        return { ok: true, auto: true };
+      },
+      (e) => {
+        localStorage.setItem(AUTO_FAIL_KEY, JSON.stringify({ day: today(), error: e.message }));
+        return { ok: false, auto: true, error: e.message };
+      },
+    ).finally(() => { autoDemo = null; });
+  }
+  return autoDemo;
+}
+
 // Reparación de un estado imposible: un token `br-…` es del gateway y solo vale ahí.
 // Verlo junto a otra base URL significa que Ajustes lo movió de sitio (guardar con la
 // demo activa y otro proveedor en el desplegable), y el síntoma es un 401 en todo con

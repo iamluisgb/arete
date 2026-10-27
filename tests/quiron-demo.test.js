@@ -229,3 +229,70 @@ describe('Quirón · cupo de la prueba gratuita', () => {
     });
   });
 });
+
+// Un solo clic hasta Quirón: sin clave el chat se usa igual y el primer envío pide la
+// demo (el `ensureKey` de bookreader). Al USARLO, no al cargar: el gateway da una demo
+// por red y día, y pedirla en cada visita la gastaría para nada.
+describe('Quirón · demo automática', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('sin clave el chat no pide configurar: se escribe y se envía', async () => {
+    await cargar();
+    document.getElementById('navQuiron').click();
+    expect(document.getElementById('quironSetup').hidden).toBe(true);
+    expect(document.getElementById('quironInputBar').style.display).toBe('');
+  });
+
+  it('cargar la app no gasta demo; usarla la pide una sola vez', async () => {
+    const calls = stubDemoToken();
+    const LLM = await cargar();
+    expect(calls).toHaveLength(0);
+
+    const [a, b] = await Promise.all([LLM.ensureKey(), LLM.ensureKey()]);
+    expect(a).toMatchObject({ ok: true, auto: true });
+    expect(b).toMatchObject({ ok: true });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].body).toEqual({ product: 'arete' });
+    expect(LLM.isDemo()).toBe(true);
+    expect(LLM.getKey()).toBe('br-demo-abc');
+  });
+
+  it('con clave propia no toca el gateway', async () => {
+    const calls = stubDemoToken();
+    const LLM = await cargar({ areteAiKey: 'sk-mia', areteAiBaseUrl: NAN });
+    expect(await LLM.ensureKey()).toEqual({ ok: true, auto: false });
+    expect(calls).toHaveLength(0);
+  });
+
+  it('un rechazo se recuerda hasta mañana y saca la configuración con el motivo', async () => {
+    const calls = stubDemoToken({ error: { message: 'Esta red ya tiene una demo hoy' } }, 429);
+    const LLM = await cargar();
+    const r = await LLM.ensureKey();
+    expect(r).toMatchObject({ ok: false, error: 'Esta red ya tiene una demo hoy' });
+    expect(await LLM.ensureKey()).toMatchObject({ ok: false, auto: false });
+    expect(calls).toHaveLength(1);
+
+    // Al volver a abrir la app ese día, el chat ya enseña por qué y cómo seguir.
+    await cargar({ areteAiDemoAutoFailed: localStorage.getItem('areteAiDemoAutoFailed') });
+    document.getElementById('navQuiron').click();
+    expect(document.getElementById('quironSetup').hidden).toBe(false);
+    expect(document.getElementById('quironSetupStatus').textContent).toContain('Esta red ya tiene una demo hoy');
+  });
+
+  it('un rechazo de ayer no cuenta hoy', async () => {
+    const calls = stubDemoToken();
+    const LLM = await cargar({ areteAiDemoAutoFailed: JSON.stringify({ day: '2000-01-01', error: 'x' }) });
+    expect(await LLM.ensureKey()).toMatchObject({ ok: true, auto: true });
+    expect(calls).toHaveLength(1);
+  });
+
+  it('un navegador automatizado no pide demos solo', async () => {
+    const calls = stubDemoToken();
+    vi.stubGlobal('navigator', { ...navigator, webdriver: true, onLine: true });
+    const LLM = await cargar();
+    expect(await LLM.ensureKey()).toMatchObject({ ok: false });
+    expect(calls).toHaveLength(0);
+    document.getElementById('navQuiron').click();
+    expect(document.getElementById('quironSetup').hidden).toBe(false);
+  });
+});

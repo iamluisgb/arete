@@ -18,7 +18,7 @@ import { initToast, toast } from './ui/toast.js';
 import { initRunning } from './ui/running.js';
 import { renderDashboard, dismissStarter } from './ui/dashboard.js';
 import { initProfile, highlightDomain } from './ui/profile.js';
-import { initQuiron } from './ui/quiron.js';
+import { initQuiron, openPanel as openQuiron } from './ui/quiron.js';
 import { initShortcuts, toggleShortcutSheet } from './ui/shortcuts.js';
 import { initRail, toggleRail } from './ui/rail.js';
 import { computeProfile } from './domains.js';
@@ -219,6 +219,14 @@ async function init() {
   $maxHR.addEventListener('change', updateHRZonesPreview);
   updateHRZonesPreview();
 
+  // `app.html#quiron` (la landing) es un solo clic hasta el coach: sin bienvenida
+  // de tres pasos delante, el chat abierto y la demo pidiéndose en el primer envío.
+  const directoAQuiron = location.hash === '#quiron';
+  if (directoAQuiron) {
+    localStorage.setItem('areteOnboarded', '1');
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
   // Onboarding for first-time users
   if (!localStorage.getItem('areteOnboarded')) {
     const $ob = document.getElementById('onboarding');
@@ -284,6 +292,7 @@ async function init() {
 
   document.getElementById('appVersion').textContent = `Versión ${APP_VERSION}`;
   bindEvents();
+  if (directoAQuiron) openQuiron();
 
   // Sync indicator
   const syncEl = document.getElementById('syncIndicator');
@@ -591,9 +600,13 @@ if ('serviceWorker' in navigator) {
     });
   }).catch(e => console.log('SW failed', e));
 
-  // Reload when new SW takes over
+  // Reload when new SW takes over. La PRIMERA toma de control (primera visita, sin SW
+  // previo) no sustituye nada: la página ya vino de la red. Recargar ahí tiraba lo que
+  // el atleta acababa de abrir, como el chat de app.html#quiron.
   let refreshing = false;
+  let controlled = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!controlled) { controlled = true; return; }
     if (!refreshing) { refreshing = true; scheduleAppReload(); }
   });
 }

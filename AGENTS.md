@@ -324,6 +324,14 @@ botón *Probar Quirón* pide un token al **gateway de bookreader**
 (`workers/gateway` en aquel repo, ADR-021) y autoconfigura los tres slots; el atleta no ve
 token ni URLs. Lo que hay que saber:
 
+- **Un solo clic: el de enviar.** Sin clave, el chat se usa igual y el primer envío pide la
+  demo solo (`ensureKey` en `llm.js`, el mismo de bookreader). Se pide al USARLO, nunca al
+  cargar: el gateway da una demo por red y día, y pedirla en cada visita la gastaría. Un
+  rechazo se recuerda hasta mañana (`areteAiDemoAutoFailed`) y solo entonces sale la
+  pantalla de configuración, con el motivo. Un navegador automatizado (`navigator.webdriver`)
+  no pide demos solo: cada test de Playwright gastaría una real de producción.
+- **`app.html#quiron`** es la entrada desde la landing («Pregunta a tu coach»): salta la
+  bienvenida de tres pasos, abre el chat y limpia el fragmento.
 - El gateway ata cada token a su **producto**: los de arete solo pueden usar los alias
   `arete-fast` / `arete-vision` (que apuntan a deepseek-v4-flash y qwen3.6). Por eso
   `requestDemoToken` manda `{"product":"arete"}` — sin eso emitiría un token de bookreader,
