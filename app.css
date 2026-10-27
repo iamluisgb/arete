@@ -466,7 +466,8 @@ select{cursor:pointer}
 .kv{display:flex;flex-direction:column}
 .kv-row{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-4);
   padding:var(--sp-3) 0;border-bottom:1px solid var(--color-line)}
-.kv-k{color:var(--color-text-secondary)}
+.kv-k{font:var(--type-body);color:var(--color-text-primary)}
+.kv-k small{color:var(--color-text-secondary)}
 .kv-k small{font:var(--type-caption)}
 .kv-v{font:500 var(--fs-md)/1.3 var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
@@ -3149,6 +3150,15 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    una sola, topada a 560, dejaba a su derecha el hueco de otra. */
 #exerciseList{grid-template-columns:minmax(0,1fr)}
 #exerciseList>*{max-width:none}
+}
+/* ── Cuerpo en escritorio: la misma columna ──────────────────────────────
+   Con la gráfica en 7 y las calorías en 5, la columna de calorías medía el
+   doble que la gráfica y debajo de esta quedaba un hueco de 250 px. En una
+   columna cada bloque mide lo que mide, y Cuerpo se alinea con Entrenar. */
+@media(min-width:1024px){
+#secBody{max-width:var(--measure-column);margin-inline:auto}
+#secBody .cols>*{grid-column:1/-1}
+#secBody .body-calc-args{max-width:var(--measure-form)}
 }
 
 }

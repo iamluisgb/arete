@@ -281,11 +281,22 @@ export function renderWeightChart(db) {
   for (let v = lo; v <= hi; v += step) {
     grid.push(`<line class="wc-grid${v === lo ? ' wc-base' : ''}" x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="wc-axis" x="0" y="${(y(v) + 4).toFixed(1)}">${v}</text>`);
   }
-  // Una etiqueta por mes, en el primer registro de cada uno.
+  // Una etiqueta por mes, en el día 1 de cada uno: es un eje de tiempo, no de
+  // registros. Con la etiqueta en el primer registro del mes, un mes sin
+  // medidas no aparecía y feb–abr se leía como dos meses. El mes del primer
+  // registro se rotula en su sitio si no pisa al siguiente.
   const mes = d => new Date(d + 'T00:00:00').toLocaleDateString('es', { month: 'short' }).replace('.', '');
-  const seen = new Set();
-  const months = pts.filter(p => { const k = p.date.slice(0, 7); if (seen.has(k)) return false; seen.add(k); return true; })
-    .map(p => `<text class="wc-axis" x="${x(p.date).toFixed(1)}" y="${H - 6}" text-anchor="middle">${mes(p.date)}</text>`);
+  const ticks = [];
+  const c = new Date(pts[0].date.slice(0, 7) + '-01T00:00:00');
+  for (c.setMonth(c.getMonth() + 1); c.getTime() <= t1; c.setMonth(c.getMonth() + 1)) {
+    const d = `${c.getFullYear()}-${String(c.getMonth() + 1).padStart(2, '0')}-01`;
+    ticks.push({ d, x: x(d) });
+  }
+  if (!ticks.length || ticks[0].x - x(pts[0].date) > 40) ticks.unshift({ d: pts[0].date, x: x(pts[0].date) });
+  // Con muchos meses, uno de cada n para que no se monten.
+  const cada = Math.ceil(ticks.length / 12);
+  const months = ticks.filter((_, i) => i % cada === 0)
+    .map(k => `<text class="wc-axis" x="${k.x.toFixed(1)}" y="${H - 6}" text-anchor="middle">${mes(k.d)}</text>`);
   const line = pts.map(p => `${x(p.date).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
   const first = pts[0], lastP = pts[pts.length - 1];
   const area = `M${x(first.date).toFixed(1)},${y(lo).toFixed(1)} L${line.replace(/ /g, ' L')} L${x(lastP.date).toFixed(1)},${y(lo).toFixed(1)}Z`;
