@@ -68,7 +68,11 @@
    secundario caía a 4,46 sobre surface2 y fallaba por tres centésimas justo en
    las tarjetas. Si tocas un color, vuelve a medir y escribe la cifra aquí. */
 :root{
-  --color-surface-0:var(--sand-50);       /* lienzo de la página */
+  /* Papel: la página es blanca y el contenido va encima, sin tarjetas. Lo que
+     separa una sección de otra es un filete (--color-line), no un salto de
+     superficie. surface-1 sigue siendo blanco para las hojas y los paneles
+     que de verdad necesitan marco, que lo llevan de borde. */
+  --color-surface-0:var(--sand-0);        /* lienzo de la página */
   --color-surface-1:var(--sand-0);        /* tarjeta, panel */
   --color-surface-2:var(--sand-200);      /* campo, chip, pista */
   --color-surface-3:var(--sand-100);      /* hover de una superficie 1 */
@@ -79,6 +83,9 @@
   --color-text-inverse:var(--sand-0);
   --color-border-subtle:rgba(92,68,64,.08);
   --color-border-ghost:rgba(0,0,0,.06);
+  /* Filetes: el fino separa filas; el fuerte abre una sección o una franja. */
+  --color-line:var(--sand-line);
+  --color-line-strong:var(--sand-line-strong);
   /* Acción. Dos tokens y no uno: el relleno del botón y el acento tipográfico
      tienen requisitos de contraste opuestos, y en oscuro divergen (§1.3). */
   --color-action-primary:var(--red-600);       /* relleno de DOMINIO (fuerza, PR) */
@@ -265,6 +272,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
   --color-action-primary-fg:var(--sand-0);
   --color-action-ink:var(--ash-50);
   --color-action-ink-fg:var(--ink-900);
+  --color-line:rgba(255,255,255,.08);
+  --color-line-strong:rgba(255,255,255,.14);
   --color-accent-text:var(--red-500);
   --color-accent-soft:var(--red-200);
   --color-accent-wash:rgba(var(--red-500-rgb),.14);
@@ -417,7 +426,7 @@ select{cursor:pointer}
    una tarjeta de resultado, una tabla, una lista. No lleva sombra — la
    separación la da el salto de superficie, y en oscuro las sombras no separan
    nada. Nunca marca estado con una banda lateral: lo hace el fondo o un chip. */
-.panel{background:var(--color-surface-1);border-radius:var(--radius-xl);
+.panel{background:var(--color-surface-1);border:1px solid var(--color-line);border-radius:var(--radius-md);
   padding:var(--pad-card);margin-bottom:var(--gap-stack)}
 .panel-head{display:flex;align-items:baseline;justify-content:space-between;
   gap:var(--gap-tight);margin-bottom:var(--sp-3)}
@@ -687,6 +696,7 @@ body{line-height:1.5}
   --red-500-rgb:255,85,69; --red-600-rgb:212,55,44;
   /* Neutros cálidos (papel) */
   --sand-0:#fff; --sand-50:#f4f2f0; --sand-100:#f0eeeb; --sand-200:#ebe8e5;
+  --sand-line:#ece8e5; --sand-line-strong:#ddd6d2;
   --brown-900:#1c1b1b; --brown-700-rgb:93,63,59;
   /* Neutros de tinta (noche) */
   --ink-900:#131313; --ink-800:#201f1f; --ink-700:#2a2a2a; --ink-600:#353534;
@@ -711,7 +721,9 @@ body{line-height:1.5}
    iconos, toggles y radios. */
 :root{
   --font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
-  --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* Los datos se leen como un instrumento: cifras, fechas, series y etiquetas
+     en mono de ancho fijo, para que las columnas cuadren solas. */
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   /* Iconos. Un paso por tamaño, nunca un px a mano: Material Symbols usa
      font-size como tamaño del glifo, así que sin escala cada pantalla elegía
      el suyo (14, 16, 20, 22, 24, 32, 48) y dos iconos del mismo papel salían
@@ -731,9 +743,9 @@ body{line-height:1.5}
   --type-body:400 var(--fs-md)/1.5 var(--font);          --track-body:0;
   --type-body-strong:600 var(--fs-md)/1.45 var(--font);  --track-body-strong:0;
   --type-caption:500 var(--fs-sm)/1.45 var(--font);      --track-caption:0;
-  --type-label:600 var(--fs-xs)/1.3 var(--font);         --track-label:.06em;
-  --type-metric:800 var(--fs-2xl)/1.1 var(--font);       --track-metric:-.02em;
-  --type-metric-lg:800 var(--fs-3xl)/1 var(--font);      --track-metric-lg:-.03em;
+  --type-label:500 var(--fs-2xs)/1.4 var(--font-mono);   --track-label:.12em;
+  --type-metric:600 var(--fs-2xl)/1.1 var(--font-mono);  --track-metric:-.03em;
+  --type-metric-lg:600 var(--fs-3xl)/1 var(--font-mono); --track-metric-lg:-.04em;
 }
 /* ── 1.5 ESPACIO, RADIO, SOMBRA, PROFUNDIDAD, MOVIMIENTO ────────────────────*/
 :root{
@@ -2716,6 +2728,17 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .shortcut-row dt{flex:0 0 96px}
 .shortcut-row dd{flex:1;font-size:var(--fs-md);color:var(--color-text-secondary)}
 .shortcut-list kbd{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-sm);font-weight:600;background:var(--color-surface-2);color:var(--color-text-primary);border-radius:var(--radius-xs);padding:3px 8px;white-space:nowrap}
+
+
+/* ── Papel: las tarjetas que dependían del lienzo de arena ──────────────────
+   Con el lienzo en blanco, una tarjeta blanca sin borde se queda sin forma. Las
+   pantallas que aún no se han rehecho en papel (sin tarjetas, con filetes)
+   llevan el marco del panel: un borde de 1 px, nunca un relleno gris. Cada
+   pantalla que se rehace sale de esta lista. */
+:is(.session-overview-card,.str-plan-session,.str-plan-custom-empty,.run-plan-session-card,
+  .ex-card,.cal-container,.history-item,.calc-result,.run-segment-card,.run-history-card,
+  .run-goal-card,.run-next-card,.run-prs-card,.wizard,.dash-card,.dash-act-card,
+  .sr-done-pr,.sr-did,.prof-domain,.dtest-proto){border:1px solid var(--color-line)}
 
 }
 

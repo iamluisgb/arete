@@ -82,7 +82,7 @@ selección (§2.4). Lo destructivo usa el rojo de **estado**, no el de marca, y 
 acción primaria en la misma fila.
 
 > Rechaza: diez botones "Editar" rojos en las filas de una tabla (lo que hacía el historial
-> corporal).
+> corporal), y un botón rojo para "Guardar".
 
 ### 2.4 El estado nunca se marca con una barra de acento lateral
 
