@@ -69,7 +69,11 @@
    secundario caía a 4,46 sobre surface2 y fallaba por tres centésimas justo en
    las tarjetas. Si tocas un color, vuelve a medir y escribe la cifra aquí. */
 :root{
-  --color-surface-0:var(--sand-50);       /* lienzo de la página */
+  /* Papel: la página es blanca y el contenido va encima, sin tarjetas. Lo que
+     separa una sección de otra es un filete (--color-line), no un salto de
+     superficie. surface-1 sigue siendo blanco para las hojas y los paneles
+     que de verdad necesitan marco, que lo llevan de borde. */
+  --color-surface-0:var(--sand-0);        /* lienzo de la página */
   --color-surface-1:var(--sand-0);        /* tarjeta, panel */
   --color-surface-2:var(--sand-200);      /* campo, chip, pista */
   --color-surface-3:var(--sand-100);      /* hover de una superficie 1 */
@@ -80,11 +84,18 @@
   --color-text-inverse:var(--sand-0);
   --color-border-subtle:rgba(92,68,64,.08);
   --color-border-ghost:rgba(0,0,0,.06);
+  /* Filetes: el fino separa filas; el fuerte abre una sección o una franja. */
+  --color-line:var(--sand-line);
+  --color-line-strong:var(--sand-line-strong);
   /* Acción. Dos tokens y no uno: el relleno del botón y el acento tipográfico
      tienen requisitos de contraste opuestos, y en oscuro divergen (§1.3). */
-  --color-action-primary:var(--red-600);       /* relleno del botón primario */
+  /* Tinta para actuar, rojo para lo tuyo: el botón principal es negro y el
+     rojo queda para la marca, tus entrenos, los récords y tu limitante. Un
+     rojo que aparece en cada botón deja de señalar. Blanco sobre tinta: 17,19. */
+  --color-action-primary:var(--brown-900);     /* relleno del botón primario */
   --color-action-primary-fg:var(--sand-0);     /* texto sobre ese relleno */
   --color-accent-text:var(--red-600);          /* acento como texto o icono */
+  --color-accent-fill:var(--red-600);          /* relleno de marca: récord, limitante */
   --color-accent-soft:var(--red-200);
   --color-accent-wash:rgba(var(--red-600-rgb),.08);   /* fondo teñido */
   --color-accent-glow:rgba(var(--red-500-rgb),.12);   /* sombra de la acción */
@@ -255,8 +266,12 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
   /* En oscuro no hay borde: la separación la da el salto de superficie. */
   --color-border-subtle:transparent;
   --color-border-ghost:rgba(var(--brown-700-rgb),.15);
-  --color-action-primary:var(--red-600);
-  --color-action-primary-fg:var(--sand-0);
+  /* En oscuro la tinta se invierte: botón claro con texto de noche (16,6:1). */
+  --color-action-primary:var(--sand-50);
+  --color-action-primary-fg:var(--ink-900);
+  --color-accent-fill:var(--red-600);
+  --color-line:rgba(255,255,255,.08);
+  --color-line-strong:rgba(255,255,255,.14);
   --color-accent-text:var(--red-500);
   --color-accent-soft:var(--red-200);
   --color-accent-wash:rgba(var(--red-500-rgb),.14);
@@ -357,8 +372,8 @@ select{cursor:pointer}
    aparece diez veces por pantalla ya no acentúa. */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
   background:var(--color-action-primary);color:var(--color-action-primary-fg);border:none;
-  font-family:var(--font);font-size:var(--fs-md);font-weight:700;
-  padding:var(--pad-y-md) var(--pad-x-md);border-radius:var(--radius-lg);
+  font-family:var(--font);font-size:var(--fs-md);font-weight:600;
+  padding:var(--pad-y-md) var(--pad-x-md);border-radius:var(--radius-pill);
   cursor:pointer;width:auto;min-height:44px;
   transition:transform var(--dur-instant),opacity var(--dur-fast),background var(--dur-fast);
   box-shadow:var(--shadow-action)}
@@ -440,7 +455,7 @@ select{cursor:pointer}
    una tarjeta de resultado, una tabla, una lista. No lleva sombra — la
    separación la da el salto de superficie, y en oscuro las sombras no separan
    nada. Nunca marca estado con una banda lateral: lo hace el fondo o un chip. */
-.panel{background:var(--color-surface-1);border-radius:var(--radius-xl);
+.panel{background:var(--color-surface-1);border:1px solid var(--color-line);border-radius:var(--radius-md);
   padding:var(--pad-card);margin-bottom:var(--gap-stack)}
 .panel-head{display:flex;align-items:baseline;justify-content:space-between;
   gap:var(--gap-tight);margin-bottom:var(--sp-3)}
@@ -532,7 +547,7 @@ a.listrow--action{text-decoration:none}
   font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;
   padding:2px var(--sp-2);border-radius:var(--radius-pill);white-space:nowrap;
   background:var(--color-surface-2);color:var(--color-text-secondary)}
-.badge--accent{background:var(--color-action-primary);color:var(--color-action-primary-fg)}
+.badge--accent{background:var(--color-accent-fill);color:var(--color-on-fill)}
 .badge--success{background:var(--color-surface-2);color:var(--color-state-success)}
 .badge--warning{background:var(--color-surface-2);color:var(--color-state-warning)}
 .badge--info{background:var(--color-surface-2);color:var(--color-state-info)}
@@ -714,6 +729,7 @@ body{line-height:1.5}
   --red-500-rgb:255,85,69; --red-600-rgb:212,55,44;
   /* Neutros cálidos (papel) */
   --sand-0:#fff; --sand-50:#f4f2f0; --sand-100:#f0eeeb; --sand-200:#ebe8e5;
+  --sand-line:#ece8e5; --sand-line-strong:#ddd6d2;
   --brown-900:#1c1b1b; --brown-700-rgb:93,63,59;
   /* Neutros de tinta (noche) */
   --ink-900:#131313; --ink-800:#201f1f; --ink-700:#2a2a2a; --ink-600:#353534;
@@ -738,7 +754,9 @@ body{line-height:1.5}
    iconos, toggles y radios. */
 :root{
   --font:'Inter',-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;
-  --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* Los datos se leen como un instrumento: cifras, fechas, series y etiquetas
+     en mono de ancho fijo, para que las columnas cuadren solas. */
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --fs-2xs:.6875rem;--fs-xs:.75rem;--fs-sm:.8125rem;--fs-base:.875rem;--fs-md:1rem;
   --fs-lg:1.125rem;--fs-xl:1.375rem;--fs-2xl:1.625rem;--fs-3xl:2.25rem;--fs-4xl:3rem;
 
@@ -753,9 +771,9 @@ body{line-height:1.5}
   --type-body:400 var(--fs-md)/1.5 var(--font);          --track-body:0;
   --type-body-strong:600 var(--fs-md)/1.45 var(--font);  --track-body-strong:0;
   --type-caption:500 var(--fs-sm)/1.45 var(--font);      --track-caption:0;
-  --type-label:600 var(--fs-xs)/1.3 var(--font);         --track-label:.06em;
-  --type-metric:800 var(--fs-2xl)/1.1 var(--font);       --track-metric:-.02em;
-  --type-metric-lg:800 var(--fs-3xl)/1 var(--font);      --track-metric-lg:-.03em;
+  --type-label:500 var(--fs-2xs)/1.4 var(--font-mono);   --track-label:.12em;
+  --type-metric:600 var(--fs-2xl)/1.1 var(--font-mono);  --track-metric:-.03em;
+  --type-metric-lg:600 var(--fs-3xl)/1 var(--font-mono); --track-metric-lg:-.04em;
 }
 /* ── 1.5 ESPACIO, RADIO, SOMBRA, PROFUNDIDAD, MOVIMIENTO ────────────────────*/
 :root{
@@ -786,7 +804,7 @@ body{line-height:1.5}
   --shadow-1:0 1px 3px rgba(0,0,0,.08);
   --shadow-2:0 6px 20px rgba(0,0,0,.06);
   --shadow-3:0 8px 32px rgba(0,0,0,.25);
-  --shadow-action:0 8px 24px var(--color-accent-glow);
+  --shadow-action:none;   /* la tinta no necesita halo */
   --shadow-panel:-12px 0 40px rgba(0,0,0,.12);
 
   /* Profundidad. Eran 18 números repartidos por la hoja; ahora tienen nombre y
@@ -822,7 +840,9 @@ body{line-height:1.5}
   --ease-sheet:cubic-bezier(.32,.72,0,1);
   --ease-linear:linear;
 }
-nav button.active{color:var(--color-on-fill);background:var(--color-accent-text);box-shadow:var(--shadow-action)}
+/* El destino activo se marca con fondo y peso. Era un relleno rojo: el rojo
+   más grande de cada pantalla gastado en decir dónde estás. */
+nav button.active{color:var(--color-text-primary);background:var(--color-surface-2);font-weight:700}
 nav button .material-symbols-outlined{font-size:24px}
 .header-logo{width:24px;height:24px;border-radius:var(--radius-xs)}
 .save-bar{margin-top:var(--sp-3)}
@@ -2667,8 +2687,8 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    #ff5545: con el texto blanco encima son 3,16:1 y el AA de texto se pierde. Es
    exactamente el fallo que el §1.3 ya documenta y arregló una vez para el botón
    primario —el acento tipográfico no es un relleno, y para eso hay dos tokens—.
-   Ahora usa --color-action-primary, que es el que existe para rellenar (4,79:1). */
-.ph-pr{font-size:var(--fs-2xs);background:var(--color-action-primary);color:var(--color-action-primary-fg);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
+   Rellena con --color-accent-fill: un récord es rojo de marca, no la acción. */
+.ph-pr{font-size:var(--fs-2xs);background:var(--color-accent-fill);color:var(--color-on-fill);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
 /* Igualar el récord no es batirlo: mismo sitio en la fila, otro peso visual. Sin
    relleno y en el gris de etiqueta, para que la insignia siga siendo del PR. */
 .ph-eq{font-size:var(--fs-2xs);background:var(--color-surface-2);color:var(--color-text-secondary);padding:1px 6px;border-radius:var(--radius-xs);font-weight:600;vertical-align:1px;white-space:nowrap}
@@ -2691,6 +2711,17 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .shortcut-row dt{flex:0 0 96px}
 .shortcut-row dd{flex:1;font-size:var(--fs-md);color:var(--color-text-secondary)}
 .shortcut-list kbd{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-sm);font-weight:600;background:var(--color-surface-2);color:var(--color-text-primary);border-radius:var(--radius-xs);padding:3px 8px;white-space:nowrap}
+
+
+/* ── Papel: las tarjetas que dependían del lienzo de arena ──────────────────
+   Con el lienzo en blanco, una tarjeta blanca sin borde se queda sin forma. Las
+   pantallas que aún no se han rehecho en papel (sin tarjetas, con filetes)
+   llevan el marco del panel: un borde de 1 px, nunca un relleno gris. Cada
+   pantalla que se rehace sale de esta lista. */
+:is(.session-overview-card,.str-plan-session,.str-plan-custom-empty,.run-plan-session-card,
+  .ex-card,.cal-container,.history-item,.calc-result,.run-segment-card,.run-history-card,
+  .run-goal-card,.run-next-card,.run-prs-card,.wizard,.dash-card,.dash-act-card,
+  .sr-done-pr,.sr-did,.prof-domain,.dtest-proto){border:1px solid var(--color-line)}
 
 }
 

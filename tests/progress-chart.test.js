@@ -206,12 +206,15 @@ describe('el delta de progreso no compara peras con manzanas', () => {
 });
 
 describe('el color del distintivo de récord (AE-04, hallazgo del mismo pase)', () => {
-  it('.ph-pr se rellena con la acción primaria y no con el acento tipográfico', async () => {
+  it('.ph-pr se rellena con el relleno de marca y no con el acento tipográfico', async () => {
     // --color-accent-text es #ff5545 en oscuro y con texto blanco son 3,16:1:
     // falla el AA de texto, y es exactamente el fallo que el design system ya
     // documenta y arregló una vez para el botón primario (app.css:154-160). El
     // distintivo de un récord es lo último que debería ser ilegible en oscuro.
     const css = readFileSync(resolve(process.cwd(), 'app.css'), 'utf-8').replace(/\s+/g, '');
-    expect(css).toContain('.ph-pr{font-size:var(--fs-2xs);background:var(--color-action-primary)');
+    // La acción primaria pasó a tinta: un récord es rojo de marca, no un botón.
+    // --color-accent-fill es #d4372c en los dos temas (blanco encima: 4,79:1).
+    expect(css).toContain('.ph-pr{font-size:var(--fs-2xs);background:var(--color-accent-fill)');
+    expect(css).toMatch(/--color-accent-fill:var\(--red-600\)/);
   });
 });

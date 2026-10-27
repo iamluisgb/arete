@@ -63,19 +63,23 @@ hoja invocada; la pantalla por defecto es la de lectura.
 
 > Rechaza: la Cuerpo anterior, once campos vacíos apilados sobre cuatro paneles de resultado.
 
-### 2.3 Una sola acción primaria en rojo por vista
+### 2.3 Tinta para actuar, rojo para lo tuyo
 
-El rojo `#d4372c` es la marca. Hoy se usaba para la acción primaria, los títulos de sección, las
-cifras destacadas, los chips, los enlaces y el botón de borrar. Un acento que aparece diez veces por
-pantalla deja de acentuar y se convierte en textura.
+El rojo `#d4372c` es la marca. Se usaba para la acción primaria, los títulos de sección, las cifras
+destacadas, los chips, los enlaces, el destino activo del menú y el botón de borrar. Un acento que
+aparece diez veces por pantalla deja de acentuar y se convierte en textura.
 
-**Presupuesto:** un relleno rojo por vista. La segunda acción es `--secondary`; la tercera,
-`--ghost`. Los títulos de sección **no** son rojos: son `--color-text-secondary` en versalitas. Lo
-destructivo usa el rojo de **estado**, no el de marca, y nunca compite con la acción primaria en la
-misma fila.
+**Desde octubre de 2026 el botón primario es de tinta** (`--color-action-primary` = `#1c1b1b`, con
+blanco encima a 17,19:1; en oscuro se invierte a claro sobre noche). El rojo queda para lo que es
+tuyo: la marca, tus días de entreno, los récords y tu dominio limitante. Ese rojo de relleno es
+`--color-accent-fill`, que vale `#d4372c` en los dos temas para que el blanco encima dé 4,79:1.
+
+**Presupuesto:** una acción primaria por vista, en tinta. La segunda es `--secondary`; la tercera,
+`--ghost`. Los títulos de sección **no** son rojos. Lo destructivo usa el rojo de **estado**, no el
+de marca. El destino activo del menú se marca con fondo y peso, nunca con un relleno rojo.
 
 > Rechaza: diez botones "Editar" rojos en las filas de una tabla (lo que hacía el historial
-> corporal).
+> corporal), y un botón rojo para "Guardar".
 
 ### 2.4 El estado nunca se marca con una barra de acento lateral
 
