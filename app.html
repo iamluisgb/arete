@@ -458,33 +458,39 @@
     <button class="btn" id="bodyLogBtn" type="button"><span class="material-symbols-outlined" aria-hidden="true">straighten</span>Registrar medidas</button>
   </div>
 
-  <section class="panel body-now" aria-labelledby="bodyNowTitle">
-    <h3 class="panel-title" id="bodyNowTitle">Estado actual</h3>
-    <div class="tiles" id="bodyNowPanel"></div>
-  </section>
+  <!-- Papel: la franja de cifras encabeza la pantalla y debajo va la rejilla
+       de 12, sin tarjetas. Las secciones se separan con su título y un filete. -->
+  <section class="band" id="bodyNowPanel" aria-label="Estado actual"></section>
 
-  <section class="panel" aria-labelledby="bodyPropTitle">
-    <h3 class="panel-title" id="bodyPropTitle">Proporciones divinas</h3>
-    <div id="proportionsPanel"></div>
-  </section>
+  <div class="cols">
+    <section class="col col--7" aria-labelledby="bodyWeightTitle">
+      <div class="sec-head"><h3 class="sec-head-title" id="bodyWeightTitle">Peso</h3><span class="t-label" id="bodyWeightRange"></span></div>
+      <div id="bodyWeightChart"></div>
+    </section>
 
-  <section class="panel" aria-labelledby="bodyCalTitle">
-    <h3 class="panel-title" id="bodyCalTitle">Calorías estimadas</h3>
-    <div id="caloriesPanel"></div>
-    <!-- Altura y edad no son medidas que se registren: son los dos parámetros
-         del cálculo. Van dentro del panel que alimentan, no en la captura. -->
-    <div class="body-calc-args">
-      <label class="field"><span class="field-label">Altura (cm)</span><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></label>
-      <label class="field"><span class="field-label">Edad</span><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></label>
-    </div>
-  </section>
+    <section class="col col--5" aria-labelledby="bodyCalTitle">
+      <div class="sec-head"><h3 class="sec-head-title" id="bodyCalTitle">Calorías al día</h3><span class="t-label">kcal</span></div>
+      <div id="caloriesPanel"></div>
+      <!-- Altura y edad no son medidas que se registren: son los dos parámetros
+           del cálculo. Van al pie de lo que alimentan, no en la captura. -->
+      <div class="body-calc-args">
+        <label class="field"><span class="field-label">Altura (cm)</span><input type="number" id="calcHeight" placeholder="175" autocomplete="off" inputmode="decimal"></label>
+        <label class="field"><span class="field-label">Edad</span><input type="number" id="calcAge" placeholder="32" autocomplete="off" inputmode="decimal"></label>
+      </div>
+    </section>
 
-  <!-- El historial va a ancho completo: es una tabla, y una tabla vale más
-       cuantas más columnas se vean a la vez. -->
-  <section class="panel panel--flush body-hist-full" aria-labelledby="bodyHistTitle">
-    <h3 class="panel-title" id="bodyHistTitle">Historial corporal</h3>
-    <div id="bodyHistory"></div>
-  </section>
+    <section class="col col--12" aria-labelledby="bodyPropTitle">
+      <div class="sec-head"><h3 class="sec-head-title" id="bodyPropTitle">Proporciones</h3><span class="t-label">sobre la muñeca</span></div>
+      <div id="proportionsPanel"></div>
+    </section>
+
+    <!-- El historial va a ancho completo: es una tabla, y una tabla vale más
+         cuantas más columnas se vean a la vez. -->
+    <section class="col col--12" aria-labelledby="bodyHistTitle">
+      <div class="sec-head"><h3 class="sec-head-title" id="bodyHistTitle">Registros</h3><span class="t-label" id="bodyHistCount"></span></div>
+      <div id="bodyHistory"></div>
+    </section>
+  </div>
 </div>
 <!-- AJUSTES — índice + subpáginas, no una lista plana.
 

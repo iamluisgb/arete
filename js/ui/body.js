@@ -23,7 +23,7 @@ import { toast } from './toast.js';
 let editingBodyId = null;
 let $bodyDate, $bodyMeasures, $bodyHistory, $bodyEditBanner, $bodyEditText, $bodyDeleteBtn, $bodySaveBtn;
 let $calcHeight, $calcAge, $proportionsPanel, $caloriesPanel;
-let $bodySheet, $bodyNowPanel, $bodyLastLog;
+let $bodySheet, $bodyNowPanel, $bodyLastLog, $bodyWeightChart, $bodyWeightRange, $bodyHistCount;
 
 // ── La hoja de captura ────────────────────────────────────
 // Quien la abrió recupera el foco al cerrarla: si no, el foco se queda en el
@@ -136,6 +136,9 @@ export function initBody(db) {
   $bodySheet = document.getElementById('bodySheet');
   $bodyNowPanel = document.getElementById('bodyNowPanel');
   $bodyLastLog = document.getElementById('bodyLastLog');
+  $bodyWeightChart = document.getElementById('bodyWeightChart');
+  $bodyWeightRange = document.getElementById('bodyWeightRange');
+  $bodyHistCount = document.getElementById('bodyHistCount');
 
   $bodySaveBtn.addEventListener('click', () => saveBodyLog(db));
   document.getElementById('bodyLogBtn').addEventListener('click', (e) => openBodySheet(e.currentTarget));
@@ -143,8 +146,9 @@ export function initBody(db) {
   // Clic en el velo, no en el panel: el gesto universal de "cerrar esto".
   $bodySheet.addEventListener('click', (e) => { if (e.target === $bodySheet) closeBodySheet(); });
 
-  // "Registrar la primera" del estado vacío abre la misma hoja.
-  $bodyNowPanel.addEventListener('click', (e) => {
+  // "Registrar la primera" del estado vacío y "Medir la muñeca" de las
+  // proporciones abren la misma hoja.
+  document.getElementById('secBody').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-body-log]');
     if (btn) openBodySheet(btn);
   });
@@ -194,6 +198,7 @@ export function deleteBodyLog(db) {
 /** Todo lo de lectura de Cuerpo, en una llamada. */
 export function renderBody(db) {
   renderBodyNow(db);
+  renderWeightChart(db);
   renderBodyHistory(db);
   calcProportions(db);
   calcCalories(db);
@@ -216,26 +221,84 @@ export function renderBodyNow(db) {
   const dates = Object.values(last._dates || {}).sort();
   $bodyLastLog.textContent = `${logs.length} ${logs.length === 1 ? 'registro' : 'registros'} · último el ${formatDate(dates[dates.length - 1])}`;
 
-  const tiles = getBodyMeasures()
+  // La variación NO se colorea de bueno/malo: la app no sabe si subir de peso
+  // es tu objetivo o tu problema. El signo lo dice y el usuario juzga.
+  const cell = (label, value, unit, sub) => `<div class="band-cell">
+      <span class="band-label">${label}</span>
+      <span class="band-value">${value}${unit ? `<span class="band-unit">${unit}</span>` : ''}</span>
+      ${sub ? `<span class="band-sub">${sub}</span>` : ''}
+    </div>`;
+  const cells = getBodyMeasures()
     .filter(m => last[m.id] != null)
     .map(m => {
       const val = last[m.id];
       const prev = previousValue(db, m.id, last._dates[m.id]);
-      // La variación NO se colorea de bueno/malo: la app no sabe si subir de
-      // peso es tu objetivo o tu problema. El signo lo dice y el usuario juzga.
-      const delta = prev == null ? ''
-        : `<div class="tile-delta tile-delta--flat">${signed(val - prev.v)} desde ${formatDate(prev.date)}</div>`;
-      return `<div class="tile">
-          <div class="tile-label">${esc(m.label)}</div>
-          <div class="tile-value">${round1(val)}</div>
-          ${delta}
-        </div>`;
-    }).join('');
-
+      const sub = prev == null ? '' : `<span class="mono">${signed(val - prev.v)}</span> desde el ${formatDate(prev.date)}`;
+      const { name, unit } = splitUnit(m.label);
+      return cell(esc(name), round1(val), unit, sub);
+    });
+  // La masa magra no se registra: sale del peso y la grasa del mismo día. Es la
+  // cifra que distingue perder grasa de perder músculo cuando baja la báscula.
+  if (last.peso != null && last.grasa != null && last._dates.peso === last._dates.grasa) {
+    cells.push(cell('Masa magra', round1(last.peso * (1 - last.grasa / 100)), 'kg', 'peso × (1 − grasa)'));
+  }
   const missing = getBodyMeasures().filter(m => last[m.id] == null).length;
-  $bodyNowPanel.innerHTML = tiles + (missing
-    ? `<div class="tile tile--empty"><div class="tile-label">Sin medir</div><div class="tile-value">${missing} ${missing === 1 ? 'medida' : 'medidas'}</div></div>`
-    : '');
+  if (missing) {
+    cells.push(cell('Sin medir', missing, missing === 1 ? 'medida' : 'medidas',
+      '<button type="button" class="btn btn--ghost btn--sm body-now-log" data-body-log>Medir ahora</button>'));
+  }
+  $bodyNowPanel.innerHTML = cells.join('');
+}
+
+/** "Peso (kg)" → { name: 'Peso', unit: 'kg' }; "% Grasa" → { name: 'Grasa', unit: '%' }. */
+function splitUnit(label) {
+  const paren = label.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (paren) return { name: paren[1], unit: paren[2] };
+  const pct = label.match(/^%\s*(.*)$/);
+  if (pct) return { name: pct[1], unit: '%' };
+  return { name: label, unit: '' };
+}
+
+/** La evolución del peso: es la pregunta que trae a la gente a esta pantalla. */
+export function renderWeightChart(db) {
+  const pts = db.bodyLogs
+    .filter(l => l.date && Number.isFinite(parseFloat(l.peso)))
+    .map(l => ({ date: l.date, v: parseFloat(l.peso) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (pts.length < 2) {
+    $bodyWeightRange.textContent = '';
+    $bodyWeightChart.innerHTML = `<p class="panel-note">Con dos registros de peso verás aquí cómo evoluciona.</p>`;
+    return;
+  }
+  const W = 720, H = 210, L = 40, R = 16, T = 16, B = 30;
+  const t = d => new Date(d + 'T00:00:00').getTime();
+  const t0 = t(pts[0].date), t1 = t(pts[pts.length - 1].date);
+  const lo = Math.floor(Math.min(...pts.map(p => p.v))), hi = Math.ceil(Math.max(...pts.map(p => p.v)));
+  const span = Math.max(hi - lo, 1), step = span > 8 ? Math.ceil(span / 4) : 1;
+  const x = d => L + (W - L - R) * (t1 === t0 ? 0.5 : (t(d) - t0) / (t1 - t0));
+  const y = v => T + (H - T - B) * (1 - (v - lo) / span);
+  const grid = [];
+  for (let v = lo; v <= hi; v += step) {
+    grid.push(`<line class="wc-grid${v === lo ? ' wc-base' : ''}" x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="wc-axis" x="0" y="${(y(v) + 4).toFixed(1)}">${v}</text>`);
+  }
+  // Una etiqueta por mes, en el primer registro de cada uno.
+  const mes = d => new Date(d + 'T00:00:00').toLocaleDateString('es', { month: 'short' }).replace('.', '');
+  const seen = new Set();
+  const months = pts.filter(p => { const k = p.date.slice(0, 7); if (seen.has(k)) return false; seen.add(k); return true; })
+    .map(p => `<text class="wc-axis" x="${x(p.date).toFixed(1)}" y="${H - 6}" text-anchor="middle">${mes(p.date)}</text>`);
+  const line = pts.map(p => `${x(p.date).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
+  const first = pts[0], lastP = pts[pts.length - 1];
+  const area = `M${x(first.date).toFixed(1)},${y(lo).toFixed(1)} L${line.replace(/ /g, ' L')} L${x(lastP.date).toFixed(1)},${y(lo).toFixed(1)}Z`;
+  const anio = d => d.slice(0, 4);
+  $bodyWeightRange.textContent = `${mes(first.date)} ${anio(first.date)} – ${mes(lastP.date)} ${anio(lastP.date)}`;
+  $bodyWeightChart.innerHTML = `<svg class="weight-chart" viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="Peso del ${formatDate(first.date)} al ${formatDate(lastP.date)}: de ${round1(first.v)} a ${round1(lastP.v)} kg">
+      ${grid.join('')}${months.join('')}
+      <path class="wc-area" d="${area}"/>
+      <polyline class="wc-line" points="${line}"/>
+      ${pts.slice(0, -1).map(p => `<circle class="wc-dot" cx="${x(p.date).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="3"/>`).join('')}
+      <circle class="wc-last" cx="${x(lastP.date).toFixed(1)}" cy="${y(lastP.v).toFixed(1)}" r="4.5"/>
+    </svg>`;
 }
 
 function round1(n) {
@@ -275,13 +338,27 @@ export function renderBodyHistory(db) {
   // medidas que alguien ha registrado alguna vez — con las once fijas, la mitad
   // de la tabla serían guiones.
   const cols = getBodyMeasures().filter(m => logs.some(l => l[m.id] != null));
-  const head = cols.map(m => `<th scope="col" class="bh-num">${esc(m.label)}</th>`).join('');
+  // El cambio de peso respecto al registro anterior: es lo que se busca al leer
+  // la tabla, y restarlo de cabeza fila a fila es el trabajo que la tabla ahorra.
+  const prevPeso = l => {
+    const i = db.bodyLogs.indexOf(l);
+    for (let k = i - 1; k >= 0; k--) if (db.bodyLogs[k].peso != null) return Number(db.bodyLogs[k].peso);
+    return null;
+  };
+  const head = cols.map(m => `<th scope="col" class="bh-num">${esc(m.label)}</th>`
+    + (m.id === 'peso' ? '<th scope="col" class="bh-num">Cambio</th>' : '')).join('');
   const filas = logs.map(l => `
     <tr data-body-id="${l.id}">
       <th scope="row" class="bh-date">${formatDate(l.date)}</th>
-      ${cols.map(m => `<td class="bh-num">${l[m.id] != null ? l[m.id] : '—'}</td>`).join('')}
-      <td class="bh-action"><button type="button" class="btn btn--sm btn--secondary hi-edit-btn">Editar</button></td>
+      ${cols.map(m => {
+        const td = `<td class="bh-num">${l[m.id] != null ? l[m.id] : '—'}</td>`;
+        if (m.id !== 'peso') return td;
+        const p = l.peso != null ? prevPeso(l) : null;
+        return td + `<td class="bh-num bh-soft">${p == null ? '—' : signed(Number(l.peso) - p)}</td>`;
+      }).join('')}
+      <td class="bh-action"><button type="button" class="btn btn--ghost btn--sm hi-edit-btn" aria-label="Editar el registro del ${formatDate(l.date)}">Editar</button></td>
     </tr>`).join('');
+  $bodyHistCount.textContent = db.bodyLogs.length > logs.length ? `${logs.length} de ${db.bodyLogs.length}` : String(logs.length);
 
   $bodyHistory.innerHTML = `<div class="table-scroll">
       <table class="body-history">
@@ -307,7 +384,10 @@ function getLatestBodyData(db) {
 export function calcProportions(db) {
   const last = getLatestBodyData(db);
   if (!last.muneca) {
-    $proportionsPanel.innerHTML = '<p class="panel-note">Registra la muñeca para calcular las proporciones: es la referencia de estructura ósea de la que salen todas.</p>';
+    $proportionsPanel.innerHTML = `<div class="body-prop-empty">
+        <p>Mide la muñeca y verás tus proporciones de brazo, pecho, hombros y muslo: es la referencia de estructura ósea de la que salen todas.</p>
+        <button type="button" class="btn btn--secondary" data-body-log>Medir la muñeca</button>
+      </div>`;
     return;
   }
   const ps = [
@@ -322,7 +402,7 @@ export function calcProportions(db) {
   const dateWarning = usedDates.size > 1
     ? `<p class="panel-note prop-warn">Datos de ${usedDates.size} fechas distintas — registra todas las medidas el mismo día para mayor precisión</p>`
     : '';
-  $proportionsPanel.innerHTML = dateWarning + ps.map(p => {
+  $proportionsPanel.innerHTML = dateWarning + '<div class="prop-grid">' + ps.map(p => {
     if (!p.has) return `<div class="prop-row prop-row--empty"><div class="prop-label">${p.label}</div><div class="prop-value">Faltan medidas</div></div>`;
     const pct = Math.min((p.current / p.target) * 100, 120);
     // Tres estados y no un gradiente: dentro de rango, por debajo, por encima.
@@ -332,7 +412,7 @@ export function calcProportions(db) {
         <div class="prop-value">${p.current.toFixed(1)}cm <span class="prop-target">/ ${p.tl}</span></div>
         <div class="prop-bar"><div class="prop-fill" style="width:${Math.min(pct, 100)}%"></div></div>
       </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 /** Calculate BMR, maintenance, and target calorie ranges */
@@ -345,16 +425,14 @@ export function calcCalories(db) {
   const lbm = peso * (1 - grasa / 100);
   const t2 = 370 + 21.6 * lbm;
   const tmb = (t1 + t2) / 2, m = tmb * 1.65;
-  const tile = (label, value, sub) => {
-    // Un rango no cabe a tamaño de cifra en media tarjeta: baja un escalón.
-    const cls = String(value).length > 6 ? ' tile-value--sm' : '';
-    return `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value${cls}">${value}<span class="tile-unit">kcal</span></div>${sub ? `<div class="tile-delta tile-delta--flat">${sub}</div>` : ''}</div>`;
-  };
-  $caloriesPanel.innerHTML = `<div class="tiles">
-      ${tile('TMB (media)', Math.round(tmb), `Peso ${peso}kg · Grasa ${grasa}%`)}
-      ${tile('Mantenimiento', Math.round(m), '×1.65')}
-      ${tile('Volumen', `${Math.round(m * 1.1)}–${Math.round(m * 1.15)}`, '+10 a 15%')}
-      ${tile('Definición', Math.round(m * .85), '−15%')}
-      ${tile('Def. máxima', Math.round(peso * 22), '×22/kg')}
-    </div>`;
+  const row = (k, v, note) =>
+    `<div class="kv-row"><span class="kv-k">${k}${note ? ` <small>· ${note}</small>` : ''}</span><span class="kv-v">${v}</span></div>`;
+  $caloriesPanel.innerHTML = `<div class="kv">
+      ${row('Basal, en reposo', Math.round(tmb), 'media de dos fórmulas')}
+      ${row('Mantener el peso', Math.round(m), '× 1.65')}
+      ${row('Volumen', `${Math.round(m * 1.1)}–${Math.round(m * 1.15)}`, '+10 a 15 %')}
+      ${row('Definición', Math.round(m * .85), '−15 %')}
+      ${row('Definición máxima', Math.round(peso * 22), '22 por kg')}
+    </div>
+    <p class="panel-note">Con ${peso} kg y ${grasa} % de grasa${last.peso ? '' : ' (valores por defecto: registra tu peso)'}.</p>`;
 }

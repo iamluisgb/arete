@@ -419,8 +419,56 @@ select{cursor:pointer}
 .page-head{display:flex;align-items:flex-start;justify-content:space-between;
   gap:var(--gap-tight);flex-wrap:wrap;margin-bottom:var(--gap-group)}
 .page-head-txt{min-width:0}
-.page-title{font:var(--type-title-lg);letter-spacing:var(--track-title-lg)}
+.page-title{font:700 var(--fs-2xl)/1.15 var(--font);letter-spacing:-.025em}
 .page-sub{font:var(--type-caption);color:var(--color-text-secondary);margin-top:2px}
+/* ── 3.4b PAPEL: franja, cabecera de sección, rejilla y filas ───────────────
+   Las piezas de una pantalla sin tarjetas. La página es blanca y lo que separa
+   es un filete: el fuerte abre una sección o una franja, el fino separa filas.
+
+   .band       La franja de cifras clave que encabeza la pantalla. Las celdas se
+               reparten el ancho entero, separadas por filetes verticales: tres o
+               cinco cifras llenan la fila igual, sin dejar hueco a la derecha.
+   .sec-head   Título de sección con su filete fuerte debajo, y a la derecha un
+               dato o un control. Sustituye a la caja del panel.
+   .cols       La rejilla de 12. Repartos: 12 · 7+5 · 8+4 · 4+4+4. En móvil, una
+               columna en el mismo orden.
+   .kv         Fila nombre · cifra, con la cifra en mono. */
+.band{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);
+  border-top:1px solid var(--color-line-strong);border-bottom:1px solid var(--color-line);
+  margin-bottom:var(--gap-section)}
+.band-cell{display:flex;flex-direction:column;gap:var(--sp-2);min-width:0;
+  padding:var(--sp-5) var(--sp-6);border-left:1px solid var(--color-line)}
+.band-cell:first-child{border-left:0;padding-left:0}
+.band-label{font:var(--type-label);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--color-text-secondary)}
+.band-value{font:var(--type-metric);letter-spacing:var(--track-metric);font-variant-numeric:tabular-nums;white-space:nowrap}
+.band-unit{font:var(--type-caption);letter-spacing:0;color:var(--color-text-secondary);margin-left:var(--sp-1)}
+.band-sub{font:var(--type-caption);color:var(--color-text-secondary)}
+.band-sub .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.band:has(>.empty-state){display:block}
+@media(max-width:639px){
+  .band{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .band-cell{padding:var(--sp-4) 0;border-left:0;border-top:1px solid var(--color-line)}
+  .band-cell:nth-child(even){padding-left:var(--sp-4);border-left:1px solid var(--color-line)}
+  .band-cell:nth-child(-n+2){border-top:0}
+}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-4);
+  padding-bottom:var(--sp-3);border-bottom:1px solid var(--color-line-strong)}
+.sec-head-title{font:var(--type-body-strong)}
+.sec-head .t-label{white-space:nowrap}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--gap-section)}
+.col{display:flex;flex-direction:column;gap:var(--sp-4);min-width:0}
+@media(min-width:1024px){
+  .cols{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--sp-10)}
+  .col--12{grid-column:span 12}.col--8{grid-column:span 8}.col--7{grid-column:span 7}
+  .col--5{grid-column:span 5}.col--4{grid-column:span 4}
+}
+.kv{display:flex;flex-direction:column}
+.kv-row{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-4);
+  padding:var(--sp-3) 0;border-bottom:1px solid var(--color-line)}
+.kv-k{color:var(--color-text-secondary)}
+.kv-k small{font:var(--type-caption)}
+.kv-v{font:500 var(--fs-md)/1.3 var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 /* ── 3.5 PANEL (Card) ───────────────────────────────────────────────────────
    La superficie 1 con su cabecera. Es el contenedor de lectura por defecto:
    una tarjeta de resultado, una tabla, una lista. No lleva sombra — la
@@ -1061,9 +1109,8 @@ nav button .material-symbols-outlined{font-size:var(--icon-xl)}
 .prop-warn{margin:0 0 var(--sp-3)}
 /* Altura y edad: parámetros del cálculo, no captura. Se ven como lo que son —
    ajustes discretos al pie de su panel, no un formulario más. */
-.body-calc-args{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:var(--gap-tight);margin-top:var(--sp-4);padding-top:var(--sp-3);
-  border-top:1px solid var(--color-border-ghost);max-width:var(--measure-form)}
+.body-calc-args{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap-tight)}
+.body-calc-args input[type="number"]{font:500 var(--fs-md) var(--font-mono);text-align:left;padding:10px 12px}
 .body-calc-args .field{margin-bottom:0}
 /* El presupuesto del acento, aplicado. "Editar" aparece una vez por fila del
    historial: en rojo eran diez acciones primarias compitiendo con la única que
@@ -1072,8 +1119,13 @@ nav button .material-symbols-outlined{font-size:var(--icon-xl)}
    El selector va con .body-history delante porque .hi-edit-btn se declara más
    abajo en la hoja y es la que sigue mandando en el historial de fuerza, que
    todavía no está migrado. */
-.body-history .hi-edit-btn{background:var(--color-surface-2);color:var(--color-text-primary);
-  font-weight:600;border-radius:var(--radius-md);padding:6px 12px;min-height:44px;margin-top:0}
+.body-history .hi-edit-btn{background:none;color:var(--color-text-secondary);
+  font-weight:500;padding:6px 12px;min-height:44px;margin-top:0}
+.body-history th{font:var(--type-label);letter-spacing:var(--track-label);border-bottom:1px solid var(--color-line-strong);padding:0 var(--sp-4) var(--sp-3)}
+.body-history td,.body-history .bh-date{height:48px;padding:0 var(--sp-4);border-bottom:1px solid var(--color-line);font-family:var(--font-mono);font-size:var(--fs-sm)}
+.body-history th:first-child,.body-history .bh-date{padding-left:0}
+.body-history .bh-soft{color:var(--color-text-secondary)}
+
 .modal-overlay{position:fixed;inset:0;background:var(--color-scrim);z-index:var(--z-overlay);display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .modal-overlay.open{display:flex}
 .modal{background:var(--color-surface-1);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:8px 20px 24px;width:100%;max-width:500px;max-height:75vh;overflow-y:auto;animation:slideUp var(--dur-slow)}
@@ -2700,7 +2752,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .progress-history caption{text-align:left;font-size:var(--fs-sm);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;padding-bottom:var(--sp-2)}
 .progress-history th,.body-history th{font-size:var(--fs-xs);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--color-border-subtle);white-space:nowrap}
 .progress-history td,.body-history td{padding:8px;border-bottom:.5px solid var(--color-border-subtle);white-space:nowrap}
-.progress-history tbody tr:last-child td,.body-history tbody tr:last-child td{border-bottom:none}
+.progress-history tbody tr:last-child td{border-bottom:none}
 /* Los números, a la derecha y con cifras de ancho fijo: así se comparan de un
    vistazo en vez de leerse uno a uno. */
 .ph-num,.bh-num{text-align:right;font-variant-numeric:tabular-nums}
@@ -2715,7 +2767,7 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
    serie; en el móvil, donde la tabla ya arrastra scroll horizontal, se cae
    antes que el peso y las reps. */
 @media(max-width:639px){.progress-history .ph-vol{display:none}}
-.body-history .bh-date{text-align:left;font-size:var(--fs-base);text-transform:none;letter-spacing:0;color:var(--color-text-secondary);border-bottom:.5px solid var(--color-border-subtle);padding:8px}
+.body-history .bh-date{text-align:left;font-size:var(--fs-base);font-weight:500;text-transform:none;letter-spacing:0;color:var(--color-text-primary)}
 .ph-pr{font-size:var(--fs-2xs);background:var(--color-accent-text);color:var(--color-on-fill);padding:1px 6px;border-radius:var(--radius-xs);font-weight:700;vertical-align:1px}
 .progress-history tr.is-pr td{background:var(--color-accent-glow)}
 .bh-action{text-align:right}
@@ -2852,17 +2904,27 @@ input.sc-input-sm{width:92px;flex:none;text-align:center}
 .subnav-tabs{align-self:start;width:max-content;max-width:100%}
 .subnav-tabs>button{flex:0 0 auto;padding-inline:var(--sp-5)}
 }
-/* ── Cuerpo (migrada) ────────────────────────────────────
-   Dos columnas de paneles. Ni la cabecera ni el estado ni el historial se
-   parten: la cabecera porque es una sola línea, el estado y el historial
-   porque son rejillas que ya crecen en número por fila — es exactamente el
-   principio de "el escritorio gana densidad, no tamaño". Lo único que se
-   reparte son los dos paneles de lectura, que sí son bloques independientes. */
-@media(min-width:1024px){
-#secBody.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:0 var(--gap-section);align-items:start}
-#secBody>.page-head,#secBody>.body-now,#secBody>.body-hist-full{grid-column:1/-1}
-}
+/* ── Cuerpo, en papel ────────────────────────────────────
+   Franja de estado arriba y la rejilla de 12 debajo (.cols): peso 7 + calorías
+   5, y proporciones y registros a 12. Sin una sola tarjeta: cada sección es su
+   título con un filete. */
+.body-now-log{min-height:0;padding:0;align-self:flex-start;color:var(--color-text-primary);
+  text-decoration:underline;text-underline-offset:3px;font-weight:500}
+.weight-chart{display:block;width:100%;height:auto}
+.wc-grid{stroke:var(--color-line);stroke-width:1}
+.wc-base{stroke:var(--color-line-strong)}
+.wc-axis{font:500 11px var(--font-mono);fill:var(--color-text-secondary)}
+/* El SVG escala con su columna: en un móvil mide la mitad que su viewBox, así
+   que el texto del eje se dobla en unidades del dibujo para seguir en ~11 px. */
+@media(max-width:639px){.wc-axis{font-size:22px}}
+.wc-area{fill:var(--color-accent-wash)}
+.wc-line{fill:none;stroke:var(--color-action-primary);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.wc-dot{fill:var(--color-surface-0);stroke:var(--color-action-primary);stroke-width:2}
+.wc-last{fill:var(--color-action-primary)}
+.body-prop-empty{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);flex-wrap:wrap}
+.body-prop-empty p{max-width:var(--measure-prose);color:var(--color-text-secondary)}
+.prop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));column-gap:var(--sp-10)}
+.prop-grid .prop-row:first-child{border-top:1px solid var(--color-border-ghost)}
 /* ── Formularios: un campo por línea, sin estirar ───────── */
 @media(min-width:1024px){
 #strTrain>.row,#runTrain .row{max-width:var(--measure-form)}
