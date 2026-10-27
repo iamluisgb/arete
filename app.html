@@ -875,13 +875,16 @@
 </div>
 
 </div>
-<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal"><div class="modal"><h3 id="programModalTitle">Plan y fase</h3>
-  <p class="modal-note">Al cambiar de plan la fase vuelve a la primera y la cola de sesiones pendientes se recalcula.</p>
-  <div id="programOptions"></div>
-  <h4 class="modal-sub">Fase</h4>
-  <div id="phaseOptions"></div>
-  <button class="btn btn-outline" id="programModalClose">Cerrar</button>
-</div></div>
+<!-- Plan y fase se eligen juntos: el plan se despliega, la fase cambia (js/ui/plan-sheet.js). -->
+<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="programModalTitle" id="programModal">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h3 class="sheet-title" id="programModalTitle">Plan y fase</h3>
+      <button class="btn btn--ghost btn--icon" id="programModalClose" type="button" aria-label="Cerrar" title="Cerrar (Esc)"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+    </div>
+    <div class="sheet-body" id="planSheetBody"></div>
+  </div>
+</div>
 
 <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="runProgramModalTitle" id="runProgramModal"><div class="modal"><h3 id="runProgramModalTitle">Plan y semana</h3>
   <p class="modal-note">Al cambiar de plan vuelves a la Semana 1 y la cola de sesiones pendientes se recalcula.</p>

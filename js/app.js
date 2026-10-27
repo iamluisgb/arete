@@ -1,7 +1,7 @@
 import { loadDB, saveDB, setOnSave, setOnQuotaError, setOnExternalChange, exportData, importData, applyImport, clearAllData } from './data.js';
 import { migrateFromHash } from './migrate-origin.js';
 import { splitAndStoreRoutes } from './run-store.js';
-import { loadPrograms, setActiveProgram, getActiveProgram, getPrograms, getProgramList, isBuiltinProgram, validateProgram, importCustomProgram, deleteCustomProgram, getCustomPrograms } from './programs.js';
+import { loadPrograms, setActiveProgram, getPrograms, getProgramList, validateProgram, importCustomProgram, deleteCustomProgram, getCustomPrograms } from './programs.js';
 import { formatPace, parseRunDuration, formatRunDuration, getPaceZones, getHRZones, ZONE_COLORS } from './ui/running-helpers.js';
 import { today, esc, trapFocus } from './utils.js';
 import { DEBOUNCE_BACKUP_MS, SYNC_INDICATOR_MS, DEFAULT_HEIGHT, DEFAULT_AGE, LOCALE, REVISION_PREVIEW_LIMIT, APP_VERSION } from './constants.js';
@@ -15,6 +15,7 @@ import { initBody } from './ui/body.js';
 import { connectIfNeeded, isConnected, backupToDrive, syncNow, onSyncStatus, onPulled, onReconnectNeeded, clearStoredToken, startInitialSync } from './drive.js';
 import { initDriveUI } from './ui/drive-ui.js';
 import { initToast, toast } from './ui/toast.js';
+import { initPlanSheet, renderPlanSheet } from './ui/plan-sheet.js';
 import { initRunning } from './ui/running.js';
 import { renderDashboard, dismissStarter } from './ui/dashboard.js';
 import { initProfile, highlightDomain } from './ui/profile.js';
@@ -112,20 +113,10 @@ function renderCustomProgramsList() {
 }
 
 function renderProgramSelector() {
-  const progList = getProgramList();
   const active = db.program || 'arete';
-  const activeProg = progList.find(p => p.id === active);
+  const activeProg = getProgramList().find(p => p.id === active);
   document.getElementById('activeProgramName').textContent = activeProg?.name || active;
-
-  const modal = document.getElementById('programModal');
-  const options = document.getElementById('programOptions');
-  options.innerHTML = progList.map(p => {
-    const isCustom = !isBuiltinProgram(p.id);
-    const badge = isCustom ? ' <span class="custom-prog-badge">Custom</span>' : '';
-    return `<div class="prog-modal-item${p.id === active ? ' active' : ''}" data-prog="${esc(p.id)}">
-      <div class="listrow-main"><div class="prog-modal-name">${esc(p.name)}${badge}</div><div class="prog-modal-desc">${esc(p.desc)}</div></div>
-    </div>`;
-  }).join('');
+  renderPlanSheet(db);
 }
 
 // === INIT ===
@@ -429,33 +420,16 @@ function bindEvents() {
   });
   restoreLastTab(db);
 
-  // Program selector modal
-  document.getElementById('ctxChip').addEventListener('click', () => {
-    renderProgramSelector();
-    document.getElementById('programModal').classList.add('open');
-  });
-  document.getElementById('programModalClose').addEventListener('click', () => {
-    document.getElementById('programModal').classList.remove('open');
-  });
-  document.getElementById('programModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('programModal'))
-      document.getElementById('programModal').classList.remove('open');
-  });
-  document.getElementById('programOptions').addEventListener('click', (e) => {
-    const item = e.target.closest('.prog-modal-item');
-    if (!item) return;
-    const prog = item.dataset.prog;
-    if (prog === getActiveProgram()) { document.getElementById('programModal').classList.remove('open'); return; }
-    setActiveProgram(prog);
-    db.program = prog;
-    db.phase = parseInt(Object.keys(getPrograms())[0]) || 1;
-    saveDB(db);
-    updatePhaseUI(db);
-    populateSessions(db);
-    renderProgramSelector();
-    document.getElementById('historyFilter').value = '';
-    refreshActiveSection(db);
-    document.getElementById('programModal').classList.remove('open');
+  // Hoja de plan y fase: tras cambiar (o deshacer), lo que depende de ellos.
+  initPlanSheet(db, {
+    onChange: ({ programChanged }) => {
+      updatePhaseUI(db);
+      populateSessions(db);
+      renderProgramSelector();
+      // El filtro de Historial es por plan: con otro plan ya no apunta a nada.
+      if (programChanged) document.getElementById('historyFilter').value = '';
+      refreshActiveSection(db);
+    },
   });
 
   // Auto-sync toggle

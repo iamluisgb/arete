@@ -1,4 +1,3 @@
-import { saveDB } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { getPrograms, getAllPhases } from '../programs.js';
 import { renderCalendar } from './calendar.js';
@@ -12,6 +11,7 @@ import { refreshRunning, renderRunHistory, renderRunProgress } from './running.j
 import { renderDashboard } from './dashboard.js';
 import { renderProfile } from './profile.js';
 import { esc, phaseChipLabel } from '../utils.js';
+import { renderPlanSheet } from './plan-sheet.js';
 
 /** Update the phase name in the context bar */
 export function updatePhaseDisplay(db) {
@@ -231,40 +231,9 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
   });
 }
 
-/* La fase ya no tiene hoja propia: vive dentro de la de plan, porque es el
-   mismo contexto y dos chips no cabían en una fila a 360px. Estos dos nombres
-   se conservan porque son la API que usan training.js y los tests. */
-export function openPhaseModal() {
-  document.getElementById('programModal').classList.add('open');
-}
-
-export function closePhaseModal() {
-  document.getElementById('programModal').classList.remove('open');
-}
-
-export function renderPhaseModal(db) {
-  const phases = getAllPhases();
-  const container = document.getElementById('phaseOptions');
-  container.innerHTML = phases.map(p => `
-    <div class="phase-option${p.id === db.phase ? ' selected' : ''}" data-phase="${p.id}">
-      <div class="po-num">${ROMAN[p.id - 1] || p.id}</div>
-      <div class="po-text"><div class="po-title">${p.name}</div><div class="po-desc">${p.desc}</div></div>
-    </div>
-  `).join('');
-}
-
-export function selectPhase(n, db) {
-  db.phase = n;
-  saveDB(db);
-  updatePhaseDisplay(db);
-  renderPhaseModal(db);
-  populateSessions(db);
-  closePhaseModal();
-}
-
 export function updatePhaseUI(db) {
   updatePhaseDisplay(db);
-  renderPhaseModal(db);
+  renderPlanSheet(db);
 }
 
 /** Initialize navigation: tab switching, strength sub-tabs, and phase modal */
@@ -278,12 +247,6 @@ export function initNav(db) {
   });
   document.querySelectorAll('.train-mode-btn[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => switchTrainMode(btn.dataset.mode, db));
-  });
-  // La fase se elige dentro de la hoja de plan. El listener va sobre su lista,
-  // no sobre el modal entero: ahí dentro también se eligen planes.
-  document.getElementById('phaseOptions').addEventListener('click', (e) => {
-    const option = e.target.closest('.phase-option[data-phase]');
-    if (option) selectPhase(parseInt(option.dataset.phase), db);
   });
 }
 

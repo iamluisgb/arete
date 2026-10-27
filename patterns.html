@@ -120,6 +120,21 @@ Una sola primaria por vista.</p>
   <div class="listrow"><div class="listrow-main"><div class="listrow-name">Sentadilla</div><div class="listrow-meta">3×5</div></div><span class="listrow-chevron">›</span></div>
 </div>
 
+<h3>Plan y fase (lista desplegable)</h3>
+<div class="panel" style="max-width:var(--measure-form);padding:var(--sp-2)">
+  <h4 class="plan-group">De Areté</h4>
+  <div class="plan-item is-open">
+    <button type="button" class="plan-row" aria-expanded="true"><span class="plan-row-main"><span class="plan-row-name">Areté</span><span class="plan-row-meta">4 fases · Fuerza · Hipertrofia · Definición</span></span><span class="plan-row-now">Ahora</span><span class="material-symbols-outlined plan-row-chev" aria-hidden="true">expand_more</span></button>
+    <ul class="plan-phases" role="list">
+      <li><button type="button" class="plan-phase is-selected" aria-current="true"><span class="plan-phase-num">I</span><span class="plan-phase-text"><span class="plan-phase-name">Fuerza</span><span class="plan-phase-desc">Full-body · 3×5 · 6 sesiones</span></span><span class="plan-phase-side">Quedan 3 de 6</span></button></li>
+      <li><button type="button" class="plan-phase"><span class="plan-phase-num">II</span><span class="plan-phase-text"><span class="plan-phase-name">Hipertrofia</span><span class="plan-phase-desc">Torso-Pierna · 5 sesiones</span></span></button></li>
+    </ul>
+  </div>
+  <div class="plan-item"><button type="button" class="plan-row" aria-expanded="false"><span class="plan-row-main"><span class="plan-row-name">Freeletics</span><span class="plan-row-meta">5 fases · Sin equipamiento</span></span><span class="material-symbols-outlined plan-row-chev" aria-hidden="true">expand_more</span></button></div>
+</div>
+<p class="nota"><code>.plan-row</code> despliega sin cambiar nada; <code>.plan-phase</code> cambia plan y fase a la vez y se deshace con el toast.
+Un único seleccionado, en tinta. Usado en la hoja <code>#programModal</code>.</p>
+
 <h3>Campo</h3>
 <div style="max-width:var(--measure-form)">
   <label class="field" for="demo-campo"><span class="field-label">Peso</span>
