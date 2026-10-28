@@ -70,6 +70,9 @@ if (typeof document !== 'undefined') {
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
+    // ¿Se usa el 3D? Es la pregunta que decide si se anima el resto del
+    // catálogo. Sin Umami (localhost, tests) no hace nada.
+    window.umami?.track('Abrir 3D', { ejercicio: btn.dataset.anim3d });
     import('../anim3d/sheet.js').then(m => m.openAnim3d(btn.dataset.anim3d, btn.dataset.anim3dName));
   });
 }

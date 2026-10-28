@@ -35,6 +35,7 @@ const PUBLIC = [
   'blog',
   'blueprints',
   'programs',
+  'u',          // tracker de Umami auto-hospedado (u/s.js)
 ];
 
 const fromWorktree = process.argv.includes('--worktree');
