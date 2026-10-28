@@ -276,7 +276,7 @@ export function hinge(o) {
     const low = o.floorY ?? (kb ? KB_FLOOR : PLATE_R);
     const gy = lerp(stand - r + 0.012, low, s);
     // En el bloqueo la barra apoya en los muslos un poco por delante del mediopié.
-    const gx = MID_X + (kb ? 0.07 : 0.04) * (1 - s);
+    const gx = MID_X + (kb ? 0.09 : 0.04) * (1 - s);
     const grip = v2(gx, gy);
     const sx = gx + lerp(o.lockBack ?? -0.1, o.shoulderAhead ?? 0.05, s);
     const S = v2(sx, gy + Math.sqrt(Math.max(r * r - (sx - gx) ** 2, 0)));
