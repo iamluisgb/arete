@@ -20,6 +20,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -107,7 +108,8 @@ const EXERCISES = {
       for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (barOf(m).x < target) lo = m; else hi = m; }
       const tr = (lo + hi) / 2;
       const bar = barOf(tr);
-      return { A, K, H, tr, bar, wrist: add2(bar, v2(0.02, -0.06)), handDir: new THREE.Vector3(0.35, 1, 0), palm: new THREE.Vector3(1, -0.2, 0) };
+      // Mano detrás y debajo de la barra, palma hacia delante, dedos por encima.
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(-0.03, -0.055)), handDir: new THREE.Vector3(0.45, 1, 0) };
     },
   },
   deadlift: {
@@ -138,7 +140,8 @@ const EXERCISES = {
         if (barClear(A, K, H, bar)) break;
       }
       const tr = Math.atan2(S.x - H.x, S.y - H.y) - M.torsoOff;
-      return { A, K, H, tr, bar, wrist: add2(bar, v2(-0.01, 0.075)), handDir: new THREE.Vector3(-0.15, -1, 0), palm: new THREE.Vector3(-1, 0, 0) };
+      // Agarre prono: la mano por delante de la barra, nudillos al frente, dedos por debajo.
+      return { A, K, H, tr, bar, wrist: add2(bar, v2(0.025, 0.062)), handDir: new THREE.Vector3(-0.25, -1, 0) };
     },
   },
 };
@@ -319,30 +322,127 @@ const Z = new THREE.Vector3(0, 0, 1);
 const V = (p, z = 0) => new THREE.Vector3(p.x, p.y, z);
 const wp = n => B[n].getWorldPosition(new THREE.Vector3());
 
-/**
- * Mano cerrada sobre la barra. Primero gira la mano sobre el eje de sus dedos
- * hasta que la palma mire hacia `palm` (delante en la sentadilla, atrás en el
- * peso muerto); luego dobla cada falange alrededor del eje de los nudillos.
- */
-function grip(k, palm) {
-  const hand = B['hand_' + k];
-  const along = wp('middle_01_' + k).sub(wp('hand_' + k)).normalize();
-  const across = wp('index_01_' + k).sub(wp('pinky_01_' + k)).normalize();
-  // Normal de la palma: perpendicular a dedos y nudillos, hacia el lado del pulgar flexionado.
-  const sideSign = k === 'l' ? 1 : -1;
-  const normal = new THREE.Vector3().crossVectors(along, across).multiplyScalar(sideSign).normalize();
-  const want = palm.clone().addScaledVector(along, -palm.dot(along)).normalize();
-  const ang = Math.atan2(new THREE.Vector3().crossVectors(normal, want).dot(along), normal.dot(want));
-  rotateWorld(hand, new THREE.Quaternion().setFromAxisAngle(along, ang));
-  const axis = wp('index_01_' + k).sub(wp('pinky_01_' + k)).normalize().multiplyScalar(sideSign);
-  for (const f of ['index', 'middle', 'ring', 'pinky']) {
-    for (const n of ['01', '02', '03']) {
-      rotateWorld(B[`${f}_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(axis, rad(n === '01' ? 45 : 60)));
-    }
-  }
+const FINGERS = ['index', 'middle', 'ring', 'pinky'];
+const PHALANX_W = { '01': 0.38, '02': 0.36, '03': 0.26 };   // reparto de la flexión entre falanges
+const gripCache = {};                                        // giro de la mano y sentido de los dedos, por ejercicio y mano
+
+const tip = (f, k) => wp(`${f}_04_leaf_${k}`);
+const barDist = (p, bar) => Math.hypot(p.x - bar.x, p.y - bar.y);
+const CONTACT = BAR_R + 0.011;                               // eje de la barra a la yema: barra más grosor del dedo
+
+function handBones(k) {
+  return ['hand_' + k, ...FINGERS.flatMap(f => ['01', '02', '03'].map(n => `${f}_${n}_${k}`)),
+    ...['01', '02', '03'].map(n => `thumb_${n}_${k}`)].map(n => B[n]);
+}
+const saveQ = bones => bones.map(b => b.quaternion.clone());
+function restoreQ(bones, qs) { bones.forEach((b, i) => b.quaternion.copy(qs[i])); bones[0].updateMatrixWorld(true); }
+
+function knuckleAxis(k) { return wp('index_01_' + k).sub(wp('pinky_01_' + k)).normalize(); }
+function fingerAxis(k) { return wp('middle_01_' + k).sub(wp('hand_' + k)).normalize(); }
+
+/** Gira la mano sobre la normal de la palma hasta dejar los nudillos paralelos a la barra (eje z). */
+function squareToBar(k) {
+  const kn = knuckleAxis(k);
+  const n = new THREE.Vector3().crossVectors(fingerAxis(k), kn).normalize();
+  const z = kn.z >= 0 ? Z.clone() : Z.clone().negate();
+  const zp = z.addScaledVector(n, -z.dot(n)).normalize();
+  const ang = Math.atan2(new THREE.Vector3().crossVectors(kn, zp).dot(n), kn.dot(zp));
+  rotateWorld(B['hand_' + k], new THREE.Quaternion().setFromAxisAngle(n, ang));
 }
 
-function applyPose(ex, pose) {
+function bendFinger(f, k, axis, angle) {
+  for (const n of ['01', '02', '03']) rotateWorld(B[`${f}_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(axis, angle * PHALANX_W[n]));
+}
+
+/**
+ * Mano cerrada sobre la barra, sin suponer nada de cada mano: la primera vez
+ * se prueban giros de la mano sobre el eje de sus dedos y los dos sentidos de
+ * flexión, y se queda el que deja las yemas más cerca de la barra. Luego, en
+ * cada fotograma, cada dedo se cierra hasta tocarla, sin atravesarla.
+ */
+function grip(k, bar, key, plan) {
+  // Con plan (precalculado), se aplica tal cual: es lo que corre en cada fotograma.
+  if (plan) {
+    rotateWorld(B['hand_' + k], new THREE.Quaternion().setFromAxisAngle(fingerAxis(k), rad(plan.deg)));
+    squareToBar(k);
+    const axis = knuckleAxis(k).multiplyScalar(plan.sign);
+    FINGERS.forEach((f, i) => bendFinger(f, k, axis, plan.curls[i]));
+    if (plan.thumb >= 0) {
+      const ax = thumbAxes(k, axis)[plan.thumb];
+      for (const n of ['01', '02', '03']) rotateWorld(B[`thumb_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(ax, rad(n === '01' ? 25 : 35)));
+    }
+    return plan;
+  }
+
+  const bones = handBones(k);
+  const base = saveQ(bones);
+  const tryTwist = (deg, sign) => {
+    rotateWorld(B['hand_' + k], new THREE.Quaternion().setFromAxisAngle(fingerAxis(k), rad(deg)));
+    squareToBar(k);
+    const axis = knuckleAxis(k).multiplyScalar(sign);
+    for (const f of FINGERS) bendFinger(f, k, axis, rad(150));
+    const score = FINGERS.reduce((acc, f) => acc + Math.abs(barDist(tip(f, k), bar) - CONTACT), 0);
+    restoreQ(bones, base);
+    return score;
+  };
+  // La primera vez, búsqueda completa: giro y sentido de flexión. Después,
+  // cerca del último bueno (el antebrazo cambia poco de una profundidad a otra).
+  let best = gripCache[key + k];
+  if (!best) {
+    best = { score: Infinity };
+    for (let deg = 0; deg < 360; deg += 5) {
+      for (const sign of [1, -1]) {
+        const score = tryTwist(deg, sign);
+        if (score < best.score) best = { score, deg, sign };
+      }
+    }
+  } else {
+    const around = best;
+    best = { score: Infinity, sign: around.sign };
+    for (let d = -30; d <= 30; d += 5) {
+      const score = tryTwist(around.deg + d, around.sign);
+      if (score < best.score) best = { score, deg: around.deg + d, sign: around.sign };
+    }
+  }
+  gripCache[key + k] = best;
+  rotateWorld(B['hand_' + k], new THREE.Quaternion().setFromAxisAngle(fingerAxis(k), rad(best.deg)));
+  squareToBar(k);
+  const axis = knuckleAxis(k).multiplyScalar(best.sign);
+  const step = rad(10);
+  const curls = FINGERS.map(f => {
+    let prev = barDist(tip(f, k), bar), total = 0;
+    for (let a = 0; a < rad(200) && prev > CONTACT; a += step) {
+      bendFinger(f, k, axis, step); total += step;
+      const d = barDist(tip(f, k), bar);
+      if (d > prev + 0.002) { bendFinger(f, k, axis, -step); total -= step; break; }   // ya pasó de largo
+      prev = d;
+    }
+    return total;
+  });
+  // Pulgar: se cierra por el otro lado de la barra, en el sentido que más la acerque.
+  let thumb = -1;
+  thumbAxes(k, axis).some((ax, i) => {
+    const q0 = saveQ(bones);
+    const d0 = barDist(wp('thumb_04_leaf_' + k), bar);
+    for (const n of ['01', '02', '03']) rotateWorld(B[`thumb_${n}_${k}`], new THREE.Quaternion().setFromAxisAngle(ax, rad(n === '01' ? 25 : 35)));
+    if (barDist(wp('thumb_04_leaf_' + k), bar) < d0 - 0.004) { thumb = i; return true; }
+    restoreQ(bones, q0);
+    return false;
+  });
+  return { deg: best.deg, sign: best.sign, curls, thumb };
+}
+
+function thumbAxes(k, axis) {
+  const t = new THREE.Vector3().crossVectors(fingerAxis(k), knuckleAxis(k)).normalize();
+  return [t, t.clone().negate(), axis];
+}
+
+/** Interpola dos planes de agarre (giro y flexión de cada dedo). */
+function lerpPlan(a, b, f) {
+  return { deg: lerp(a.deg, b.deg, f), sign: a.sign, curls: a.curls.map((c, i) => lerp(c, b.curls[i], f)), thumb: f < 0.5 ? a.thumb : b.thumb };
+}
+
+function applyPose(ex, pose, s = null, collect = null) {
   // 1. Reposo.
   for (const [bone, r] of rest) { bone.position.copy(r.p); bone.quaternion.copy(r.q); }
   model.updateMatrixWorld(true);
@@ -374,10 +474,89 @@ function applyPose(ex, pose) {
     aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
     aim(B['lowerarm_' + k], B['hand_' + k], wrist);
     aimDir(B['hand_' + k], B['middle_01_' + k], pose.handDir);
-    grip(k, pose.palm);
+    const table = s == null || collect ? null : ex.gripTable?.[k];
+    let plan = null;
+    if (table) {
+      const x = THREE.MathUtils.clamp(s, 0, 1) * (table.length - 1), i = Math.min(Math.floor(x), table.length - 2);
+      plan = lerpPlan(table[i], table[i + 1], x - i);
+    }
+    const solved = grip(k, V(pose.bar, side * ex.grip), ex === EXERCISES.squat ? 'sq' : 'dl', plan);
+    if (collect) collect[k] = solved;
   }
 
   bar.position.set(pose.bar.x, pose.bar.y, 0);
+}
+
+// ── Rizos ────────────────────────────────────────────────
+// Los retratos romanos llevan el pelo en mechones cortos y rizados, tallados
+// como bucles sueltos sobre el cráneo. Se reparten por la superficie exterior
+// del peinado del modelo (que queda debajo como base, para que no asome el
+// cráneo entre bucle y bucle) y se funden en una sola malla.
+
+/** Generador pseudoaleatorio con semilla: el mismo peinado en cada carga. */
+function seeded(seed) {
+  return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+}
+
+function sculptCurls(capMesh) {
+  const rnd = seeded(7);
+  const g = capMesh.geometry;
+  const pos = g.attributes.position, idx = g.index;
+  g.computeBoundingBox();
+  const center = g.boundingBox.getCenter(new THREE.Vector3());
+  center.y -= 0.03;                                   // centro del cráneo, algo por debajo del casquete
+
+  // Triángulos de la cara exterior, con su área para repartir los puntos.
+  const tris = [];
+  let total = 0;
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
+  const count = idx ? idx.count / 3 : pos.count / 3;
+  for (let i = 0; i < count; i++) {
+    const [ia, ib, ic] = idx ? [idx.getX(3 * i), idx.getX(3 * i + 1), idx.getX(3 * i + 2)] : [3 * i, 3 * i + 1, 3 * i + 2];
+    a.fromBufferAttribute(pos, ia); b.fromBufferAttribute(pos, ib); c.fromBufferAttribute(pos, ic);
+    n.subVectors(c, b).cross(new THREE.Vector3().subVectors(a, b));
+    const area = n.length() / 2;
+    n.normalize();
+    const mid = a.clone().add(b).add(c).divideScalar(3);
+    const out = mid.clone().sub(center).normalize();
+    if (n.dot(out) < 0) n.negate();                   // la malla tiene dos caras: nos quedamos con la de fuera
+    if (n.dot(out) < 0.35 || n.y < -0.4) continue;
+    tris.push({ a: a.clone(), b: b.clone(), c: c.clone(), n: n.clone(), area });
+    total += area;
+  }
+
+  // Puntos repartidos sin amontonarse (dardos con distancia mínima).
+  const pts = [];
+  const minD = 0.0125;
+  for (let tries = 0; tries < 14000 && pts.length < 460; tries++) {
+    let r = rnd() * total, t = tris[0];
+    for (const tr of tris) { r -= tr.area; if (r <= 0) { t = tr; break; } }
+    let u = rnd(), v = rnd();
+    if (u + v > 1) { u = 1 - u; v = 1 - v; }
+    const p = t.a.clone().addScaledVector(t.b.clone().sub(t.a), u).addScaledVector(t.c.clone().sub(t.a), v);
+    if (pts.some(q => q.p.distanceToSquared(p) < minD * minD)) continue;
+    pts.push({ p, n: t.n });
+  }
+
+  // Dos tallas de bucle: anilla en espiral abierta y botón redondeado.
+  const ring = new THREE.TorusGeometry(1, 0.6, 6, 14, Math.PI * 1.45);
+  const knob = new THREE.SphereGeometry(1, 10, 8);
+  knob.scale(1, 1, 0.62);
+  const Zf = new THREE.Vector3(0, 0, 1);
+  const parts = pts.map(({ p, n: nn }) => {
+    const big = 0.0075 + rnd() * 0.0045;
+    const geo = (rnd() < 0.55 ? ring : knob).clone();
+    geo.scale(big, big, big * 0.9);
+    const tilt = new THREE.Quaternion().setFromEuler(new THREE.Euler((rnd() - 0.5) * 0.7, (rnd() - 0.5) * 0.7, rnd() * Math.PI * 2));
+    const q = new THREE.Quaternion().setFromUnitVectors(Zf, nn).multiply(tilt);
+    geo.applyMatrix4(new THREE.Matrix4().compose(p.clone().addScaledVector(nn, 0.0035), q, new THREE.Vector3(1, 1, 1)));
+    return geo;
+  });
+  const merged = mergeGeometries(parts.map(g2 => g2.toNonIndexed()));
+  merged.computeVertexNormals();
+  const curls = new THREE.Mesh(merged, capMesh.material);
+  curls.castShadow = true; curls.receiveShadow = true;
+  return curls;
 }
 
 // ── Proporciones clásicas ────────────────────────────────
@@ -449,6 +628,19 @@ function setBuild(name) {
   }
 }
 
+/** Agarre precalculado para 21 profundidades: en cada fotograma solo se interpola. */
+function buildGripTable(ex) {
+  if (ex.gripTable || !model) return;
+  const table = { l: [], r: [] };
+  for (let i = 0; i <= 20; i++) {
+    const out = {};
+    applyPose(ex, ex.pose(i / 20), null, out);
+    table.l.push(out.l);
+    table.r.push(out.r);
+  }
+  ex.gripTable = table;
+}
+
 // ── Acabados ─────────────────────────────────────────────
 function setFinish(name) {
   if (!model) return;
@@ -478,7 +670,12 @@ async function loadModel() {
   const hair = (await new GLTFLoader().loadAsync('model/hair.gltf')).scene;
   const toHead = new THREE.Matrix4().copy(B.Head.matrixWorld).invert().multiply(model.matrixWorld);
   hair.applyMatrix4(toHead);
-  hair.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  const caps = [];
+  hair.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; caps.push(o); } });
+  for (const cap of caps) {
+    // El casquete se encoge un poco hacia el cráneo: los rizos dan el volumen.
+    cap.add(sculptCurls(cap));
+  }
   B.Head.add(hair);
 
   model.traverse(o => { if (o.isSkinnedMesh && o.material.name.includes('Superhero')) sculptClassic(o); });
@@ -486,6 +683,7 @@ async function loadModel() {
 
   for (const [k, make] of Object.entries(FINISHES)) finishMats[k] = make(normalMap);
   setFinish('marble');
+  buildGripTable(ex);
 }
 
 // ── Reloj del ritmo ──────────────────────────────────────
@@ -535,7 +733,7 @@ function setCam(name) {
   controls.update();
 }
 
-function setEx(k) { ex = EXERCISES[k]; t = 0; renderTempo(); fillTrail(); }
+function setEx(k) { ex = EXERCISES[k]; t = 0; buildGripTable(ex); renderTempo(); fillTrail(); }
 segGroup('exSeg', d => setEx(d.ex));
 segGroup('camSeg', d => setCam(d.cam));
 segGroup('speedSeg', d => { speed = parseFloat(d.speed); });
@@ -573,7 +771,7 @@ function frame(now) {
   last = now;
   if (playing) t += dt * speed;
   const { s, i, rest: left } = sAt(t);
-  applyPose(ex, ex.pose(s));
+  applyPose(ex, ex.pose(s), s);
   if (i !== lastPhase) {
     $tempo.querySelectorAll('span').forEach((el, j) => el.classList.toggle('on', j === i));
     lastPhase = i;
@@ -597,6 +795,17 @@ window.__demo = {
   pause: () => { playing = false; },
   setTime: x => { t = x; },
   setEx, setCam, setFinish, setBuild,
+  bench: n => { const t0 = performance.now(); for (let i = 0; i < n; i++) { const s2 = (i % 20) / 20; applyPose(ex, ex.pose(s2), s2); } return (performance.now() - t0) / n; },
+  gripInfo: () => {
+    const p = ex.pose(sAt(t).s);
+    applyPose(ex, p, sAt(t).s);
+    return ['l', 'r'].map(k => {
+      const side = k === 'l' ? -1 : 1;
+      const bar = V(p.bar, side * ex.grip);
+      return { k, wrist: wp('hand_' + k).toArray().map(v => +v.toFixed(3)), target: V(p.wrist, side * ex.grip).toArray().map(v => +v.toFixed(3)), tips: FINGERS.map(f => +barDist(tip(f, k), bar).toFixed(3)) };
+    });
+  },
+  closeUp: (pos, target = [-0.07, 1.62, 0]) => { camera.position.set(...pos); controls.target.set(...target); controls.update(); },
   buildInfo: () => proportions.map(p => { let m = 0; for (let i = 0; i < p.classic.length; i++) m = Math.max(m, Math.abs(p.classic[i] - p.athletic[i])); return { n: p.classic.length / 3, maxMove: m }; }),
   debug: () => {
     const p = ex.pose(sAt(t).s);
