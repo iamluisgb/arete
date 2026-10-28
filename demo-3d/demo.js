@@ -234,6 +234,18 @@ function marbleTexture() {
 }
 
 const marbleMap = marbleTexture();
+/** La piel no se pinta en la franja de los pantalones (un poco por dentro del bajo y la cintura, para no dejar hueco). */
+function hideUnderShorts(m) {
+  m.onBeforeCompile = sh => {
+    sh.vertexShader = 'attribute float restY;\nvarying float vRestY;\n' + sh.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRestY = restY;');
+    sh.fragmentShader = 'varying float vRestY;\n' + sh.fragmentShader
+      .replace('void main() {', `void main() {\n  if (vRestY > ${(HEM_Y + 0.015).toFixed(3)} && vRestY < ${(WAIST_Y - 0.01).toFixed(3)}) discard;`);
+  };
+  m.customProgramCacheKey = () => 'skin-under-shorts';
+  return m;
+}
+
 const FINISHES = {
   // Mate: el mármol antiguo no brilla, se ve como piedra pulida hace siglos.
   marble: normalMap => new THREE.MeshPhysicalMaterial({
@@ -281,6 +293,7 @@ scene.add(guide);
 const B = {};                 // huesos por nombre
 const rest = new Map();       // pose de reposo, para empezar de cero cada fotograma
 let model = null;
+let loaded = false;           // todo listo: modelo, pelo, pantalones y agarre
 const finishMats = {};
 
 const _v = new THREE.Vector3(), _w = new THREE.Vector3(), _q = new THREE.Quaternion(), _p = new THREE.Quaternion();
@@ -626,7 +639,82 @@ function setBuild(name) {
     p.attr.array.set(name === 'classic' ? p.classic : p.athletic);
     p.attr.needsUpdate = true;
   }
+  if (shorts) fitShorts(name);
 }
+
+// ── Pantalones cortos ────────────────────────────────────
+// Se sacan del propio cuerpo: los triángulos entre la cintura y medio muslo,
+// separados de la piel y algo más en el bajo para que caiga como tela. Llevan
+// los mismos pesos de hueso que la piel, así que se mueven con ella.
+// Cintura al ombligo y bajo a un palmo de la rodilla.
+const WAIST_Y = 1.1, HEM_Y = 0.63;
+let shorts = null;
+
+function makeShorts(body) {
+  const g = body.geometry;
+  const pos = g.attributes.position, idx = g.index;
+  const y = new Float32Array(pos.count);
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) y[i] = v.fromBufferAttribute(pos, i).applyMatrix4(body.matrixWorld).y;
+  const keep = [];
+  for (let i = 0; i < idx.count; i += 3) {
+    const a = idx.getX(i), b = idx.getX(i + 1), c = idx.getX(i + 2);
+    // Basta con que el triángulo toque la franja: el borde exacto lo recorta el sombreador.
+    const lo = Math.min(y[a], y[b], y[c]), hi = Math.max(y[a], y[b], y[c]);
+    if (hi > HEM_Y && lo < WAIST_Y) keep.push(a, b, c);
+  }
+  const geo = new THREE.BufferGeometry();
+  for (const name of ['position', 'normal', 'uv', 'skinIndex', 'skinWeight']) geo.setAttribute(name, g.attributes[name].clone());
+  geo.setIndex(keep);
+  geo.setAttribute('restY', new THREE.BufferAttribute(y, 1));
+  const mesh = new THREE.SkinnedMesh(geo, clothMats.marble);
+  mesh.userData.cloth = true;
+  mesh.castShadow = true; mesh.receiveShadow = true; mesh.frustumCulled = false;
+  mesh.bind(body.skeleton, body.bindMatrix);
+  body.parent.add(mesh);
+  shorts = { mesh, body, y };
+  // La piel bajo los pantalones no se pinta: al flexionar la cadera, la malla
+  // se abulta más que la holgura de la tela y asomaría a través de ella.
+  body.geometry.setAttribute('restY', new THREE.BufferAttribute(y, 1));
+  fitShorts('classic');
+}
+
+/** Coloca la tela sobre la piel del cuerpo elegido (clásico o culturista). */
+function fitShorts(build) {
+  const { mesh, body, y } = shorts;
+  const src = proportions.find(p => p.attr === body.geometry.attributes.position);
+  const skin = build === 'classic' ? src.classic : src.athletic;
+  const nrm = body.geometry.attributes.normal;
+  const out = mesh.geometry.attributes.position;
+  for (let i = 0; i < out.count; i++) {
+    // Holgura: 7 mm en la cadera, hasta 2 cm en el bajo.
+    const flare = THREE.MathUtils.clamp((HEM_Y + 0.12 - y[i]) / 0.12, 0, 1);
+    const off = 0.007 + 0.013 * flare * flare;
+    out.setXYZ(i, skin[i * 3] + nrm.getX(i) * off, skin[i * 3 + 1] + nrm.getY(i) * off, skin[i * 3 + 2] + nrm.getZ(i) * off);
+  }
+  out.needsUpdate = true;
+  mesh.geometry.computeVertexNormals();
+}
+
+/**
+ * Tela: gris tinta mate, sin el relieve muscular de la piel. El bajo y la
+ * cintura se recortan en el sombreador por la altura en reposo de cada punto:
+ * el corte sale recto aunque la malla tenga los triángulos en diagonal.
+ */
+function clothMaterial(params) {
+  const m = new THREE.MeshStandardMaterial({ ...params, side: THREE.DoubleSide });
+  m.onBeforeCompile = sh => {
+    sh.vertexShader = 'attribute float restY;\nvarying float vRestY;\n' + sh.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRestY = restY;');
+    sh.fragmentShader = 'varying float vRestY;\n' + sh.fragmentShader
+      .replace('void main() {', `void main() {\n  if (vRestY < ${HEM_Y.toFixed(3)} || vRestY > ${WAIST_Y.toFixed(3)}) discard;`);
+  };
+  return m;
+}
+const clothMats = {
+  marble: clothMaterial({ color: 0x34302d, roughness: 0.92, metalness: 0 }),
+  bronze: clothMaterial({ color: 0x241e1a, roughness: 0.8, metalness: 0.1 }),
+};
 
 /** Agarre precalculado para 21 profundidades: en cada fotograma solo se interpola. */
 function buildGripTable(ex) {
@@ -644,7 +732,7 @@ function buildGripTable(ex) {
 // ── Acabados ─────────────────────────────────────────────
 function setFinish(name) {
   if (!model) return;
-  model.traverse(o => { if (o.isMesh) o.material = finishMats[name]; });
+  model.traverse(o => { if (o.isMesh) o.material = o.userData.cloth ? clothMats[name] : finishMats[name]; });
 }
 
 async function loadModel() {
@@ -678,12 +766,15 @@ async function loadModel() {
   }
   B.Head.add(hair);
 
-  model.traverse(o => { if (o.isSkinnedMesh && o.material.name.includes('Superhero')) sculptClassic(o); });
+  let body = null;
+  model.traverse(o => { if (o.isSkinnedMesh && o.material.name.includes('Superhero')) { sculptClassic(o); body = o; } });
+  makeShorts(body);
   setBuild('classic');
 
-  for (const [k, make] of Object.entries(FINISHES)) finishMats[k] = make(normalMap);
+  for (const [k, make] of Object.entries(FINISHES)) finishMats[k] = hideUnderShorts(make(normalMap));
   setFinish('marble');
   buildGripTable(ex);
+  loaded = true;
 }
 
 // ── Reloj del ritmo ──────────────────────────────────────
@@ -791,7 +882,7 @@ loadModel()
 
 // Para las pruebas: fijar el instante y la cámara desde fuera.
 window.__demo = {
-  ready: () => !!model,
+  ready: () => loaded,
   pause: () => { playing = false; },
   setTime: x => { t = x; },
   setEx, setCam, setFinish, setBuild,
