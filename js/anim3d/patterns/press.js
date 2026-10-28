@@ -26,7 +26,7 @@ const mixV = (a, b, t) => a.clone().lerp(b, t).normalize();
  */
 export function overheadPress(o = {}) {
   const stance = o.stance || { foot: 0.1, toeOut: 8 };
-  const gripZ = o.gripZ ?? 0.27;
+  const gripZ = o.gripZ ?? 0.24;
   return s => {
     const A = v2(ANKLE_X, M.ankleH);
     // Dip del push press: ~13° de rodilla, en el primer tercio.
@@ -41,7 +41,7 @@ export function overheadPress(o = {}) {
     const S = shoulderFrom(H, tr);
 
     // Barra: del rack (clavículas) al bloqueo (sobre el mediopié), vertical.
-    const R = torsoPoint(S, tr, o.rackFwd ?? 0.15, o.rackUp ?? 0);
+    const R = torsoPoint(S, tr, o.rackFwd ?? 0.15, o.rackUp ?? 0.05);
     const lockX = o.lockX ?? MID_X - 0.03;
     const dz = Math.abs(M.shoulderZ - gripZ);
     const lockY = S.y + Math.sqrt(Math.max((M.upper + M.fore + M.gripOff - 0.035) ** 2 - (lockX - S.x) ** 2 - dz * dz, 0));
@@ -55,11 +55,27 @@ export function overheadPress(o = {}) {
       wristMax: p < 0.25 ? 112 : undefined,
       neck: rad(o.neck ?? 12) * bump(p * 1.1) };
     const U = (a, b) => mixV(new THREE.Vector3(...a), new THREE.Vector3(...b), p);
-    pose.arms = both((k, side) => ({
-      grip: { point: V3(bar, side * gripZ), axis: ZAX,
-        forearm: U([...(o.fa || [0.5, -0.85]), 0], [0, -1, 0]), back: U([...(o.bk || [-0.4, -0.9]), 0], [-1, -0.1, 0]) },
-      pole: U([1, -0.5, side * 0.35], [-0.2, 0, side * 1]),
-    }));
+    // Antebrazos verticales en todo el recorrido: el codo va justo debajo de la
+    // muñeca, visto de lado y de frente, y un poco por delante de la barra en el
+    // rack. Con un `pole` fijo el codo se cerraba hacia dentro en el rack y se
+    // abría como un poste a media subida.
+    // Antebrazos verticales: el codo apunta a un punto justo debajo de la
+    // muñeca (visto de lado y de frente). Con un `pole` fijo se cerraba hacia
+    // dentro en el rack y se abría como un poste a media subida. `pole` es
+    // relativo al hombro: twoBone se queda con su parte perpendicular a la
+    // línea hombro-muñeca, que es justo la dirección hacia ese punto.
+    pose.arms = both((k, side) => {
+      const sh = V3(S, side * M.shoulderZ);
+      // En el rack la muñeca queda por fuera y a la altura del hombro: el punto
+      // se abre 10 cm para que el codo no se cierre, y se recoge al subir.
+      const out = lerp(o.wristOut ?? 0.1, 0.02, sm(p / 0.4)), fwd = lerp(o.elbowFwd ?? 0.04, 0, sm(p / 0.4));
+      const pole = V3(v2(bar.x + fwd, bar.y - M.fore), side * (gripZ + out)).sub(sh);
+      return {
+        grip: { point: V3(bar, side * gripZ), axis: ZAX,
+          forearm: U([...(o.fa || [0.08, -1]), 0], [0, -1, 0]), back: U([...(o.bk || [-0.4, -0.9]), 0], [-1, -0.1, 0]) },
+        pole,
+      };
+    });
     return pose;
   };
 }
