@@ -49,10 +49,8 @@ describe('design system: escala tipográfica', () => {
     '.68rem',     // .q-code: monoespaciado del chat
     // Cifras del entrenador de series: se leen a un metro, en movimiento, y su
     // tamaño forma parte del diseño de esa pantalla, no del texto de la app.
-    '3rem',       // .sr-in: el peso que tecleas
     '3.4rem',     // .sr-time: el cronómetro
-    '1.6rem',     // .sr-x: la "×" entre peso y reps
-    '4rem',       // .hiit-prep-count: la cuenta atrás de preparación
+    '4rem',       // .sr-in (peso y reps) y .hiit-prep-count (cuenta atrás)
     // Glifos de 7-8px dentro de las celdas del calendario, donde un icono de
     // 14 no cabe. No son iconos de interfaz: son marcas de densidad.
     '8px', '7px',

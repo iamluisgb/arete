@@ -20,6 +20,7 @@ import { esc } from '../utils.js';
 import { beep, vibrate } from './audio.js';
 import { exFmtTime } from './training-timer.js';
 import { pictHtml, tipFor, anim3dButton } from './exercise-pict.js';
+import { loadKind, BELLS } from '../progression.js';
 
 // Descanso por familia de ejercicio. Son solo el punto de partida: los botones
 // ±30s de la hoja guardan el valor ajustado, así que la app aprende tu ritmo en
@@ -56,6 +57,7 @@ let wakeLock = null;
 let onDirty = null;        // avisa a training.js para que persista el borrador
 let hooks = null;          // { summary(), save() } — los pone training.js
 let sessionStart = 0;      // instante de la primera apertura, para la duración
+let edited = false;        // si se tecleó en la serie en curso sin volcarlo aún
 
 // ── wake lock ────────────────────────────────────────────
 async function acquireWakeLock() {
@@ -133,10 +135,23 @@ function ensureSheet() {
     <div class="sr-phase sr-work">
       <div class="sr-illus"></div>
       <div class="sr-name"></div>
+      <div class="sr-sets"></div>
       <div class="sr-load">
-        <label><input class="sr-in sr-kg" type="number" step="0.5" inputmode="decimal" aria-label="Peso en kilos" autocomplete="off"><span>kg</span></label>
-        <span class="sr-x">×</span>
-        <label><input class="sr-in sr-reps" type="text" inputmode="numeric" aria-label="Repeticiones" autocomplete="off"><span>reps</span></label>
+        <div class="sr-col">
+          <label><input class="sr-in sr-kg" type="number" step="0.5" inputmode="decimal" aria-label="Peso en kilos" autocomplete="off"><span>kg</span></label>
+          <div class="sr-step">
+            <button type="button" class="sr-step-btn" data-step="kg" data-dir="-1" aria-label="Menos peso">−</button>
+            <button type="button" class="sr-step-btn" data-step="kg" data-dir="1" aria-label="Más peso">+</button>
+          </div>
+        </div>
+        <span class="sr-x" aria-hidden="true">×</span>
+        <div class="sr-col">
+          <label><input class="sr-in sr-reps" type="text" inputmode="numeric" aria-label="Repeticiones" autocomplete="off"><span>reps</span></label>
+          <div class="sr-step">
+            <button type="button" class="sr-step-btn" data-step="reps" data-dir="-1" aria-label="Una repetición menos">−</button>
+            <button type="button" class="sr-step-btn" data-step="reps" data-dir="1" aria-label="Una repetición más">+</button>
+          </div>
+        </div>
       </div>
       <div class="sr-prev"></div>
     </div>
@@ -190,6 +205,69 @@ function paintProgress() {
   }).join('');
 }
 
+/**
+ * Las series de ESTE ejercicio, con lo que se hizo o lo que toca. «Serie 1 de 3»
+ * decía dónde estás pero no cómo fueron las anteriores; aquí se ve de un golpe,
+ * y tocar una salta a ella (repetir la que salió mal, adelantar otra).
+ */
+function paintSets() {
+  const cur = sets[idx];
+  if (!cur) return;
+  $('.sr-sets').innerHTML = sets.map((s, n) => {
+    if (s.exIdx !== cur.exIdx) return '';
+    const k = input(s.exIdx, s.setIdx, 'kg');
+    const r = input(s.exIdx, s.setIdx, 'reps');
+    const kg = n === idx ? $('.sr-kg').value : (k?.value || (k?.placeholder !== '—' ? k?.placeholder : '') || '');
+    const reps = n === idx ? $('.sr-reps').value : (r?.value || s.ex.reps || '');
+    const done = isDone(s.exIdx, s.setIdx);
+    const cls = n === idx ? ' is-cur' : done ? ' is-done' : '';
+    const load = kg ? `${esc(String(kg))}×${esc(String(reps))}` : esc(String(reps));
+    return `<button type="button" class="sr-set${cls}" data-n="${n}"${n === idx ? ' aria-current="step"' : ''}>`
+      + `<b>S${s.setIdx + 1}${done ? ' ✓' : ''}</b><span>${load}</span></button>`;
+  }).join('');
+}
+
+/** Cifras largas bajan un escalón («2.5», «1000») o dos («112.5») para caber a 320px. */
+function fitLoad() {
+  ['.sr-kg', '.sr-reps'].forEach(sel => {
+    const el = $(sel);
+    const len = String(el.value).length;
+    el.classList.toggle('sr-in--long', len === 4);
+    el.classList.toggle('sr-in--xlong', len > 4);
+  });
+}
+
+const round1 = v => Math.round(v * 10) / 10;
+
+/**
+ * Un toque de − / +. El peso salta lo que se puede cargar: 2,5 en barra (un
+ * disco de 1,25 por lado) y de pesa en pesa en kettlebell. Las reps conservan
+ * el sufijo que ponga el plan («5/lado»).
+ */
+function stepValue(field, dir) {
+  const s = sets[idx];
+  if (field === 'kg') {
+    const el = $('.sr-kg');
+    const kg = parseFloat(el.value) || 0;
+    let next;
+    if (loadKind(s.name, undefined, kg || undefined) === 'kb') {
+      next = dir > 0 ? (BELLS.find(b => b > kg) ?? kg + 4)
+        : ([...BELLS].reverse().find(b => b < kg) ?? 0);
+    } else {
+      next = round1(kg + dir * 2.5);
+    }
+    el.value = Math.max(0, next) || '';
+  } else {
+    const el = $('.sr-reps');
+    const m = String(el.value || s.ex.reps || '').match(/^(\d+)(.*)$/);
+    const n = m ? parseInt(m[1], 10) : 0;
+    el.value = `${Math.max(0, n + dir)}${m ? m[2] : ''}`;
+  }
+  writeBack(idx, $('.sr-kg').value, $('.sr-reps').value);
+  fitLoad();
+  paintSets();
+}
+
 function paintRing() {
   const pct = restTotal ? Math.max(restLeft, 0) / restTotal : 0;
   const prog = $('.sr-prog');
@@ -209,9 +287,13 @@ function setPhase(p) {
 function showWork(n) {
   stopRest();
   idx = n;
+  edited = false;
   const s = sets[n];
   if (!s) return finish();
-  $('.sr-ex').innerHTML = pictHtml(s.name) + esc(s.name);
+  // El nombre y el dibujo ya van grandes en el centro: arriba basta con decir
+  // por dónde va la sesión.
+  const exs = [...new Set(sets.map(x => x.exIdx))];
+  $('.sr-ex').textContent = `Ejercicio ${exs.indexOf(s.exIdx) + 1} de ${exs.length}`;
   $('.sr-pos').textContent = `Serie ${s.setIdx + 1} de ${s.ex.sets}`;
   $('.sr-illus').innerHTML = pictHtml(s.name, 'lg') + anim3dButton(s.name);
   $('.sr-name').textContent = s.name;
@@ -222,6 +304,8 @@ function showWork(n) {
   const prevR = input(s.exIdx, s.setIdx, 'reps')?.placeholder || '';
   $('.sr-prev').textContent = (prevK && prevK !== '—')
     ? `La última vez: ${prevK} × ${prevR}` : '';
+  fitLoad();
+  paintSets();
   const cta = $('.sr-cta');
   cta.textContent = 'Serie hecha ✓';
   cta.classList.remove('ready');
@@ -410,6 +494,22 @@ function bindSheet() {
       rememberRest(sets[idx].ex, ajustado);
       announceRest(ajustado);
     });
+  });
+  sheet.querySelectorAll('.sr-step-btn').forEach(b => {
+    b.addEventListener('click', () => stepValue(b.dataset.step, parseInt(b.dataset.dir, 10)));
+  });
+  ['.sr-kg', '.sr-reps'].forEach(sel => {
+    $(sel).addEventListener('input', () => { edited = true; fitLoad(); paintSets(); });
+  });
+  $('.sr-sets').addEventListener('click', e => {
+    const b = e.target.closest('.sr-set');
+    if (!b || phase !== 'work') return;
+    const n = parseInt(b.dataset.n, 10);
+    if (n === idx) return;
+    // lo tecleado en la serie que dejas no se pierde; si no tocaste nada, la
+    // grid se queda como estaba (con su prefill marcado como sugerencia)
+    if (edited) writeBack(idx, $('.sr-kg').value, $('.sr-reps').value);
+    showWork(n);
   });
   // corregir la serie recién hecha sin volver a la lista
   ['.sr-did-kg', '.sr-did-reps'].forEach(sel => {

@@ -2212,12 +2212,31 @@ body.session-focus{padding-bottom:0;overflow:hidden}
 .sr-done-delta.up{color:var(--color-state-success);font-weight:700}
 .sr-done-delta.down{color:var(--color-text-secondary);font-weight:700}
 .sr-name{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.02em;text-align:center}
-.sr-load{display:flex;align-items:flex-start;gap:var(--sp-3);margin-top:var(--sp-2)}
+/* Las series del ejercicio en curso: lo hecho, lo que toca y lo que falta. */
+.sr-sets{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-2);margin-top:var(--sp-1)}
+.sr-sets:empty{display:none}
+.sr-set{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:64px;min-height:44px;padding:6px 10px;border-radius:var(--radius-md);border:1px solid var(--color-border-ghost);background:none;color:var(--color-text-secondary);font-family:var(--font);font-variant-numeric:tabular-nums;cursor:pointer}
+.sr-set b{font-size:var(--fs-2xs);font-weight:800;letter-spacing:.06em}
+.sr-set span{font-size:var(--fs-sm);font-weight:700}
+.sr-set.is-done b{color:var(--color-state-success)}
+.sr-set.is-cur{background:var(--color-surface-2);border-color:transparent;color:var(--color-text-primary)}
+/* Peso y reps son lo que se lee desde el banco: ocupan el ancho que hay. */
+.sr-load{display:flex;align-items:flex-start;justify-content:center;gap:var(--sp-2);margin-top:var(--sp-3);width:100%}
+.sr-col{flex:1 1 0;min-width:0;max-width:200px;display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2)}
 .sr-load label{display:flex;flex-direction:column;align-items:center;gap:2px}
-.sr-load span{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-secondary);font-weight:700}
-.set-runner .sr-in{width:122px;flex:0 0 auto;padding:10px 4px;font-size:3rem;font-weight:800;text-align:center;border-radius:var(--radius-lg);border:none;background:var(--color-surface-1);color:var(--color-text-primary);font-family:var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.04em;min-height:76px}
+.sr-load label span{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-secondary);font-weight:700}
+.sr-step{display:flex;gap:var(--sp-2)}
+.sr-step-btn{flex:1;min-height:48px;border-radius:var(--radius-pill);border:1px solid var(--color-border-ghost);background:var(--color-surface-1);color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-xl);font-weight:700;cursor:pointer;line-height:1}
+.sr-step-btn:active{transform:scale(.95);background:var(--color-surface-2)}
+.set-runner .sr-in{width:100%;flex:0 0 auto;padding:8px 2px;font-size:4rem;font-weight:800;text-align:center;border-radius:var(--radius-lg);border:none;background:var(--color-surface-1);color:var(--color-text-primary);font-family:var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.04em;min-height:92px;line-height:1}
+.set-runner .sr-in.sr-in--long{font-size:var(--fs-4xl)}
+.set-runner .sr-in.sr-in--xlong{font-size:var(--fs-3xl)}
+/* Sin flechas del navegador: para eso están − y +, y roban ancho a la cifra. */
+.set-runner .sr-in::-webkit-inner-spin-button,.set-runner .sr-in::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.set-runner .sr-in[type=number]{-moz-appearance:textfield;appearance:textfield}
 .set-runner .sr-in:focus{outline:2px solid var(--color-accent-text);outline-offset:1px}
-.sr-x{font-size:1.6rem;color:var(--color-text-secondary);font-weight:700;margin-top:16px}
+/* Centrada en la altura de la cifra (92px), no arriba como un superíndice. */
+.sr-x{font-size:var(--fs-xl);color:var(--color-text-secondary);font-weight:700;flex:0 0 auto;height:92px;display:flex;align-items:center}
 .sr-prev{font-size:var(--fs-base);color:var(--color-text-secondary);font-weight:600;margin-top:var(--sp-3);min-height:1.2em}
 .sr-ring{position:relative;width:220px;height:220px}
 .sr-ring svg{transform:rotate(-90deg);width:100%;height:100%}

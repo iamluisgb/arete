@@ -147,7 +147,8 @@ describe('avance por las series', () => {
     prepareRunner(EJERCICIOS, () => {});
     openRunner();
     for (let i = 0; i < 2; i++) { $('.sr-cta').click(); $('.sr-cta').click(); }
-    expect($('.sr-ex').textContent).toContain('Remo con barra');
+    expect($('.sr-name').textContent).toBe('Remo con barra');
+    expect($('.sr-ex').textContent).toBe('Ejercicio 2 de 2');
 
     $('.sr-kg').value = '60';
     $('.sr-reps').value = '8';
@@ -259,5 +260,80 @@ describe('sesiones mixtas', () => {
       { name: 'Remo', sets: 1, reps: '8', type: 'assist' },
     ];
     expect(buildSetList(mixta).map(s => s.exIdx)).toEqual([0, 2]);
+  });
+});
+
+describe('fase de trabajo: series del ejercicio y botones − / +', () => {
+  it('enseña solo las series del ejercicio en curso y marca la actual', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    const chips = $$('.sr-set');
+    expect(chips).toHaveLength(2);
+    expect(chips[0].getAttribute('aria-current')).toBe('step');
+    expect(chips[1].textContent).toContain('S2');
+  });
+
+  it('una serie hecha lleva ✓ en su chip', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    $('.sr-kg').value = '100';
+    $('.sr-cta').click();          // serie hecha → descanso
+    $('.sr-cta').click();          // saltar descanso
+    expect($$('.sr-set')[0].textContent).toContain('S1 ✓');
+    expect($$('.sr-set')[0].textContent).toContain('100×5');
+  });
+
+  it('tocar un chip salta a esa serie', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    $$('.sr-set')[1].click();
+    expect($('.sr-pos').textContent).toBe('Serie 2 de 2');
+  });
+
+  it('saltar sin tocar nada no pisa el prefill de la grid', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    $$('.sr-set')[1].click();
+    expect(input(0, 0, 'kg').classList.contains('prefilled')).toBe(true);
+  });
+
+  it('+ y − mueven el peso de 2,5 en 2,5 y lo vuelcan a la grid', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    $('.sr-kg').value = '100';
+    $('.sr-step-btn[data-step="kg"][data-dir="1"]').click();
+    expect($('.sr-kg').value).toBe('102.5');
+    expect(input(0, 0, 'kg').value).toBe('102.5');
+    $('.sr-step-btn[data-step="kg"][data-dir="-1"]').click();
+    $('.sr-step-btn[data-step="kg"][data-dir="-1"]').click();
+    expect($('.sr-kg').value).toBe('97.5');
+  });
+
+  it('en kettlebell el peso salta de pesa en pesa', () => {
+    const kb = [{ name: 'Swing con kettlebell', sets: 1, reps: '15', type: 'main' }];
+    montarGrid(kb);
+    prepareRunner(kb, () => {});
+    openRunner();
+    $('.sr-kg').value = '16';
+    $('.sr-step-btn[data-step="kg"][data-dir="1"]').click();
+    expect($('.sr-kg').value).toBe('20');
+  });
+
+  it('las reps conservan el sufijo del plan y no bajan de 0', () => {
+    const lado = [{ name: 'Zancada', sets: 1, reps: '5/lado', type: 'assist' }];
+    montarGrid(lado);
+    prepareRunner(lado, () => {});
+    openRunner();
+    $('.sr-reps').value = '5/lado';
+    $('.sr-step-btn[data-step="reps"][data-dir="1"]').click();
+    expect($('.sr-reps').value).toBe('6/lado');
+    $('.sr-reps').value = '0';
+    $('.sr-step-btn[data-step="reps"][data-dir="-1"]').click();
+    expect($('.sr-reps').value).toBe('0');
   });
 });

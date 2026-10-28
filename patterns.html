@@ -140,6 +140,28 @@ Un único seleccionado, en tinta. Usado en la hoja <code>#programModal</code>.</
 <p class="nota"><code>.anim3d-btn</code> junto a la ilustración de los ejercicios con animación (<code>js/anim3d/catalog.js</code>).
 Abre la hoja <code>.anim3d-sheet</code>: sala oscura, figura en mármol, ritmo y vista.</p>
 
+<h3>Runner de series: fase de trabajo</h3>
+<div class="set-runner up" style="position:static;transform:none;visibility:visible;padding:var(--sp-4);max-width:420px;border-radius:var(--radius-lg)">
+  <div class="sr-sets" style="max-width:none">
+    <button type="button" class="sr-set is-done"><b>S1 ✓</b><span>110×1</span></button>
+    <button type="button" class="sr-set is-cur" aria-current="step"><b>S2</b><span>110×1</span></button>
+    <button type="button" class="sr-set"><b>S3</b><span>110×1</span></button>
+  </div>
+  <div class="sr-load">
+    <div class="sr-col">
+      <label><input class="sr-in" type="number" value="110" aria-label="Peso en kilos"><span>kg</span></label>
+      <div class="sr-step"><button type="button" class="sr-step-btn" aria-label="Menos peso">−</button><button type="button" class="sr-step-btn" aria-label="Más peso">+</button></div>
+    </div>
+    <span class="sr-x" aria-hidden="true">×</span>
+    <div class="sr-col">
+      <label><input class="sr-in" type="text" value="1" aria-label="Repeticiones"><span>reps</span></label>
+      <div class="sr-step"><button type="button" class="sr-step-btn" aria-label="Una repetición menos">−</button><button type="button" class="sr-step-btn" aria-label="Una repetición más">+</button></div>
+    </div>
+  </div>
+</div>
+<p class="nota"><code>.sr-sets</code>: las series del ejercicio en curso; tocar una salta a ella. <code>.sr-load</code>: cifras a 4rem
+(bajan a <code>--fs-4xl</code> y <code>--fs-3xl</code> con <code>.sr-in--long</code> / <code>--xlong</code>) y <code>.sr-step</code> con el salto cargable: 2,5 kg en barra, de pesa en pesa en kettlebell.</p>
+
 <h3>Campo</h3>
 <div style="max-width:var(--measure-form)">
   <label class="field" for="demo-campo"><span class="field-label">Peso</span>
