@@ -131,7 +131,7 @@ function ensureSheet() {
   sheet.setAttribute('aria-label', 'Sesión en curso');
   sheet.innerHTML = `
     <div class="sr-top"><span class="sr-ex"></span><span class="sr-pos"></span></div>
-    <div class="sr-progress"></div>
+    <div class="sr-progress" aria-hidden="true"></div>
     <div class="sr-phase sr-work">
       <div class="sr-illus"></div>
       <div class="sr-name"></div>
@@ -198,10 +198,28 @@ const $ = sel => sheet.querySelector(sel);
 // ── pintado ──────────────────────────────────────────────
 const RING_C = 2 * Math.PI * 106;
 
+/**
+ * Una raya por serie, agrupadas por ejercicio. Con todas iguales y seguidas,
+ * 16 rayas no decían dónde acaba la sentadilla y empieza el press: el hueco
+ * entre grupos marca el ejercicio y el grupo en curso va más grueso.
+ */
 function paintProgress() {
-  $('.sr-progress').innerHTML = sets.map((s, n) => {
-    const cls = isDone(s.exIdx, s.setIdx) ? 'd' : (n === idx ? 'a' : '');
-    return `<i class="${cls}"></i>`;
+  const groups = [];
+  sets.forEach((s, n) => {
+    const last = groups[groups.length - 1];
+    if (last && last.exIdx === s.exIdx) last.items.push(n);
+    else groups.push({ exIdx: s.exIdx, items: [n] });
+  });
+  const cur = sets[idx]?.exIdx;
+  $('.sr-progress').innerHTML = groups.map(g => {
+    const allDone = g.items.every(n => isDone(sets[n].exIdx, sets[n].setIdx));
+    const gcls = g.exIdx === cur && phase !== 'done' ? ' is-cur' : allDone ? ' is-done' : '';
+    const bars = g.items.map(n => {
+      const s = sets[n];
+      const cls = isDone(s.exIdx, s.setIdx) ? 'd' : (n === idx && phase !== 'done' ? 'a' : '');
+      return `<i class="${cls}"></i>`;
+    }).join('');
+    return `<span class="sr-pg${gcls}" style="flex-grow:${g.items.length}">${bars}</span>`;
   }).join('');
 }
 

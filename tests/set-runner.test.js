@@ -337,3 +337,26 @@ describe('fase de trabajo: series del ejercicio y botones − / +', () => {
     expect($('.sr-reps').value).toBe('0');
   });
 });
+
+describe('barra de progreso agrupada por ejercicio', () => {
+  it('un grupo por ejercicio, con una raya por serie', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    const grupos = $$('.sr-progress .sr-pg');
+    expect(grupos).toHaveLength(2);
+    expect(grupos[0].querySelectorAll('i')).toHaveLength(2);
+    expect(grupos[1].querySelectorAll('i')).toHaveLength(1);
+  });
+
+  it('marca el ejercicio en curso y el terminado', () => {
+    montarGrid(EJERCICIOS);
+    prepareRunner(EJERCICIOS, () => {});
+    openRunner();
+    expect($$('.sr-pg')[0].classList.contains('is-cur')).toBe(true);
+    for (let i = 0; i < 2; i++) { $('.sr-cta').click(); $('.sr-cta').click(); }
+    const [primero, segundo] = $$('.sr-pg');
+    expect(primero.classList.contains('is-done')).toBe(true);
+    expect(segundo.classList.contains('is-cur')).toBe(true);
+  });
+});
