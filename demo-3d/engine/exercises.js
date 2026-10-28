@@ -1,0 +1,69 @@
+// Catálogo de ejercicios animados. Cada uno es un patrón de poses.js con sus
+// ajustes, su ritmo y desde dónde se ve mejor. Los `id` son los de la
+// ontología de la app (js/exercise-ontology.js).
+//
+// Ritmo: fases con su duración y entre qué profundidades va (0 → 1 → 0).
+
+import { squat, pistol, calfRaise, hinge, singleLegHinge } from './poses.js';
+
+const SQUAT_TEMPO = [
+  { label: 'Bajada', dur: 3, from: 0, to: 1 },
+  { label: 'Pausa', dur: 1, from: 1, to: 1 },
+  { label: 'Subida', dur: 1, from: 1, to: 0 },
+  { label: 'Arriba', dur: 1, from: 0, to: 0 },
+];
+// El peso muerto empieza en el suelo.
+const DEADLIFT_TEMPO = [
+  { label: 'Subida', dur: 1.2, from: 1, to: 0 },
+  { label: 'Bloqueo', dur: 1, from: 0, to: 0 },
+  { label: 'Bajada', dur: 2, from: 0, to: 1 },
+  { label: 'Suelo', dur: 1, from: 1, to: 1 },
+];
+// Rumano y a una pierna empiezan arriba.
+const RDL_TEMPO = [
+  { label: 'Bajada', dur: 3, from: 0, to: 1 },
+  { label: 'Abajo', dur: 0.5, from: 1, to: 1 },
+  { label: 'Subida', dur: 1.5, from: 1, to: 0 },
+  { label: 'Arriba', dur: 1, from: 0, to: 0 },
+];
+const CALF_TEMPO = [
+  { label: 'Subida', dur: 1, from: 0, to: 1 },
+  { label: 'Arriba', dur: 1, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
+];
+
+export const EXERCISES = [
+  // ── Sentadillas ──
+  { id: 'squat', name: 'Sentadilla', family: 'Sentadilla', gear: 'Barra', cam: 'side',
+    pose: squat({ load: 'back' }), tempo: SQUAT_TEMPO },
+  { id: 'front-squat', name: 'Sentadilla frontal', family: 'Sentadilla', gear: 'Barra', cam: 'side',
+    pose: squat({ load: 'front', shank: 36, thigh: 115 }), tempo: SQUAT_TEMPO },
+  { id: 'kb-sentadilla', name: 'Sentadilla goblet', family: 'Sentadilla', gear: 'Pesa rusa', cam: 'three',
+    pose: squat({ load: 'goblet', shank: 36, thigh: 118, stance: { foot: 0.19, knee: 0.24, toeOut: 15 } }), tempo: SQUAT_TEMPO },
+  { id: 'rack-squat', name: 'Sentadilla en rack', family: 'Sentadilla', gear: 'Dos pesas rusas', cam: 'three',
+    pose: squat({ load: 'rack', shank: 35, thigh: 112, stance: { foot: 0.18, knee: 0.22, toeOut: 10 } }), tempo: SQUAT_TEMPO },
+  { id: 'sentadilla-basica', name: 'Sentadilla básica', family: 'Sentadilla', gear: 'Sin material', cam: 'three',
+    pose: squat({ load: 'none', shank: 32, thigh: 108, stance: { foot: 0.16, knee: 0.19, toeOut: 10 } }), tempo: SQUAT_TEMPO },
+  { id: 'pistol-squat', name: 'Pistol squat', family: 'Sentadilla', gear: 'Sin material', cam: 'side',
+    pose: pistol(), tempo: SQUAT_TEMPO },
+  { id: 'elevacion-talones', name: 'Elevación de talones', family: 'Sentadilla', gear: 'Sin material', cam: 'side',
+    pose: calfRaise(), tempo: CALF_TEMPO },
+  // ── Bisagras de cadera ──
+  { id: 'deadlift', name: 'Peso muerto', family: 'Bisagra de cadera', gear: 'Barra', cam: 'side',
+    pose: hinge({ implement: 'barbell' }), tempo: DEADLIFT_TEMPO },
+  { id: 'romanian-deadlift', name: 'Peso muerto rumano', family: 'Bisagra de cadera', gear: 'Barra', cam: 'side',
+    pose: hinge({ implement: 'barbell', romanian: true, kneeMax: 5, floorY: 0.47, shoulderAhead: 0.07 }), tempo: RDL_TEMPO, start: 0 },
+  { id: 'kb-deadlift', name: 'Peso muerto con pesa rusa', family: 'Bisagra de cadera', gear: 'Pesa rusa', cam: 'three',
+    pose: hinge({ implement: 'kettlebell', stance: { foot: 0.18, knee: 0.2, toeOut: 10 }, kneeMax: 22 }), tempo: DEADLIFT_TEMPO },
+  { id: 'kb-deadlift-sumo', name: 'Peso muerto sumo', family: 'Bisagra de cadera', gear: 'Pesa rusa', cam: 'front',
+    pose: hinge({ implement: 'kettlebell', stance: { foot: 0.32, knee: 0.38, toeOut: 30 }, kneeMax: 24, shoulderAhead: 0.02 }), tempo: DEADLIFT_TEMPO },
+  { id: 'kb-deadlift-maleta', name: 'Peso muerto maleta', family: 'Bisagra de cadera', gear: 'Pesa rusa', cam: 'three',
+    pose: hinge({ implement: 'suitcase', stance: { foot: 0.12, knee: 0.13 }, kneeMax: 22 }), tempo: DEADLIFT_TEMPO },
+  { id: 'pm-unilateral', name: 'Peso muerto a una pierna', family: 'Bisagra de cadera', gear: 'Barra', cam: 'three',
+    pose: singleLegHinge({ implement: 'barbell' }), tempo: RDL_TEMPO },
+  { id: 'kb-single-leg-deadlift', name: 'Peso muerto a una pierna con pesa rusa', family: 'Bisagra de cadera', gear: 'Pesa rusa', cam: 'three',
+    pose: singleLegHinge({ implement: 'kettlebell' }), tempo: RDL_TEMPO },
+];
+
+export const byId = id => EXERCISES.find(e => e.id === id);

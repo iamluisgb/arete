@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Areté · demo de animación 3D</title>
+<title>Areté · ejercicios en 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -36,6 +36,9 @@
   .note{font-size:12px;color:var(--t3);line-height:1.45;margin:2px 4px 0}
   label.chk{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--t2);cursor:pointer;min-height:36px}
   label.chk input{width:18px;height:18px;accent-color:var(--ink)}
+  select{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-height:40px;max-width:100%}
+  .gear{font-size:13px;color:var(--t2)}
+  header a{color:var(--t2);font-size:13px}
 </style>
 <script type="importmap">
 { "imports": {
@@ -46,8 +49,8 @@
 </head>
 <body>
 <header>
-  <h1>Animación de ejercicio en 3D</h1>
-  <p class="sub">Demo de la fase 0 · propuesta en docs/PROPUESTA-ANIMACIONES-3D.md</p>
+  <h1>Ejercicios en 3D</h1>
+  <p class="sub">Tanda 1 · sentadillas y bisagras de cadera · <a href="review.html">hoja de revisión</a></p>
 </header>
 
 <div id="stage">
@@ -57,15 +60,13 @@
 
 <div class="panel">
   <div class="row"><span class="lbl">Ejercicio</span>
-    <div class="seg" id="exSeg">
-      <button type="button" data-ex="squat" aria-pressed="true">Sentadilla</button>
-      <button type="button" data-ex="deadlift" aria-pressed="false">Peso muerto</button>
-    </div>
+    <select id="exSelect" aria-label="Ejercicio"></select>
+    <span class="gear" id="gear"></span>
   </div>
   <div class="row"><span class="lbl">Cámara</span>
     <div class="seg" id="camSeg">
-      <button type="button" data-cam="three" aria-pressed="true">3/4</button>
       <button type="button" data-cam="side" aria-pressed="false">Lado</button>
+      <button type="button" data-cam="three" aria-pressed="false">3/4</button>
       <button type="button" data-cam="front" aria-pressed="false">Frente</button>
     </div>
   </div>
@@ -88,11 +89,11 @@
       <button type="button" data-speed="1" aria-pressed="true">×1</button>
       <button type="button" data-speed="0.5" aria-pressed="false">×0,5</button>
     </div>
-    <label class="chk"><input type="checkbox" id="trail" checked> Trayectoria de la barra</label>
+    <label class="chk"><input type="checkbox" id="trail" checked> Trayectoria</label>
   </div>
-  <p class="note">Figura: Universal Base Characters de Quaternius (CC0), con las proporciones rebajadas al canon clásico y acabado de estatua de mármol. El movimiento no está animado a mano: sale de la profundidad de la repetición y de cuatro reglas que se cumplen en cada fotograma (pies quietos, barra sobre el mediopié, la barra no atraviesa el cuerpo y espalda en bloque).</p>
+  <p class="note">Figura: Universal Base Characters de Quaternius (CC0), con las proporciones rebajadas al canon clásico y acabado de estatua de mármol. El movimiento no está animado a mano: sale de la profundidad de la repetición y de cuatro reglas que se cumplen en cada fotograma (pies quietos, la carga sobre el mediopié, la barra no atraviesa el cuerpo, espalda en bloque y el puño sobre el implemento).</p>
 </div>
 
-<script type="module" src="demo.js"></script>
+<script type="module" src="viewer.js"></script>
 </body>
 </html>
