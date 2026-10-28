@@ -7,6 +7,7 @@
 import { squat, pistol, calfRaise, hinge, singleLegHinge } from './poses.js';
 import { overheadPress, kbThruster } from './patterns/press.js';
 import { row } from './patterns/row.js';
+import { barbellCurl, shrug } from './patterns/arms.js';
 
 const SQUAT_TEMPO = [
   { label: 'Bajada', dur: 3, from: 0, to: 1 },
@@ -56,6 +57,20 @@ const THRUSTER_TEMPO = [
   { label: 'Abajo', dur: 0.6, from: 0, to: 0 },
 ];
 
+// Curl: sube en 2 s, aprieta, baja en 3 s. Empieza abajo, con los brazos casi estirados.
+const CURL_TEMPO = [
+  { label: 'Subida', dur: 2, from: 0, to: 1 },
+  { label: 'Arriba', dur: 1, from: 1, to: 1 },
+  { label: 'Bajada', dur: 3, from: 1, to: 0 },
+  { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
+];
+const SHRUG_TEMPO = [
+  { label: 'Subida', dur: 1, from: 0, to: 1 },
+  { label: 'Arriba', dur: 1.5, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
+];
+
 export const EXERCISES = [
   // ── Sentadillas ──
   { id: 'squat', name: 'Sentadilla', family: 'Sentadilla', gear: 'Barra', cam: 'side',
@@ -97,6 +112,13 @@ export const EXERCISES = [
   // ── Tirón horizontal ──
   { id: 'remo-barra', name: 'Remo con barra', family: 'Tirón horizontal', gear: 'Barra', cam: 'side',
     pose: row(), tempo: ROW_TEMPO },
+  // ── Brazos y hombros ──
+  { id: 'curl-barra', name: 'Curl con barra', family: 'Brazos y hombros', gear: 'Barra', cam: 'side',
+    pose: barbellCurl({ grip: 'supine' }), tempo: CURL_TEMPO },
+  { id: 'curl-invertido', name: 'Curl invertido', family: 'Brazos y hombros', gear: 'Barra', cam: 'side',
+    pose: barbellCurl({ grip: 'prone' }), tempo: CURL_TEMPO },
+  { id: 'encogimiento', name: 'Encogimientos', family: 'Brazos y hombros', gear: 'Barra', cam: 'front',
+    pose: shrug(), tempo: SHRUG_TEMPO },
 ];
 
 export const byId = id => EXERCISES.find(e => e.id === id);

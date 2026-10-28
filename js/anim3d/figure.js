@@ -426,6 +426,17 @@ export async function createFigure(scene, base = 'model/') {
       aim(B['foot_' + k], B['ball_' + k], leg.toe);
     }
 
+    // Encogimiento: cada clavícula gira sobre el esternón y la punta del hombro sube `shrug` metros.
+    if (pose.shrug) {
+      for (const k of ['l', 'r']) {
+        const cl = B['clavicle_' + k];
+        const len = Math.hypot(wp('upperarm_' + k).z - wp('clavicle_' + k).z, wp('upperarm_' + k).y - wp('clavicle_' + k).y);
+        const ang = Math.asin(Math.min(pose.shrug / len, 0.9)) * (k === 'l' ? 1 : -1);
+        rotateWorld(cl, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), ang));
+      }
+      model.updateMatrixWorld(true);
+    }
+
     // Brazos: o agarran algo (el puño sobre el implemento) o van a una muñeca.
     const err = {};
     for (const k of ['l', 'r']) {
