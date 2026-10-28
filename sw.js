@@ -1,6 +1,6 @@
 // Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
 // changes — the SW is cache-first, so a stale name keeps serving old bytes.
-const CACHE_NAME = 'arete-v198';
+const CACHE_NAME = 'arete-v199';
 const ASSETS = [
   './',
   './app.html',
@@ -208,6 +208,30 @@ const ASSETS = [
   './assets/anim3d/frames/squat-1.webp',
   './assets/anim3d/frames/squat-2.webp',
   './assets/anim3d/frames/squat-3.webp',
+  './assets/anim3d/frames/ohp-0.webp',
+  './assets/anim3d/frames/ohp-1.webp',
+  './assets/anim3d/frames/ohp-2.webp',
+  './assets/anim3d/frames/ohp-3.webp',
+  './assets/anim3d/frames/kb-thruster-0.webp',
+  './assets/anim3d/frames/kb-thruster-1.webp',
+  './assets/anim3d/frames/kb-thruster-2.webp',
+  './assets/anim3d/frames/kb-thruster-3.webp',
+  './assets/anim3d/frames/remo-barra-0.webp',
+  './assets/anim3d/frames/remo-barra-1.webp',
+  './assets/anim3d/frames/remo-barra-2.webp',
+  './assets/anim3d/frames/remo-barra-3.webp',
+  './assets/anim3d/frames/curl-barra-0.webp',
+  './assets/anim3d/frames/curl-barra-1.webp',
+  './assets/anim3d/frames/curl-barra-2.webp',
+  './assets/anim3d/frames/curl-barra-3.webp',
+  './assets/anim3d/frames/curl-invertido-0.webp',
+  './assets/anim3d/frames/curl-invertido-1.webp',
+  './assets/anim3d/frames/curl-invertido-2.webp',
+  './assets/anim3d/frames/curl-invertido-3.webp',
+  './assets/anim3d/frames/encogimiento-0.webp',
+  './assets/anim3d/frames/encogimiento-1.webp',
+  './assets/anim3d/frames/encogimiento-2.webp',
+  './assets/anim3d/frames/encogimiento-3.webp',
   './js/domains.js',
   './js/platform.js',
   './js/leaflet-loader.js',
