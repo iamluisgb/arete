@@ -24,6 +24,9 @@ export const ANIM3D_NAMES = {
   'kb-deadlift-maleta': ['Deadlift Maleta'],
   'pm-unilateral': ['PM Unilateral'],
   'kb-single-leg-deadlift': ['Deadlift con 1 Pierna'],
+  'ohp': ['Press Militar'],
+  // «Push Press» sale con barra (arete.json) y con pesa rusa (kettlebell.json): sin mapear.
+  'kb-thruster': ['Thruster (KB)', 'Thrusters (KB)'],
 };
 
 const INDEX = new Map();

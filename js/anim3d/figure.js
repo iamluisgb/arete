@@ -416,7 +416,7 @@ export async function createFigure(scene, base = 'model/') {
     const pelvisW = wp('pelvis');
     B.pelvis.position.copy(B.pelvis.parent.worldToLocal(V(pose.H, pose.hipZ || 0).add(pelvisW.sub(hipMid))));
     model.updateMatrixWorld(true);
-    rotateWorld(B.neck_01, new THREE.Quaternion().setFromAxisAngle(Z, pose.tr * 0.45));
+    rotateWorld(B.neck_01, new THREE.Quaternion().setFromAxisAngle(Z, pose.tr * 0.45 + (pose.neck || 0)));   // pose.neck: la cabeza se echa atrás para dejar pasar la barra
 
     // Piernas.
     for (const k of ['l', 'r']) {

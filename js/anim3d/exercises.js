@@ -5,6 +5,7 @@
 // Ritmo: fases con su duración y entre qué profundidades va (0 → 1 → 0).
 
 import { squat, pistol, calfRaise, hinge, singleLegHinge } from './poses.js';
+import { overheadPress, kbThruster } from './patterns/press.js';
 
 const SQUAT_TEMPO = [
   { label: 'Bajada', dur: 3, from: 0, to: 1 },
@@ -31,6 +32,20 @@ const CALF_TEMPO = [
   { label: 'Arriba', dur: 1, from: 1, to: 1 },
   { label: 'Bajada', dur: 2, from: 1, to: 0 },
   { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
+];
+// El press empieza en el rack y sube al bloqueo.
+const PRESS_TEMPO = [
+  { label: 'Subida', dur: 1.5, from: 0, to: 1 },
+  { label: 'Bloqueo', dur: 1, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Rack', dur: 1, from: 0, to: 0 },
+];
+// El thruster empieza en el fondo de la sentadilla.
+const THRUSTER_TEMPO = [
+  { label: 'Subida y press', dur: 1.4, from: 0, to: 1 },
+  { label: 'Bloqueo', dur: 0.8, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Abajo', dur: 0.6, from: 0, to: 0 },
 ];
 
 export const EXERCISES = [
@@ -66,6 +81,11 @@ export const EXERCISES = [
     pose: singleLegHinge({ implement: 'barbell' }), tempo: RDL_TEMPO },
   { id: 'kb-single-leg-deadlift', name: 'Peso muerto a una pierna con pesa rusa', family: 'Bisagra de cadera', gear: 'Pesa rusa', cam: 'three',
     pose: singleLegHinge({ implement: 'kettlebell' }), tempo: RDL_TEMPO },
+  // ── Empuje vertical ──
+  { id: 'ohp', name: 'Press militar', family: 'Empuje vertical', gear: 'Barra', cam: 'side',
+    pose: overheadPress(), tempo: PRESS_TEMPO },
+  { id: 'kb-thruster', name: 'Thruster con una pesa rusa', family: 'Empuje vertical', gear: 'Pesa rusa', cam: 'three',
+    pose: kbThruster(), tempo: THRUSTER_TEMPO, start: 0 },
 ];
 
 export const byId = id => EXERCISES.find(e => e.id === id);
