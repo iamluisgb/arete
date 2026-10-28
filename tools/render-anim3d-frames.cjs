@@ -19,6 +19,9 @@ const SIZE = 336;                                  // 2× la ilustración grande
 const FINISH = process.env.FINISH || 'bronze';
 const BG = process.env.BG || '';                   // '' = transparente, o un color '#0d0b0a'
 const SUFFIX = process.env.OUT_SUFFIX || '';
+// Claridad de las ilustraciones (van sobre fondo claro, no en la sala oscura):
+// 0 = la luz de la animación; 1 = bronce claro y poco metálico, relleno de frente.
+const LIGHT = parseFloat(process.env.LIGHT ?? '0.6');
 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome',
@@ -27,7 +30,7 @@ const SUFFIX = process.env.OUT_SUFFIX || '';
   p.on('pageerror', e => { console.error(e); process.exit(1); });
   await p.goto(`${BASE}/demo-3d/review.html?skip`);
   const only = process.argv.slice(2);
-  const out = await p.evaluate(async ([SIZE, only, FINISH, BG]) => {
+  const out = await p.evaluate(async ([SIZE, only, FINISH, BG, LIGHT]) => {
     const THREE = await import('three');
     const { createFigure } = await import('/js/anim3d/figure.js');
     const { createProps } = await import('/js/anim3d/props.js');
@@ -46,6 +49,20 @@ const SUFFIX = process.env.OUT_SUFFIX || '';
     const figure = await createFigure(stage.scene, '/assets/anim3d/');
     figure.setFinish(FINISH);
     props.setFinish(FINISH);
+    if (LIGHT > 0) {
+      const mix = (a, b) => new THREE.Color(a).lerp(new THREE.Color(b), LIGHT);
+      figure.model.traverse(o => {
+        if (!o.isMesh) return;
+        const m = o.material;
+        if (o.userData.cloth) m.color.copy(mix(0x241e1a, 0x6a625b));
+        else { m.color.copy(mix(0x8a5a33, 0xc89462)); m.metalness = 0.9 - 0.45 * LIGHT; m.roughness = 0.42 + 0.1 * LIGHT; }
+      });
+      stage.renderer.toneMappingExposure = 1.15 + 0.35 * LIGHT;
+      stage.scene.add(new THREE.HemisphereLight(0xfff6ea, 0x8a7f74, 0.9 * LIGHT));
+      const front = new THREE.DirectionalLight(0xfff4e8, 1.1 * LIGHT);
+      front.position.set(3, 2, 2.5);
+      stage.scene.add(front);
+    }
     const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
     // Tres cuartos para todos (de lado, los discos tapan la figura), salvo los
     // que se leen de frente (sumo).
@@ -111,7 +128,7 @@ const SUFFIX = process.env.OUT_SUFFIX || '';
       });
     }
     return { res, cut };
-  }, [SIZE, only, FINISH, BG]);
+  }, [SIZE, only, FINISH, BG, LIGHT]);
   if (out.cut.length) { console.error('Imágenes cortadas:\n  ' + out.cut.join('\n  ')); process.exitCode = 1; }
   fs.mkdirSync(OUT, { recursive: true });
   for (const [id, frames] of Object.entries(out.res)) {
