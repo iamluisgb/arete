@@ -2,10 +2,10 @@
 // renderizador, comprobaciones medidas y veredicto de quien revisa (se guarda
 // en este navegador).
 
-import { createStage } from './engine/stage.js';
-import { createFigure } from './engine/figure.js';
-import { createProps } from './engine/props.js';
-import { EXERCISES } from './engine/exercises.js';
+import { createStage } from '../js/anim3d/stage.js';
+import { createFigure } from '../js/anim3d/figure.js';
+import { createProps } from '../js/anim3d/props.js';
+import { EXERCISES } from '../js/anim3d/exercises.js';
 
 const KEY = 'arete3dReview';
 const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
@@ -75,7 +75,7 @@ const work = document.getElementById('work');
 const stage = createStage(work, { controls: false, preserve: true });
 stage.resize(360, 480);
 const props = createProps(stage.scene);
-const figure = await createFigure(stage.scene);
+const figure = await createFigure(stage.scene, '../assets/anim3d/');
 
 for (const ex of EXERCISES) {
   const card = document.getElementById('c-' + ex.id);

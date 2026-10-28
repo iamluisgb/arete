@@ -2,11 +2,11 @@
 // ?ex=<id> abre directamente ese ejercicio; ?t=<s>&cam=<vista> fija instante y cámara (pruebas).
 
 import * as THREE from 'three';
-import { createStage } from './engine/stage.js';
-import { createFigure } from './engine/figure.js';
-import { createProps } from './engine/props.js';
-import { EXERCISES, byId } from './engine/exercises.js';
-import { MID_X, lerp } from './engine/poses.js';
+import { createStage } from '../js/anim3d/stage.js';
+import { createFigure } from '../js/anim3d/figure.js';
+import { createProps } from '../js/anim3d/props.js';
+import { EXERCISES, byId } from '../js/anim3d/exercises.js';
+import { MID_X, lerp } from '../js/anim3d/poses.js';
 
 const ease = t => t * t * t * (t * (t * 6 - 15) + 10);
 const el = document.getElementById('stage');
@@ -118,7 +118,7 @@ function frame(now) {
 }
 
 $phase.textContent = 'Cargando figura…';
-createFigure(scene).then(f => {
+createFigure(scene, '../assets/anim3d/').then(f => {
   figure = f;
   renderer.setAnimationLoop(frame);
 }).catch(err => { $phase.textContent = 'No se pudo cargar la figura'; console.error(err); });

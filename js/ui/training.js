@@ -6,7 +6,7 @@ import { esc, formatDateShort, phaseChipLabel } from '../utils.js';
 import { toast } from './toast.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
-import { pictHtml } from './exercise-pict.js';
+import { pictHtml, anim3dButton } from './exercise-pict.js';
 import { nextPrescription } from '../progression.js';
 import { buildQueue, PLAN_STRENGTH } from '../schedule.js';
 
@@ -365,7 +365,7 @@ function renderSessionOverview(db, sess, exercises) {
             <div class="so-hiit-list">${subList}</div>
           </div>`;
         }
-        return `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`;
+        return `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}${anim3dButton(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`;
       }).join('')}</div>
       ${lastDate ? `<div class="so-last">Última vez: ${lastDate}</div>` : ''}
       ${draftInfo}
@@ -523,7 +523,7 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
   // Un peso que aparece solo y no se explica se borra. El porqué va siempre.
   const why = shouldPrefill && presc.why
     ? `<div class="prog-why prog-${presc.kind}">${esc(presc.why)}</div>` : '';
-  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}${why}</div>`;
+  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}${anim3dButton(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}${why}</div>`;
 }
 
 function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {

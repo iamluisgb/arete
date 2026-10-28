@@ -21,6 +21,14 @@
      viaje que costaba el <link>. -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 <link rel="stylesheet" href="app.css">
+<!-- Three.js para las animaciones 3D de ejercicio (js/anim3d): copiado en el
+     repo, sin CDN. Solo se descarga al abrir una animación. -->
+<script type="importmap">
+{ "imports": {
+  "three": "./js/vendor/three/three.module.min.js",
+  "three/addons/": "./js/vendor/three/addons/"
+} }
+</script>
 <!-- Leaflet se carga bajo demanda desde js/leaflet-loader.js: solo hace falta en los tres mapas de running. -->
 <meta name="description" content="Tracker de entrenamiento: fuerza, running, test periódicos y dashboard de rendimiento. Todo en tu navegador.">
 <link rel="canonical" href="https://arete.raiatech.com/app.html">

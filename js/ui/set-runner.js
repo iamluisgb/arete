@@ -19,7 +19,7 @@
 import { esc } from '../utils.js';
 import { beep, vibrate } from './audio.js';
 import { exFmtTime } from './training-timer.js';
-import { pictHtml, tipFor } from './exercise-pict.js';
+import { pictHtml, tipFor, anim3dButton } from './exercise-pict.js';
 
 // Descanso por familia de ejercicio. Son solo el punto de partida: los botones
 // ±30s de la hoja guardan el valor ajustado, así que la app aprende tu ritmo en
@@ -213,7 +213,7 @@ function showWork(n) {
   if (!s) return finish();
   $('.sr-ex').innerHTML = pictHtml(s.name) + esc(s.name);
   $('.sr-pos').textContent = `Serie ${s.setIdx + 1} de ${s.ex.sets}`;
-  $('.sr-illus').innerHTML = pictHtml(s.name, 'lg');
+  $('.sr-illus').innerHTML = pictHtml(s.name, 'lg') + anim3dButton(s.name);
   $('.sr-name').textContent = s.name;
   // se arranca del valor que ya tenga la grid (prefill o borrador)
   $('.sr-kg').value = input(s.exIdx, s.setIdx, 'kg')?.value || '';

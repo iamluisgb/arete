@@ -12,6 +12,7 @@ import { renderDashboard } from './dashboard.js';
 import { renderProfile } from './profile.js';
 import { esc, phaseChipLabel } from '../utils.js';
 import { renderPlanSheet } from './plan-sheet.js';
+import { anim3dButton } from './exercise-pict.js';
 
 /** Update the phase name in the context bar */
 export function updatePhaseDisplay(db) {
@@ -142,7 +143,7 @@ function renderCustomSessions(db) {
           <span class="str-plan-session-count">${s.exercises.length} ej.${s.lastUsedAt ? '' : ' · sin estrenar'}</span>
         </div>
         <div class="str-plan-ex-list">${s.exercises.map(ex =>
-          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
+          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}${anim3dButton(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
         ).join('')}</div>
         <div class="str-plan-custom-actions">
           <button class="btn btn-outline btn-sm" data-del-session="${esc(s.id)}">Borrar</button>
@@ -216,7 +217,7 @@ function renderPlanPhaseContent(progs, phaseKey, $content, db) {
           <span class="str-plan-session-count">${exercises.length} ej.</span>
         </div>
         <div class="str-plan-ex-list">${exercises.map(ex =>
-          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
+          `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}${anim3dButton(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`
         ).join('')}</div>
         <button class="btn btn--secondary btn--block str-plan-start-btn" data-plan-session="${esc(name)}" data-plan-phase="${phaseKey}">Iniciar sesión</button>
       </div>`;

@@ -3450,6 +3450,25 @@ a:hover{opacity:.8}
 .plan-phase-desc{font:var(--type-caption);color:var(--color-text-secondary);overflow-wrap:anywhere}
 .plan-phase-side{flex-shrink:0;font:var(--type-caption);color:var(--color-text-secondary)}
 @media(prefers-reduced-motion:reduce){.plan-row-chev{transition:none}}
+/* Animación 3D de ejercicio (js/anim3d, en pruebas). El botón «3D» va junto a
+   la ilustración; la hoja es una sala oscura con la figura en mármol. */
+.anim3d-btn{display:inline-flex;align-items:center;justify-content:center;min-height:28px;min-width:40px;
+  margin-left:var(--sp-2);padding:0 var(--sp-2);border:1px solid var(--color-border-subtle);border-radius:var(--radius-pill);
+  background:var(--color-surface-1);color:var(--color-text-primary);font:var(--type-label);letter-spacing:var(--track-label);
+  cursor:pointer;vertical-align:middle}
+.anim3d-btn:active{background:var(--color-surface-2)}
+.sr-illus .anim3d-btn{margin:var(--sp-2) 0 0 0;min-height:36px}
+.anim3d-sheet .sheet-panel{max-width:var(--measure-panel)}
+.anim3d-stage{position:relative;height:min(62dvh,560px);border-radius:var(--radius-lg);overflow:hidden;
+  background:var(--color-blackout)}
+.anim3d-stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.anim3d-phase{position:absolute;left:var(--sp-3);top:var(--sp-2);z-index:var(--z-raised);margin:0;
+  font:var(--type-caption);color:var(--color-overlay-text-dim);font-variant-numeric:tabular-nums}
+.anim3d-tempo{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin:var(--sp-3) 0 var(--sp-2)}
+.anim3d-tempo span{font:var(--type-caption);padding:2px var(--sp-2);border-radius:var(--radius-pill);
+  background:var(--color-surface-2);color:var(--color-text-secondary)}
+.anim3d-tempo span.on{background:var(--color-action-ink);color:var(--color-action-ink-fg)}
+.anim3d-note{margin:var(--sp-2) 0 0;font:var(--type-caption);color:var(--color-text-tertiary)}
 /* El punto que une plan y fase en un solo chip. */
 .ctx-dot{margin:0 2px;color:var(--color-text-tertiary);font-weight:400}
 
