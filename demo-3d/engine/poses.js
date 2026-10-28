@@ -154,7 +154,7 @@ export function squat(o) {
       pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, -0.075, 0.05);
       target = MID_X - 0.07 * (1 - s);
     } else if (o.load === 'front') {
-      pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, 0.075, 0.02);
+      pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, 0.1, 0.02);
       target = MID_X;
     } else {
       pointOf = tr => shoulderFrom(H, tr);
@@ -190,17 +190,19 @@ export function squat(o) {
         pole: new THREE.Vector3(-0.2, -1, side * 0.4),
       }));
     } else if (o.load === 'rack') {
-      // Dos pesas en rack: asa en la mano a la altura de la clavícula, bola
-      // apoyada por fuera del antebrazo.
+      // Dos pesas en rack: el asa en la mano delante del pecho, antebrazo
+      // vertical y la bola apoyada por fuera del antebrazo. La colocación
+      // exacta (r) se eligió probando posiciones hasta que nada atravesara.
+      const r = o.rack || {};
       pose.arms = {};
       for (const [k, side] of [['l', -1], ['r', 1]]) {
-        const h = torsoPoint(S, tr, 0.13, -0.08);
-        const handle = V3(h, side * 0.16);
-        const axis = new THREE.Vector3(1, 0.25, -side * 0.45);
-        pose.props.push(kettlebell(handle, axis, new THREE.Vector3(-0.35, -0.55, side * 0.75)));
+        const handle = V3(torsoPoint(S, tr, r.fwd ?? 0.16, r.up ?? -0.1), side * (r.z ?? 0.11));
+        const axis = new THREE.Vector3(1, 0.2, -side * (r.twist ?? 0.4));
+        const down = new THREE.Vector3(r.down?.[0] ?? -0.3, r.down?.[1] ?? -0.5, side * (r.down?.[2] ?? 0.8));
+        pose.props.push(kettlebell(handle, axis, down));
         pose.arms[k] = {
-          grip: { point: handle, axis, forearm: new THREE.Vector3(0.1, -1, side * 0.1), back: new THREE.Vector3(0.3, 0, side) },
-          pole: new THREE.Vector3(0.4, -1, side * 0.15),
+          grip: { point: handle, axis, forearm: new THREE.Vector3(0, -1, 0), back: new THREE.Vector3(0.2, 0, side) },
+          pole: new THREE.Vector3(0.3, -1, side * (r.elbow ?? 0.3)),
         };
         if (side === 1) pose.track = handle;
       }
@@ -274,7 +276,7 @@ export function hinge(o) {
     const low = o.floorY ?? (kb ? KB_FLOOR : PLATE_R);
     const gy = lerp(stand - r + 0.012, low, s);
     // En el bloqueo la barra apoya en los muslos un poco por delante del mediopié.
-    const gx = MID_X + (kb ? 0 : 0.03 * (1 - s));
+    const gx = MID_X + (kb ? 0.07 : 0.04) * (1 - s);
     const grip = v2(gx, gy);
     const sx = gx + lerp(o.lockBack ?? -0.1, o.shoulderAhead ?? 0.05, s);
     const S = v2(sx, gy + Math.sqrt(Math.max(r * r - (sx - gx) ** 2, 0)));
@@ -323,18 +325,19 @@ export function hinge(o) {
  * @param {object} o  implement: 'barbell' | 'kettlebell' (en la mano contraria a la pierna de apoyo)
  */
 export function singleLegHinge(o) {
-  const gripZ = o.implement === 'barbell' ? 0.24 : M.shoulderZ + 0.02;
+  const gripZ = o.implement === 'barbell' ? 0.24 : M.shoulderZ + 0.07;   // la pesa, por fuera del muslo de la pierna libre
   return s => {
     const A = v2(ANKLE_X, M.ankleH);
-    const K = add2(A, polar(M.shank, rad(9)));
+    const K = add2(A, polar(M.shank, rad(6)));
     const tr = rad(78) * s;
     // Muslo de apoyo: el ángulo que deja los hombros sobre el mediopié.
     const hipOf = phi => add2(K, v2(-M.thigh * Math.sin(phi), M.thigh * Math.cos(phi)));
-    const phi = solve(p => -shoulderFrom(hipOf(p), tr).x, -(MID_X + 0.02), rad(-10), rad(80));
+    const phi = solve(p => -shoulderFrom(hipOf(p), tr).x, -(MID_X + 0.05), rad(-10), rad(80));
     const H = hipOf(phi);
     const S = shoulderFrom(H, tr);
     const dz = Math.abs(M.shoulderZ - gripZ);
-    const g = v2(S.x, S.y - Math.sqrt(reach() ** 2 - dz * dz));
+    // Arriba la barra se separa un poco de los muslos: de pie, colgando, no los toca.
+    const g = v2(S.x + 0.03 * (1 - s), S.y - Math.sqrt(reach() ** 2 - dz * dz));
     const up = new THREE.Vector3(0, 1, 0);
     const pose = {
       H, tr, hipZ: -0.04,

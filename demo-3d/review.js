@@ -66,6 +66,10 @@ document.getElementById('copy').addEventListener('click', async () => {
   catch { prompt('Copia el resumen:', text); }
 });
 
+const PART = { torso: 'tronco', head: 'cabeza', thigh: 'muslo', calf: 'pierna', upper: 'brazo', fore: 'antebrazo', hand: 'mano', foot: 'pie' };
+const SEG_ES = w => w.replace(/(torso|head|thigh|calf|upper|fore|hand|foot)(_([lr]))?/g, (m, p, x, k) => PART[p] + (k ? (k === 'l' ? ' izq.' : ' der.') : ''))
+  .replace(' dentro de ', ' dentro del ').replace(' en la barra', ' en la barra').replace(' en la pesa', ' en la pesa');
+
 // ── Render ──
 const work = document.getElementById('work');
 const stage = createStage(work, { controls: false, preserve: true });
@@ -76,10 +80,12 @@ const figure = await createFigure(stage.scene);
 for (const ex of EXERCISES) {
   const card = document.getElementById('c-' + ex.id);
   const imgs = card.querySelectorAll('img');
-  let worst = 0;
+  let worst = 0, hit = { depth: 0, where: '' };
   for (let i = 0; i <= 20; i++) {
-    const err = figure.apply(ex.pose(i / 20));
+    const pose = ex.pose(i / 20);
+    const err = figure.apply(pose);
     worst = Math.max(worst, ...Object.values(err), 0);
+    if (i % 2 === 0) { const c = figure.collisions(pose); if (c.depth > hit.depth) hit = c; }
   }
   SHOTS.forEach(([, s, cam], i) => {
     const pose = ex.pose(s);
@@ -95,6 +101,8 @@ for (const ex of EXERCISES) {
   card.querySelector('[data-checks]').innerHTML = [
     'Pies quietos y espalda en bloque: <b>por construcción</b>',
     hasGrip ? `Agarre: el puño, a <b class="${worst > 0.005 ? 'bad' : ''}">${mm} mm</b> del implemento en el peor instante` : 'Sin implemento',
+    // Hasta 1 cm es contacto (el codo que roza el muslo, la barra apoyada en él); más, atraviesa.
+    `Choque máximo: <b class="${hit.depth > 0.01 ? 'bad' : ''}">${Math.round(hit.depth * 1000)} mm</b>${hit.depth > 0.002 ? ` (${esc(SEG_ES(hit.where))})` : ''}`,
   ].join(' · ');
   await new Promise(r => setTimeout(r, 0));          // deja pintar la tarjeta antes de la siguiente
 }

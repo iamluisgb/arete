@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { M, rad } from './poses.js';
+import { M, rad, BAR_R, PLATE_R, KB } from './poses.js';
 
 const Z = new THREE.Vector3(0, 0, 1);
 const V = (p, z = 0) => new THREE.Vector3(p.x, p.y, z);
@@ -437,5 +437,111 @@ export async function createFigure(scene, base = 'model/') {
     return err;
   }
 
-  return { model, bones: B, apply, setFinish, setBuild };
+  // ── Choques ────────────────────────────────────────────
+  // Cada punto de la piel, ya deformado por el esqueleto, contra el material
+  // (barra, discos, pesas) y contra otras partes del cuerpo aproximadas como
+  // cápsulas (segmento de hueso con su radio, medido en reposo). Las manos que
+  // agarran no cuentan contra lo que agarran: tocarlo es lo que tienen que hacer.
+  const SEGS = {
+    torso: ['pelvis', 'neck_01'], head: ['Head', null],
+    thigh_l: ['thigh_l', 'calf_l'], thigh_r: ['thigh_r', 'calf_r'],
+    calf_l: ['calf_l', 'foot_l'], calf_r: ['calf_r', 'foot_r'],
+    upper_l: ['upperarm_l', 'lowerarm_l'], upper_r: ['upperarm_r', 'lowerarm_r'],
+    fore_l: ['lowerarm_l', 'hand_l'], fore_r: ['lowerarm_r', 'hand_r'],
+  };
+  const segOfBone = name => {
+    if (/^(pelvis|spine_0[123]|clavicle_[lr])$/.test(name)) return 'torso';
+    if (/^(neck_01|Head)$/.test(name)) return 'head';
+    let m = name.match(/^(thigh|calf)_([lr])$/); if (m) return `${m[1]}_${m[2]}`;
+    m = name.match(/^(foot|ball)_([lr])$/); if (m) return `foot_${m[2]}`;
+    m = name.match(/^upperarm_([lr])$/); if (m) return `upper_${m[1]}`;
+    m = name.match(/^lowerarm_([lr])$/); if (m) return `fore_${m[1]}`;
+    m = name.match(/_([lr])$/); if (m) return `hand_${m[1]}`;
+    return 'torso';
+  };
+  // Qué partes no pueden meterse en cuáles (las que se tocan de verdad, fuera:
+  // el muslo con el vientre en la sentadilla, la pantorrilla con el muslo).
+  const AGAINST = {
+    upper_l: ['torso', 'thigh_l', 'thigh_r', 'head'], upper_r: ['torso', 'thigh_l', 'thigh_r', 'head'],
+    fore_l: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'], fore_r: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'],
+    hand_l: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'], hand_r: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'],
+    thigh_l: ['thigh_r'], calf_l: ['calf_r', 'thigh_r'], calf_r: ['thigh_l'], foot_l: ['calf_r'], foot_r: ['calf_l'],
+  };
+  const vSeg = new Array(body.geometry.attributes.position.count);
+  {
+    const si = body.geometry.attributes.skinIndex, sw = body.geometry.attributes.skinWeight;
+    for (let i = 0; i < vSeg.length; i++) {
+      let best = 0, bw = -1;
+      for (let k = 0; k < 4; k++) if (sw.getComponent(i, k) > bw) { bw = sw.getComponent(i, k); best = si.getComponent(i, k); }
+      vSeg[i] = segOfBone(body.skeleton.bones[best].name);
+    }
+  }
+  const segLine = name => {
+    const [a, b] = SEGS[name];
+    const pa = wp(a);
+    const pb = b ? wp(b) : pa.clone().add(new THREE.Vector3(0, 0.12, 0).applyQuaternion(B.Head.getWorldQuaternion(new THREE.Quaternion())));
+    return [pa, pb];
+  };
+  const distSeg = (p, a, b) => {
+    const d = b.clone().sub(a);
+    const t = THREE.MathUtils.clamp(p.clone().sub(a).dot(d) / d.lengthSq(), 0, 1);
+    return p.distanceTo(a.clone().addScaledVector(d, t));
+  };
+  const skinned = () => {
+    body.updateMatrixWorld(true);
+    const pos = body.geometry.attributes.position, out = [];
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i += 2) {
+      v.fromBufferAttribute(pos, i);
+      body.applyBoneTransform(i, v);
+      out.push([i, v.clone().applyMatrix4(body.matrixWorld)]);
+    }
+    return out;
+  };
+  // Radios de las cápsulas: la mitad de la distancia típica de su piel al eje
+  // (dentro de la carne; tocar la superficie no es atravesar).
+  const radius = {};
+  {
+    for (const [bone, r] of rest) { bone.position.copy(r.p); bone.quaternion.copy(r.q); }
+    model.updateMatrixWorld(true);
+    const pts = skinned(), lines = {};
+    for (const n of Object.keys(SEGS)) lines[n] = segLine(n);
+    for (const n of Object.keys(SEGS)) {
+      const ds = pts.filter(([i]) => vSeg[i] === n).map(([, p]) => distSeg(p, ...lines[n])).sort((a, b) => a - b);
+      radius[n] = ds.length ? ds[Math.floor(ds.length * 0.5)] * 0.75 : 0;
+    }
+  }
+
+  /** Mayor penetración (m) en la pose ya aplicada, y dónde. */
+  function collisions(pose) {
+    const pts = skinned();
+    const lines = {};
+    for (const n of Object.keys(SEGS)) lines[n] = segLine(n);
+    const gripping = { l: !!pose.arms.l.grip, r: !!pose.arms.r.grip };
+    let worst = { depth: 0, where: '' };
+    const hit = (depth, where) => { if (depth > worst.depth) worst = { depth, where }; };
+    for (const [i, p] of pts) {
+      const seg = vSeg[i];
+      for (const other of AGAINST[seg] || []) {
+        const d = radius[other] - distSeg(p, ...lines[other]);
+        if (d > 0) hit(d, `${seg} dentro de ${other}`);
+      }
+      const isHand = seg.startsWith('hand_') && gripping[seg.slice(-1)];
+      if (isHand) continue;
+      for (const pr of pose.props || []) {
+        if (pr.kind === 'barbell') {
+          const c = pr.pos;
+          const dx = Math.hypot(p.x - c.x, p.y - c.y);
+          if (Math.abs(p.z - c.z) < 0.62) hit(BAR_R - dx, `${seg} en la barra`);
+          else if (Math.abs(p.z - c.z) < 0.76) hit(PLATE_R - dx, `${seg} en un disco`);
+        } else if (pr.kind === 'kettlebell') {
+          const center = pr.handle.clone().addScaledVector(pr.down, KB.handle);
+          hit(KB.r - p.distanceTo(center), `${seg} en la pesa`);
+        }
+      }
+    }
+    return worst;
+  }
+
+  return { model, bones: B, apply, setFinish, setBuild, collisions };
 }
