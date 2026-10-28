@@ -26,7 +26,7 @@ const mixV = (a, b, t) => a.clone().lerp(b, t).normalize();
  */
 export function overheadPress(o = {}) {
   const stance = o.stance || { foot: 0.1, toeOut: 8 };
-  const gripZ = o.gripZ ?? 0.31;
+  const gripZ = o.gripZ ?? 0.27;
   return s => {
     const A = v2(ANKLE_X, M.ankleH);
     // Dip del push press: ~13° de rodilla, en el primer tercio.
@@ -41,7 +41,7 @@ export function overheadPress(o = {}) {
     const S = shoulderFrom(H, tr);
 
     // Barra: del rack (clavículas) al bloqueo (sobre el mediopié), vertical.
-    const R = torsoPoint(S, tr, o.rackFwd ?? 0.13, o.rackUp ?? 0.05);
+    const R = torsoPoint(S, tr, o.rackFwd ?? 0.15, o.rackUp ?? 0);
     const lockX = o.lockX ?? MID_X - 0.03;
     const dz = Math.abs(M.shoulderZ - gripZ);
     const lockY = S.y + Math.sqrt(Math.max((M.upper + M.fore + M.gripOff - 0.035) ** 2 - (lockX - S.x) ** 2 - dz * dz, 0));
@@ -51,11 +51,13 @@ export function overheadPress(o = {}) {
 
     const legs = both((k, side) => plantedLeg(A, K, side, stance));
     const pose = { H, tr, legs, props: [barbell(bar)], track: V3(bar), overhead: p > 0.3,
+      // En el rack de press la muñeca se extiende mucho más que de pie (~100°): límite propio solo ahí.
+      wristMax: p < 0.25 ? 112 : undefined,
       neck: rad(o.neck ?? 12) * bump(p * 1.1) };
     const U = (a, b) => mixV(new THREE.Vector3(...a), new THREE.Vector3(...b), p);
     pose.arms = both((k, side) => ({
       grip: { point: V3(bar, side * gripZ), axis: ZAX,
-        forearm: U([...(o.fa || [0.5, -0.85]), 0], [0, -1, 0]), back: U([-0.4, -0.9, 0], [-1, -0.1, 0]) },
+        forearm: U([...(o.fa || [0.5, -0.85]), 0], [0, -1, 0]), back: U([...(o.bk || [-0.4, -0.9]), 0], [-1, -0.1, 0]) },
       pole: U([1, -0.5, side * 0.35], [-0.2, 0, side * 1]),
     }));
     return pose;
@@ -95,6 +97,8 @@ export function kbThruster(o = {}) {
     const pole = mixV(new THREE.Vector3(0.3, -1, rk.elbow), new THREE.Vector3(-0.2, 0, 1), p);
     return {
       H, tr, legs, props: [kettlebell(handle, axis, down)], track: handle, overhead: p > 0.3,
+      // En el rack de press la muñeca se extiende mucho más que de pie (~100°): límite propio solo ahí.
+      wristMax: p < 0.25 ? 112 : undefined,
       neck: rad(o.neck ?? 6) * bump(p * 1.1),
       arms: {
         r: { grip: { point: handle, axis, forearm, back }, pole },

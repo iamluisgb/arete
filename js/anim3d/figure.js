@@ -591,8 +591,8 @@ export async function createFigure(scene, base = 'model/') {
       const [kind, side] = name.split('_').length === 3 ? ['rodilla_inv', name.slice(-1)] : name.split('_');
       if (kind === 'rodilla_inv') { if (v) worst = { excess: 99, where: `rodilla ${side === 'l' ? 'izq.' : 'der.'} doblada al revés` }; continue; }
       if (kind === 'hombro' && overhead) continue;
-      const ex = v - LIMITS[kind];
-      if (ex > worst.excess) worst = { excess: ex, where: `${kind} ${side === 'l' ? 'izq.' : 'der.'} a ${Math.round(v)}° (máx. ${LIMITS[kind]}°)` };
+      const ex = v - (kind === 'muñeca' && pose.wristMax ? pose.wristMax : LIMITS[kind]);
+      if (ex > worst.excess) worst = { excess: ex, where: `${kind} ${side === 'l' ? 'izq.' : 'der.'} a ${Math.round(v)}° (máx. ${kind === 'muñeca' && pose.wristMax ? pose.wristMax : LIMITS[kind]}°)` };
     }
     return worst;
   }
