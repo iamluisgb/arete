@@ -93,6 +93,8 @@ const LIGHT = parseFloat(process.env.LIGHT ?? '0.6');
         const head = figure.bones.Head.getWorldPosition(new THREE.Vector3());
         const up = head.clone().sub(figure.bones.neck_01.getWorldPosition(new THREE.Vector3())).normalize();
         for (const r of [0.24, 0.16]) add(head.clone().addScaledVector(up, r));
+        // Con el tronco inclinado la cabeza mira abajo y los rizos asoman también hacia arriba en vertical.
+        add(head.clone().add(new THREE.Vector3(0, 0.2, 0)));
         for (const pr of pose.props) {
           if (pr.kind === 'barbell') {
             // Los discos, no solo el centro de la barra.

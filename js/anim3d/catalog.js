@@ -27,6 +27,7 @@ export const ANIM3D_NAMES = {
   'ohp': ['Press Militar'],
   // «Push Press» sale con barra (arete.json) y con pesa rusa (kettlebell.json): sin mapear.
   'kb-thruster': ['Thruster (KB)', 'Thrusters (KB)'],
+  'remo-barra': ['Remo con Barra'],
 };
 
 const INDEX = new Map();

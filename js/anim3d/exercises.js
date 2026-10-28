@@ -6,6 +6,7 @@
 
 import { squat, pistol, calfRaise, hinge, singleLegHinge } from './poses.js';
 import { overheadPress, kbThruster } from './patterns/press.js';
+import { row } from './patterns/row.js';
 
 const SQUAT_TEMPO = [
   { label: 'Bajada', dur: 3, from: 0, to: 1 },
@@ -26,6 +27,13 @@ const RDL_TEMPO = [
   { label: 'Abajo', dur: 0.5, from: 1, to: 1 },
   { label: 'Subida', dur: 1.5, from: 1, to: 0 },
   { label: 'Arriba', dur: 1, from: 0, to: 0 },
+];
+// El remo empieza con la barra colgando: tirón, arriba, bajada controlada, abajo.
+const ROW_TEMPO = [
+  { label: 'Tirón', dur: 1, from: 0, to: 1 },
+  { label: 'Arriba', dur: 1, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
 ];
 const CALF_TEMPO = [
   { label: 'Subida', dur: 1, from: 0, to: 1 },
@@ -86,6 +94,9 @@ export const EXERCISES = [
     pose: overheadPress(), tempo: PRESS_TEMPO },
   { id: 'kb-thruster', name: 'Thruster con una pesa rusa', family: 'Empuje vertical', gear: 'Pesa rusa', cam: 'three',
     pose: kbThruster(), tempo: THRUSTER_TEMPO, start: 0 },
+  // ── Tirón horizontal ──
+  { id: 'remo-barra', name: 'Remo con barra', family: 'Tirón horizontal', gear: 'Barra', cam: 'side',
+    pose: row(), tempo: ROW_TEMPO },
 ];
 
 export const byId = id => EXERCISES.find(e => e.id === id);
