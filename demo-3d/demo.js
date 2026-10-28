@@ -109,8 +109,8 @@ const EXERCISES = {
       for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (barOf(m).x < target) lo = m; else hi = m; }
       const tr = (lo + hi) / 2;
       const bar = barOf(tr);
-      // Palmas al frente: el dorso de la mano mira atrás.
-      return { A, K, H, tr, bar, back: new THREE.Vector3(-1, 0.25, 0) };
+      // Palmas al frente y la muñeca debajo de la barra: el antebrazo baja hacia el codo.
+      return { A, K, H, tr, bar, back: new THREE.Vector3(-0.6, 0.8, 0), forearm: new THREE.Vector3(0.15, -1, 0).normalize() };
     },
   },
   deadlift: {
@@ -142,8 +142,8 @@ const EXERCISES = {
         if (barClear(A, K, H, bar)) break;
       }
       const tr = Math.atan2(S.x - H.x, S.y - H.y) - M.torsoOff;
-      // Agarre prono: el dorso de la mano mira al frente.
-      return { A, K, H, tr, bar, back: new THREE.Vector3(1, -0.1, 0) };
+      // Agarre prono: el dorso de la mano mira al frente y el brazo cuelga hacia el hombro.
+      return { A, K, H, tr, bar, back: new THREE.Vector3(1, -0.1, 0), forearm: new THREE.Vector3(-0.1, 1, 0).normalize() };
     },
   },
 };
@@ -407,20 +407,24 @@ function basis(a, u) {
 }
 
 /**
- * Orientación de la mano en el mundo: el hueco del puño a lo largo de la barra
- * y el dorso hacia `back`. De los dos sentidos posibles del hueco se queda el
- * que deja la muñeca del lado del hombro, para que el brazo pueda llegar.
+ * Orientación de la mano en el mundo: el hueco del puño a lo largo de la barra.
+ * Se prueban giros alrededor de la barra y se queda el que deja el antebrazo
+ * en la dirección que pide el ejercicio (`forearm`, de la barra a la muñeca)
+ * y el dorso más cerca de `back`.
  */
-function fistQuat(k, back, grip, shoulder) {
+function fistQuat(k, pose, grip) {
   const F = fist[k];
   const L = basis(F.axis, F.knuckles);
   let best = null;
   for (const sz of [1, -1]) {
-    const W = basis(new THREE.Vector3(0, 0, sz), back);
-    const q = new THREE.Quaternion().setFromRotationMatrix(W.multiply(L.clone().transpose()));
-    const wrist = grip.clone().sub(F.center.clone().applyQuaternion(q));
-    const d = wrist.distanceTo(shoulder);
-    if (!best || d < best.d) best = { q, wrist, d };
+    for (let a = 0; a < 360; a += 5) {
+      const u = new THREE.Vector3(Math.cos(rad(a)), Math.sin(rad(a)), 0);
+      const q = new THREE.Quaternion().setFromRotationMatrix(basis(new THREE.Vector3(0, 0, sz), u).multiply(L.clone().transpose()));
+      const wrist = grip.clone().sub(F.center.clone().applyQuaternion(q));
+      const dir = wrist.clone().sub(grip); dir.z = 0; dir.normalize();
+      const score = dir.dot(pose.forearm) * 2 + u.dot(pose.back);
+      if (!best || score > best.score) best = { q, wrist, score };
+    }
   }
   return best;
 }
@@ -453,7 +457,7 @@ function applyPose(ex, pose) {
   for (const [k, side] of [['l', -1], ['r', 1]]) {
     const grip = V(pose.bar, side * ex.grip);
     const sh = B['upperarm_' + k].getWorldPosition(new THREE.Vector3());
-    const { q, wrist } = fistQuat(k, pose.back, grip, sh);
+    const { q, wrist } = fistQuat(k, pose, grip);
     const pole = ex === EXERCISES.squat ? new THREE.Vector3(-0.4, -1, side * 0.2) : new THREE.Vector3(-1, 0, side * 0.6);
     const elbow = twoBone(sh, wrist, M.upper, M.fore, pole);
     aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
@@ -849,7 +853,7 @@ window.__demo = {
     const k = 'r', side = 1;
     const grip = V(p.bar, side * ex.grip);
     const sh = wp('upperarm_' + k);
-    const { wrist } = fistQuat(k, p.back, grip, sh);
+    const { wrist } = fistQuat(k, p, grip);
     return { center: fist[k].center.toArray().map(v => +v.toFixed(3)), axis: fist[k].axis.toArray().map(v => +v.toFixed(2)), knuckles: fist[k].knuckles.toArray().map(v => +v.toFixed(2)),
       bar: [p.bar.x, p.bar.y].map(v => +v.toFixed(3)), wristT: wrist.toArray().map(v => +v.toFixed(3)), wristReal: wp('hand_' + k).toArray().map(v => +v.toFixed(3)), sh: sh.toArray().map(v => +v.toFixed(3)),
       dist: +sh.distanceTo(wrist).toFixed(3), armLen: M.upper + M.fore, gripOff: +M.gripOff.toFixed(3) };
