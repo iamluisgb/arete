@@ -92,12 +92,21 @@ function barClear(A, K, H, bar) {
 }
 
 // ── Piezas comunes ───────────────────────────────────────
-/** Pierna apoyada: tobillo en el suelo, rodilla y punta del pie. */
+/**
+ * Pierna apoyada: tobillo en el suelo, rodilla y punta del pie. La rodilla
+ * sigue la dirección de la punta del pie: lo que se adelanta, se adelanta en
+ * esa dirección (más `kneeOut`, una apertura extra pequeña). Sin esto las
+ * rodillas se abrían a una anchura fija desde arriba y las piernas se veían
+ * arqueadas.
+ */
 function plantedLeg(A, K, side, stance) {
   const out = rad(stance.toeOut || 0) * side;
   const toe = new THREE.Vector3(M.toe.dx * Math.cos(out), M.toe.dy, M.toe.dx * Math.sin(out));
   const ankle = V3(A, side * stance.foot);
-  return { A: ankle, K: V3(K, side * (stance.knee ?? stance.foot)), toe: ankle.clone().add(toe) };
+  const dx = K.x - A.x;
+  const open = (stance.kneeOut || 0) * clamp(dx / 0.15, 0, 1);
+  const knee = new THREE.Vector3(A.x + dx * Math.cos(out), K.y, ankle.z + dx * Math.sin(out) + side * open);
+  return { A: ankle, K: knee, toe: ankle.clone().add(toe) };
 }
 
 /** Pierna libre y recta desde la cadera, a un ángulo desde la vertical (+ delante). */
@@ -141,7 +150,7 @@ const barGrip = (bar, side, z, forearm, back, pole) => ({
  *   stance: { foot, knee, toeOut }
  */
 export function squat(o) {
-  const stance = o.stance || { foot: 0.16, knee: 0.19 };
+  const stance = o.stance || { foot: 0.16, toeOut: 12 };
   return s => {
     const A = v2(ANKLE_X, M.ankleH);
     const K = add2(A, polar(M.shank, rad(o.shank ?? 34) * s));
@@ -273,7 +282,7 @@ export function calfRaise() {
  *   stance: { foot, knee, toeOut }; romanian: rodilla fija y casi recta
  */
 export function hinge(o) {
-  const stance = o.stance || { foot: 0.12, knee: 0.12 };
+  const stance = o.stance || { foot: 0.12, toeOut: 5 };
   const kb = o.implement !== 'barbell';
   const gripZ = o.implement === 'barbell' ? 0.26 : o.implement === 'kettlebell' ? 0.045 : 0.3;
   return s => {
