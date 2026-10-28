@@ -74,7 +74,7 @@ function setEx(id, { cam = null } = {}) {
   setCam(cam || ex.cam);
   history.replaceState(null, '', `?ex=${ex.id}`);
 }
-function setCam(name) { stage.setCam(name); pressed('camSeg', 'cam', name); }
+function setCam(name) { stage.setCam(name, ex?.view); pressed('camSeg', 'cam', name); }
 
 function segGroup(id, onPick) {
   document.getElementById(id).addEventListener('click', e => {

@@ -55,9 +55,15 @@ export function createStage(el, { controls: withControls = true, preserve = fals
   scene.add(floor);
 
   const CAMS = { side: [0, 1.0, 3.6], front: [3.6, 1.0, 0], three: [2.5, 1.35, 2.6], back: [-2.6, 1.4, 2.4] };
-  const target = new THREE.Vector3(0, 0.84, 0);
-  function setCam(name) {
-    camera.position.set(...CAMS[name]);
+  const BASE_Y = 0.84;
+  const target = new THREE.Vector3(0, BASE_Y, 0);
+  // `view` encuadra lo que no cabe en el plano normal: en un press la barra
+  // bloquea a casi 2,5 m con los discos, y sin subir y alejar la cámara se
+  // salía por arriba. { y: altura del centro, dist: factor de distancia }.
+  function setCam(name, view = {}) {
+    target.y = view.y ?? BASE_Y;
+    const [x, y, z] = CAMS[name], k = view.dist ?? 1;
+    camera.position.set(x * k, target.y + (y - BASE_Y) * k, z * k);
     camera.lookAt(target);
     if (controls) { controls.target.copy(target); controls.update(); }
   }

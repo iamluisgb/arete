@@ -43,7 +43,7 @@ function build() {
 }
 
 function setCam(name) {
-  engine.stage.setCam(name);
+  engine.stage.setCam(name, ex?.view);
   el.querySelectorAll('[data-cam]').forEach(b => b.classList.toggle('active', b.dataset.cam === name));
 }
 

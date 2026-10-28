@@ -106,9 +106,9 @@ export const EXERCISES = [
     pose: singleLegHinge({ implement: 'kettlebell' }), tempo: RDL_TEMPO },
   // ── Empuje vertical ──
   { id: 'ohp', name: 'Press militar', family: 'Empuje vertical', gear: 'Barra', cam: 'side',
-    pose: overheadPress(), tempo: PRESS_TEMPO },
+    pose: overheadPress(), tempo: PRESS_TEMPO, view: { y: 1.1, dist: 1.1 } },
   { id: 'kb-thruster', name: 'Thruster con una pesa rusa', family: 'Empuje vertical', gear: 'Pesa rusa', cam: 'three',
-    pose: kbThruster(), tempo: THRUSTER_TEMPO, start: 0 },
+    pose: kbThruster(), tempo: THRUSTER_TEMPO, start: 0, view: { y: 1.05, dist: 1.08 } },
   // ── Tirón horizontal ──
   { id: 'remo-barra', name: 'Remo con barra', family: 'Tirón horizontal', gear: 'Barra', cam: 'side',
     pose: row(), tempo: ROW_TEMPO },
