@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { mediaKey, lookupMedia, pictHtml, tipFor } from '../js/ui/exercise-pict.js';
 import { buildSetList, restForExercise } from '../js/ui/set-runner.js';
+import { EXERCISE_MEDIA } from '../js/exercise-media.js';
 
 describe('mediaKey', () => {
   it('ignora tildes, paréntesis y mayúsculas', () => {
@@ -39,10 +41,20 @@ describe('lookupMedia', () => {
     expect(lookupMedia('')).toBeNull();
   });
 
-  it('todos los fotogramas apuntan a assets/exercises', () => {
+  it('con animación 3D, las imágenes salen de ella; sin ella, las de siempre', () => {
     const m = lookupMedia('Sentadilla');
-    expect(m.frames.length).toBeGreaterThan(0);
-    m.frames.forEach(f => expect(f).toMatch(/^assets\/exercises\/.+\.webp$/));
+    expect(m.frames).toEqual([0, 1, 2, 3].map(i => `assets/anim3d/frames/squat-${i}.webp`));
+    expect(m.tip).toBeTruthy();                       // el consejo se conserva
+    lookupMedia('Press Banca').frames.forEach(f => expect(f).toMatch(/^assets\/exercises\/.+\.webp$/));
+  });
+
+  it('«Squat» del plan de pesa rusa enseña la goblet', () => {
+    expect(lookupMedia('Squat').frames[0]).toBe('assets/anim3d/frames/kb-sentadilla-0.webp');
+  });
+
+  it('cada imagen a la que apunta un ejercicio existe', () => {
+    const names = [...new Set(Object.values(EXERCISE_MEDIA).flatMap(e => e.alias))];
+    for (const n of names) for (const f of lookupMedia(n).frames) expect(existsSync(f), f).toBe(true);
   });
 });
 

@@ -20,7 +20,12 @@ for (const entry of Object.values(EXERCISE_MEDIA)) {
 
 /** Entrada de medios de un ejercicio, o null si no hay match fiable. */
 export function lookupMedia(name) {
-  return INDEX.get(mediaKey(name)) || null;
+  const media = INDEX.get(mediaKey(name)) || null;
+  // Los ejercicios con animación 3D usan imágenes sacadas de ella (mismo motor,
+  // mismas poses): arriba, mitad, abajo, mitad. El consejo sigue siendo el de siempre.
+  const id = anim3dId(name);
+  if (id) return { ...(media || {}), frames: [0, 1, 2, 3].map(i => `assets/anim3d/frames/${id}-${i}.webp`), tip: media?.tip || '' };
+  return media;
 }
 
 /**
