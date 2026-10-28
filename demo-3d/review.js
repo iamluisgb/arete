@@ -80,12 +80,13 @@ const figure = await createFigure(stage.scene);
 for (const ex of EXERCISES) {
   const card = document.getElementById('c-' + ex.id);
   const imgs = card.querySelectorAll('img');
-  let worst = 0, hit = { depth: 0, where: '' };
+  let worst = 0, hit = { depth: 0, where: '' }, joint = { excess: 0, where: '' };
   for (let i = 0; i <= 20; i++) {
     const pose = ex.pose(i / 20);
     const err = figure.apply(pose);
     worst = Math.max(worst, ...Object.values(err), 0);
     if (i % 2 === 0) { const c = figure.collisions(pose); if (c.depth > hit.depth) hit = c; }
+    const jc = figure.jointCheck(pose); if (jc.excess > joint.excess) joint = jc;
   }
   SHOTS.forEach(([, s, cam], i) => {
     const pose = ex.pose(s);
@@ -103,6 +104,8 @@ for (const ex of EXERCISES) {
     hasGrip ? `Agarre: el puño, a <b class="${worst > 0.005 ? 'bad' : ''}">${mm} mm</b> del implemento en el peor instante` : 'Sin implemento',
     // Hasta 1 cm es contacto (el codo que roza el muslo, la barra apoyada en él); más, atraviesa.
     `Choque máximo: <b class="${hit.depth > 0.01 ? 'bad' : ''}">${Math.round(hit.depth * 1000)} mm</b>${hit.depth > 0.002 ? ` (${esc(SEG_ES(hit.where))})` : ''}`,
+    // Codo, hombro, muñeca y rodilla dentro de lo que puede un cuerpo.
+    joint.excess > 0 ? `Articulaciones: <b class="bad">fuera de límite</b> (${esc(joint.where)})` : 'Articulaciones: <b>dentro de límites</b>',
   ].join(' · ');
   await new Promise(r => setTimeout(r, 0));          // deja pintar la tarjeta antes de la siguiente
 }

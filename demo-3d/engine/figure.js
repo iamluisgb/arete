@@ -364,21 +364,24 @@ export async function createFigure(scene, base = 'model/') {
       center: center.clone().sub(hp).applyQuaternion(hq),
       axis: knuckleAxis(k).applyQuaternion(hq),
       knuckles: wp('middle_01_' + k).sub(center).normalize().applyQuaternion(hq),
+      dir: wp('middle_01_' + k).sub(hp).normalize().applyQuaternion(hq),   // de la muñeca a los nudillos
     };
   }
 
   /**
    * Orientación de la mano: el hueco del puño a lo largo del eje del agarre.
-   * Se prueban giros alrededor de ese eje (y los dos sentidos) y se queda el
-   * que deja el antebrazo en la dirección `forearm` y el dorso hacia `back`.
+   * Para cada giro posible del puño se calcula también dónde acaba el codo, y
+   * se elige el que deja muñeca y hombro dentro de lo que puede un cuerpo; a
+   * igualdad, el que deja el antebrazo hacia `forearm` y el dorso hacia `back`.
    */
-  function fistQuat(k, g) {
+  function fistQuat(k, g, sh, pole, up, overhead) {
     const F = fist[k];
     const L = basis(F.axis, F.knuckles).transpose();
     const ax0 = g.axis.clone().normalize();
     const p1 = new THREE.Vector3().crossVectors(ax0, Math.abs(ax0.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).normalize();
     const p2 = new THREE.Vector3().crossVectors(ax0, p1);
     const fwd = g.forearm.clone().normalize();
+    const reachMax = M.upper + M.fore - 0.005;
     let best = null;
     for (const sz of [1, -1]) {
       const ax = ax0.clone().multiplyScalar(sz);
@@ -388,8 +391,15 @@ export async function createFigure(scene, base = 'model/') {
         const wrist = g.point.clone().sub(F.center.clone().applyQuaternion(q));
         const dir = wrist.clone().sub(g.point);
         dir.addScaledVector(ax0, -dir.dot(ax0)).normalize();
-        const score = dir.dot(fwd) * 2 + u.dot(g.back);
-        if (!best || score > best.score) best = { q, wrist, score };
+        const elbow = twoBone(sh, wrist, M.upper, M.fore, pole);
+        const bend = elbow.clone().sub(wrist).negate().angleTo(F.dir.clone().applyQuaternion(q)) * 180 / Math.PI;
+        const lift = elbow.clone().sub(sh).angleTo(up.clone().negate()) * 180 / Math.PI;
+        const far = Math.max(0, wrist.distanceTo(sh) - reachMax);
+        const score = (dir.dot(fwd) * 2 + u.dot(g.back)) * 10
+          - Math.max(0, bend - 55) * 3
+          - (overhead ? 0 : Math.max(0, lift - 140) * 3)
+          - far * 2000;
+        if (!best || score > best.score) best = { q, wrist, elbow, score };
       }
     }
     return best;
@@ -421,9 +431,11 @@ export async function createFigure(scene, base = 'model/') {
     for (const k of ['l', 'r']) {
       const arm = pose.arms[k];
       const sh = wp('upperarm_' + k);
-      let wrist = arm.wrist, q = null;
-      if (arm.grip) ({ q, wrist } = fistQuat(k, arm.grip));
-      const elbow = twoBone(sh, wrist, M.upper, M.fore, arm.pole);
+      let wrist = arm.wrist, q = null, elbow;
+      if (arm.grip) {
+        const up = wp('neck_01').sub(wp('pelvis')).normalize();
+        ({ q, wrist, elbow } = fistQuat(k, arm.grip, sh, arm.pole, up, pose.overhead));
+      } else elbow = twoBone(sh, wrist, M.upper, M.fore, arm.pole);
       aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
       aim(B['lowerarm_' + k], B['hand_' + k], wrist);
       if (q) {
@@ -463,7 +475,7 @@ export async function createFigure(scene, base = 'model/') {
   // el muslo con el vientre en la sentadilla, la pantorrilla con el muslo).
   const AGAINST = {
     upper_l: ['torso', 'thigh_l', 'thigh_r', 'head'], upper_r: ['torso', 'thigh_l', 'thigh_r', 'head'],
-    fore_l: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'], fore_r: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'],
+    fore_l: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r', 'fore_r'], fore_r: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'],
     hand_l: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'], hand_r: ['torso', 'thigh_l', 'thigh_r', 'head', 'calf_l', 'calf_r'],
     thigh_l: ['thigh_r'], calf_l: ['calf_r', 'thigh_r'], calf_r: ['thigh_l'], foot_l: ['calf_r'], foot_r: ['calf_l'],
   };
@@ -517,7 +529,7 @@ export async function createFigure(scene, base = 'model/') {
     const pts = skinned();
     const lines = {};
     for (const n of Object.keys(SEGS)) lines[n] = segLine(n);
-    const gripping = { l: !!pose.arms.l.grip, r: !!pose.arms.r.grip };
+    const gripping = { l: !!(pose.arms.l.grip || pose.arms.l.rests), r: !!(pose.arms.r.grip || pose.arms.r.rests) };
     let worst = { depth: 0, where: '' };
     const hit = (depth, where) => { if (depth > worst.depth) worst = { depth, where }; };
     for (const [i, p] of pts) {
@@ -543,5 +555,47 @@ export async function createFigure(scene, base = 'model/') {
     return worst;
   }
 
-  return { model, bones: B, apply, setFinish, setBuild, collisions };
+  // ── Límites de las articulaciones ──────────────────────
+  // Lo que no atraviesa nada pero no puede hacer un cuerpo: el codo por encima
+  // de la cabeza sin ser un ejercicio por encima de la cabeza, la muñeca doblada
+  // en ángulo recto, el codo o la rodilla doblados al revés. Ángulos en grados.
+  const deg = r => r * 180 / Math.PI;
+  const angle = (a, b) => deg(a.angleTo(b));
+  function joints(pose) {
+    const up = wp('neck_01').sub(wp('pelvis')).normalize();          // eje del tronco
+    const fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(B.pelvis.getWorldQuaternion(new THREE.Quaternion()));
+    const out = {};
+    for (const k of ['l', 'r']) {
+      const sh = wp('upperarm_' + k), el = wp('lowerarm_' + k), wr = wp('hand_' + k), kn = wp('middle_01_' + k);
+      const upper = el.clone().sub(sh), fore = wr.clone().sub(el), hand = kn.clone().sub(wr);
+      out['hombro_' + k] = angle(upper, up.clone().negate());       // 0 = brazo colgando, 180 = brazo arriba
+      out['codo_' + k] = 180 - angle(upper.clone().negate(), fore); // 0 = recto
+      out['muñeca_' + k] = angle(fore, hand);                       // 0 = recta
+      const th = wp('calf_' + k).sub(wp('thigh_' + k)), sk = wp('foot_' + k).sub(wp('calf_' + k));
+      out['rodilla_' + k] = angle(th, sk);
+      // Rodilla doblada al revés: la rodilla queda por detrás de la línea cadera-tobillo.
+      const h = wp('thigh_' + k), a = wp('foot_' + k), kn2 = wp('calf_' + k);
+      const ha = a.clone().sub(h).normalize();
+      const off = kn2.clone().sub(h); off.addScaledVector(ha, -off.dot(ha));
+      out['rodilla_inv_' + k] = off.x < -0.015 ? 1 : 0;           // el atleta mira a +x
+    }
+    return out;
+  }
+  const LIMITS = { hombro: 150, codo: 150, 'muñeca': 70, rodilla: 160 };
+  /** Peor violación de los límites en la pose ya aplicada: { exceso (grados), dónde }. */
+  function jointCheck(pose) {
+    const j = joints(pose);
+    let worst = { excess: 0, where: '' };
+    const overhead = pose.overhead;
+    for (const [name, v] of Object.entries(j)) {
+      const [kind, side] = name.split('_').length === 3 ? ['rodilla_inv', name.slice(-1)] : name.split('_');
+      if (kind === 'rodilla_inv') { if (v) worst = { excess: 99, where: `rodilla ${side === 'l' ? 'izq.' : 'der.'} doblada al revés` }; continue; }
+      if (kind === 'hombro' && overhead) continue;
+      const ex = v - LIMITS[kind];
+      if (ex > worst.excess) worst = { excess: ex, where: `${kind} ${side === 'l' ? 'izq.' : 'der.'} a ${Math.round(v)}° (máx. ${LIMITS[kind]}°)` };
+    }
+    return worst;
+  }
+
+  return { model, bones: B, apply, setFinish, setBuild, collisions, joints, jointCheck };
 }

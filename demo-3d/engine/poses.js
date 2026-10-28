@@ -154,7 +154,7 @@ export function squat(o) {
       pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, -0.075, 0.05);
       target = MID_X - 0.07 * (1 - s);
     } else if (o.load === 'front') {
-      pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, 0.1, 0.02);
+      pointOf = tr => torsoPoint(shoulderFrom(H, tr), tr, o.barFwd ?? 0.1, o.barUp ?? 0.02);
       target = MID_X;
     } else {
       pointOf = tr => shoulderFrom(H, tr);
@@ -172,12 +172,21 @@ export function squat(o) {
       pose.arms = both((k, side) => barGrip(bar, side, 0.42,
         new THREE.Vector3(0.15, -1, 0), new THREE.Vector3(-0.6, 0.8, 0), new THREE.Vector3(-0.4, -1, side * 0.2)));
     } else if (o.load === 'front') {
-      // Rack frontal: barra sobre los deltoides, codos altos y delante.
+      // Brazos cruzados: la barra sobre los deltoides, cada mano sobre el hombro
+      // contrario y los codos al frente. El rack con agarre de halterofilia pide
+      // la mano abierta y la muñeca doblada casi 90°: con un puño no cabe en los
+      // límites de la muñeca.
       const bar = pointOf(tr);
       pose.props.push(barbell(bar));
       pose.track = V3(bar);
-      pose.arms = both((k, side) => barGrip(bar, side, 0.26,
-        new THREE.Vector3(0.45, -0.9, 0), new THREE.Vector3(0.2, -1, 0), new THREE.Vector3(1, 0.5, side * 0.35)));
+      // Un antebrazo por encima del otro, para que no se crucen por dentro; la
+      // colocación (c) se eligió probando hasta que nada atravesara.
+      const c = o.cross || {};
+      pose.arms = both((k, side) => ({
+        wrist: V3(torsoPoint(S, tr, side < 0 ? c.fl ?? 0.16 : c.fr ?? 0.12, side < 0 ? c.ul ?? 0.09 : c.ur ?? 0.04), -side * (c.z ?? 0.12)),
+        pole: new THREE.Vector3(1, side < 0 ? c.pl ?? 0.15 : c.pr ?? -0.05, 0),
+        rests: true,                                         // la mano apoyada en la barra: tocarla no es atravesar
+      }));
     } else if (o.load === 'goblet') {
       // La pesa al pecho, cogida por los cuernos, bola abajo.
       const h = torsoPoint(S, tr, 0.25, 0.0);                // asa a la altura del hombro: la bola, contra el pecho
@@ -276,7 +285,7 @@ export function hinge(o) {
     const low = o.floorY ?? (kb ? KB_FLOOR : PLATE_R);
     const gy = lerp(stand - r + 0.012, low, s);
     // En el bloqueo la barra apoya en los muslos un poco por delante del mediopié.
-    const gx = MID_X + (kb ? 0.09 : 0.04) * (1 - s);
+    const gx = MID_X + (o.implement === 'kettlebell' ? 0.09 : o.implement === 'barbell' ? 0.04 : 0) * (1 - s);
     const grip = v2(gx, gy);
     const sx = gx + lerp(o.lockBack ?? -0.1, o.shoulderAhead ?? 0.05, s);
     const S = v2(sx, gy + Math.sqrt(Math.max(r * r - (sx - gx) ** 2, 0)));
