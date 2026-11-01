@@ -45,6 +45,10 @@ describe('landing', () => {
     }
     expect(readFileSync('robots.txt', 'utf8')).toMatch(/Sitemap: https:\/\/arete\.raiatech\.com\/sitemap\.xml/);
     const locs = [...readFileSync('sitemap.xml', 'utf8').matchAll(/<loc>https:\/\/arete\.raiatech\.com\/([^<]*)<\/loc>/g)].map(m => m[1]);
-    for (const l of locs) expect(existsSync(l || 'index.html')).toBe(true);
+    // Pages sirve /blog/x.html como /blog/x (308): el sitemap lleva la URL final.
+    for (const l of locs) {
+      expect(l).not.toMatch(/\.html$/);
+      expect(existsSync(l === '' || l.endsWith('/') ? l + 'index.html' : l + '.html')).toBe(true);
+    }
   });
 });
