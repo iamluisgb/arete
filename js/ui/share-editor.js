@@ -2,6 +2,7 @@
 import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.js';
 import { formatDate } from '../utils.js';
 import { toast } from './toast.js';
+import { track } from '../track.js';
 import { computeProfile } from '../domains.js';
 import {
   profileCardData, renderProfileCard, cardSize, shareText,
@@ -692,6 +693,7 @@ async function exportImage() {
     const date = _data?.date || new Date().toISOString().slice(0, 10);
     const fileName = `arete-${filePrefix()}-${date}.png`;
     const file = new File([blob], fileName, { type: 'image/png' });
+    track('Compartir tarjeta', { tipo: filePrefix(), formato: 'imagen' });
 
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
@@ -780,6 +782,7 @@ async function shareVideo() {
     const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
     const date = new Date().toISOString().slice(0, 10);
     const file = new File(chunks, `arete-${filePrefix()}-${date}.${ext}`, { type: mime.split(';')[0] });
+    track('Compartir tarjeta', { tipo: filePrefix(), formato: 'video' });
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: shareTitle(), text: shareTextFor() });

@@ -10,6 +10,7 @@
 // aplica y repinta (sin tocar un turno en curso).
 
 import * as LLM from '../ai/llm.js';
+import { trackOnce } from '../track.js';
 import { attachMic, micAvailable } from '../ai/mic.js';
 import { buildSnapshot, buildReport, windowConversation, toApiMessages, estimateTokens, TOKEN_GUARD } from '../ai/context.js';
 import { QUIRON_TOOLS, QUIRON_WRITE_TOOLS, WRITE_TOOL_NAMES, QUIRON_MEMORY_TOOLS, MEMORY_TOOL_NAMES, makeToolExecutor } from '../ai/tools.js';
@@ -452,6 +453,7 @@ async function send(db, text, opts = {}) {
   if (!(await keyReady())) return;
   if (busy) return;   // otro envío ganó mientras se pedía la demo
 
+  trackOnce('first_quiron', 'Quirón primer mensaje', { fuente: LLM.isDemo() ? 'demo' : 'clave' });
   const userMsg = { role: 'user', content: q, ...newMsgStamp() };
   if (opts.label) userMsg.label = opts.label;
   convo.push(userMsg);

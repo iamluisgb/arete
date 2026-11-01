@@ -3,6 +3,7 @@ import { saveRunRoute, loadRunRoute, deleteRunRoute, extractHeavyFields } from '
 import { getRunningProgramList, getRunningPhases } from '../programs.js';
 import { safeNum, esc, confirmDanger, formatDate, today } from '../utils.js';
 import { toast } from './toast.js';
+import { track } from '../track.js';
 import { GpsTracker } from './running-tracker.js';
 import { beep, vibrate, startCountdown, beepSplit, beepWorkStart, beepRestStart, beepAllDone, beepSegmentChange, startKeepAlive, stopKeepAlive, resumeKeepAlive } from './running-audio.js';
 import { ZONE_COLORS, ZONE_LABELS, getPaceZones, getHRZones, RUN_TYPE_META, formatPace, formatRunDuration, parseRunDuration, estimateZone, parseSegDistance, parseSegDuration, segModeToRunType } from './running-helpers.js';
@@ -1608,6 +1609,7 @@ function saveImportedRun(db, act) {
   const heavy = extractHeavyFields(log);
   if (heavy) saveRunRoute(log.id, heavy);
   saveDB(db);
+  track('Carrera importada', { formato: act.source || '?' });
 
   checkAndNotifyPRs(db, log);
   toast(`Importada: ${act.distance.toFixed(2)} km`);

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Areté — Entrena para todo</title>
-<meta name="description" content="Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento medidos con tests reales, y un sistema de niveles que no miente: tu nivel es tu dominio más bajo.">
+<title>Areté — App gratis de entrenamiento híbrido: fuerza y resistencia</title>
+<meta name="description" content="App gratis de entrenamiento híbrido. Mide tus 7 dominios de fuerza y resistencia con tests reales, descubre cuál te frena y entrénalo con Quirón, un coach de IA que lee tus datos. Sin cuenta.">
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
@@ -12,20 +12,22 @@
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <link rel="canonical" href="https://arete.raiatech.com/">
 <meta property="og:title" content="Areté — Entrena para todo">
-<meta property="og:description" content="Entrenamiento híbrido de fuerza y resistencia. 7 dominios medidos con tests reales — y tu nivel es tu dominio más bajo.">
+<meta property="og:description" content="App gratis de entrenamiento híbrido. 7 dominios medidos con tests reales, y tu nivel es tu dominio más bajo. ¿Cuál es el tuyo?">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://arete.raiatech.com/">
 <meta property="og:site_name" content="Areté">
-<meta property="og:image" content="https://arete.raiatech.com/assets/og-default.png">
-<meta property="og:image:width" content="512">
-<meta property="og:image:height" content="512">
+<meta property="og:image" content="https://arete.raiatech.com/assets/landing/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Areté: perfil de ejemplo con los 7 dominios en un heptágono y el nivel global II">
+<meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@iamluisgb">
 <meta name="twitter:creator" content="@iamluisgb">
 <meta name="twitter:title" content="Areté — Entrena para todo">
-<meta name="twitter:description" content="Entrenamiento híbrido de fuerza y resistencia. 7 dominios medidos con tests reales — y tu nivel es tu dominio más bajo.">
-<meta name="twitter:image" content="https://arete.raiatech.com/assets/og-default.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Areté — Entrena para todo","url":"https://arete.raiatech.com/","description":"Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento medidos con tests reales, y un sistema de niveles que no miente.","inLanguage":"es","publisher":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"}}</script>
+<meta name="twitter:description" content="App gratis de entrenamiento híbrido. 7 dominios medidos con tests reales, y tu nivel es tu dominio más bajo. ¿Cuál es el tuyo?">
+<meta name="twitter:image" content="https://arete.raiatech.com/assets/landing/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Areté","url":"https://arete.raiatech.com/","applicationCategory":"HealthApplication","operatingSystem":"Web, Android, iOS","inLanguage":"es","description":"App gratis de entrenamiento híbrido: mide 7 dominios de fuerza y resistencia con tests reales; tu nivel es tu dominio más bajo. Incluye Quirón, un coach de IA que lee tus datos.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"}}</script>
 <style>
   /* ---- Tokens (identidad Areté: fondo cálido + rojo) ---- */
   :root{
@@ -35,6 +37,7 @@
     --accent:#d4372c; --accent-bright:#ff5545;
     --accent-soft:rgba(212,55,44,.09); --accent-glow:rgba(255,85,69,.16);
     --card:#ffffff; --surface2:#ebe8e5; --green:#16a34a; --red:#dc2626;
+    --action:#1c1b1b; --action-ink:#ffffff; --action-glow:rgba(28,27,27,.18);
     --band-bg:#131313; --band-ink:#e5e2e1; --band-soft:rgba(231,189,183,.60);
     --bar-track:rgba(92,68,64,.08); --bar-fill:#8f837f;
     --shadow-2:0 4px 16px rgba(60,40,35,.07);
@@ -48,6 +51,7 @@
     --accent:#ff5545; --accent-bright:#ff5545;
     --accent-soft:rgba(255,85,69,.13); --accent-glow:rgba(255,85,69,.28);
     --card:#201f1f; --surface2:#2a2a2a; --green:#30d158; --red:#ff453a;
+    --action:#e5e2e1; --action-ink:#131313; --action-glow:rgba(0,0,0,.4);
     --band-bg:#0b0b0b; --band-ink:#e5e2e1; --band-soft:rgba(231,189,183,.60);
     --bar-track:rgba(231,189,183,.10); --bar-fill:#6e6462;
     --shadow-2:0 4px 16px rgba(0,0,0,.3);
@@ -74,11 +78,11 @@
   .nav-links a{color:var(--ink-soft)}
   .nav-links a:hover{color:var(--accent)}
   @media (max-width:560px){.nav-links{display:none}}
-  .nav-cta{font:600 14px var(--font);background:var(--accent);color:#fff;padding:9px 16px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease}
-  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--accent-glow)}
+  .nav-cta{font:600 14px var(--font);background:var(--action);color:var(--action-ink);padding:9px 16px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease}
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--action-glow)}
 
   /* ---- Beats: una idea por pantalla ---- */
-  .beat{padding:clamp(88px,13vh,150px) 0;text-align:center}
+  .beat{padding:clamp(64px,10vh,120px) 0;text-align:center}
   .beat-copy{max-width:680px;margin:0 auto}
   .product-name{font:700 13.5px var(--font);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
   h1,h2{font-weight:800;text-wrap:balance;margin:0;letter-spacing:-.03em}
@@ -87,8 +91,8 @@
   .support{font-size:clamp(17px,1.6vw,19.5px);color:var(--ink-soft);max-width:54ch;margin:22px auto 0}
   .support b{color:var(--ink);font-weight:600}
   .cta-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:36px;flex-wrap:wrap}
-  .btn-primary{display:inline-flex;align-items:center;gap:9px;font:600 16px var(--font);background:var(--accent);color:#fff;padding:15px 28px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 8px 24px var(--accent-glow)}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px var(--accent-glow)}
+  .btn-primary{display:inline-flex;align-items:center;gap:9px;font:600 16px var(--font);background:var(--action);color:var(--action-ink);padding:15px 28px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 8px 24px var(--action-glow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px var(--action-glow)}
   .btn-ghost{display:inline-flex;align-items:center;gap:9px;font:600 16px var(--font);color:var(--ink);padding:14px 26px;border-radius:999px;border:1px solid var(--line);background:var(--card);transition:transform .15s ease;white-space:nowrap}
   .btn-ghost:hover{transform:translateY(-2px)}
   .cta-note{margin-top:15px;font-size:13.5px;color:var(--ink-faint)}
@@ -158,7 +162,7 @@
   .demo-lvl{font:800 34px/1 var(--font);letter-spacing:-.02em;color:var(--accent);transition:transform .3s ease}
   .demo-lvl.bump{transform:scale(1.18)}
   .demo-lbl{font:600 12px var(--font);color:var(--ink-faint)}
-  .demo-btn{font:600 13.5px var(--font);font-family:inherit;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:10px 18px;cursor:pointer;transition:transform .15s ease,opacity .2s}
+  .demo-btn{font:600 13.5px var(--font);font-family:inherit;background:var(--action);color:var(--action-ink);border:0;border-radius:999px;padding:10px 18px;cursor:pointer;transition:transform .15s ease,opacity .2s}
   .demo-btn:hover{transform:translateY(-1px)}
   .demo-btn[disabled]{background:var(--bar-track);color:var(--ink-soft);cursor:default;transform:none}
   .mindemo-note{margin-top:16px;font:400 13px var(--font);color:var(--ink-faint);text-align:center}
@@ -200,6 +204,56 @@
   .faq details[open] summary::after{transform:rotate(45deg)}
   .faq .ans{padding:0 2px 20px;font-size:15px;color:var(--ink-soft);max-width:62ch}
 
+
+  /* ---- Hero: la tarjeta de perfil real (render de js/ui/profile-card.js) ---- */
+  .hero-card{max-width:440px;margin-inline:auto}
+  .hero-card img{display:block;width:100%;height:auto;border-radius:22px;box-shadow:var(--shadow-3)}
+  .fig-note{margin-top:14px;font:400 13px var(--font);color:var(--ink-faint)}
+  .split-lead{margin:40px auto 0;max-width:54ch}
+
+  /* ---- Quirón ---- */
+  .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,56px);align-items:center;text-align:left;max-width:960px;margin-inline:auto}
+  .q-grid h2{text-align:left}
+  .q-grid .support{margin-left:0}
+  .q-list{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px;font-size:15.5px;color:var(--ink-soft)}
+  .q-list li{display:grid;grid-template-columns:20px 1fr;gap:10px}
+  .q-list li::before{content:"✓";color:var(--ink);font-weight:700}
+  .q-list b{color:var(--ink);font-weight:600}
+  .q-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:26px}
+  .q-cta .cta-note{margin:0}
+  .chat{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-3);padding:18px 16px 16px}
+  .chat-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 4px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .chat-head b{font:700 14px var(--font)}
+  .chat-head small{font:400 12px var(--font);color:var(--ink-faint)}
+  .msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.5;margin-bottom:10px}
+  .msg.me{margin-left:auto;background:var(--surface2);border-bottom-right-radius:5px}
+  .msg.q{background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .msg.q b{font-weight:700}
+  .tool{display:inline-block;font:600 11px ui-monospace,'SF Mono',Menlo,monospace;color:var(--ink-faint);background:var(--bar-track);border-radius:6px;padding:2px 7px;margin:0 0 6px}
+  .chat-tag{font:600 10.5px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);text-align:center;margin-top:6px}
+
+  /* ---- 3D ---- */
+  .anims{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:860px;margin-inline:auto}
+  .anim{margin:0;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 10px 12px}
+  .anim img{display:block;width:100%;height:auto;aspect-ratio:1}
+  .anim figcaption{font:600 13px var(--font);margin-top:4px}
+  :root.dark .anim{background:#e9e6e3}
+  :root.dark .anim figcaption{color:#1c1b1b}
+
+  /* ---- Rejilla «y además» ---- */
+  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:960px;margin:0 auto;text-align:left}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px}
+  .feat h3{font:700 15.5px var(--font);margin:0 0 4px;letter-spacing:-.01em}
+  .feat p{font-size:14px;color:var(--ink-soft);line-height:1.55}
+
+  /* ---- Prueba: quién lo hace y cuándo se tocó ---- */
+  .proof{list-style:none;padding:0;margin:clamp(40px,6vh,56px) auto 0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;font-size:14px;color:var(--ink-soft);max-width:860px}
+  .proof li{display:block}
+  .proof b{color:var(--ink);font-weight:600}
+  .proof a{color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px}
+  .proof-maker{display:inline-flex!important;align-items:center;gap:9px}
+  .proof-maker img{width:28px;height:28px;border-radius:50%;display:block}
+
   footer{border-top:1px solid var(--line);padding:28px 0 36px}
   .foot-in{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font:400 13px var(--font);color:var(--ink-faint)}
   .foot-in .brand{font-size:14.5px}
@@ -215,10 +269,14 @@
     html{scroll-behavior:auto}
     .fill,.demo-lvl{transition:none!important}
   }
+  @media (min-width:761px) and (max-width:960px){.feats{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:760px){
     .device-body{grid-template-columns:1fr}
     .session{border-right:0;border-bottom:1px solid var(--line)}
     .split{grid-template-columns:1fr}
+    .q-grid{grid-template-columns:1fr}
+    .anims{grid-template-columns:repeat(2,1fr)}
+    .feats{grid-template-columns:1fr}
     .import-chip{white-space:normal;width:max-content;max-width:92%;text-align:center}
   }
 </style>
@@ -249,86 +307,37 @@
 </nav>
 
 <!-- Beat 1 · La promesa -->
-<header class="beat">
+<header class="beat" data-beat="hero">
   <div class="wrap">
     <div class="beat-copy">
-      <img class="hero-logo" src="assets/icons/icon-192.png" alt="Logo de Areté">
+      <img class="hero-logo" src="assets/icons/icon-192.png" alt="Logo de Areté" width="84" height="84">
       <p class="product-name">Areté</p>
       <h1>Entrena para todo.</h1>
-      <p class="support">Fuerza y resistencia en el mismo cuerpo. <b>Siete dominios de rendimiento</b>, medidos con tests reales — y un nivel que no puedes maquillar.</p>
+      <p class="support">App gratis de entrenamiento híbrido. Mide tus <b>7 dominios</b> de fuerza y resistencia con tests reales, descubre cuál te frena y entrénalo con <b>Quirón</b>, un coach de IA que lee tus datos.</p>
       <div class="cta-row">
-        <a class="btn-primary" href="app.html">Empezar
+        <a class="btn-primary" href="app.html" data-umami-event="Empezar" data-umami-event-where="hero">Empezar
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
         </a>
         <!-- Un clic hasta el coach: app.html#quiron salta la bienvenida y abre el chat;
              la demo sin clave se pide sola en el primer envío. -->
-        <a class="btn-ghost" href="app.html#quiron">Pregunta a tu coach</a>
+        <a class="btn-ghost" href="app.html#quiron" data-umami-event="Quirón" data-umami-event-where="hero">Pregunta a tu coach</a>
       </div>
       <p class="cta-note">Gratis. Sin cuenta. Sin anuncios.</p>
     </div>
 
-    <div class="beat-visual" aria-label="Areté: la sesión de hoy y tu perfil de 7 dominios">
-      <div class="device">
-        <div class="device-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="device-title">Areté — Mi Entreno</span></div>
-        <div class="device-body">
-          <div class="session">
-            <p class="pane-tag">Hoy</p>
-            <p class="session-title">Fase 1 · Fuerza — Día 2</p>
-            <p class="session-sub">Semana 3 de 6 · Bloque pesado</p>
-            <div class="mini-timer anim-2" aria-hidden="true">
-              <span class="mini-timer-time">2:34</span>
-              <span class="mini-timer-stop">■</span>
-            </div>
-            <div class="ex-card anim-1" aria-hidden="true">
-              <div class="ex-name">Sentadilla</div>
-              <div class="ex-target">5×3 @ 82,5 %</div>
-              <div class="sets-grid">
-                <div></div><div class="sets-header">Kg</div><div class="sets-header">Reps</div>
-                <span class="set-label set-done">S1</span><span class="fake-input">110</span><span class="fake-input">3</span>
-                <span class="set-label set-done">S2</span><span class="fake-input">110</span><span class="fake-input">3</span>
-                <span class="set-label set-done">S3</span><span class="fake-input">110</span><span class="fake-input">3</span>
-                <span class="set-label active-set">S4</span><span class="fake-input ph">110</span><span class="fake-input ph">3</span>
-                <span class="set-label">S5</span><span class="fake-input ph">110</span><span class="fake-input ph">3</span>
-              </div>
-              <div class="prev-data">Anterior: <span>107,5 kg × 3 · 3 · 3</span></div>
-            </div>
-            <div class="ex-card" aria-hidden="true">
-              <div class="ex-name">Press banca</div>
-              <div class="ex-target">4×5 @ 77,5 %</div>
-              <div class="prev-data">Anterior: <span>72,5 kg × 5 · 5 · 5 · 5</span></div>
-            </div>
-            <div class="ex-card" aria-hidden="true">
-              <div class="ex-name">Dominadas lastradas</div>
-              <div class="ex-target">4×6 — +10 kg</div>
-              <div class="prev-data">Anterior: <span>+7,5 kg × 6 · 6 · 6 · 5</span></div>
-            </div>
-          </div>
-          <div class="profile">
-            <p class="pane-tag">Tu perfil · 7 dominios</p>
-            <div class="dom"><span class="dom-name">Fuerza máxima <b>IV</b></span><span class="track"><span class="fill" data-w="80"></span></span></div>
-            <div class="dom"><span class="dom-name">Fuerza tracción <b>III</b></span><span class="track"><span class="fill" data-w="60"></span></span></div>
-            <div class="dom"><span class="dom-name">Capacidad glicolítica <b>III</b></span><span class="track"><span class="fill" data-w="60"></span></span></div>
-            <div class="dom low"><span class="dom-name">Cardiovascular <b>II</b></span><span class="track"><span class="fill" data-w="40"></span></span></div>
-            <div class="dom"><span class="dom-name">Resistencia de fuerza <b>III</b></span><span class="track"><span class="fill" data-w="60"></span></span></div>
-            <div class="dom"><span class="dom-name">Resistencia de core <b>IV</b></span><span class="track"><span class="fill" data-w="80"></span></span></div>
-            <div class="dom"><span class="dom-name">Movilidad funcional <b>III</b></span><span class="track"><span class="fill" data-w="60"></span></span></div>
-            <div class="global">
-              <span class="global-lvl">II</span>
-              <span class="global-txt">Atleta Híbrido · Nivel II<small>Tu nivel es tu dominio más bajo</small></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <figure class="beat-visual hero-card">
+      <img src="assets/landing/perfil-ejemplo.webp" width="880" height="880" alt="Tarjeta de perfil de ejemplo: heptágono con los 7 dominios, nivel global II (Novato) y la resistencia aeróbica como eslabón débil" fetchpriority="high">
+      <figcaption class="fig-note">Perfil de ejemplo. Es la tarjeta que la app te prepara para compartir.</figcaption>
+    </figure>
   </div>
 </header>
 
-<!-- Beat 2 · La empatía -->
-<section class="beat alt">
+<!-- Beat 2 · El problema y la tesis -->
+<section class="beat alt" data-beat="problema">
   <div class="wrap">
     <div class="beat-copy">
       <h2>Fuerte en el gimnasio.<br>Roto en la primera cuesta.</h2>
-      <p class="support">Todos nos especializamos sin darnos cuenta: entrenamos lo que se nos da bien y evitamos lo que duele. Los números lo esconden — hasta que alguien mide todo.</p>
+      <p class="support">Todos nos especializamos sin darnos cuenta: entrenamos lo que se nos da bien y evitamos lo que duele. Los números lo esconden, hasta que alguien mide todo.</p>
     </div>
     <div class="beat-visual">
       <div class="split" aria-hidden="true">
@@ -345,15 +354,9 @@
       </div>
       <p class="split-note">¿Tu nivel? <b>I.</b></p>
     </div>
-  </div>
-</section>
-
-<!-- Beat 3 · La tesis -->
-<section class="beat">
-  <div class="wrap">
-    <div class="beat-copy">
+    <div class="beat-copy split-lead">
       <h2>Tu nivel es tu dominio más bajo.</h2>
-      <p class="support">No la media. No tu récord favorito. En Areté el nivel global es el <b>mínimo</b> de tus siete dominios — así que solo hay una forma de subir: <b>entrenar lo que evitas</b>.</p>
+      <p class="support">No la media. No tu récord favorito. En Areté el nivel global es el <b>mínimo</b> de tus siete dominios, así que solo hay una forma de subir: <b>entrenar lo que evitas</b>.</p>
     </div>
     <div class="beat-visual">
       <div class="mindemo">
@@ -374,12 +377,12 @@
   </div>
 </section>
 
-<!-- Beat 4 · La confianza -->
-<section class="beat alt">
+<!-- Beat 3 · La confianza -->
+<section class="beat" data-beat="tests">
   <div class="wrap">
     <div class="beat-copy">
       <h2>Medido, no sentido.</h2>
-      <p class="support">Cada dominio se mide con un test guiado y un protocolo publicado: 5K con GPS, snatch test, Simple &amp; Sinister, McGill, AKE… Los estándares se ajustan a <b>tu peso corporal</b>, no a una tabla genérica.</p>
+      <p class="support">Cada dominio se mide con un test guiado y un protocolo publicado: 5K, snatch test, Simple &amp; Sinister, McGill, AKE… Los estándares se ajustan a <b>tu peso corporal</b>, no a una tabla genérica.</p>
     </div>
     <div class="beat-visual">
       <div class="testcard" aria-hidden="true">
@@ -392,65 +395,151 @@
           <span class="r-lvl">Nivel III</span>
         </div>
       </div>
-      <p class="test-note">Los tests sustituyen entrenamiento, no se añaden: caben en tu semana.</p>
+      <p class="test-note">Los tests sustituyen entrenamiento, no se añaden: caben en tu semana. Y lo que ya registras (tus básicos, tus dominadas, tu mejor 5K) cuenta solo.</p>
     </div>
   </div>
 </section>
 
-<!-- Beat 5 · La aplicación -->
-<section class="beat">
+<!-- Beat 4 · Quirón -->
+<section class="beat alt" data-beat="quiron">
   <div class="wrap">
-    <div class="beat-copy">
-      <p class="product-name" style="letter-spacing:.16em;font-size:12px">Planes importables</p>
-      <h2>Del diagnóstico al plan.</h2>
-      <p class="support">Empieza con el programa Areté — 4 fases: fuerza, hipertrofia, definición y ajustes — o crea el tuyo: el formato es <b>JSON abierto</b>. Diséñalo con IA o a mano, impórtalo y entrena.</p>
-    </div>
-    <div class="beat-visual">
-      <div class="plan-visual">
-        <div class="code-card" aria-hidden="true"><span class="dim">{</span>
-  <span class="k">"programa"</span>: <span class="s">"Efecto Kettlebell"</span>,
-  <span class="k">"semanas"</span>: 10,
-  <span class="k">"dominio"</span>: <span class="s">"resistencia_fuerza"</span>,
-  <span class="k">"sesiones"</span>: [ <span class="dim">…</span> ]
-<span class="dim">}</span></div>
-        <span class="import-chip">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Importar plan — listo para entrenar
-        </span>
+    <div class="q-grid">
+      <div>
+        <p class="product-name" style="letter-spacing:.16em;font-size:12px">Quirón · tu coach</p>
+        <h2>Un coach que ha leído tu historial.</h2>
+        <p class="support">Quirón contesta con tus series, tus carreras y tu perfil delante. No se inventa cifras: las saca de lo que has registrado.</p>
+        <ul class="q-list">
+          <li><span><b>Te dice qué peso toca hoy</b> y por qué, con el mismo motor de progresión que usa la app.</span></li>
+          <li><span><b>Te prepara sesiones y planes</b> que la app guarda y puedes empezar al momento.</span></li>
+          <li><span><b>Registra un entreno</b> a partir de una foto de la pizarra o dictándolo.</span></li>
+          <li><span><b>Recuerda</b> tus lesiones, tu material y tus preferencias.</span></li>
+        </ul>
+        <div class="q-cta">
+          <a class="btn-ghost" href="app.html#quiron" data-umami-event="Quirón" data-umami-event-where="seccion">Pregunta a Quirón</a>
+          <p class="cta-note">Demo gratis cada día, sin clave.</p>
+        </div>
+      </div>
+      <div class="chat" aria-label="Conversación de ejemplo con Quirón">
+        <div class="chat-head"><b>Quirón</b><small>tu coach</small></div>
+        <p class="msg me">¿Qué me frena ahora mismo?</p>
+        <div class="msg q"><span class="tool">get_domain_profile</span><br><b>Cardiovascular, en nivel II.</b> El resto de tus dominios está en III o más. Te propongo cambiar los accesorios del jueves por 35 minutos en zona 2. ¿Te preparo la sesión?</div>
+        <p class="msg me">Sí. Y apunta que me molesta el hombro izquierdo.</p>
+        <div class="msg q"><span class="tool">propose_session</span> <span class="tool">remember</span><br>Hecho: tienes «Rodaje Z2 · 35 min» guardada para el jueves. Y lo guardo en memoria: nada de press por encima de la cabeza hasta que me digas que estás bien.</div>
+        <p class="chat-tag">Conversación de ejemplo</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Beat 6 · Los valores -->
-<section class="beat values">
+<!-- Beat 5 · Del diagnóstico al plan -->
+<section class="beat" data-beat="plan">
+  <div class="wrap">
+    <div class="beat-copy">
+      <p class="product-name" style="letter-spacing:.16em;font-size:12px">Planes y progresión</p>
+      <h2>Del diagnóstico al plan.</h2>
+      <p class="support">Empieza con el programa Areté (4 fases: fuerza, hipertrofia, definición y ajustes), pídele uno a Quirón o importa el tuyo: el formato es <b>JSON abierto</b>. Cada día la app te dice qué peso toca, <b>y por qué</b>.</p>
+    </div>
+    <div class="beat-visual">
+      <div class="device" style="max-width:440px">
+        <div class="session" style="border:0">
+          <p class="pane-tag">Hoy</p>
+          <p class="session-title">Fase 1 · Fuerza — Día 2</p>
+          <p class="session-sub">Semana 3 de 6 · Bloque pesado</p>
+          <div class="mini-timer" aria-hidden="true">
+            <span class="mini-timer-time">2:34</span>
+            <span class="mini-timer-stop">■</span>
+          </div>
+          <div class="ex-card" aria-hidden="true">
+            <div class="ex-name">Sentadilla</div>
+            <div class="ex-target">5×3 · hoy toca 112,5 kg</div>
+            <div class="sets-grid">
+              <div></div><div class="sets-header">Kg</div><div class="sets-header">Reps</div>
+              <span class="set-label set-done">S1</span><span class="fake-input">112,5</span><span class="fake-input">3</span>
+              <span class="set-label set-done">S2</span><span class="fake-input">112,5</span><span class="fake-input">3</span>
+              <span class="set-label active-set">S3</span><span class="fake-input ph">112,5</span><span class="fake-input ph">3</span>
+              <span class="set-label">S4</span><span class="fake-input ph">112,5</span><span class="fake-input ph">3</span>
+              <span class="set-label">S5</span><span class="fake-input ph">112,5</span><span class="fake-input ph">3</span>
+            </div>
+            <div class="prev-data">Por qué: <span>completaste las 5×3 con 107,5 kg; el tren inferior sube de 5 en 5.</span></div>
+          </div>
+          <div class="ex-card" aria-hidden="true">
+            <div class="ex-name">Dominadas lastradas</div>
+            <div class="ex-target">4×6 — +10 kg</div>
+            <div class="prev-data">Anterior: <span>+7,5 kg × 6 · 6 · 6 · 6</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="fig-note">Pantalla de ejemplo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Beat 6 · Ejercicios en 3D -->
+<section class="beat alt" data-beat="3d">
+  <div class="wrap">
+    <div class="beat-copy">
+      <h2>Cada ejercicio, en 3D.</h2>
+      <p class="support">Pulsa «3D» junto al ejercicio y gíralo para verlo desde el ángulo que te haga falta. Ya hay <b>20</b>, de la sentadilla al press militar.</p>
+    </div>
+    <div class="beat-visual anims" aria-label="Cuatro ejercicios animados de la app">
+      <figure class="anim"><img data-frames="squat" src="assets/anim3d/frames/squat-0.webp" width="320" height="320" alt="Sentadilla con barra" loading="lazy"><figcaption>Sentadilla</figcaption></figure>
+      <figure class="anim"><img data-frames="deadlift" src="assets/anim3d/frames/deadlift-0.webp" width="320" height="320" alt="Peso muerto" loading="lazy"><figcaption>Peso muerto</figcaption></figure>
+      <figure class="anim"><img data-frames="ohp" src="assets/anim3d/frames/ohp-0.webp" width="320" height="320" alt="Press militar" loading="lazy"><figcaption>Press militar</figcaption></figure>
+      <figure class="anim"><img data-frames="kb-thruster" src="assets/anim3d/frames/kb-thruster-0.webp" width="320" height="320" alt="Thruster con pesa rusa" loading="lazy"><figcaption>Thruster con pesa rusa</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- Beat 7 · Y además -->
+<section class="beat" data-beat="ademas">
+  <div class="wrap">
+    <div class="beat-copy" style="margin-bottom:clamp(36px,5vh,52px)">
+      <h2>Y todo lo demás.</h2>
+    </div>
+    <div class="feats">
+      <div class="feat"><h3>Tus carreras, importadas</h3><p>Trae tus salidas en GPX o TCX desde el reloj o Strava. Ritmos, zonas, récords y tu VO2max estimado.</p></div>
+      <div class="feat"><h3>Tarjetas para compartir</h3><p>Tu perfil, tus sesiones y cada subida de nivel, como imagen o vídeo para stories.</p></div>
+      <div class="feat"><h3>Historial y récords</h3><p>Cada serie tal como la hiciste, la carga estimada por ejercicio y tus récords a la vista.</p></div>
+      <div class="feat"><h3>Pulsómetro Bluetooth</h3><p>Conecta tu banda de pecho y entrena por zonas de frecuencia cardiaca.</p></div>
+      <div class="feat"><h3>Blueprints</h3><p>Guías de nutrición por fase, sueño, movilidad y recuperación, escritas para el sistema.</p></div>
+      <div class="feat"><h3>Funciona sin conexión</h3><p>Instálala en el móvil como una app. Entrenar y registrar series funciona sin cobertura.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Beat 8 · Los valores -->
+<section class="beat values" data-beat="privacidad">
   <div class="wrap">
     <div class="beat-copy">
       <h2>Tu esfuerzo es tuyo.</h2>
-      <p class="support">Sin cuenta. Sin anuncios. Sin nadie mirando. Todo vive en tu dispositivo, con copia de seguridad opcional en tu propio Google Drive.</p>
+      <p class="support">Sin cuenta. Sin anuncios. Tus entrenos viven en tu dispositivo, con copia opcional en tu propio Google Drive. A Quirón solo le llega lo que le preguntas, y solo cuando le preguntas.</p>
       <p class="seal">Excelencia sin días libres. <span>Así es Areté.</span></p>
     </div>
   </div>
 </section>
 
-<!-- Y además + FAQ -->
-<section class="beat alt">
+<!-- FAQ -->
+<section class="beat alt" data-beat="faq">
   <div class="wrap">
     <div class="beat-copy">
-      <p class="etc"><b>Y además:</b> GPS tracker para tus carreras, VO2max estimado, blueprints de nutrición por fase, historial y récords por ejercicio, la guía completa del sistema, tema claro y oscuro, y funciona sin conexión.</p>
+      <h2>Preguntas frecuentes</h2>
     </div>
     <div class="faq">
       <details>
         <summary>¿Cuánto cuesta?</summary>
-        <p class="ans">Nada. Areté es gratis, sin cuenta, sin anuncios y sin suscripción. Abres la app y entrenas.</p>
+        <p class="ans">Nada. Areté es gratis, sin cuenta, sin anuncios y sin suscripción. Quirón tiene una demo gratis cada día; si lo usas mucho, pones tu propia clave de IA (OpenAI, OpenRouter, Groq…) y pagas solo lo que gastes con ellos.</p>
       </details>
       <details>
         <summary>¿Cuáles son los 7 dominios?</summary>
-        <p class="ans">Fuerza máxima, fuerza de tracción, capacidad glicolítica, cardiovascular, resistencia de fuerza, resistencia de core y movilidad funcional. Cada uno tiene su test y sus estándares por nivel, relativos a tu peso corporal.</p>
+        <p class="ans">Fuerza máxima, fuerza de tracción, capacidad glicolítica, cardiovascular, resistencia de fuerza, resistencia de core y movilidad funcional. Cada uno tiene su test y sus estándares por nivel, relativos a tu peso corporal. Lo explico a fondo en <a href="blog/8-dominios.html">este artículo</a>.</p>
       </details>
       <details>
         <summary>¿Por qué mi nivel es el dominio más bajo y no la media?</summary>
-        <p class="ans">Porque la media premia la especialización: un press enorme puede esconder que no aguantas 20 minutos corriendo. El mínimo te obliga a mirar justo donde no quieres mirar — y ahí es donde está el progreso.</p>
+        <p class="ans">Porque la media premia la especialización: un press enorme puede esconder que no aguantas 20 minutos corriendo. El mínimo te obliga a mirar justo donde no quieres mirar, y ahí es donde está el progreso.</p>
+      </details>
+      <details>
+        <summary>¿Sirve si soy mujer?</summary>
+        <p class="ans">Sí para entrenar, registrar y hablar con Quirón. Los umbrales de nivel están calibrados hoy con normativos de hombre de unos 75 kg, y la app lo avisa en tu perfil. La tabla femenina está pendiente.</p>
       </details>
       <details>
         <summary>¿Necesito un gimnasio completo?</summary>
@@ -458,27 +547,41 @@
       </details>
       <details>
         <summary>¿Puedo crear mi propio plan?</summary>
-        <p class="ans">Sí. Los planes son archivos JSON con un formato documentado: puedes escribirlo a mano o pedírselo a una IA con la plantilla de la guía, importarlo y entrenarlo con seguimiento completo.</p>
+        <p class="ans">Sí. Pídeselo a Quirón, o escríbelo tú: los planes son archivos JSON con un formato documentado. Lo importas y lo entrenas con seguimiento completo.</p>
+      </details>
+      <details>
+        <summary>¿Puedo usar mi reloj o Strava?</summary>
+        <p class="ans">Sí: exporta la actividad como GPX o TCX y la importas en Areté. Los .FIT todavía no se leen. En el navegador el GPS no puede grabar con la pantalla apagada, así que para correr te recomiendo el reloj y luego importar.</p>
+      </details>
+      <details>
+        <summary>¿Funciona en iPhone?</summary>
+        <p class="ans">Sí. Ábrela en Safari y usa «Compartir → Añadir a pantalla de inicio»: queda instalada como una app, con su icono y sin barra del navegador.</p>
       </details>
       <details>
         <summary>¿Dónde se guardan mis datos?</summary>
-        <p class="ans">En el almacenamiento de tu navegador, en tu dispositivo. Si quieres, activas la copia de seguridad en tu propio Google Drive — la app no tiene servidor propio.</p>
+        <p class="ans">En el almacenamiento de tu navegador, en tu dispositivo. Si quieres, activas la copia en tu propio Google Drive, que también sincroniza entre tus dispositivos. No hay cuenta de Areté ni una base de datos nuestra con tus entrenos. Cuando le escribes a Quirón, tu mensaje y los datos que necesita para contestar van al proveedor de IA.</p>
       </details>
       <details>
         <summary>¿Funciona sin conexión?</summary>
-        <p class="ans">Sí, es una PWA instalable: entrenar, registrar series y consultar tu perfil funciona offline. El GPS tracker usa el sensor de tu móvil, sin conexión también.</p>
+        <p class="ans">Sí, es una PWA instalable: entrenar, registrar series y consultar tu perfil funciona offline. Quirón sí necesita conexión.</p>
       </details>
     </div>
+    <ul class="proof">
+      <li class="proof-maker"><img src="assets/landing/luis.webp" alt="" width="28" height="28" loading="lazy" decoding="async"><span>Hecha por <a href="https://luisgonzalezbernal.com"><b>Luis González</b></a>, en España</span></li>
+      <li><span>Tests de protocolos publicados: <b>McGill</b>, <b>Simple &amp; Sinister</b>, <b>AKE</b></span></li>
+      <li><a href="blog/index.html">Cómo está pensada, en el blog</a></li>
+      <li><span class="proof-upd" hidden>Actualizada el <time></time></span></li>
+    </ul>
   </div>
 </section>
 
-<!-- Beat 7 · El cierre -->
-<section class="beat">
+<!-- Beat 9 · El cierre -->
+<section class="beat" data-beat="cierre">
   <div class="wrap">
     <div class="beat-copy">
       <h2>El atleta completo no tiene un punto débil que esconder.</h2>
       <div class="cta-row">
-        <a class="btn-primary" href="app.html">Empezar
+        <a class="btn-primary" href="app.html" data-umami-event="Empezar" data-umami-event-where="cierre">Descubre el tuyo
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
         </a>
       </div>
@@ -490,7 +593,7 @@
 <footer>
   <div class="wrap foot-in">
     <span class="brand"><img src="assets/icons/icon-192.png" alt="" aria-hidden="true">Aret<span style="color:var(--accent)">é</span></span>
-    <span><a href="blog/index.html">Blog</a> · <a href="blueprints/index.html">Blueprints</a> · <a href="https://luisgonzalezbernal.com">por Luis González</a> · © 2026</span>
+    <span>App de entrenamiento híbrido · <a href="blog/index.html">Blog</a> · <a href="blueprints/index.html">Blueprints</a> · <a href="https://luisgonzalezbernal.com">por Luis González</a> · © 2026</span>
   </div>
 </footer>
 
@@ -544,7 +647,46 @@
       note.textContent='El nivel solo sube por abajo. Esa es la tesis.';
       btn.textContent='Reiniciar demo';
     },650);
+    track('Demo mínimo');
   });
+
+  // Analítica (Umami solo existe en producción): qué secciones se ven, qué FAQ se abre
+  function track(name,data){try{window.umami&&window.umami.track(name,data);}catch(e){}}
+  var seen=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){track('Sección vista',{beat:e.target.dataset.beat});seen.unobserve(e.target);}
+    });
+  },{threshold:.4});
+  document.querySelectorAll('[data-beat]').forEach(function(el){seen.observe(el);});
+  document.querySelectorAll('.faq details').forEach(function(d){
+    d.addEventListener('toggle',function(){
+      if(d.open&&!d.dataset.t){d.dataset.t='1';track('FAQ abierta',{q:d.querySelector('summary').textContent.slice(0,60)});}
+    });
+  });
+
+  // Ejercicios 3D: los cuatro fotogramas que usa la app, en bucle (ida y vuelta) mientras se ven
+  var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var anims=[].slice.call(document.querySelectorAll('img[data-frames]'));
+  if(!still&&anims.length){
+    var seq=[0,1,2,3,2,1],k=0,timer=null;
+    anims.forEach(function(img){seq.forEach(function(i){new Image().src='assets/anim3d/frames/'+img.dataset.frames+'-'+i+'.webp';});});
+    var box=document.querySelector('.anims');
+    new IntersectionObserver(function(entries){
+      var on=entries[0].isIntersecting;
+      if(on&&!timer){timer=setInterval(function(){k=(k+1)%seq.length;anims.forEach(function(img){img.src='assets/anim3d/frames/'+img.dataset.frames+'-'+seq[k]+'.webp';});},380);}
+      if(!on&&timer){clearInterval(timer);timer=null;}
+    }).observe(box);
+  }
+
+  // «Actualizada el…»: la fecha del último despliegue (dist/build.json)
+  fetch('/build.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(b){
+    var d=b&&new Date(b.builtAt||b.date);
+    if(!d||isNaN(d))return;
+    var el=document.querySelector('.proof-upd');
+    el.querySelector('time').dateTime=d.toISOString().slice(0,10);
+    el.querySelector('time').textContent=d.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+    el.hidden=false;
+  }).catch(function(){});
 })();
 </script>
 </body>

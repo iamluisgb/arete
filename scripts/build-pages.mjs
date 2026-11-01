@@ -36,6 +36,9 @@ const PUBLIC = [
   'blueprints',
   'programs',
   'u',          // tracker de Umami auto-hospedado (u/s.js)
+  '404.html',   // Pages la sirve con 404 real a cualquier ruta inventada (sin ella, soft 404 con la landing)
+  'robots.txt',
+  'sitemap.xml',
 ];
 
 const fromWorktree = process.argv.includes('--worktree');

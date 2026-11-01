@@ -4,6 +4,7 @@ import { getPrograms, getActiveProgram, getAllPhases } from '../programs.js';
 import { listCustomSessions, getCustomSession, isSessionRef, refToId, sessionRef, touchCustomSession } from '../sessions.js';
 import { esc, formatDateShort, phaseChipLabel } from '../utils.js';
 import { toast } from './toast.js';
+import { track, trackOnce } from '../track.js';
 import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopExTimer, isExTimerActive } from './training-timer.js';
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
 import { pictHtml, anim3dButton } from './exercise-pict.js';
@@ -1103,6 +1104,8 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
     editingId = null;
   } else {
     db.workouts.push(build(Date.now()));
+    trackOnce('first_workout', 'Primer entreno');
+    track('Entreno guardado', { origen: fromRunner ? 'runner' : 'formulario' });
   }
   saveDB(db);
   if (sess.customId) touchCustomSession(db, sess.customId);

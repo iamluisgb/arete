@@ -10,6 +10,7 @@
 import { saveDB } from '../data.js';
 import { esc, today, trapFocus } from '../utils.js';
 import { toast } from './toast.js';
+import { track, trackOnce } from '../track.js';
 import { ROMAN, LEVEL_NAMES, levelFor, computeProfile, formatMetric } from '../domains.js';
 import { markSeen } from './profile-card.js';
 import { openShareEditor } from './share-editor.js';
@@ -138,6 +139,8 @@ function save() {
     db.domainTests.push({ id: base + i, domain: domain.id, metric: g.key, value: g.value, date: fecha });
   });
   saveDB(db);
+  trackOnce('first_test', 'Primer test');
+  track('Test de dominio', { dominio: domain.id });
 
   renderResult(guardados, antes);
   onDone?.();
