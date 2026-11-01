@@ -224,10 +224,10 @@ export const EXERCISE_ONTOLOGY = [
     progression: "Fondo con lastre",
     source: "fedb",
     fedb: "Parallel_Bar_Dip",
-    aliases: ["Fondos", "Parallel Bar Dip"],
+    aliases: ["Fondos", "Fondos Paralelas", "Parallel Bar Dip"],
   },
   {
-    id: "fondo-banco", name: "fondo paralela",
+    id: "fondo-banco", name: "fondo banco",
     pattern: "push_v",
     equipment: ["banco"],
     primary: ["tríceps"],
@@ -239,7 +239,7 @@ export const EXERCISE_ONTOLOGY = [
     progression: "Fondo en paralelas completas",
     source: "fedb",
     fedb: "Bench_Dips",
-    aliases: ["Fondos Paralelas", "Bench Dips"],
+    aliases: ["Fondos en Banco", "Bench Dips"],
   },
   {
     id: "front-squat", name: "frontal sentadilla",

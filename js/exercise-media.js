@@ -246,12 +246,12 @@ export const EXERCISE_MEDIA = {
     tip: "No abras los codos en exceso hacia los lados.",
   },
   "fondo": {
-    alias: ["Fondos"],
+    alias: ["Fondos", "Fondos Paralelas"],
     frames: ["assets/exercises/dips-start.webp", "assets/exercises/dips-peak.webp"],
     tip: "Acentúa la inclinación del torso si quieres más trabajo de pecho.",
   },
-  "fondo paralela": {
-    alias: ["Fondos Paralelas"],
+  "fondo banco": {
+    alias: ["Fondos en Banco"],
     frames: ["assets/exercises/bench-dips-start.webp", "assets/exercises/bench-dips-peak.webp"],
     tip: "Mantén la espalda cerca del banco durante todo el recorrido.",
   },
