@@ -257,7 +257,7 @@ export function pistol() {
 export function calfRaise() {
   return s => {
     const ball = v2(ANKLE_X + M.toe.dx, M.ankleH + M.toe.dy);
-    const lift = rad(32) * s;                               // giro del pie
+    const lift = -rad(32) * s;                              // giro del pie: horario, el talón sube
     const A = add2(ball, rot2(v2(-M.toe.dx, -M.toe.dy), lift));
     const K = add2(A, v2(0, M.shank));
     const H = add2(K, v2(0, M.thigh));
