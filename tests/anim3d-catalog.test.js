@@ -10,8 +10,17 @@ describe('animaciones 3D: qué ejercicio abre cada nombre', () => {
     expect(anim3dId('Deadlift')).toBe('kb-deadlift');
     expect(anim3dId('Peso Muerto')).toBe('deadlift');
   });
+  it('agarre y apoyo distintos, animación distinta', () => {
+    expect(anim3dId('Dominada Prono')).toBe('dominada');
+    expect(anim3dId('Dominada Supino')).toBe('dominada-supina');
+    expect(anim3dId('Fondos Paralelas')).toBe('fondos');
+    expect(anim3dId('Plancha Abdominal')).toBe('plancha');
+    expect(anim3dId('Flexiones rodillas')).toBe('flexiones-rodillas');
+  });
   it('sin animación, nada', () => {
-    expect(anim3dId('Press Banca')).toBeNull();
+    expect(anim3dId('Burpees')).toBeNull();
+    expect(anim3dId('Plancha Lateral')).toBeNull();
+    expect(anim3dId('Fondos')).toBeNull();          // banco o paralelas: ambiguo
     expect(anim3dId('')).toBeNull();
   });
   it('cada animación del índice existe en el catálogo del motor', () => {

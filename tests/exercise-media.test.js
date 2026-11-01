@@ -45,7 +45,7 @@ describe('lookupMedia', () => {
     const m = lookupMedia('Sentadilla');
     expect(m.frames).toEqual([0, 1, 2, 3].map(i => `assets/anim3d/frames/squat-${i}.webp`));
     expect(m.tip).toBeTruthy();                       // el consejo se conserva
-    lookupMedia('Press Banca').frames.forEach(f => expect(f).toMatch(/^assets\/exercises\/.+\.webp$/));
+    lookupMedia('Plancha Lateral').frames.forEach(f => expect(f).toMatch(/^assets\/exercises\/.+\.webp$/));
   });
 
   it('«Squat» del plan de pesa rusa enseña la goblet', () => {

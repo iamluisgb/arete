@@ -31,6 +31,18 @@ export const ANIM3D_NAMES = {
   'curl-barra': ['Curl con Barra'],
   'curl-invertido': ['Curl Invertido'],
   'encogimiento': ['Encogimientos'],
+  'press-banca': ['Press Banca', 'Press de Banca'],
+  'dominada': ['Dominadas', 'Dominada', 'Dominada Prono', 'Dominada pronas', 'Dominadas pronas'],
+  'dominada-supina': ['Dominada Supino', 'Dominada supinas'],
+  'dominada-negativa': ['Dominada negativa'],
+  // «Fondos» a secas sale en un circuito con burpees y pesa rusa: puede ser en
+  // banco o en paralelas. Solo se mapea el que lo dice.
+  'fondos': ['Fondos Paralelas'],
+  'flexiones': ['Flexiones', 'Flexiones estándar'],
+  'flexiones-rodillas': ['Flexiones rodillas'],
+  'flexiones-inclinadas': ['Flexiones inclinadas'],
+  'flexiones-diamante': ['Flexiones diamante'],
+  'plancha': ['Plancha', 'Plancha Abdominal'],
 };
 
 const INDEX = new Map();

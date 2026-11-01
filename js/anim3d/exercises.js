@@ -8,6 +8,10 @@ import { squat, pistol, calfRaise, hinge, singleLegHinge } from './poses.js';
 import { overheadPress, kbThruster } from './patterns/press.js';
 import { row } from './patterns/row.js';
 import { barbellCurl, shrug } from './patterns/arms.js';
+import { pushup, plank } from './patterns/pushup.js';
+import { benchPress } from './patterns/bench.js';
+import { pullup } from './patterns/pullup.js';
+import { dip } from './patterns/dip.js';
 
 const SQUAT_TEMPO = [
   { label: 'Bajada', dur: 3, from: 0, to: 1 },
@@ -71,6 +75,46 @@ const SHRUG_TEMPO = [
   { label: 'Abajo', dur: 0.5, from: 0, to: 0 },
 ];
 
+// Flexiones: bajada controlada, abajo sin apoyar, subida.
+const PUSHUP_TEMPO = [
+  { label: 'Bajada', dur: 2, from: 0, to: 1 },
+  { label: 'Abajo', dur: 0.5, from: 1, to: 1 },
+  { label: 'Subida', dur: 1, from: 1, to: 0 },
+  { label: 'Arriba', dur: 0.5, from: 0, to: 0 },
+];
+// Banca: empieza bloqueada, baja al pecho, toca sin rebotar y sube.
+const BENCH_TEMPO = [
+  { label: 'Bajada', dur: 2, from: 0, to: 1 },
+  { label: 'Pecho', dur: 0.5, from: 1, to: 1 },
+  { label: 'Subida', dur: 1.2, from: 1, to: 0 },
+  { label: 'Bloqueo', dur: 1, from: 0, to: 0 },
+];
+// Dominada: empieza colgado, sube, aguanta arriba y baja controlado.
+const PULLUP_TEMPO = [
+  { label: 'Subida', dur: 1.2, from: 0, to: 1 },
+  { label: 'Arriba', dur: 0.6, from: 1, to: 1 },
+  { label: 'Bajada', dur: 2, from: 1, to: 0 },
+  { label: 'Colgado', dur: 0.6, from: 0, to: 0 },
+];
+// Negativa: se sube con un salto, se aguanta arriba y se baja muy lento.
+const NEGATIVE_TEMPO = [
+  { label: 'Arriba', dur: 0.8, from: 1, to: 1 },
+  { label: 'Bajada lenta', dur: 4, from: 1, to: 0 },
+  { label: 'Colgado', dur: 0.6, from: 0, to: 0 },
+  { label: 'Subida con salto', dur: 0.6, from: 0, to: 1 },
+];
+// Fondos: empiezan arriba, bajan controlados y suben.
+const DIP_TEMPO = [
+  { label: 'Bajada', dur: 2, from: 0, to: 1 },
+  { label: 'Abajo', dur: 0.4, from: 1, to: 1 },
+  { label: 'Subida', dur: 1.2, from: 1, to: 0 },
+  { label: 'Arriba', dur: 0.6, from: 0, to: 0 },
+];
+// La plancha no se mueve: es un aguante.
+const HOLD_TEMPO = [
+  { label: 'Aguanta', dur: 4, from: 0, to: 0 },
+];
+
 export const EXERCISES = [
   // ── Sentadillas ──
   { id: 'squat', name: 'Sentadilla', family: 'Sentadilla', gear: 'Barra', cam: 'side',
@@ -119,6 +163,29 @@ export const EXERCISES = [
     pose: barbellCurl({ grip: 'prone' }), tempo: CURL_TEMPO },
   { id: 'encogimiento', name: 'Encogimientos', family: 'Brazos y hombros', gear: 'Barra', cam: 'front',
     pose: shrug(), tempo: SHRUG_TEMPO },
+  // ── Tirón vertical ──
+  { id: 'dominada', name: 'Dominada', family: 'Tirón vertical', gear: 'Barra fija', cam: 'three',
+    pose: pullup(), tempo: PULLUP_TEMPO, view: { y: 1.25, dist: 1.2 } },
+  { id: 'dominada-supina', name: 'Dominada supina', family: 'Tirón vertical', gear: 'Barra fija', cam: 'three',
+    pose: pullup({ grip: 'supine' }), tempo: PULLUP_TEMPO, view: { y: 1.25, dist: 1.2 } },
+  { id: 'dominada-negativa', name: 'Dominada negativa', family: 'Tirón vertical', gear: 'Barra fija', cam: 'three',
+    pose: pullup(), tempo: NEGATIVE_TEMPO, view: { y: 1.25, dist: 1.2 } },
+  // ── Empuje horizontal ──
+  { id: 'press-banca', name: 'Press de banca', family: 'Empuje horizontal', gear: 'Barra y banco', cam: 'three',
+    pose: benchPress(), tempo: BENCH_TEMPO, view: { y: 0.6 } },
+  { id: 'flexiones', name: 'Flexiones', family: 'Empuje horizontal', gear: 'Sin material', cam: 'side',
+    pose: pushup(), tempo: PUSHUP_TEMPO, view: { y: 0.4 } },
+  { id: 'flexiones-rodillas', name: 'Flexiones con rodillas', family: 'Empuje horizontal', gear: 'Sin material', cam: 'side',
+    pose: pushup({ knees: true, bottom: 0.25 }), tempo: PUSHUP_TEMPO, view: { y: 0.4 } },
+  { id: 'flexiones-inclinadas', name: 'Flexiones inclinadas', family: 'Empuje horizontal', gear: 'Banco', cam: 'side',
+    pose: pushup({ incline: 0.44, bottom: 0.24, hands: { x: 0.1 } }), tempo: PUSHUP_TEMPO, view: { y: 0.55 } },
+  { id: 'flexiones-diamante', name: 'Flexiones diamante', family: 'Empuje horizontal', gear: 'Sin material', cam: 'three',
+    pose: pushup({ hands: { z: 0.05, x: 0.04 }, fingersOut: -0.8, elbow: 0.15, top: 0.5 }), tempo: PUSHUP_TEMPO, view: { y: 0.4 } },
+  { id: 'fondos', name: 'Fondos en paralelas', family: 'Empuje horizontal', gear: 'Paralelas', cam: 'three',
+    pose: dip(), tempo: DIP_TEMPO, view: { y: 1.05, dist: 1.1 } },
+  // ── Core ──
+  { id: 'plancha', name: 'Plancha', family: 'Core', gear: 'Sin material', cam: 'side',
+    pose: plank(), tempo: HOLD_TEMPO, view: { y: 0.35 } },
 ];
 
 export const byId = id => EXERCISES.find(e => e.id === id);
