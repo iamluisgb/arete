@@ -135,6 +135,12 @@ export const armsForward = (S, side) => ({
 export const barbell = (p, x = 0) => ({ kind: 'barbell', pos: V3(p, x) });
 /** Pesa rusa por su asa: centro del asa, dirección del asa y hacia dónde cuelga la bola. */
 export const kettlebell = (handle, axis, down) => ({ kind: 'kettlebell', handle, axis: axis.clone().normalize(), down: down.clone().normalize() });
+/** Banco plano: `top` es el centro de la cara de arriba; largo a lo largo de x. */
+export const BENCH = { h: 0.44, len: 1.2, width: 0.29, thick: 0.08 };
+export const bench = (x = 0, z = 0, o = {}) => ({ kind: 'bench', ...BENCH, ...o, top: new THREE.Vector3(x, o.h ?? BENCH.h, z) });
+/** Tubo fijo de `a` a `b` (barra de dominadas, paralelas), radio `r`. */
+export const ROD_R = 0.016;
+export const rod = (a, b, r = ROD_R) => ({ kind: 'rod', a, b, r });
 export const Y = new THREE.Vector3(0, 1, 0), DOWN = new THREE.Vector3(0, -1, 0), ZAX = new THREE.Vector3(0, 0, 1), XAX = new THREE.Vector3(1, 0, 0);
 
 /** Agarre de barra: el puño sobre la barra a `z` del centro. */
@@ -381,3 +387,27 @@ export function singleLegHinge(o) {
     return pose;
   };
 }
+
+// ── Cuerpo tumbado, en apoyo o colgado ───────────────────
+/**
+ * Articulación intermedia de dos segmentos en 3D (la rodilla entre cadera y
+ * tobillo, el codo entre hombro y muñeca): hacia `pole`, con sus longitudes.
+ */
+export function bend3(root, target, a, b, pole) {
+  const dir = target.clone().sub(root);
+  const d = clamp(dir.length(), Math.abs(a - b) + 1e-4, a + b - 1e-4);
+  dir.normalize();
+  const along = (a * a - b * b + d * d) / (2 * d);
+  const h = Math.sqrt(Math.max(a * a - along * along, 0));
+  const p = pole.clone().addScaledVector(dir, -pole.dot(dir)).normalize();
+  return root.clone().addScaledVector(dir, along).addScaledVector(p, h);
+}
+
+/** Pie apoyado plano en el suelo, con el tobillo en `A` (3D) y la punta abierta `toeOut` grados. */
+export const flatFoot = (A, side, toeOut = 0) => {
+  const out = rad(toeOut) * side;
+  return A.clone().add(new THREE.Vector3(M.toe.dx * Math.cos(out), M.toe.dy, M.toe.dx * Math.sin(out)));
+};
+
+/** Ancho de cadera: cada articulación de la cadera, a esta distancia del centro. */
+export const HIP_Z = 0.114;

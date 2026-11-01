@@ -99,6 +99,12 @@ const LIGHT = parseFloat(process.env.LIGHT ?? '0.6');
           if (pr.kind === 'barbell') {
             // Los discos, no solo el centro de la barra.
             for (const z of [-0.76, 0.76]) for (const [dx, dy] of [[0.225, 0], [-0.225, 0], [0, 0.225], [0, -0.225]]) add(pr.pos.clone().add(new THREE.Vector3(dx, dy, z)));
+          } else if (pr.kind === 'bench') {
+            // Las ocho esquinas del tapizado y el pie de las patas.
+            for (const dx of [-1, 1]) for (const dz of [-1, 1]) for (const y of [pr.top.y, 0]) add(new THREE.Vector3(pr.top.x + dx * pr.len / 2, y, pr.top.z + dz * pr.width / 2));
+          } else if (pr.kind === 'rod') {
+            // Barra fija y paralelas, con sus postes: de punta a punta, con su grosor.
+            for (const e of [pr.a, pr.b]) for (const d of [[0.03, 0, 0], [-0.03, 0, 0], [0, 0.03, 0], [0, -0.03, 0], [0, 0, 0.03], [0, 0, -0.03]]) add(e.clone().add(new THREE.Vector3(...d)));
           } else {
             const c = pr.handle.clone().addScaledVector(pr.down, 0.168);
             for (const d of [[0.1, 0, 0], [-0.1, 0, 0], [0, 0.1, 0], [0, -0.1, 0], [0, 0, 0.1], [0, 0, -0.1]]) add(c.clone().add(new THREE.Vector3(...d)));

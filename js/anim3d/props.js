@@ -1,5 +1,6 @@
-// Material de gimnasio: barra con discos y pesas rusas. Cada fotograma se
-// colocan los que pida la pose; los que no, se esconden.
+// Material de gimnasio: barra con discos, pesas rusas y lo fijo (banco, barra
+// de dominadas, paralelas). Cada fotograma se colocan los que pida la pose;
+// los que no, se esconden.
 
 import * as THREE from 'three';
 import { BAR_R, PLATE_R, KB } from './poses.js';
@@ -44,16 +45,65 @@ function makeKettlebell() {
   return g;
 }
 
+const pad = new THREE.MeshStandardMaterial({ color: 0x2a2421, roughness: 0.8, metalness: 0.05 });
+
+/** Banco plano: caja de tapizado de 1×1×1 que se escala, sobre dos patas. */
+function makeBench() {
+  const g = new THREE.Group();
+  const top = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), pad);
+  top.castShadow = true; top.receiveShadow = true;
+  g.add(top);
+  const legs = [-1, 1].map(() => {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1, 0.28), steel);
+    l.castShadow = true; g.add(l); return l;
+  });
+  g.userData = { top, legs };
+  return g;
+}
+
+/** Tubo fijo entre dos puntos (barra de dominadas, paralelas). */
+function makeRod() {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 24), steel);
+  m.castShadow = true;
+  return m;
+}
+
 export function createProps(scene) {
   const barbell = makeBarbell();
   const bells = [makeKettlebell(), makeKettlebell()];
-  scene.add(barbell, ...bells);
+  const bench = makeBench();
+  const rods = Array.from({ length: 6 }, makeRod);
+  scene.add(barbell, ...bells, bench, ...rods);
 
   function place(list) {
     barbell.visible = false;
     bells.forEach(b => { b.visible = false; });
-    let nb = 0;
+    bench.visible = false;
+    rods.forEach(r => { r.visible = false; });
+    let nb = 0, nr = 0;
     for (const p of list || []) {
+      if (p.kind === 'bench') {
+        // `top`: centro de la cara de arriba; largo a lo largo de x.
+        const { top, legs } = bench.userData;
+        bench.visible = true;
+        top.scale.set(p.len, p.thick, p.width);
+        top.position.set(p.top.x, p.top.y - p.thick / 2, p.top.z);
+        const legH = p.top.y - p.thick;
+        legs.forEach((l, i) => {
+          l.scale.y = legH;
+          l.position.set(p.top.x + (i ? 1 : -1) * (p.len / 2 - 0.12), legH / 2, p.top.z);
+        });
+        continue;
+      }
+      if (p.kind === 'rod' && nr < rods.length) {
+        const r = rods[nr++];
+        r.visible = true;
+        const d = p.b.clone().sub(p.a);
+        r.scale.set(p.r, d.length(), p.r);
+        r.position.copy(p.a).addScaledVector(d, 0.5);
+        r.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+        continue;
+      }
       if (p.kind === 'barbell') {
         barbell.visible = true;
         barbell.position.copy(p.pos);

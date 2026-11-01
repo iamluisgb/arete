@@ -184,8 +184,24 @@ export async function createFigure(scene, base = 'model/') {
     })),
   };
   setFinish('marble');
+  // La mano abierta, antes de cerrar el puño: la usan los apoyos (flexiones,
+  // plancha, fondos en banco), donde la palma va plana sobre una superficie.
+  const openQ = { l: new Map(), r: new Map() };
+  for (const k of ['l', 'r']) for (const f of [...FINGERS, 'thumb']) for (const n of ['01', '02', '03']) {
+    const b = B[`${f}_${n}_${k}`];
+    openQ[k].set(b, b.quaternion.clone());
+  }
   makeFist('l');
   makeFist('r');
+  // Palma: dirección de los dedos, cara de la palma (hacia donde se cierra el
+  // puño) y punto de apoyo, en el marco de la mano.
+  const palm = {};
+  for (const k of ['l', 'r']) {
+    const dir = fist[k].dir.clone();
+    const toPalm = fist[k].center.clone().addScaledVector(dir, -fist[k].center.dot(dir)).normalize();
+    const knuck = dir.clone().multiplyScalar(fist[k].center.dot(dir));
+    palm[k] = { dir, toPalm, point: knuck.multiplyScalar(0.55).addScaledVector(toPalm, 0.02) };
+  }
   M.gripOff = fist.l.center.length();
 
   function sculptCurls(capMesh) {
@@ -416,7 +432,7 @@ export async function createFigure(scene, base = 'model/') {
     const pelvisW = wp('pelvis');
     B.pelvis.position.copy(B.pelvis.parent.worldToLocal(V(pose.H, pose.hipZ || 0).add(pelvisW.sub(hipMid))));
     model.updateMatrixWorld(true);
-    rotateWorld(B.neck_01, new THREE.Quaternion().setFromAxisAngle(Z, pose.tr * 0.45 + (pose.neck || 0)));   // pose.neck: la cabeza se echa atrás para dejar pasar la barra
+    rotateWorld(B.neck_01, new THREE.Quaternion().setFromAxisAngle(Z, pose.tr * (pose.headFollow ?? 0.45) + (pose.neck || 0)));   // pose.neck: la cabeza se echa atrás para dejar pasar la barra; pose.headFollow: cuánto se endereza la cabeza hacia la vertical (0,45 de pie; 0 tumbado o en plancha, en línea con el tronco)
 
     // Piernas.
     for (const k of ['l', 'r']) {
@@ -437,6 +453,23 @@ export async function createFigure(scene, base = 'model/') {
       model.updateMatrixWorld(true);
     }
 
+    // Escápulas juntas (retracción): cada clavícula gira sobre el eje del
+    // tronco y la punta del hombro se va hacia la espalda `retract` radianes.
+    // Es lo que hace estable la banca: el pecho arriba y los hombros atrás.
+    if (pose.retract) {
+      const up = wp('neck_01').sub(wp('pelvis')).normalize();
+      const fwd = up.clone().cross(wp('upperarm_r').sub(wp('upperarm_l'))).normalize();   // hacia donde mira el pecho
+      for (const k of ['l', 'r']) {
+        const cl = B['clavicle_' + k], q0 = cl.quaternion.clone(), before = wp('upperarm_' + k);
+        rotateWorld(cl, new THREE.Quaternion().setFromAxisAngle(up, pose.retract));
+        if (wp('upperarm_' + k).sub(before).dot(fwd) > 0) {
+          cl.quaternion.copy(q0); cl.updateMatrixWorld(true);
+          rotateWorld(cl, new THREE.Quaternion().setFromAxisAngle(up, -pose.retract));
+        }
+      }
+      model.updateMatrixWorld(true);
+    }
+
     // Brazos: o agarran algo (el puño sobre el implemento) o van a una muñeca.
     const err = {};
     for (const k of ['l', 'r']) {
@@ -446,6 +479,15 @@ export async function createFigure(scene, base = 'model/') {
       if (arm.grip) {
         const up = wp('neck_01').sub(wp('pelvis')).normalize();
         ({ q, wrist, elbow } = fistQuat(k, arm.grip, sh, arm.pole, up, pose.overhead));
+      } else if (arm.palm) {
+        // Mano abierta apoyada: la palma sobre `point`, mirando hacia `down`
+        // (hacia la superficie), los dedos hacia `fingers`.
+        const P = palm[k];
+        q = new THREE.Quaternion().setFromRotationMatrix(
+          basis(arm.palm.fingers, arm.palm.down).multiply(basis(P.dir, P.toPalm).transpose()));
+        wrist = arm.palm.point.clone().sub(P.point.clone().applyQuaternion(q));
+        elbow = twoBone(sh, wrist, M.upper, M.fore, arm.pole);
+        for (const [b, oq] of openQ[k]) b.quaternion.copy(oq);
       } else elbow = twoBone(sh, wrist, M.upper, M.fore, arm.pole);
       aim(B['upperarm_' + k], B['lowerarm_' + k], elbow);
       aim(B['lowerarm_' + k], B['hand_' + k], wrist);
@@ -453,8 +495,9 @@ export async function createFigure(scene, base = 'model/') {
         const hand = B['hand_' + k];
         hand.quaternion.copy(hand.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(q));
         hand.updateMatrixWorld(true);
-        const c = fist[k].center.clone().applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion())).add(wp('hand_' + k));
-        err[k] = c.distanceTo(arm.grip.point);
+        const ref = arm.grip ? fist[k].center : palm[k].point;
+        const c = ref.clone().applyQuaternion(hand.getWorldQuaternion(new THREE.Quaternion())).add(wp('hand_' + k));
+        err[k] = c.distanceTo((arm.grip || arm.palm).point);
       }
     }
     return err;
@@ -540,7 +583,7 @@ export async function createFigure(scene, base = 'model/') {
     const pts = skinned();
     const lines = {};
     for (const n of Object.keys(SEGS)) lines[n] = segLine(n);
-    const gripping = { l: !!(pose.arms.l.grip || pose.arms.l.rests), r: !!(pose.arms.r.grip || pose.arms.r.rests) };
+    const gripping = { l: !!(pose.arms.l.grip || pose.arms.l.palm || pose.arms.l.rests), r: !!(pose.arms.r.grip || pose.arms.r.palm || pose.arms.r.rests) };
     let worst = { depth: 0, where: '' };
     const hit = (depth, where) => { if (depth > worst.depth) worst = { depth, where }; };
     for (const [i, p] of pts) {
@@ -560,8 +603,18 @@ export async function createFigure(scene, base = 'model/') {
         } else if (pr.kind === 'kettlebell') {
           const center = pr.handle.clone().addScaledVector(pr.down, KB.handle);
           hit(KB.r - p.distanceTo(center), `${seg} en la pesa`);
+        } else if (pr.kind === 'rod') {
+          hit(pr.r - distSeg(p, pr.a, pr.b), `${seg} en la barra fija`);
+        } else if (pr.kind === 'bench') {
+          // Dentro del tapizado: la profundidad es lo que falta para salir por la cara más cercana.
+          const dx = pr.len / 2 - Math.abs(p.x - pr.top.x), dz = pr.width / 2 - Math.abs(p.z - pr.top.z);
+          const dy = Math.min(pr.top.y - p.y, p.y - (pr.top.y - pr.thick));
+          if (dx > 0 && dz > 0 && dy > 0) hit(Math.min(dx, dy, dz), `${seg} en el banco`);
         }
       }
+      // Nada atraviesa el suelo: tumbado, en plancha o con la rodilla en el suelo.
+      // Los pies sí: de pie la planta se hunde ~1 cm por construcción, y es apoyo.
+      if (p.y < 0 && !seg.startsWith('foot_')) hit(-p.y, `${seg} bajo el suelo`);
     }
     return worst;
   }
@@ -585,10 +638,12 @@ export async function createFigure(scene, base = 'model/') {
       const th = wp('calf_' + k).sub(wp('thigh_' + k)), sk = wp('foot_' + k).sub(wp('calf_' + k));
       out['rodilla_' + k] = angle(th, sk);
       // Rodilla doblada al revés: la rodilla queda por detrás de la línea cadera-tobillo.
-      const h = wp('thigh_' + k), a = wp('foot_' + k), kn2 = wp('calf_' + k);
-      const ha = a.clone().sub(h).normalize();
-      const off = kn2.clone().sub(h); off.addScaledVector(ha, -off.dot(ha));
-      out['rodilla_inv_' + k] = off.x < -0.015 ? 1 : 0;           // el atleta mira a +x
+      // El sentido del giro, contra el eje de la cadera: doblada como debe, el
+      // muslo × la tibia apunta a la izquierda del atleta. Vale tumbado, en
+      // plancha o colgado, donde «delante» ya no es +x, y con el pie en punta,
+      // donde la punta del pie queda detrás de la línea cadera-tobillo.
+      const lat = wp('thigh_r').sub(wp('thigh_l')).normalize();
+      out['rodilla_inv_' + k] = th.clone().cross(sk).dot(lat) > 0.015 ? 1 : 0;   // 0,015 ≈ 4° al revés: un bloqueo normal llega a ~4°
     }
     return out;
   }

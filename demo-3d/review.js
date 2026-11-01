@@ -92,7 +92,7 @@ for (const ex of EXERCISES) {
     const pose = ex.pose(s);
     figure.apply(pose);
     props.place(pose.props);
-    stage.setCam(cam || 'side');
+    stage.setCam(cam || 'side', ex.view);   // tumbado o colgado, el encuadre propio del ejercicio
     props.update(stage.camera);
     stage.renderer.render(stage.scene, stage.camera);
     imgs[i].src = stage.renderer.domElement.toDataURL('image/jpeg', 0.85);
