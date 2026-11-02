@@ -162,6 +162,7 @@ export function applyWorkout(db, workout, meta = {}) {
   const id = Date.now() + Math.floor(Math.random() * 1000);
   const norm = normalizeWorkout(workout);
   const w = { id, ...norm, phase: meta.phase ?? db.phase, program: meta.program ?? db.program ?? 'arete' };
+  if (meta.deload) w.deload = true;
   if (!Array.isArray(db.workouts)) db.workouts = [];
   db.workouts.push(w);
   saveDB(db);

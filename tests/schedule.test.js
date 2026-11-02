@@ -61,35 +61,50 @@ describe('getScheduleConfig (D3)', () => {
 });
 
 describe('buildQueue (D1/D7)', () => {
-  it('con la fase intacta, la cola son todas las sesiones en orden declarado', () => {
-    expect(buildQueue(seedDb(), 'arete')).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
+  // La cola de fuerza va por semanas del bloque (js/plan.js): primero lo que
+  // queda de la semana en curso y detrás el resto del ciclo. La fase de prueba
+  // no declara `weeks`: 4 de carga + 1 de descarga, 3 sesiones por semana.
+  it('con la fase intacta: la semana en orden declarado y detrás el resto del bloque', () => {
+    const q = buildQueue(seedDb(), 'arete', LUN_5);
+    expect(q.slice(0, 3)).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
+    expect(q).toHaveLength(15);
   });
 
-  it('retoma después de la última completada: hecha A, la cola empieza en B', () => {
-    const db = seedDb({ workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
-    expect(buildQueue(db, 'arete')).toEqual(['Sesión B', 'Sesión C']);
+  it('retoma después de la última completada: hecha A, la semana sigue en B', () => {
+    const db = seedDb({ workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
+    expect(buildQueue(db, 'arete', LUN_5).slice(0, 3)).toEqual(['Sesión B', 'Sesión C', 'Sesión A']);
   });
 
-  it('cada repetición hecha consume una aparición, pero no re-encola', () => {
+  it('lo hecho esta semana consume su sesión aunque se haga en otro orden', () => {
+    const db = seedDb({ workouts: [{ date: '2026-01-05', session: 'Sesión C', program: 't-fuerza', phase: 1 }] });
+    expect(buildQueue(db, 'arete', LUN_5).slice(0, 2)).toEqual(['Sesión A', 'Sesión B']);
+  });
+
+  it('cerrar la semana trae la siguiente: hacer A·B·C no deja el plan «completado»', () => {
     const db = seedDb({
-      workouts: [
-        { session: 'Sesión A', program: 't-fuerza', phase: 1 },
-        { session: 'Sesión B', program: 't-fuerza', phase: 1 },
-        { session: 'Sesión A', program: 't-fuerza', phase: 1 },
-        { session: 'Sesión B', program: 't-fuerza', phase: 1 },
-      ],
+      workouts: [['2026-01-05', 'Sesión A'], ['2026-01-07', 'Sesión B'], ['2026-01-09', 'Sesión C']]
+        .map(([date, session]) => ({ date, session, program: 't-fuerza', phase: 1 })),
     });
-    expect(buildQueue(db, 'arete')).toEqual(['Sesión C']);
+    const q = buildQueue(db, 'arete', '2026-01-09');
+    expect(q.slice(0, 3)).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
+    expect(q).toHaveLength(12);
+    expect(pendingCount(db, '2026-01-09').arete).toBe(3);
+  });
+
+  it('con dos sesiones y tres días la semana rota: A·B·A, luego B·A·B', () => {
+    const ab = { _meta: { name: 'AB' }, _customId: 't-ab', 1: { name: 'F', sessions: { A: [], B: [] } } };
+    const db = seedDb({ program: 't-ab', customPrograms: [ab, PLAN_RUN] });
+    expect(buildQueue(db, 'arete', LUN_5).slice(0, 6)).toEqual(['A', 'B', 'A', 'B', 'A', 'B']);
   });
 
   it('un workout de otro programa no consume cola', () => {
-    const db = seedDb({ workouts: [{ session: 'Sesión A', program: 'otro', phase: 1 }] });
-    expect(buildQueue(db, 'arete')).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
+    const db = seedDb({ workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 'otro', phase: 1 }] });
+    expect(buildQueue(db, 'arete', LUN_5).slice(0, 3)).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
   });
 
   it('un workout de otra fase no consume cola', () => {
-    const db = seedDb({ workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 2 }] });
-    expect(buildQueue(db, 'arete')).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
+    const db = seedDb({ workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 't-fuerza', phase: 2 }] });
+    expect(buildQueue(db, 'arete', LUN_5).slice(0, 3)).toEqual(['Sesión A', 'Sesión B', 'Sesión C']);
   });
 
   it('running: los logs del programa con nombre de sesión consumen la semana activa', () => {
@@ -107,9 +122,9 @@ describe('buildQueue (D1/D7)', () => {
     expect(buildQueue(seedDb({ runningProgram: '' }), 'running')).toEqual([]);
   });
 
-  it('pendingCount resume por plan', () => {
-    const db = seedDb({ workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
-    expect(pendingCount(db)).toEqual({ arete: 2, running: 2 });
+  it('pendingCount resume por plan (fuerza: lo que queda de la semana)', () => {
+    const db = seedDb({ workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
+    expect(pendingCount(db, LUN_5)).toEqual({ arete: 2, running: 2 });
   });
 });
 
@@ -117,34 +132,36 @@ describe('schedulePlan (D1)', () => {
   it('la k-ésima pendiente cae en el k-ésimo ancla >= ref', () => {
     const db = seedDb({ settings: { schedule: { arete: { anchors: [1, 3, 5] } } } });
     const out = schedulePlan(db, 'arete', LUN_5);
-    expect(out).toEqual([
+    expect(out.slice(0, 4)).toEqual([
       { date: '2026-01-05', session: 'Sesión A', plan: 'arete' },
       { date: '2026-01-07', session: 'Sesión B', plan: 'arete' },
       { date: '2026-01-09', session: 'Sesión C', plan: 'arete' },
+      { date: '2026-01-12', session: 'Sesión A', plan: 'arete' },
     ]);
   });
 
   it('si ref cae entre anclas, cuenta desde el primer ancla >= ref', () => {
     const db = seedDb({ settings: { schedule: { arete: { anchors: [1, 3] } } } });
     // ref martes 6: el primer ancla >= ref es el miércoles 7.
-    expect(fechas(schedulePlan(db, 'arete', '2026-01-06'))).toEqual(['2026-01-07', '2026-01-12', '2026-01-14']);
+    expect(fechas(schedulePlan(db, 'arete', '2026-01-06')).slice(0, 3)).toEqual(['2026-01-07', '2026-01-12', '2026-01-14']);
   });
 
   it('marcar una sesión como hecha avanza la cola y desplaza el resto hacia atrás', () => {
     const base = { settings: { schedule: { arete: { anchors: [1, 3, 5] } } } };
     const sinHacer = schedulePlan(seedDb(base), 'arete', LUN_5);
-    const db = seedDb({ ...base, workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
+    const db = seedDb({ ...base, workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
     const hecho = schedulePlan(db, 'arete', LUN_5);
-    expect(fechas(sinHacer)).toEqual(['2026-01-05', '2026-01-07', '2026-01-09']);
-    expect(hecho.map(e => e.session)).toEqual(['Sesión B', 'Sesión C']);
-    expect(fechas(hecho)).toEqual(['2026-01-05', '2026-01-07']);
+    expect(fechas(sinHacer).slice(0, 3)).toEqual(['2026-01-05', '2026-01-07', '2026-01-09']);
+    expect(hecho.slice(0, 2).map(e => e.session)).toEqual(['Sesión B', 'Sesión C']);
+    expect(fechas(hecho).slice(0, 2)).toEqual(['2026-01-05', '2026-01-07']);
   });
 
   it('saltar un día no pierde la sesión: reaparece en el siguiente ancla', () => {
-    // Con un único ancla (lunes) y dos pendientes, la segunda cae el lunes
-    // siguiente: el día que se cayó empujó todo al ancla posterior.
+    // Con un único ancla (lunes) la semana es una sesión: A el lunes 5; si no
+    // se hace, el lunes 12 sigue tocando A.
     const db = seedDb({ settings: { schedule: { arete: { anchors: [1] } } } });
-    expect(fechas(schedulePlan(db, 'arete', LUN_5))).toEqual(['2026-01-05', '2026-01-12', '2026-01-19']);
+    expect(schedulePlan(db, 'arete', LUN_5)[0]).toEqual({ date: '2026-01-05', session: 'Sesión A', plan: 'arete' });
+    expect(schedulePlan(db, 'arete', '2026-01-12')[0]).toEqual({ date: '2026-01-12', session: 'Sesión A', plan: 'arete' });
   });
 
   it('cruza el límite de mes sin romperse', () => {
@@ -170,11 +187,8 @@ describe('schedulePlan (D1)', () => {
     expect(schedulePlan(db, 'arete', LUN_5)).toEqual([]);
   });
 
-  it('colas vacías (todo hecho o sin programa) → nada programado', () => {
-    const db = seedDb({
-      settings: { schedule: { arete: { anchors: [1, 3, 5] } } },
-      workouts: ['Sesión A', 'Sesión B', 'Sesión C'].map(session => ({ session, program: 't-fuerza', phase: 1 })),
-    });
+  it('sin programa activo → nada programado', () => {
+    const db = seedDb({ program: 'no-existe', settings: { schedule: { arete: { anchors: [1, 3, 5] } } } });
     expect(schedulePlan(db, 'arete', LUN_5)).toEqual([]);
   });
 
@@ -196,7 +210,7 @@ describe('schedulePlan (D1)', () => {
 describe('scheduleAll / scheduleDay', () => {
   it('mezcla ambos planes ordenado por fecha', () => {
     const db = seedDb({ settings: { schedule: { arete: { anchors: [3] }, running: { anchors: [2] } } } });
-    const out = scheduleAll(db, LUN_5);
+    const out = scheduleAll(db, LUN_5).filter(e => e.date <= '2026-01-21');
     expect(fechas(out)).toEqual(['2026-01-06', '2026-01-07', '2026-01-13', '2026-01-14', '2026-01-21']);
     expect(out.map(e => e.plan)).toEqual(['running', 'arete', 'running', 'arete', 'arete']);
   });
@@ -233,13 +247,13 @@ describe('scheduleOverdue (D1: saltar no pierde ni esconde)', () => {
     ]);
   });
 
-  it('una sesión ya hecha deja de estar atrasada', () => {
-    const db = seedDb({
-      settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } },
-      workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }],
-    });
-    // La A ya no está en la cola: aunque su ancla pasó, no se reporta.
-    expect(scheduleOverdue(db, '2026-01-19').map(e => e.session)).toEqual(['Sesión B', 'Sesión C']);
+  it('entrenar cierra lo atrasado: solo cuentan los anclas posteriores al último entreno', () => {
+    const anclas = { settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } } };
+    const alDia = seedDb({ ...anclas, workouts: [{ date: '2026-01-12', session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
+    expect(scheduleOverdue(alDia, '2026-01-19')).toEqual([]);
+    // Entrenó el lunes 5 y se saltó el 12: lo que tocaba el 12 (la B) está atrasado.
+    const salto = seedDb({ ...anclas, workouts: [{ date: '2026-01-05', session: 'Sesión A', program: 't-fuerza', phase: 1 }] });
+    expect(scheduleOverdue(salto, '2026-01-19')).toEqual([{ date: '2026-01-12', session: 'Sesión B', plan: 'arete' }]);
   });
 
   it('el ancla de HOY no cuenta como atrasada (solo días estrictamente anteriores)', () => {
@@ -260,22 +274,22 @@ describe('scheduleMissed (ventana configurable para el calendario)', () => {
 
   it('una ventana larga alcanza anclas perdidos fuera de las 2 semanas del dashboard', () => {
     const db = seedDb({ settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } } });
-    // ref lunes 16 de feb: con la ventana de serie (14 días) la cola entera
-    // (A, B, C) cae en los lunes 02, 09 y 16 — solo los dos primeros cuentan
-    // como perdidos. Con 62 días el calendario alcanza hasta el 22 de dic.
+    // ref lunes 16 de feb, sin entrenos: con la ventana de serie (14 días) solo
+    // los lunes 02 y 09; con 62 días el calendario alcanza hasta el 22 de dic.
     const corta = scheduleMissed(db, '2026-02-16').map(e => e.date);
     const larga = scheduleMissed(db, '2026-02-16', 62).map(e => e.date);
     expect(corta).toEqual(['2026-02-02', '2026-02-09']);
-    expect(larga).toEqual(['2025-12-22', '2025-12-29', '2026-01-05']);
+    expect(larga).toEqual(['2025-12-22', '2025-12-29', '2026-01-05', '2026-01-12', '2026-01-19', '2026-01-26', '2026-02-02', '2026-02-09']);
   });
 
-  it('una sesión ya hecha no se marca como perdida aunque su ancla esté en la ventana', () => {
+  it('un ancla anterior al último entreno no se marca como perdida', () => {
     const db = seedDb({
       settings: { schedule: { arete: { anchors: [1] }, running: { anchors: [] } } },
-      workouts: [{ session: 'Sesión A', program: 't-fuerza', phase: 1 }],
+      workouts: [{ date: '2026-01-12', session: 'Sesión A', program: 't-fuerza', phase: 1 }],
     });
-    const sesiones = scheduleMissed(db, '2026-02-16', 62).map(e => e.session);
-    expect(sesiones).not.toContain('Sesión A');
+    const perdidas = scheduleMissed(db, '2026-02-16', 62).map(e => e.date);
+    expect(perdidas.every(d => d > '2026-01-12')).toBe(true);
+    expect(perdidas).toEqual(['2026-01-19', '2026-01-26', '2026-02-02', '2026-02-09']);
   });
 });
 

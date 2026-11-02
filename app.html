@@ -730,6 +730,21 @@
     <p class="sched-preview" id="schedPreviewRunning" aria-live="polite"></p>
     <p class="panel-note">Lo mismo para las sesiones de la semana activa de tu plan de carrera.</p>
   </div>
+
+  <!-- Bloques (odd/tasks/planificacion.md): una semana del bloque son tantas
+       sesiones como días ancla de fuerza, y tras las fases de 4 semanas o más
+       viene una de descarga. Este interruptor la quita en todas. -->
+  <div class="panel panel--rows">
+    <h4 class="panel-title">Bloques</h4>
+    <div class="listrow listrow--control">
+      <div class="listrow-main">
+        <div class="listrow-name" id="deloadLabel">Semana de descarga</div>
+        <div class="listrow-desc">Al acabar cada fase de 4 semanas o más: menos series y algo menos de carga, y luego retomas</div>
+      </div>
+      <button class="toggle-btn listrow-control" type="button" id="deloadToggle" role="switch" aria-checked="true" aria-labelledby="deloadLabel"></button>
+    </div>
+    <p class="panel-note">Una semana del bloque se cierra al hacer sus sesiones, no al pasar el calendario: si pierdes una, todo se corre.</p>
+  </div>
 </div>
 
 <!-- ── SUBPÁGINA · QUIRÓN ───────────────────────────────────────────────────

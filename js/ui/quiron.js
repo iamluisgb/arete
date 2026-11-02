@@ -27,6 +27,7 @@ import {
 } from '../sessions.js';
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
+import { isDeloadWeek } from '../plan.js';
 import { setQuironSyncHooks } from '../sync/quiron.js';
 import { loadMemorias, saveMemorias, listMemorias, upsertMemoria, deleteMemoria, MAX_MEMORIAS, CATEGORIAS } from '../quiron-memory.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
@@ -978,7 +979,7 @@ function renderWorkoutCard(db, p, msg) {
       <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Entreno registrado — ${w.date} · verlo en Fuerza → Historial`,
-    () => applyWorkout(db, w), (t) => undoWorkout(db, t));
+    () => applyWorkout(db, w, { deload: isDeloadWeek(db) }), (t) => undoWorkout(db, t));
   return card;
 }
 

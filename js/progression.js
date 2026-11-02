@@ -190,6 +190,10 @@ export function sessionsFor(db, name, target) {
     .sort((a, b) => String(a.w.date).localeCompare(String(b.w.date)) || a.i - b.i)
     .map(x => x.w);
   for (const w of workouts) {
+    // Una semana de descarga se hace a propósito por debajo: no es el hilo de
+    // progresión. Sin esto, tras la descarga el motor seguiría subiendo desde el
+    // peso rebajado y la semana fácil costaría dos semanas de progreso.
+    if (w.deload) continue;
     for (const ex of (w.exercises || [])) {
       if (ex.name !== name) continue;
       // Un entreno de una sesión suelta guarda su especificación (`w.spec`): si
@@ -232,11 +236,13 @@ export function stallCount(sessions) {
  * @param {Object} db
  * @param {Object} ex   Ejercicio del plan: { name, sets, reps, type, mode }
  * @param {string} [program] Programa activo, para deducir la herramienta.
+ * @param {{deload?: boolean, sets?: number}} [opts] `deload`: la semana en curso
+ *   es de descarga según el plan (js/plan.js). `sets`: series a hacer en descarga.
  * @returns {{kind:string, kg?:number, reps?:number, why:string}} `kind` es uno de
  *   first | up | hold | deload | off. Un campo sobre el que la política no opina
  *   vuelve `undefined` y quien llama se queda con lo que dijera el plan.
  */
-export function nextPrescription(db, ex, program) {
+export function nextPrescription(db, ex, program, opts = {}) {
   const modo = ex?.mode || (ex?.type === 'hiit' || ex?.type === 'density' ? 'result' : 'sets');
   const objetivo = parseReps(ex?.reps);
   if (modo !== 'sets' || objetivo.kind === 'none') {
@@ -250,6 +256,20 @@ export function nextPrescription(db, ex, program) {
   const kind = loadKind(ex.name, program, last.kg);
   const step = incrementFor(ex.name, program, last.kg);
   const stalls = stallCount(sessions);
+
+  // Semana de descarga del plan: menos series y algo menos de carga, lejos del
+  // fallo. Parte del último peso de CARGA (las sesiones de descarga no cuentan),
+  // así que todas las sesiones de la semana piden lo mismo y la siguiente
+  // semana retoma donde lo dejaste.
+  if (opts.deload) {
+    const series = opts.sets ? `${opts.sets} series` : 'menos series';
+    const meta = objetivo.min || undefined;
+    if (last.kg <= 0 || objetivo.kind === 'amrap') {
+      return { kind: 'deload', reps: meta, why: `Semana de descarga — ${series}, sin ir al fallo.` };
+    }
+    const kg = deloadTo(last.kg, step, kind);
+    return { kind: 'deload', kg, reps: meta, why: `Semana de descarga — ${series} con ${kg} kg (venías de ${last.kg}). La semana que viene retomas.` };
+  }
 
   // Sin carga externa no hay nada que añadir ni que quitar — "descarga tus
   // dominadas a 2,5 kg" no es un consejo. Se progresa en repeticiones. El

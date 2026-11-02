@@ -2,6 +2,7 @@ import { formatDate, esc } from '../utils.js';
 import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
 import { getScheduleConfig, schedulePlan } from '../schedule.js';
+import { deloadEnabled } from '../plan.js';
 import { saveDB } from '../data.js';
 import * as LLM from '../ai/llm.js';
 import { isConnected, getSyncDiag } from '../drive.js';
@@ -112,6 +113,16 @@ export function renderScheduleAnchors(db) {
     }).join('');
   }
   renderSchedulePreview(db);
+  renderDeloadToggle(db);
+}
+
+/** Interruptor de la semana de descarga (db.settings.plan.deload, por defecto sí). */
+function renderDeloadToggle(db) {
+  const btn = document.getElementById('deloadToggle');
+  if (!btn) return;
+  const on = deloadEnabled(db);
+  btn.classList.toggle('active', on);
+  btn.setAttribute('aria-checked', String(on));
 }
 
 const PREVIEW_IDS = [['arete', 'schedPreviewArete'], ['running', 'schedPreviewRunning']];
@@ -322,6 +333,13 @@ export function initSettingsNav(db) {
     renderSettingsIndex(db);
   });
   sec.addEventListener('click', (e) => {
+    if (e.target.closest('#deloadToggle')) {
+      if (!db.settings || typeof db.settings !== 'object') db.settings = {};
+      db.settings.plan = { ...(db.settings.plan || {}), deload: !deloadEnabled(db) };
+      saveDB(db);
+      renderDeloadToggle(db);
+      return;
+    }
     const target = e.target.closest('[data-setpage]');
     if (!target) return;
     openSettingsPage(target.dataset.setpage);

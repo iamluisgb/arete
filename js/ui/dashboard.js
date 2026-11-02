@@ -4,6 +4,7 @@ import { formatPace, formatRunDuration, RUN_TYPE_META } from './running-helpers.
 import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
 import { maybeCelebrateLevelUp } from './share-editor.js';
 import { getProgramById, getRunningProgram } from '../programs.js';
+import { planStatus } from '../plan.js';
 import { scheduleDay, scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
@@ -276,11 +277,29 @@ function lineaContexto(db) {
   const prog = getProgramById(db.program || 'arete');
   if (prog) {
     const roman = ROMAN_FASE[db.phase - 1] || db.phase || '?';
-    partes.push(`${prog._meta?.name || db.program} · Fase ${roman}`);
+    // En qué punto del bloque: «semana 2 de 6 · descarga en 5» (js/plan.js).
+    const st = planStatus(db);
+    const bloque = !st ? ''
+      : st.kind === 'descarga' ? ' · semana de descarga'
+      : ` · semana ${st.week} de ${st.weeks}${st.deloadIn ? ` · descarga en ${st.deloadIn}` : ''}`;
+    partes.push(`${prog._meta?.name || db.program} · Fase ${roman}${bloque}`);
   }
   const run = getRunningProgram(db.runningProgram || '');
   if (run) partes.push(`${run._meta?.name || db.runningProgram} · Semana ${db.runningWeek || 1}`);
   return partes.join(' — ');
+}
+
+/**
+ * Fase completada: si el atleta ya terminó un ciclo entero de la fase y el
+ * programa tiene otra detrás, se le dice — avisar, nunca bloquear. Seguir en la
+ * misma fase es legítimo (empieza otro ciclo); cambiar es un toque.
+ */
+function hintFaseSiguiente(db) {
+  const st = planStatus(db);
+  if (!st || st.cycle < 2 || !st.next || st.done > 0) return '';
+  return `<div class="dash-sched-hint">Has completado «${esc(st.name)}». La siguiente fase es «${esc(st.next.name)}».
+    <button type="button" class="dash-sched-hint-link" data-plan-sheet>Cambiar de fase</button>
+  </div>`;
 }
 
 /**
@@ -394,7 +413,7 @@ function renderSchedule(db) {
       <div class="dash-card-label">Toca hoy</div>
       ${contexto ? `<div class="dash-sched-context">${esc(contexto)}</div>` : ''}
     </div>
-    ${cuerpo}${atraso}${pend}${hintRunsFantasma(db)}${hintDefaults(db)}${pieTarjeta(db)}
+    ${cuerpo}${atraso}${pend}${hintFaseSiguiente(db)}${hintRunsFantasma(db)}${hintDefaults(db)}${pieTarjeta(db)}
   </div>`;
 }
 
@@ -422,6 +441,11 @@ async function onScheduleClick(e) {
       const training = await import('./training.js');
       training.requestStartSession(db, session, db.phase, { onStarted: () => irAEntrenar('str') });
     }
+    return;
+  }
+  if (e.target.closest('[data-plan-sheet]')) {
+    const sheet = await import('./plan-sheet.js');
+    sheet.openPlanSheet(_schedDb);
     return;
   }
   if (e.target.closest('[data-sched-hint-dismiss]')) {

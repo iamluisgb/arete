@@ -2,7 +2,7 @@
   "_meta": { "name": "Efecto Kettlebell", "desc": "10 semanas · Marcos Vázquez" },
   "1": {
     "name": "Fundamentos",
-    "desc": "Semanas 1-2 · Swing & Lev. Turco",
+    "desc": "Semanas 1-2 · Swing & Lev. Turco", "weeks": 2,
     "sessions": {
       "S1 Día 1": [
         { "name": "Squat", "sets": 4, "reps": "10", "type": "main" },
@@ -54,7 +54,7 @@
   },
   "2": {
     "name": "Fuerza",
-    "desc": "Semanas 3-4 · Grind + balísticos",
+    "desc": "Semanas 3-4 · Grind + balísticos", "weeks": 2,
     "sessions": {
       "S3 Día 1": [
         { "name": "Clean & Press", "sets": 5, "reps": "5", "type": "main" },
@@ -116,7 +116,7 @@
   },
   "3": {
     "name": "Potencia",
-    "desc": "Semanas 5-6 · Explosividad",
+    "desc": "Semanas 5-6 · Explosividad", "weeks": 2,
     "sessions": {
       "S5-6 Día 1": [
         { "name": "Swing 1 Mano", "sets": 3, "reps": "10/lado", "type": "main" },
@@ -150,7 +150,7 @@
   },
   "4": {
     "name": "Acondicionamiento",
-    "desc": "Semanas 7-10 · Circuitos e intervalos",
+    "desc": "Semanas 7-10 · Circuitos e intervalos", "weeks": 4,
     "sessions": {
       "S7-8 Día 1": [
         { "name": "Levantamiento Turco", "sets": 5, "reps": "1/lado", "type": "main" },

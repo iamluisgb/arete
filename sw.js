@@ -1,6 +1,6 @@
 // Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
 // changes — the SW is cache-first, so a stale name keeps serving old bytes.
-const CACHE_NAME = 'arete-v207';
+const CACHE_NAME = 'arete-v208';
 const ASSETS = [
   './',
   './app.html',
@@ -142,6 +142,8 @@ const ASSETS = [
   './js/app.js',
   './js/data.js',
   './js/schedule.js',
+  './js/schedule-config.js',
+  './js/plan.js',
   './js/programs.js',
   './js/sessions.js',
   './js/progression.js',

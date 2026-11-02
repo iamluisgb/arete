@@ -10,7 +10,7 @@
 import { saveDB } from '../data.js';
 import { ROMAN } from '../constants.js';
 import { getProgramList, getProgramById, programPhaseKeys, getActiveProgram, setActiveProgram, isBuiltinProgram } from '../programs.js';
-import { buildQueue } from '../schedule.js';
+import { planStatus, phaseWeeks } from '../plan.js';
 import { esc } from '../utils.js';
 import { toast } from './toast.js';
 
@@ -32,6 +32,7 @@ export function phasesOf(programId) {
       name: phase.name || `Fase ${id}`,
       desc: phase.desc || '',
       sessions: phase.sessions ? Object.keys(phase.sessions).length : 0,
+      weeks: phaseWeeks(phase),
     }));
 }
 
@@ -40,19 +41,19 @@ const short = (t, max = 26) => (t.length > max ? `${t.slice(0, max - 1).trimEnd(
 
 const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
 
-/** Lo que queda de la fase en curso, dicho corto: «Quedan 3 de 6». Vacío si no se ha empezado. */
-function progressText(db, total) {
-  if (!total) return '';
-  const left = buildQueue(db).length;
-  if (left === 0) return 'Hecha';
-  return left < total ? `Quedan ${left} de ${total}` : '';
+/** En qué punto del bloque va la fase en curso, dicho corto: «Semana 2 de 6» o «Descarga». */
+function progressText(db) {
+  const st = planStatus(db);
+  if (!st) return '';
+  if (st.kind === 'descarga') return 'Descarga';
+  return `Semana ${st.week} de ${st.weeks}`;
 }
 
 function planMeta(db, plan, phases, isActive, isOpen) {
   if (isActive && !isOpen) {
     const cur = phases.find(p => p.id === db.phase);
     if (cur) {
-      const prog = progressText(db, cur.sessions);
+      const prog = progressText(db);
       return [`Fase ${roman(cur.id)}`, cur.name, prog].filter(Boolean).join(' · ');
     }
   }
@@ -77,8 +78,8 @@ function renderPlan(db, plan, active) {
 
   const items = phases.map(p => {
     const sel = isActive && p.id === db.phase;
-    const desc = [p.desc, p.sessions ? plural(p.sessions, 'sesión', 'sesiones') : ''].filter(Boolean).join(' · ');
-    const side = sel ? progressText(db, p.sessions) : '';
+    const desc = [p.desc, p.sessions ? plural(p.sessions, 'sesión', 'sesiones') : '', plural(p.weeks, 'semana', 'semanas')].filter(Boolean).join(' · ');
+    const side = sel ? progressText(db) : '';
     return `<li><button type="button" class="plan-phase${sel ? ' is-selected' : ''}" data-plan="${esc(plan.id)}" data-phase="${p.id}"${sel ? ' aria-current="true"' : ''}>
         <span class="plan-phase-num" aria-hidden="true">${roman(p.id)}</span>
         <span class="plan-phase-text">

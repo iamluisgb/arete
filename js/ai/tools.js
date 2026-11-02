@@ -5,6 +5,7 @@
 
 import { workoutTonnage, epley } from './metrics.js';
 import { nextPrescription } from '../progression.js';
+import { isDeloadWeek, deloadSets } from '../plan.js';
 import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import { findExercises, explainExercise } from './exercise-catalog.js';
 import { listMemorias, upsertMemoria, deleteMemoria, loadMemorias, saveMemorias, MAX_MEMORIAS } from '../quiron-memory.js';
@@ -523,6 +524,8 @@ export function makeToolExecutor(db, deps = {}) {
 
       const L = [];
       const vistos = new Set();
+      const deload = isDeloadWeek(db);
+      if (deload) L.push('SEMANA DE DESCARGA del plan: menos series y algo menos de carga; la semana siguiente se retoma desde el peso de antes.');
       for (const [sName, exercises] of Object.entries(fase?.sessions || {})) {
         for (const ex of (exercises || [])) {
           if (!ex.name || (q && !ex.name.toLowerCase().includes(q))) continue;
@@ -531,7 +534,7 @@ export function makeToolExecutor(db, deps = {}) {
           const clave = `${ex.name}|${ex.reps}`;
           if (vistos.has(clave)) continue;
           vistos.add(clave);
-          const p = nextPrescription(db, ex, program);
+          const p = nextPrescription(db, ex, program, deload ? { deload: true, sets: deloadSets(ex.sets) } : {});
           if (p.kind === 'off') continue;
           const carga = p.kg != null ? `${p.kg} kg` : 'sin carga externa';
           const reps = p.reps != null ? ` × ${p.reps} reps` : '';

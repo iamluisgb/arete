@@ -56,7 +56,9 @@ describe('hoja de plan y fase', () => {
     expect(open.dataset.plan).toBe('p-a');
     const sel = body().querySelector('.plan-phase.is-selected');
     expect(sel.dataset.phase).toBe('1');
-    expect(sel.textContent).toContain('Quedan 1 de 2');
+    // Un entreno hecho de dos días ancla por semana… con anclas de fábrica (3):
+    // sigue en la semana 1 de las 4 por defecto.
+    expect(sel.textContent).toContain('Semana 1 de 4');
     expect(body().querySelectorAll('.plan-row[aria-expanded="false"]').length).toBe(1);
   });
 

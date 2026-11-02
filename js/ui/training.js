@@ -9,6 +9,7 @@ import { exFmtTime, parseDurationStr, buildTimerConfig, initExTimerEvents, stopE
 import { prepareRunner, openRunner, isRunnerOpen, hasSets, close as closeRunner } from './set-runner.js';
 import { pictHtml, anim3dButton } from './exercise-pict.js';
 import { nextPrescription } from '../progression.js';
+import { isDeloadWeek, deloadSets } from '../plan.js';
 import { buildQueue, PLAN_STRENGTH } from '../schedule.js';
 
 // Re-export for tests
@@ -323,6 +324,11 @@ function setFormVisible(show) {
   if ($sessionOverview) $sessionOverview.style.display = show ? 'none' : '';
 }
 
+/** ¿Esta sesión se hace en descarga? Solo las del plan: una suelta no es del bloque. */
+function enDescarga(db, sess) {
+  return !!db && !sess?.customId && isDeloadWeek(db);
+}
+
 function renderSessionOverview(db, sess, exercises) {
   const session = sess.name;
   const prev = getPrevSession(db, sess);
@@ -337,6 +343,8 @@ function renderSessionOverview(db, sess, exercises) {
 
   const lastDate = prev ? formatDateShort(prev.date) : null;
   const btnText = hasDraft ? 'Continuar entreno' : 'Empezar entreno';
+  const descarga = enDescarga(db, sess)
+    ? '<div class="so-last">Semana de descarga: menos series y algo menos de carga</div>' : '';
 
   let draftInfo = '';
   if (hasDraft) {
@@ -368,6 +376,7 @@ function renderSessionOverview(db, sess, exercises) {
         }
         return `<div class="so-ex"><span class="so-ex-name">${esc(ex.name)}${anim3dButton(ex.name)}</span><span class="so-ex-target">${exTargetText(ex)}</span></div>`;
       }).join('')}</div>
+      ${descarga}
       ${lastDate ? `<div class="so-last">Última vez: ${lastDate}</div>` : ''}
       ${draftInfo}
       <button class="btn btn--block so-start">${btnText}</button>
@@ -417,11 +426,12 @@ export function loadSessionTemplate(db, autoPrefill) {
     $prefillBanner.style.display = 'none';
   }
 
+  const deload = enDescarga(db, sess);
   $exerciseList.innerHTML = exercises.map((ex, i) => {
     const prevEx = prev ? prev.exercises[i] : null;
     const mode = ex.mode || (ex.type === 'hiit' || ex.type === 'density' ? 'result' : 'sets');
     switch (mode) {
-      case 'sets': return renderSetsCard(ex, i, prevEx, shouldPrefill, db);
+      case 'sets': return renderSetsCard(ex, i, prevEx, shouldPrefill, db, deload);
       case 'result': return renderResultCard(ex, i, prevEx, shouldPrefill, ex.type, db);
       case 'interval': return renderIntervalCard(ex, i, prevEx, shouldPrefill);
       case 'tabata': return renderTabataCard(ex, i, prevEx, shouldPrefill);
@@ -484,12 +494,16 @@ export function validateSetInput(inp) {  // exportada para tests
   return !invalid;
 }
 
-function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
+function renderSetsCard(ex, i, prevEx, shouldPrefill, db, deload = false) {
   // El prefill copiaba la última sesión tal cual, así que el peso no se movía
   // solo nunca. La progresión decide el peso de hoy a partir del historial y
   // dice por qué; si no tiene opinión (`kind: 'off'`, primera vez, un modo sin
   // objetivo numérico) se cae al comportamiento de siempre.
-  const presc = db ? nextPrescription(db, ex, getActiveProgram()) : { kind: 'off' };
+  // En semana de descarga se pintan todas las series del plan (el guardado las
+  // recorre todas), pero el objetivo dice cuántas hacer; las vacías no penalizan
+  // porque un entreno de descarga no entra en el hilo de progresión.
+  const opts = deload ? { deload: true, sets: deloadSets(ex.sets) } : {};
+  const presc = db ? nextPrescription(db, ex, getActiveProgram(), opts) : { kind: 'off' };
   let sh = `<div class="sets-grid"><div></div><div class="sets-header">Kg</div><div class="sets-header">Reps</div>`;
   for (let s = 0; s < ex.sets; s++) {
     const pK = prevEx?.sets[s]?.kg ?? '';
@@ -522,9 +536,12 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db) {
     pi = `<div class="prev-data">Anterior: ${prevStr}${badge}</div>`;
   }
   // Un peso que aparece solo y no se explica se borra. El porqué va siempre.
-  const why = shouldPrefill && presc.why
+  const why = (shouldPrefill || deload) && presc.why
     ? `<div class="prog-why prog-${presc.kind}">${esc(presc.why)}</div>` : '';
-  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}${anim3dButton(ex.name)}</div><div class="ex-target">${ex.sets}×${ex.reps}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}${why}</div>`;
+  const target = deload && presc.kind === 'deload'
+    ? `${opts.sets}×${ex.reps} · descarga (plan ${ex.sets}×${ex.reps})`
+    : `${ex.sets}×${ex.reps}`;
+  return `<div class="ex-card"><div class="ex-name">${pictHtml(ex.name, 'sm')}${esc(ex.name)}${anim3dButton(ex.name)}</div><div class="ex-target">${target}${ex.type === 'extra' ? ' (extra)' : ''}</div>${sh}${pi}${why}</div>`;
 }
 
 function renderResultCard(ex, i, prevEx, shouldPrefill, exType, db) {
@@ -1088,8 +1105,14 @@ export function saveWorkout(db, { fromRunner = false } = {}) {
 
   // Si viene de una sesión suelta, el entreno se lleva su id y una COPIA de la
   // especificación: borrar la suelta no puede romper el historial ni su edición.
+  // Al editar se conserva lo que fue: una sesión de descarga sigue siéndolo
+  // aunque hoy el plan esté en otra semana.
+  const deload = editingId
+    ? !!db.workouts.find(w => w.id === editingId)?.deload
+    : enDescarga(db, sess);
   const build = (id) => {
     const w = { id, date, session, phase: db.phase, program: prog, notes, exercises: exData };
+    if (deload) w.deload = true;
     if (sess.customId) {
       w.sessionId = sess.customId;
       w.spec = JSON.parse(JSON.stringify(exercises));

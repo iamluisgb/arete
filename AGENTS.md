@@ -113,6 +113,35 @@ fuerza a fuerza, que es lo que usan "Iniciar sesión" y Quirón. `migrateLastTab
 pestañas viejas (`secStrength`/`secRunning`) — no la borres o los usuarios existentes abrirán la
 app en una sección que ya no existe.
 
+## Plan en el tiempo: bloques y descarga
+
+[`js/plan.js`](js/plan.js) dice **en qué punto del bloque** está el atleta (semana 3 de 6 de la
+Fase I, descarga en 4) y qué viene después. Diseño completo en
+[`odd/tasks/planificacion.md`](odd/tasks/planificacion.md). Como la progresión, es **función pura
+del historial: no se guarda ninguna posición**.
+
+- **El bloque es la racha final de entrenos del programa y la fase activos.** Otra fase u otro
+  programa la cortan, y también un parón de más de `BREAK_DAYS` (21): quien vuelve de un mes
+  fuera empieza de nuevo, no en la semana 5. Las sesiones sueltas (`w.sessionId`) ni cuentan ni
+  cortan.
+- **Una semana se cierra al hacer sus sesiones, no al pasar el calendario.** Una semana son
+  tantas sesiones como días ancla de fuerza. Las fechas de fin son proyección sobre los anclas.
+- **Las fases declaran `weeks`** en el JSON (4 si no). Detrás de cada fase de 4 semanas o más va
+  una de descarga (`deload` en la fase lo fuerza o lo quita; Ajustes la apaga en todas).
+- **Al terminar el ciclo no se bloquea nada**: si el atleta sigue en la fase empieza otro ciclo,
+  y «Hoy» avisa de que hay fase siguiente. Cambiar de fase sigue siendo decisión suya.
+- **La descarga la aplica `progression.js`** (`opts.deload`): el 60 % de las series y −10 % de
+  carga (`deloadTo`). El entreno se guarda con `deload: true` y **no entra en el hilo de
+  progresión**: sin eso, la semana siguiente subiría desde el peso rebajado.
+- **La cola de fuerza de `schedule.js` sale de aquí** (`blockQueue`): lo que queda de la semana
+  en curso y detrás el resto del ciclo, rotando por las sesiones de la fase. Antes contaba todo
+  lo hecho en la fase desde siempre y tras una sola pasada por A·B·C se vaciaba para siempre:
+  «Toca hoy» daba el plan por completado en la primera semana de un bloque de seis. Las
+  pendientes de fuerza son las de la semana; las atrasadas, los anclas que pasaron sin entrenar
+  desde el último entreno.
+- La configuración de anclas vive en [`js/schedule-config.js`](js/schedule-config.js) para que
+  `plan.js` y `schedule.js` la lean sin importarse en círculo.
+
 ## Progresión: qué peso toca hoy
 
 [`js/progression.js`](js/progression.js) decide la carga de cada ejercicio de series y **dice

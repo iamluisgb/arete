@@ -18,6 +18,9 @@ vi.mock('../js/ui/training.js', () => ({
 vi.mock('../js/ui/running.js', () => ({
   startPlanSessionFromName: vi.fn(),
 }));
+vi.mock('../js/ui/plan-sheet.js', () => ({
+  openPlanSheet: vi.fn(),
+}));
 
 function setupDOM() {
   document.body.innerHTML = `
@@ -227,6 +230,34 @@ describe('tarjeta "Toca hoy" — ronda 2 (F1–F4)', () => {
     expect(contexto.textContent).toContain('Semana 1');
   });
 
+  it('la línea de contexto dice en qué semana del bloque vas y cuándo descargas', async () => {
+    await dashboardConSched(seedSchedDb());
+    const contexto = document.querySelector('.dash-sched-context').textContent;
+    expect(contexto).toContain('semana 1 de 4');
+    expect(contexto).toContain('descarga en 4');
+  });
+
+  it('al completar un ciclo de la fase avisa de la siguiente y abre la hoja de fases', async () => {
+    const dosFases = {
+      _meta: { name: 'Fuerza test' }, _customId: 't-fuerza',
+      1: { name: 'Base', weeks: 1, deload: false, sessions: { 'Sesión A': [] } },
+      2: { name: 'Pico', sessions: { 'Sesión B': [] } },
+    };
+    // Una semana de 7 sesiones (anclas todos los días) hecha hasta ayer.
+    const workouts = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - 7 + i);
+      return { date: d.toISOString().slice(0, 10), session: 'Sesión A', program: 't-fuerza', phase: 1, exercises: [] };
+    });
+    const sheet = await import('../js/ui/plan-sheet.js');
+    await dashboardConSched(seedSchedDb({ workouts, customPrograms: [dosFases, PLAN_RUN_TEST] }));
+    const hint = [...document.querySelectorAll('.dash-sched-hint')].find(h => h.textContent.includes('Has completado'));
+    expect(hint.textContent).toContain('«Base»');
+    expect(hint.textContent).toContain('«Pico»');
+    hint.querySelector('[data-plan-sheet]').click();
+    await tick();
+    expect(sheet.openPlanSheet).toHaveBeenCalled();
+  });
+
   it('F3: sin config de anclas aparece el hint de defaults y se descarta', async () => {
     await dashboardConSched(seedSchedDb({ settings: {} }));
     const hint = document.querySelector('.dash-sched-hint');
@@ -315,13 +346,22 @@ describe('tarjeta "Hoy" unificada — ronda 3 (N1–N6)', () => {
     expect(filasHoy).toHaveLength(0);
   });
 
-  it('N1: cola vacía para los dos planes muestra el estado "Plan completado"', async () => {
+  it('N1: con la semana de running hecha y fuerza apagada, «Plan completado»', async () => {
+    const runs = ['Series', 'Rodaje'].map(session => ({ date: hoyStr(), session, program: 't-run' }));
+    await dashboardConSched(seedSchedDb({
+      runningLogs: runs,
+      settings: { schedule: { arete: { anchors: [] }, running: { anchors: TODOS_LOS_DIAS } } },
+    }));
+    expect(document.querySelector('#dashSchedule .dash-sched-card').textContent).toContain('Plan completado');
+  });
+
+  it('N1: cerrar una semana de fuerza no da el plan por completado: llega la siguiente', async () => {
     const hechos = ['Sesión A', 'Sesión B', 'Sesión C'].map(session => ({
       date: hoyStr(), session, program: 't-fuerza', phase: 1, exercises: [],
     }));
     const runs = ['Series', 'Rodaje'].map(session => ({ date: hoyStr(), session, program: 't-run' }));
     await dashboardConSched(seedSchedDb({ workouts: hechos, runningLogs: runs }));
-    expect(document.querySelector('#dashSchedule .dash-sched-card').textContent).toContain('Plan completado');
+    expect(document.querySelector('#dashSchedule .dash-sched-card').textContent).not.toContain('Plan completado');
   });
 
   it('N1: sin plan activo ni sesiones hechas, la tarjeta calla (no felicita)', async () => {
@@ -396,11 +436,11 @@ describe('tarjeta "Hoy" unificada — ronda 3 (N1–N6)', () => {
     expect(modelo.textContent).toContain('Si se te cae un día, la sesión pasa al siguiente día que entrenas');
     expect(modelo.querySelector('[data-sched-settings]')).toBeTruthy();
 
-    const hechos = ['Sesión A', 'Sesión B', 'Sesión C'].map(session => ({
-      date: hoyStr(), session, program: 't-fuerza', phase: 1, exercises: [],
-    }));
     const runs = ['Series', 'Rodaje'].map(session => ({ date: hoyStr(), session, program: 't-run' }));
-    await dashboardConSched(seedSchedDb({ workouts: hechos, runningLogs: runs }));
+    await dashboardConSched(seedSchedDb({
+      runningLogs: runs,
+      settings: { schedule: { arete: { anchors: [] }, running: { anchors: TODOS_LOS_DIAS } } },
+    }));
     modelo = document.querySelector('.dash-sched-modelo');
     expect(modelo.textContent).toContain('Si se te cae un día');
     expect(modelo.querySelector('[data-sched-settings]')).toBeTruthy();

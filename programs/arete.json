@@ -2,7 +2,7 @@
   "_meta": { "name": "Areté", "desc": "Fuerza \u00b7 Hipertrofia \u00b7 Definici\u00f3n" },
   "1": {
     "name": "Fuerza",
-    "desc": "Full-body \u00b7 3\u00d75 \u00b7 Progresi\u00f3n lineal",
+    "desc": "Full-body \u00b7 3\u00d75 \u00b7 Progresi\u00f3n lineal", "weeks": 6,
     "sessions": {
       "Sesi\u00f3n A": [
         { "name": "Sentadilla", "sets": 3, "reps": "5", "type": "main" },
@@ -55,7 +55,7 @@
   },
   "2": {
     "name": "Hipertrofia",
-    "desc": "Torso-Pierna \u00b7 Fuerza + Hipertrofia",
+    "desc": "Torso-Pierna \u00b7 Fuerza + Hipertrofia", "weeks": 6,
     "sessions": {
       "Torso Fuerza": [
         { "name": "Press Banca", "sets": 3, "reps": "3-5", "type": "main" },
@@ -97,7 +97,7 @@
   },
   "3": {
     "name": "Definici\u00f3n M\u00e1xima",
-    "desc": "Full-body \u00b7 Complejos \u00b7 4 semanas",
+    "desc": "Full-body \u00b7 Complejos \u00b7 4 semanas", "weeks": 4,
     "sessions": {
       "Sesi\u00f3n A": [
         { "name": "Peso Muerto", "sets": 3, "reps": "4-6", "type": "main" },
@@ -141,7 +141,7 @@
   },
   "4": {
     "name": "Ajustes",
-    "desc": "Densidad \u00b7 Zonas retrasadas",
+    "desc": "Densidad \u00b7 Zonas retrasadas", "weeks": 4,
     "sessions": {
       "Densidad A": [
         { "name": "Bloque 1 (10min): Press Militar + Dominada", "sets": 1, "reps": "Total reps", "type": "density", "blockDuration": "10min", "exercises": [{ "name": "Press Militar" }, { "name": "Dominada" }] },

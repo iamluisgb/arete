@@ -1,6 +1,6 @@
 # Feature: planificacion (Metas, bloques y plan que se adapta)
 
-**Estado**: diseño · **Rama**: `feat/planificacion`
+**Estado**: fase 1 hecha (2-nov) · siguiente: fase 2
 
 ## Objetivo
 
@@ -58,8 +58,8 @@ descargar o qué hacer con una rodilla que molesta.
     `progression.js` en dos o más básicos a la vez, o un check-in malo sostenido
     (ver D5).
 
-  Una semana de descarga mantiene las sesiones con −40 % de series y −10 % de carga, y la
-  aplica `progression.js`, no un plan aparte.
+  Una semana de descarga mantiene las sesiones con el 60 % de las series y −10 % de carga, y
+  la aplica `progression.js`, no un plan aparte.
 - **D5 — Estado del atleta (`db.athleteState`).** Es una lista de entradas con fecha que
   viaja con el sync:
   - `molestia`: `{ zona, lado, intensidad 0-10, tipo: agujeta|molestia|dolor|lesion,
@@ -111,9 +111,18 @@ descargar o qué hacer con una rodilla que molesta.
 
 ## Fases
 
-1. **Bloques en el tiempo.** `weeks` en las fases; modelo de plan con bloques y semanas
+1. ✅ **Bloques en el tiempo.** `weeks` en las fases; modelo de plan con bloques y semanas
    que se cierran por sesiones; descarga por defecto; línea de contexto en «Hoy».
-   Módulo puro `js/plan.js` + `tests/plan.test.js`.
+   Módulo puro `js/plan.js` + `tests/plan.test.js`. Hecho, con estas decisiones:
+   - El bloque y su posición se derivan del historial (racha de la fase, parón > 21 días
+     reinicia). Nada guardado salvo `deload: true` en el entreno.
+   - Descarga detrás de las fases de ≥ 4 semanas, o la que diga `deload` en el JSON;
+     interruptor en Ajustes → Programación semanal.
+   - Al acabar el ciclo se empieza otro de la misma fase y «Hoy» avisa de la siguiente.
+   - La cola de fuerza de `schedule.js` pasa a ser semanal dentro del bloque: la de antes se
+     vaciaba tras una pasada por las sesiones de la fase.
+   - Quirón recibe el bloque en el snapshot y la descarga en `get_next_prescription`.
+   - Semanas: Areté 6·6·4·4; Kettlebell 2·2·2·4 (las del libro); el resto, 4.
 2. **Pestaña Plan + metas.** Metas atadas a dominios y eventos; construcción hacia atrás
    desde la meta A; línea de tiempo; absorbe «Plan y fase»; componente en `patterns.html`.
 3. **Estado del atleta.** `db.athleteState` + sync; tool `report_state`; tarjeta de

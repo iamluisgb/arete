@@ -7,6 +7,7 @@
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import { scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig } from '../schedule.js';
+import { planStatus, planTimeline } from '../plan.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
@@ -37,6 +38,29 @@ export function domainSummary(db, ref = new Date()) {
   // La calibración es del producto, no del agente, y omitirla haría que Quirón leyera
   // como absolutos unos umbrales que no lo son. La app ya lo declara en pantalla.
   lines.push(`  ${CALIBRATION_NOTE}`);
+  return lines;
+}
+
+/**
+ * Bloque del plan en el tiempo (odd/tasks/planificacion.md): en qué semana del
+ * bloque de fuerza está el atleta, si toca descarga y qué viene después, con
+ * fechas proyectadas. Lo calcula js/plan.js; el modelo lo cita, no lo deriva.
+ */
+export function planBlock(db, ref = new Date()) {
+  const st = planStatus(db, ref);
+  if (!st) return [];
+  const ciclo = st.cycle > 1 ? ` (${st.cycle}ª pasada por esta fase)` : '';
+  const semana = st.kind === 'descarga'
+    ? 'SEMANA DE DESCARGA'
+    : `semana ${st.week} de ${st.weeks} de carga`;
+  const lines = ['PLAN DE FUERZA EN EL TIEMPO (calculado por la app — cítalo tal cual; una semana se cierra al completar sus sesiones, las fechas son proyección):'];
+  lines.push(`  Fase "${st.name}"${ciclo}: ${semana} · ${st.weekDone}/${st.perWeek} sesiones hechas esta semana`);
+  if (st.kind === 'carga' && st.deloadIn != null) lines.push(`  Descarga en ${st.deloadIn} semana${st.deloadIn === 1 ? '' : 's'}`);
+  const tl = planTimeline(db, ref).filter(t => !t.current).slice(0, 4);
+  if (tl.length) {
+    lines.push(`  Después: ${tl.map(t => `${t.kind === 'descarga' ? 'descarga' : `"${t.name}" ${t.weeks} sem`} ${t.start}→${t.end}`).join(' · ')}`);
+  }
+  if (st.cycle > 1 && st.next) lines.push(`  Ya completó la fase una vez; la siguiente del programa es "${st.next.name}" (cambiarla es decisión del atleta).`);
   return lines;
 }
 
@@ -134,6 +158,9 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
   if (prog.name) p.push(`fuerza: ${prog.name}${prog.phaseName ? ` — fase "${prog.phaseName}"` : ''}${prog.sessionNames?.length ? ` (sesiones: ${prog.sessionNames.join(', ')})` : ''}`);
   if (prog.runProgramName) p.push(`running: ${prog.runProgramName}${prog.runWeek ? ` — semana ${prog.runWeek}` : ''}`);
   if (p.length) L.push(`PROGRAMA ACTIVO: ${p.join(' | ')}`);
+
+  // Plan en el tiempo: semana del bloque, descarga y lo que viene.
+  L.push(...planBlock(db, ref));
 
   // Programación semanal: hoy / mañana / atrasadas / cola. Solo si hay anclas.
   L.push(...scheduleBlock(db, ref));
