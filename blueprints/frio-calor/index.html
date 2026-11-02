@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de frío y calor · Areté</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../assets/icons/icon-16.png">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="../../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--bp-fs-xs:.7rem;--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
+.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
+.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
+.phase-bar-fill{height:100%;border-radius:2px}
+.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
+.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
+.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.ex-card .meta strong{color:var(--text2)}
+.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6}
+.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
+.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
+.ex-card .evidence{font-size:var(--bp-fs-xs);color:var(--text3);margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--ghost-border);line-height:1.5}
+.ex-card .evidence strong{color:var(--text2)}
+.info-box{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-4) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .info-box{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.info-box .box-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:var(--sp-2)}
+.info-box p{font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6;margin-bottom:var(--sp-2)}
+.info-box p:last-child{margin-bottom:0}
+.info-box strong{color:var(--text)}
+.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.tl-item{display:flex;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--ghost-border)}
+.tl-item:last-child{border-bottom:none}
+.tl-time{min-width:70px;font-size:var(--bp-fs-sm);font-weight:700;color:var(--accent);text-align:right}
+.tl-content{flex:1}
+.tl-content h4{font-size:var(--bp-fs-md);font-weight:700;color:var(--text);margin-bottom:2px}
+.tl-content p{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.5}
+.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
+.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
+.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
+.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
+.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm)}
+.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ref-box p{color:var(--ink-body);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
+.ref-box em{color:var(--text3)}
+.ref-box a{overflow-wrap:anywhere}
+</style>
+<meta name="description" content="Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza, sauna con lo que de verdad se sabe y seguridad. Para atletas híbridos.">
+<link rel="canonical" href="https://arete.raiatech.com/blueprints/frio-calor/">
+<meta property="og:title" content="Plan de frío y calor — Areté">
+<meta property="og:description" content="Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza, sauna con lo que de verdad se sabe y seguridad. Para atletas híbridos.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/blueprints/frio-calor/">
+<meta property="og:site_name" content="Areté">
+<meta property="og:image" content="https://arete.raiatech.com/assets/blog/og/bp-frio-calor.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Plan de frío y calor — Areté">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@iamluisgb">
+<meta name="twitter:creator" content="@iamluisgb">
+<meta name="twitter:title" content="Plan de frío y calor — Areté">
+<meta name="twitter:description" content="Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza, sauna con lo que de verdad se sabe y seguridad. Para atletas híbridos.">
+<meta name="twitter:image" content="https://arete.raiatech.com/assets/blog/og/bp-frio-calor.png"><!-- blog:head -->
+<meta property="article:published_time" content="2026-11-02">
+<meta property="article:modified_time" content="2026-11-02">
+<meta property="article:author" content="Luis González">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Plan de frío y calor","description":"Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza y la sauna con lo que se sabe. 8 protocolos.","inLanguage":"es","url":"https://arete.raiatech.com/blueprints/frio-calor/","mainEntityOfPage":"https://arete.raiatech.com/blueprints/frio-calor/","image":"https://arete.raiatech.com/assets/blog/og/bp-frio-calor.png","datePublished":"2026-11-02","dateModified":"2026-11-02","timeRequired":"PT19M","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"publisher":{"@type":"Organization","name":"Areté","url":"https://arete.raiatech.com","logo":"https://arete.raiatech.com/assets/icons/icon-192.png"}}</script>
+<script src="../../blog/blog.js" defer></script>
+<!-- /blog:head --></head>
+<body>
+<nav class="site-nav">
+  <a href="../../index.html" class="logo"><img src="../../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Aret<span>é</span></a>
+  <div class="nav-links"><a href="../../blog/index.html">Blog</a><a href="../../app.html">Mi Entreno</a></div>
+</nav>
+
+<div class="article-header">
+  <a href="../index.html" class="back">← Volver a blueprints</a>
+  <div class="phase-tag">Blueprint</div>
+  <h1>Plan de <span>frío y calor</span></h1>
+  <div class="subtitle">El agua fría sirve para dos cosas distintas y cada una tiene su dosis. El calor tiene buenos datos de salud y pocos de rendimiento. Aquí está lo que se sabe, lo que no y cómo no hacerte daño.</div><!-- blog:byline --><div class="byline"><img src="../../assets/landing/luis.webp" alt="" width="36" height="36" decoding="async"><div><a href="https://luisgonzalezbernal.com" rel="author">Luis González</a><span>Actualizado el <time datetime="2026-11-02">2 de noviembre de 2026</time> · 19 min de lectura</span></div></div><!-- /blog:byline -->
+  <div class="badge-row">
+    <span class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">checklist</span> 3 fases · 8 protocolos · 18 referencias</span>
+  </div>
+</div>
+
+<div class="article-body">
+
+<!-- ═══════ PREREQUISITO ═══════ -->
+<div class="ref-box">
+  <div class="ref-title">Prerequisito: para qué y si puedes</div>
+  <p>Antes de meterte en agua fría o en una sauna, responde dos preguntas.</p>
+  <p><strong>1. ¿Para qué lo quieres?</strong> Para <strong>recuperar</strong> (agujetas, competir otra vez pronto) o para <strong>entrenar tu respuesta al estrés</strong> (el «quiero salir» que hay que aguantar). La dosis es distinta: 10–15 min en agua no tan fría frente a 1–3 min en agua muy incómoda.</p>
+  <p><strong>2. ¿Tienes algo que lo desaconseje?</strong> Enfermedad cardíaca, arritmias, hipertensión no controlada, Raynaud, urticaria por frío, embarazo o una infección respiratoria en curso. Si es tu caso, habla antes con tu médico. El protocolo 01 lo detalla.</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> Alguna contraindicación — consulta antes</div>
+  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> Nunca lo has hecho — Fase 1</div>
+  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> Ducha fría habitual — Fase 2</div>
+  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> Tienes sauna cerca — Fase 3</div>
+</div>
+
+<!-- ═══════ DOSIS MÍNIMA ═══════ -->
+<div class="info-box">
+  <div class="box-title">Si solo haces una cosa</div>
+  <p><strong>Si entrenas fuerza, no metas agua fría en las 6 h siguientes.</strong> Es la única regla de este plan que protege algo que ya estás haciendo.</p>
+  <p>Si además quieres probar el frío: <strong>termina la ducha con 1–3 min de agua fría, tres días por semana</strong>, en días sin fuerza o antes de entrenar. Sin hielo, sin bañeras y sin hiperventilar.</p>
+</div>
+
+<!-- ═══════ LA CIENCIA ═══════ -->
+<div class="info-box">
+  <div class="box-title">Lo que dice la ciencia</div>
+  <p><strong>Frío para recuperar.</strong> El agua fría reduce las agujetas: la mejor dosis en un meta-análisis en red de 55 ensayos fue 10–15 min a 11–15 °C (Wang et al. 2025). Pero hecha justo después de una sesión de fuerza recorta la hipertrofia y, menos, la fuerza (Roberts et al. 2015; Malta et al. 2021; Piñero et al. 2024). En resistencia no se ha visto ese coste.</p>
+  <p><strong>Frío como estresor.</strong> Una hora a 14 °C multiplicó la noradrenalina en sangre por más de cinco y subió la dopamina un 250 % (Šrámek et al. 2000). Se repite que también sube la adrenalina; en ese estudio, no subió. Que unos minutos de frío mejoren el ánimo o la tolerancia al estrés está mucho menos medido: hay un ensayo grande de duchas frías (Buijze et al. 2016) y estudios pequeños. Por eso aquí va como práctica tentativa, no como tratamiento.</p>
+  <p><strong>Calor.</strong> En una cohorte finlandesa de 2315 hombres seguida 20 años, quienes iban a la sauna 4–7 veces por semana tuvieron menos muerte súbita y cardiovascular que quienes iban una (Laukkanen et al. 2015). Es una asociación, no un ensayo: quien puede ir a la sauna a diario quizá ya está más sano. Para rendimiento solo hay estudios pequeños.</p>
+</div>
+
+<!-- ═══════ TOC ═══════ -->
+<div class="toc">
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#fase1">Fase 1 · Seguridad y primer contacto · Semanas 1–2</a>
+      <ol class="sub">
+        <li><a href="#seguridad">Reglas de seguridad</a></li>
+        <li><a href="#ducha">Ducha fría de iniciación</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase2">Fase 2 · Frío con objetivo · Semanas 3–8</a>
+      <ol class="sub">
+        <li><a href="#seis-horas">La regla de las 6 h tras la fuerza</a></li>
+        <li><a href="#recuperar">Frío para recuperar</a></li>
+        <li><a href="#resiliencia">Frío para entrenar el estrés</a></li>
+        <li><a href="#sin-agua">Alternativa sin agua</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase3">Fase 3 · Calor · Semana 9 en adelante</a>
+      <ol class="sub">
+        <li><a href="#sauna">Sauna</a></li>
+        <li><a href="#contraste">Combinar frío y calor</a></li>
+      </ol>
+    </li>
+    <li><a href="#semana">Semana tipo</a></li>
+    <li><a href="#checklist">Checklist de progreso</a></li>
+    <li><a href="#faq">Preguntas frecuentes</a></li>
+    <li><a href="#refs">Referencias</a></li>
+  </ol>
+</div>
+
+<!-- ═══════ FASE 1 ═══════ -->
+<div id="fase1" class="section-label">Fase 1 · Seguridad y primer contacto · Semanas 1–2</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: aprender a entrar en el frío sin riesgo y saber cómo responde tu cuerpo. Casi todos los accidentes con agua fría vienen de saltarse esta fase.</p>
+<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+
+<div id="seguridad" class="section-label" style="margin-top:0">Reglas de seguridad · Siempre</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Al entrar en agua fría llega el <strong>choque por frío</strong>: una bocanada involuntaria y respiración rápida que no controlas durante los primeros segundos. Es el paso previo a muchos ahogamientos (Tipton et al. 2017). Si además metes la cara, el reflejo de buceo frena el corazón a la vez que el frío lo acelera, y ese choque entre los dos frenos y aceleradores puede provocar arritmias en personas vulnerables (Shattock y Tipton 2012).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 01</div>
+  <h3>Reglas de seguridad</h3>
+  <div class="meta">
+    <span><strong>Cuándo:</strong> cada vez</span>
+    <span><strong>Excepciones:</strong> ninguna</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Nunca solo en agua abierta</strong> (mar, río, lago). Alguien en la orilla, una señal acordada para «sácame» y un sitio que conozcas.</li>
+    <li><strong>Nunca te tires de cabeza ni de golpe.</strong> Entra despacio, agarrado a algo fijo, o de espaldas a la ducha.</li>
+    <li><strong>Nunca hiperventiles antes ni durante.</strong> Las técnicas de respiración rápida (tipo Wim Hof) bajan el CO₂, retrasan las ganas de respirar y pueden hacer que pierdas el conocimiento en el agua.</li>
+    <li><strong>Consulta antes</strong> si tienes enfermedad cardíaca, arritmias, hipertensión no controlada, Raynaud, urticaria por frío o estás embarazada. No lo hagas con una infección respiratoria.</li>
+    <li><strong>Sal si</strong> el agua quema, te duele la cabeza, tiemblas sin control, te mareas o pierdes sensibilidad en manos y pies.</li>
+    <li><strong>Después, caliéntate moviéndote</strong> o con ropa seca. El temblor posterior es normal; la confusión no.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Acompañado en agua abierta, siempre</span>
+    <span class="tip tip-key">· Entrar despacio corta el choque por frío</span>
+    <span class="tip tip-no">· Frío + hiperventilación: nunca</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: fuerte</span> para el riesgo del choque por frío y del agua abierta (Tipton et al. 2017, <em>Exp Physiol</em>; Shattock y Tipton 2012, <em>J Physiol</em>). Que la hiperventilación provoca hipoxia y alcalosis está medido (Kox et al. 2014, <em>PNAS</em>); la lista de contraindicaciones es prudencia clínica, no salida de un ensayo.</div>
+</div>
+
+<div id="ducha" class="section-label">Ducha fría de iniciación · 30–90 s al final de la ducha</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La ducha permite ajustar la temperatura al momento, que es justo lo que necesitas al principio. En el mayor ensayo hecho con duchas frías, 3018 adultos terminaron su ducha caliente con 30, 60 o 90 s de agua fría durante un mes: faltaron un 29 % menos al trabajo por enfermedad, aunque no enfermaron menos días (Buijze et al. 2016). La duración no cambió el resultado.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 02</div>
+  <h3>Ducha fría de iniciación</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 30–90 s de frío</span>
+    <span><strong>Frecuencia:</strong> a diario o casi</span>
+    <span><strong>Cuándo:</strong> al despertar o antes de entrenar</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Dúchate como siempre</strong> y, al final, pon el agua todo lo fría que salga.</li>
+    <li><strong>Entra por partes:</strong> piernas, brazos, espalda y por último pecho y cabeza.</li>
+    <li><strong>Respira lento por la nariz</strong> y alarga la exhalación. El primer impulso será respirar a bocanadas: deja que pase.</li>
+    <li><strong>Empieza por 30 s</strong> y sube hasta 60–90 s cuando dejes de jadear al entrar.</li>
+    <li><strong>Apunta qué sientes</strong> durante las dos semanas: si te despeja, si te cuesta dormir después, si te deja frío horas. Te servirá para elegir objetivo en la Fase 2.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 30 s ya cuentan</span>
+    <span class="tip tip-key">· Por la mañana o antes de entrenar, no justo después de pesas</span>
+    <span class="tip tip-no">· No te metas de golpe con la cabeza</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: moderada</span> para la ausencia laboral, con matiz: era autodeclarada y el estudio no podía ser ciego. Buijze et al. (2016), <em>PLoS One</em>.</div>
+</div>
+
+<!-- ═══════ FASE 2 ═══════ -->
+<div id="fase2" class="section-label">Fase 2 · Frío con objetivo · Semanas 3–8</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: usar el frío para una cosa concreta y en el momento que no estropee el entreno. Primero, la regla que manda sobre las demás.</p>
+<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+
+<div id="seis-horas" class="section-label" style="margin-top:0">La regla de las 6 h tras la fuerza</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El frío justo después de las pesas recorta la señal que hace crecer el músculo. Tras 12 semanas con 10 min de agua fría al acabar cada sesión, el grupo del frío ganó menos fuerza y menos masa que el de recuperación activa (Roberts et al. 2015). Los meta-análisis lo confirman para la hipertrofia (Piñero et al. 2024) y, con un efecto más pequeño, para la fuerza (Malta et al. 2021; Grgic 2023).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 03</div>
+  <h3>La regla de las 6 h tras la fuerza</h3>
+  <div class="meta">
+    <span><strong>Aplica a:</strong> fuerza e hipertrofia</span>
+    <span><strong>Margen:</strong> ≥ 6 h</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Opción A:</strong> deja pasar al menos 6 h entre el final de la sesión de fuerza y el frío.</li>
+    <li><strong>Opción B:</strong> haz el frío <strong>antes</strong> de entrenar (por ejemplo, ducha fría al despertar y fuerza por la tarde).</li>
+    <li><strong>Opción C:</strong> guárdalo para los días sin fuerza: carrera, descanso o recuperación activa.</li>
+    <li><strong>Opción D, la menos probada:</strong> si no hay otra forma, termina con una ducha o un baño caliente para devolver riego al músculo.</li>
+    <li><strong>Tras resistencia</strong> (tirada larga, series, partido) no hace falta esperar: no se ha visto que el frío frene la adaptación aeróbica.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Antes de entrenar o en otro día</span>
+    <span class="tip tip-key">· Aplica a la fuerza, no a la carrera</span>
+    <span class="tip tip-no">· Baño frío al acabar las pesas: no</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: fuerte</span> para que el frío justo después resta adaptación (Roberts et al. 2015; Fyfe et al. 2019; Malta et al. 2021; Grgic 2023; Piñero et al. 2024). <strong>Tentativa</strong> para la cifra de 6 h y para el truco del calor: los ensayos aplican el frío en los minutos siguientes y ninguno ha comparado esperas. Las 6 h son un margen prudente. Ojo también al matiz: Fyfe et al. (2019) vieron menos hipertrofia pero la misma ganancia de fuerza, y en Grgic (2023) la inmersión de cuerpo entero no recortó la fuerza de forma significativa.</div>
+</div>
+
+<div id="recuperar" class="section-label">Frío para recuperar · 10–15 min a 11–15 °C</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Este es el frío del <a href="../recovery/#cwi">plan de recuperación</a>, resumido: la dosis y el momento. Sirve cuando recuperar rápido importa más que adaptarse.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 04</div>
+  <h3>Frío para recuperar</h3>
+  <div class="meta">
+    <span><strong>Temperatura:</strong> 11–15 °C</span>
+    <span><strong>Duración:</strong> 10–15 min</span>
+    <span><strong>Cuándo:</strong> tras resistencia o competición</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Inmersión hasta la cintura o el pecho</strong> durante 10–15 min, con el agua a 11–15 °C. No necesitas hielo: muchas piscinas exteriores en invierno o una bañera con agua del grifo y algo de hielo llegan.</li>
+    <li><strong>Úsalo</strong> tras una tirada larga, unas series duras, un partido, o entre dos competiciones cercanas.</li>
+    <li><strong>No lo uses</strong> como rutina tras la fuerza en una fase de ganar músculo (protocolo 03).</li>
+    <li><strong>Más frío (5–10 °C)</strong> fue mejor para el salto y la creatina quinasa y algo menos para las agujetas. No hace falta.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 11–15 °C basta</span>
+    <span class="tip tip-key">· Cuando recuperar importa más que adaptarse</span>
+    <span class="tip tip-no">· No como rutina en fase de hipertrofia</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: fuerte</span> para las agujetas. Wang et al. (2025), <em>Front Physiol</em> — 55 ensayos: 10–15 min a 11–15 °C, la dosis que más las redujo (SMD −1,45). Dupuy et al. (2018), <em>Front Physiol</em> — inmersión g = −0,47; el masaje y la recuperación activa redujeron más.</div>
+</div>
+
+<div id="resiliencia" class="section-label">Frío para entrenar el estrés · 1–3 min, 3–7 veces por semana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Aquí el objetivo no es recuperar sino practicar algo: estar en una situación que tu cuerpo quiere abandonar y quedarte con la cabeza fría. El frío dispara la noradrenalina (Šrámek et al. 2000) y el impulso de salir llega en oleadas. La dosis la marca la incomodidad, no el termómetro.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 05</div>
+  <h3>Frío para entrenar el estrés</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 1–3 min (nunca más de 5)</span>
+    <span><strong>Frecuencia:</strong> 3–7 veces/semana</span>
+    <span><strong>Agua:</strong> incómodamente fría</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Temperatura:</strong> la que te haga querer salir en cuanto entras y te acelere la respiración, pero en la que puedas quedarte 3 min con seguridad. Si quema o da dolor de cabeza, es demasiado fría.</li>
+    <li><strong>Opción por tiempo:</strong> 1–3 min por sesión.</li>
+    <li><strong>Opción por «muros»:</strong> decide antes cuántas veces vas a sentir el impulso de salir y quedarte igualmente (entre 2 y 8). Cada impulso superado es un muro. Así entrenas lo que pasa con el estrés real, que no avisa de cuánto dura.</li>
+    <li><strong>Durante:</strong> no te distraigas. Observa cómo pasas de «quiero salir» a «puedo con esto» y vuelta; es la parte útil.</li>
+    <li><strong>Referencia de volumen:</strong> los nadadores de invierno daneses estudiados por Søberg et al. (2021) acumulaban unos 11 min de agua fría por semana en 2–3 sesiones. Es lo que hacían, no una dosis probada.</li>
+    <li><strong>Si te gusta acabar con ducha caliente,</strong> hazlo; nadie ha demostrado que importe.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Corto y frecuente</span>
+    <span class="tip tip-key">· Los muros, mejor que el cronómetro</span>
+    <span class="tip tip-no">· Más de 5 min no añade nada y suma riesgo</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: tentativa</span> La respuesta hormonal es sólida (Šrámek et al. 2000, <em>Eur J Appl Physiol</em>, pero con 1 h a 14 °C, no con 2 min). Que unos minutos de frío entrenen la tolerancia al estrés o mejoren el ánimo se apoya en estudios pequeños u observacionales. Søberg et al. (2021), <em>Cell Rep Med</em>, comparó 8 nadadores de invierno con 8 controles: más termogénesis con el frío, pero no midió una intervención ni el ánimo.</div>
+</div>
+
+<div id="sin-agua" class="section-label">Alternativa sin agua · 3–5 min de hiperventilación cíclica</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Si no soportas el frío o no tienes dónde, la hiperventilación cíclica también dispara la adrenalina: en un ensayo, quienes aprendieron respiración con hiperventilación y retención tuvieron subidas muy marcadas de adrenalina en sangre (Kox et al. 2014). La ventaja frente al frío es que puedes bajar la intensidad cuando quieras.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 06</div>
+  <h3>Hiperventilación cíclica</h3>
+  <div class="meta">
+    <span><strong>Duración:</strong> 3–5 min</span>
+    <span><strong>Dónde:</strong> sentado o tumbado, en seco</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Siéntate o túmbate</strong> en un sitio seguro. Nunca de pie, conduciendo ni cerca del agua.</li>
+    <li><strong>Inhala fuerte y profundo por la nariz</strong> y suelta el aire por la boca sin empujarlo, como si se cayera.</li>
+    <li><strong>Repite 3–5 min.</strong> Notarás hormigueo, calor, algo de mareo y ganas de moverte: es la respuesta buscada.</li>
+    <li><strong>Si te mareas de más,</strong> baja el ritmo o para. Ese control es lo que el frío no te da.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Sin agua, sin equipo</span>
+    <span class="tip tip-key">· Regulas tú la intensidad</span>
+    <span class="tip tip-no">· Nunca en el agua ni antes de meterte</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: tentativa</span> Kox et al. (2014), <em>PNAS</em> — 24 voluntarios; la intervención combinaba respiración, meditación y frío, así que no aísla el efecto de respirar. En Balban et al. (2023), <em>Cell Rep Med</em>, la hiperventilación cíclica con retención fue uno de los tres ejercicios de 5 min diarios comparados con meditación durante un mes; el que más mejoró el ánimo fue el suspiro cíclico. Más respiraciones en el <a href="../breathwork/">plan de respiración</a>.</div>
+</div>
+
+<!-- ═══════ FASE 3 ═══════ -->
+<div id="fase3" class="section-label">Fase 3 · Calor · Semana 9 en adelante</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: añadir la sauna si tienes acceso. Los datos de salud son buenos pero observacionales; los de rendimiento, pocos y pequeños. Lo decimos así para que decidas si te compensa el tiempo.</p>
+<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+
+<div id="sauna" class="section-label" style="margin-top:0">Sauna · 2–7 sesiones por semana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La sauna finlandesa típica es seca, a 80–100 °C, con sesiones de 5–20 min (Hussain y Cohen 2018). En la cohorte de Kuopio, los hombres que iban 4–7 veces por semana tuvieron un 63 % menos de riesgo de muerte súbita que los que iban una (HR 0,37), y las sesiones de más de 19 min también se asociaron a menos riesgo (Laukkanen et al. 2015). En rendimiento, seis corredores que se sentaron unos 30 min en sauna después de entrenar durante tres semanas aumentaron su volumen de plasma y su tiempo hasta el agotamiento (Scoon et al. 2007).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 07</div>
+  <h3>Sauna</h3>
+  <div class="meta">
+    <span><strong>Temperatura:</strong> 80–100 °C (seca)</span>
+    <span><strong>Sesión:</strong> 5–20 min, 1–3 rondas</span>
+    <span><strong>Frecuencia:</strong> 2–7 veces/semana</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Empieza corto:</strong> 5–10 min en la grada baja las primeras veces. Sube hasta 15–20 min por ronda cuando lo toleres bien.</li>
+    <li><strong>Hidrátate:</strong> bebe antes y después. Si quieres afinar, pésate antes y después y repón lo perdido.</li>
+    <li><strong>Para rendimiento de resistencia:</strong> la opción probada es sentarse unos 30 min en la sauna justo después de entrenar, unas 4 veces por semana durante 3 semanas (Scoon et al. 2007). Úsalo en un bloque antes de una carrera en calor, no todo el año.</li>
+    <li><strong>Tras fuerza:</strong> no hay datos de que el calor reste adaptación. Si te deja muy cansado para la sesión siguiente, muévelo a otro momento.</li>
+    <li><strong>Para dormir:</strong> el calor por la tarde-noche ayuda a algunas personas a dormirse. Lo argumenta el <a href="../sleep/">plan de sueño</a>.</li>
+    <li><strong>Seguridad:</strong> nunca con alcohol y mejor acompañado. En los registros de Suecia y Finlandia, más de la mitad de las muertes en sauna implicaban alcohol, y bañarse solo era un factor común (Hussain y Cohen 2018). Si tienes enfermedad cardíaca, consulta antes.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Corto al principio, más largo con el tiempo</span>
+    <span class="tip tip-key">· Bloque de 3 semanas antes de competir en calor</span>
+    <span class="tip tip-no">· Nunca con alcohol</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: moderada</span> para la asociación con salud cardiovascular (Laukkanen et al. 2015, <em>JAMA Intern Med</em>; revisión de Laukkanen et al. 2018, <em>Mayo Clin Proc</em>), pero observacional y en hombres finlandeses de mediana edad. <strong>Tentativa</strong> para el rendimiento: Scoon et al. (2007) fueron seis corredores. Hussain y Cohen (2018) revisaron 40 estudios: la mayoría pequeños, beneficios probables, efectos adversos poco documentados; el único descrito fue una bajada reversible de la producción de esperma.</div>
+</div>
+
+<div id="contraste" class="section-label">Combinar frío y calor · Orden y para qué</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Los nadadores de invierno nórdicos alternan sauna y agua fría: los de Søberg et al. (2021) sumaban unos 57 min de sauna y 11 de agua fría por semana. Para recuperar, la terapia de contraste también reduce las agujetas, algo menos que el frío solo (Dupuy et al. 2018, g = −0,40).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 08</div>
+  <h3>Combinar frío y calor</h3>
+  <div class="meta">
+    <span><strong>Rondas:</strong> 2–3</span>
+    <span><strong>Calor:</strong> 10–15 min</span>
+    <span><strong>Frío:</strong> 1–3 min</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Para entrenar el estrés:</strong> sauna 10–15 min, frío 1–3 min, descanso unos minutos fuera, y repite 2–3 veces. Termina con lo que prefieras.</li>
+    <li><strong>El mismo día que haces fuerza:</strong> si el frío cae dentro de las 6 h siguientes a la sesión, termina con calor (protocolo 03, opción D). Mejor aún, haz el contraste en otro día.</li>
+    <li><strong>Para recuperar:</strong> el frío solo, 10–15 min a 11–15 °C, rinde algo más que el contraste.</li>
+    <li><strong>Al salir de la sauna:</strong> entra en el frío despacio. El salto de temperatura agrava el choque por frío.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Fuerza el mismo día: acaba en calor</span>
+    <span class="tip tip-key">· Contraste para el hábito, frío solo para recuperar</span>
+    <span class="tip tip-no">· No te tires al agua al salir de la sauna</span>
+  </div>
+  <div class="evidence"><span class="badge">Evidencia: tentativa</span> La pauta de rondas viene de la práctica nórdica descrita por Søberg et al. (2021), no de un ensayo que la compare con otras. El efecto del contraste sobre las agujetas sí está medido (Dupuy et al. 2018).</div>
+</div>
+
+<!-- ═══════ SEMANA TIPO ═══════ -->
+<div id="semana" class="section-label">Semana tipo</div>
+<div class="timeline">
+  <h2>Semana híbrida con frío y calor</h2>
+  <p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Los tiempos se cuentan desde que te despiertas o desde que acabas de entrenar, no por la hora del reloj. Ejemplo con fuerza lunes, miércoles y viernes por la tarde, y carrera martes y sábado.</p>
+  <div class="tl-item">
+    <div class="tl-time">Lun · 0–1 h tras despertar</div>
+    <div class="tl-content">
+      <h4>Ducha fría 1–3 min</h4>
+      <p>Hay más de 6 h hasta la fuerza de la tarde: no interfiere.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Lun · tras la fuerza</div>
+    <div class="tl-content">
+      <h4>Nada de frío</h4>
+      <p>Ducha templada o caliente. Sauna, si quieres.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Mar · 0–1 h tras las series</div>
+    <div class="tl-content">
+      <h4>Frío para recuperar (opcional)</h4>
+      <p>10–15 min a 11–15 °C si la sesión fue dura y mañana hay fuerza.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Mié · 0–1 h tras despertar</div>
+    <div class="tl-content">
+      <h4>Ducha fría por muros</h4>
+      <p>Decide antes: tres muros. Fuerza por la tarde, con margen.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Jue · día suave</div>
+    <div class="tl-content">
+      <h4>Sauna + frío, 2–3 rondas</h4>
+      <p>Sin fuerza ese día: el contraste no estorba.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Sáb · 0–1 h tras la tirada larga</div>
+    <div class="tl-content">
+      <h4>Frío para recuperar</h4>
+      <p>10–15 min. Si estás en un bloque de calor antes de una carrera, sauna en su lugar.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Dom · descanso</div>
+    <div class="tl-content">
+      <h4>Libre</h4>
+      <p>Si no has llegado a 3 exposiciones de frío, una ducha fría corta.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CHECKLIST ═══════ -->
+<div id="checklist" class="checklist">
+  <h2>Checklist de Progreso</h2>
+  <div class="check-grid">
+    <div class="check-col">
+      <h4>Semana 1–2</h4>
+      <ul>
+        <li>Contraindicaciones revisadas (y médico consultado si hacía falta)</li>
+        <li>Ducha fría de 30 s, al menos 5 días</li>
+        <li>Llegar a 60–90 s sin jadear al entrar</li>
+        <li>Anotar cómo te sienta (energía, sueño, frío después)</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 3–4</h4>
+      <ul>
+        <li>Objetivo elegido: recuperar, estrés o los dos</li>
+        <li>Ningún frío en las 6 h tras la fuerza</li>
+        <li>3 exposiciones de 1–3 min por semana</li>
+        <li>Primera sesión por muros</li>
+      </ul>
+    </div>
+    <div class="check-col">
+      <h4>Semana 5–8</h4>
+      <ul>
+        <li>Frío para recuperar probado tras una sesión de resistencia</li>
+        <li>Hiperventilación cíclica probada en seco (si el frío no es lo tuyo)</li>
+        <li>Notar el «quiero salir» sin obedecerlo de inmediato</li>
+      </ul>
+      <h4 style="margin-top:var(--sp-4)">Semana 9 en adelante</h4>
+      <ul>
+        <li>Sauna 2+ veces por semana, sin alcohol y acompañado</li>
+        <li>Primera sesión de contraste en un día sin fuerza</li>
+        <li>Bloque de sauna de 3 semanas antes de una carrera en calor (si aplica)</li>
+        <li>La progresión de fuerza no se ha resentido</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PREGUNTAS FRECUENTES ═══════ -->
+<div id="faq" class="section-label">Preguntas frecuentes</div>
+<details class="info-box refs">
+  <summary><strong>¿El frío quema grasa?</strong></summary>
+  <p>No de forma que se note con unos minutos a la semana. Los nadadores de invierno producen más calor cuando tienen frío (Søberg et al. 2021), pero no hay ensayos que muestren pérdida de grasa relevante con dosis de 1–3 min. Si el objetivo es perder grasa, el plan es la dieta.</p>
+</details>
+<details class="info-box refs">
+  <summary><strong>¿El frío sube el cortisol y eso es malo?</strong></summary>
+  <p>En el estudio de Šrámek et al. (2000), una hora a 14 °C no subió el cortisol; tendió a bajar. Con lo que se sabe, no es motivo para evitarlo.</p>
+</details>
+<details class="info-box refs">
+  <summary><strong>¿Sirve una ducha o necesito una bañera?</strong></summary>
+  <p>Para entrenar el estrés, la ducha vale si sale bastante fría. Para recuperar, los datos son de inmersión: 10–15 min dentro del agua, que una ducha no reproduce.</p>
+</details>
+<details class="info-box refs">
+  <summary><strong>¿Y si entreno fuerza por la mañana y quiero frío ese día?</strong></summary>
+  <p>Déjalo para la noche, con 6 h o más de margen, o termínalo con calor. Si estás en una fase de hipertrofia, mejor un día sin pesas.</p>
+</details>
+<details class="info-box refs">
+  <summary><strong>¿Sauna infrarroja o finlandesa?</strong></summary>
+  <p>Los datos de mortalidad son de sauna finlandesa. Las infrarrojas suelen funcionar a 45–60 °C (Hussain y Cohen 2018) y tienen estudios propios, más pequeños. Si solo tienes una, úsala, pero no traslades las cifras de Kuopio.</p>
+</details>
+<details class="info-box refs">
+  <summary><strong>¿Puedo hacer frío si estoy resfriado?</strong></summary>
+  <p>Mejor no. Espera a estar bien: no ganas nada y añades un estresor cuando el cuerpo ya está ocupado.</p>
+</details>
+
+<!-- ═══════ REFERENCIAS ═══════ -->
+<div id="refs" class="section-label">Referencias</div>
+<details class="ref-box refs">
+  <summary class="ref-title">Evidencia científica · 18 referencias</summary>
+  <p><strong>Wang H, Wang L, Pan Y.</strong> "Impact of different doses of cold water immersion (duration and temperature variations) on recovery from acute exercise-induced muscle damage: a network meta-analysis." <em>Front Physiol.</em> 2025;16:1525726. doi:<a href="https://doi.org/10.3389/fphys.2025.1525726">10.3389/fphys.2025.1525726</a> — 55 ensayos. 10–15 min a 11–15 °C, la dosis que más redujo las agujetas (SMD −1,45).</p>
+  <p><strong>Dupuy O, Douzi W, Theurot D, Bosquet L, Dugué B.</strong> "An Evidence-Based Approach for Choosing Post-exercise Recovery Techniques to Reduce Markers of Muscle Damage, Soreness, Fatigue, and Inflammation: A Systematic Review With Meta-Analysis." <em>Front Physiol.</em> 2018;9:403. doi:<a href="https://doi.org/10.3389/fphys.2018.00403">10.3389/fphys.2018.00403</a> — 99 estudios. Agujetas: inmersión g = −0,47, contraste −0,40; masaje y recuperación activa, más.</p>
+  <p><strong>Roberts LA, Raastad T, Markworth JF, et al.</strong> "Post-exercise cold water immersion attenuates acute anabolic signalling and long-term adaptations in muscle to strength training." <em>J Physiol.</em> 2015;593(18):4285-4301. doi:<a href="https://doi.org/10.1113/JP270570">10.1113/JP270570</a> — 10 min de agua fría tras cada sesión durante 12 semanas: menos fuerza y masa que con recuperación activa.</p>
+  <p><strong>Fyfe JJ, Broatch JR, Trewin AJ, et al.</strong> "Cold water immersion attenuates anabolic signaling and skeletal muscle fiber hypertrophy, but not strength gain, following whole-body resistance training." <em>J Appl Physiol.</em> 2019;127(5):1403-1418. doi:<a href="https://doi.org/10.1152/japplphysiol.00127.2019">10.1152/japplphysiol.00127.2019</a> — 15 min a 10 °C tras cada sesión, 7 semanas: menos hipertrofia de fibras tipo II, misma ganancia de fuerza.</p>
+  <p><strong>Malta ES, Dutra YM, Broatch JR, Bishop DJ, Zagatto AM.</strong> "The Effects of Regular Cold-Water Immersion Use on Training-Induced Changes in Strength and Endurance Performance: A Systematic Review with Meta-Analysis." <em>Sports Med.</em> 2021;51(1):161-174. doi:<a href="https://doi.org/10.1007/s40279-020-01362-0">10.1007/s40279-020-01362-0</a> — Uso regular: perjudica la fuerza (SMD −0,60), no el rendimiento aeróbico.</p>
+  <p><strong>Grgic J.</strong> "Effects of post-exercise cold-water immersion on resistance training-induced gains in muscular strength: a meta-analysis." <em>Eur J Sport Sci.</em> 2023;23(3):372-380. doi:<a href="https://doi.org/10.1080/17461391.2022.2033851">10.1080/17461391.2022.2033851</a> — Recorte pequeño de la fuerza (ES −0,23); con inmersión de cuerpo entero, no significativo.</p>
+  <p><strong>Piñero A, Burke R, Augustin F, et al.</strong> "Throwing cold water on muscle growth: A systematic review with meta-analysis of the effects of postexercise cold water immersion on resistance training-induced hypertrophy." <em>Eur J Sport Sci.</em> 2024;24(2):177-189. doi:<a href="https://doi.org/10.1002/ejsc.12074">10.1002/ejsc.12074</a> — 8 estudios: el frío justo después puede reducir la hipertrofia.</p>
+  <p><strong>Šrámek P, Šimečková M, Janský L, Šavlíková J, Vybíral S.</strong> "Human physiological responses to immersion into water of different temperatures." <em>Eur J Appl Physiol.</em> 2000;81(5):436-442. doi:<a href="https://doi.org/10.1007/s004210050065">10.1007/s004210050065</a> — 1 h a 14 °C: noradrenalina +530 %, dopamina +250 %; adrenalina sin cambios; cortisol con tendencia a bajar.</p>
+  <p><strong>Søberg S, Löfgren J, Philipsen FE, et al.</strong> "Altered brown fat thermoregulation and enhanced cold-induced thermogenesis in young, healthy, winter-swimming men." <em>Cell Rep Med.</em> 2021;2(10):100408. doi:<a href="https://doi.org/10.1016/j.xcrm.2021.100408">10.1016/j.xcrm.2021.100408</a> — Estudio transversal: 8 nadadores de invierno frente a 8 controles; ~11 min de agua fría y ~57 min de sauna por semana.</p>
+  <p><strong>Buijze GA, Sierevelt IN, van der Heijden BCJM, Dijkgraaf MG, Frings-Dresen MHW.</strong> "The Effect of Cold Showering on Health and Work: A Randomized Controlled Trial." <em>PLoS One.</em> 2016;11(9):e0161749. doi:<a href="https://doi.org/10.1371/journal.pone.0161749">10.1371/journal.pone.0161749</a> — 3018 adultos; 30, 60 o 90 s de agua fría al final de la ducha: −29 % de ausencia laboral, sin cambio en días de enfermedad. Fe de erratas en PLoS One 2018;13(8):e0201978.</p>
+  <p><strong>Kox M, van Eijk LT, Zwaag J, et al.</strong> "Voluntary activation of the sympathetic nervous system and attenuation of the innate immune response in humans." <em>Proc Natl Acad Sci U S A.</em> 2014;111(20):7379-7384. doi:<a href="https://doi.org/10.1073/pnas.1322174111">10.1073/pnas.1322174111</a> — 24 voluntarios: la respiración con hiperventilación y retención provocó alcalosis, hipoxia y una subida marcada de adrenalina.</p>
+  <p><strong>Balban MY, Neri E, Kogon MM, et al.</strong> "Brief structured respiration practices enhance mood and reduce physiological arousal." <em>Cell Rep Med.</em> 2023;4(1):100895. doi:<a href="https://doi.org/10.1016/j.xcrm.2022.100895">10.1016/j.xcrm.2022.100895</a> — Tres respiraciones de 5 min diarios frente a meditación durante un mes; el suspiro cíclico, el que más mejoró el ánimo.</p>
+  <p><strong>Tipton MJ, Collier N, Massey H, Corbett J, Harper M.</strong> "Cold water immersion: kill or cure?" <em>Exp Physiol.</em> 2017;102(11):1335-1355. doi:<a href="https://doi.org/10.1113/EP086283">10.1113/EP086283</a> — Riesgos (choque por frío, ahogamiento, hipotermia) y beneficios del agua fría, con el nivel de evidencia de cada uno.</p>
+  <p><strong>Shattock MJ, Tipton MJ.</strong> "‘Autonomic conflict’: a different way to die during cold water immersion?" <em>J Physiol.</em> 2012;590(14):3219-3230. doi:<a href="https://doi.org/10.1113/jphysiol.2012.229864">10.1113/jphysiol.2012.229864</a> — El choque por frío y el reflejo de buceo a la vez pueden causar arritmias en personas vulnerables.</p>
+  <p><strong>Laukkanen T, Khan H, Zaccardi F, Laukkanen JA.</strong> "Association between sauna bathing and fatal cardiovascular and all-cause mortality events." <em>JAMA Intern Med.</em> 2015;175(4):542-548. doi:<a href="https://doi.org/10.1001/jamainternmed.2014.8187">10.1001/jamainternmed.2014.8187</a> — Cohorte de 2315 hombres, 20,7 años: 4–7 sesiones semanales frente a 1, HR 0,37 de muerte súbita; sesiones de más de 19 min, HR 0,48.</p>
+  <p><strong>Laukkanen JA, Laukkanen T, Kunutsor SK.</strong> "Cardiovascular and Other Health Benefits of Sauna Bathing: A Review of the Evidence." <em>Mayo Clin Proc.</em> 2018;93(8):1111-1121. doi:<a href="https://doi.org/10.1016/j.mayocp.2018.04.008">10.1016/j.mayocp.2018.04.008</a> — Revisión de la evidencia, sobre todo observacional, de la sauna y la salud cardiovascular.</p>
+  <p><strong>Hussain J, Cohen M.</strong> "Clinical Effects of Regular Dry Sauna Bathing: A Systematic Review." <em>Evid Based Complement Alternat Med.</em> 2018;2018:1857413. doi:<a href="https://doi.org/10.1155/2018/1857413">10.1155/2018/1857413</a> — 40 estudios, la mayoría pequeños. Sauna finlandesa a 80–100 °C, 5–20 min; infrarroja a 45–60 °C. Muertes en sauna ligadas al alcohol y a bañarse solo.</p>
+  <p><strong>Scoon GSM, Hopkins WG, Mayhew S, Cotter JD.</strong> "Effect of post-exercise sauna bathing on the endurance performance of competitive male runners." <em>J Sci Med Sport.</em> 2007;10(4):259-262. doi:<a href="https://doi.org/10.1016/j.jsams.2006.06.009">10.1016/j.jsams.2006.06.009</a> — 6 corredores, ~31 min de sauna tras entrenar en ~13 sesiones de 3 semanas: +7,1 % de volumen plasmático y +32 % de tiempo hasta el agotamiento (~1,9 % en contrarreloj).</p>
+</details>
+
+<!-- blog:end -->
+<div class="info-box end-cta" style="text-align:center">
+  <div class="box-title">Del protocolo a los datos</div>
+  <p>Areté mide tus 7 dominios con tests concretos y te dice cuál te está frenando. Gratis.</p>
+  <p style="margin-top:.75rem"><a href="../../app.html" class="cta">Descubre tu nivel →</a></p>
+</div>
+<nav class="read-next" aria-label="Más blueprints"><h2 class="read-next-title">Más blueprints</h2><div class="read-next-grid"><a href="../breathwork/" class="read-next-card"><span class="card-phase">Respiración</span><span class="nav-title">Plan de respiración</span><span class="nav-desc">Qué respiración usar para el estrés, la recuperación, la activación y el rendimiento, y por qué. 12 protocolos.</span></a><a href="../digital-detox/" class="read-next-card"><span class="card-phase">Atención</span><span class="nav-title">Plan de desconexión digital</span><span class="nav-desc">Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.</span></a></div></nav>
+<!-- /blog:end --></div><!-- .article-body -->
+
+<!-- blog:footer --><footer class="site-footer">
+  <nav class="footer-links" aria-label="Areté">
+    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/blueprints/">Blueprints</a>
+  </nav>
+  <p class="footer-maker">Areté · App de entrenamiento · Creada por <a href="https://luisgonzalezbernal.com">Luis González</a></p>
+</footer><!-- /blog:footer -->
+
+<script>
+(function(){var mq=matchMedia('(prefers-color-scheme:dark)');function applyTheme(){document.documentElement.classList.toggle('dark',mq.matches)}applyTheme();mq.addEventListener('change',applyTheme)})();
+</script>
+</body>
+</html>

@@ -181,8 +181,11 @@ export const BLUEPRINTS = [
     desc: 'Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.',
     published: '2026-07-05', updated: '2026-08-24' },
   { slug: 'recovery', tag: 'Recuperación', title: 'Plan de recuperación',
-    desc: 'Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 13 protocolos.',
-    published: '2026-07-05', updated: '2026-08-24' },
+    desc: 'Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 14 protocolos.',
+    published: '2026-07-05', updated: '2026-11-02' },
+  { slug: 'frio-calor', tag: 'Frío y calor', title: 'Plan de frío y calor',
+    desc: 'Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza y la sauna con lo que se sabe. 8 protocolos.',
+    published: '2026-11-02', updated: '2026-11-02' },
   { slug: 'breathwork', tag: 'Respiración', title: 'Plan de respiración',
     desc: 'Qué respiración usar para el estrés, la recuperación, la activación y el rendimiento, y por qué. 12 protocolos.',
     published: '2026-07-08', updated: '2026-08-24' },
@@ -255,7 +258,7 @@ function syncBlueprintIndex() {
 ${BLUEPRINTS.map(a => card(`${a.slug}/`, a.tag, a.title, a.desc, a.slug)).join('\n')}
 ${card('../blog/nutricion.html', 'Nutrición', nutri.title, nutri.desc, 'nutricion')}
   </ol>
-  <p class="bp-soon">En preparación: frío y calor, movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
+  <p class="bp-soon">En preparación: movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
 </section>
 `;
   html = region(html, 'list', list, /<div class="blueprints-grid">[\s\S]*?\n<\/div>\n\s*(?=<footer)/);
