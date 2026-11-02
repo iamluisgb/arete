@@ -176,7 +176,7 @@ ${rest.map(a => `    <li><a href="${a.slug}.html" class="article-card" data-umam
 export const BLUEPRINTS = [
   { slug: 'movilidad', tag: 'Movilidad', title: 'Plan de movilidad: 12 semanas',
     desc: 'Control activo del rango de movimiento, medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.',
-    published: '2026-07-03', updated: '2026-08-24' },
+    published: '2026-07-03', updated: '2026-11-02' },
   { slug: 'sleep', tag: 'Sueño', title: 'Plan de sueño',
     desc: 'Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.',
     published: '2026-07-05', updated: '2026-08-24' },
@@ -188,7 +188,7 @@ export const BLUEPRINTS = [
     published: '2026-07-08', updated: '2026-08-24' },
   { slug: 'digital-detox', tag: 'Atención', title: 'Plan de desconexión digital',
     desc: 'Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.',
-    published: '2026-07-08', updated: '2026-08-24' },
+    published: '2026-07-08', updated: '2026-11-02' },
 ];
 const bpOg = slug => ogImage(`bp-${slug}`);
 
