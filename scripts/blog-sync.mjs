@@ -29,7 +29,7 @@ export const ARTICLES = [
     published: '2026-02-28', updated: '2026-07-10' },
   { slug: 'nutricion', tag: 'Nutrición', title: 'Come como un animal',
     desc: 'Calorías, macros, timing y suplementos para cada fase, sin dietas absurdas.',
-    published: '2026-02-10', updated: '2026-07-10' },
+    published: '2026-02-10', updated: '2026-11-02' },
   { slug: 'efecto-kettlebell', tag: 'Aplicación', title: 'Efecto Kettlebell: 10 semanas',
     desc: 'Cómo entrenar la resistencia de fuerza con una sola pesa rusa, sin gimnasio.',
     published: '2026-02-17', updated: '2026-07-10' },
@@ -189,6 +189,9 @@ export const BLUEPRINTS = [
   { slug: 'digital-detox', tag: 'Atención', title: 'Plan de desconexión digital',
     desc: 'Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.',
     published: '2026-07-08', updated: '2026-08-24' },
+  { slug: 'nutricion', tag: 'Nutrición', title: 'Plan de nutrición',
+    desc: 'Comida real, proteína en cada comida, carbohidratos según la carga, fermentados y los suplementos que funcionan. 12 protocolos.',
+    published: '2026-11-02', updated: '2026-11-02' },
 ];
 const bpOg = slug => ogImage(`bp-${slug}`);
 
@@ -247,13 +250,11 @@ function syncBlueprint(a, i) {
 function syncBlueprintIndex() {
   const file = join(ROOT, 'blueprints', 'index.html');
   let html = readFileSync(file, 'utf8');
-  const nutri = ARTICLES.find(a => a.slug === 'nutricion');
   const card = (href, tag, title, desc, slug) => `    <li><a href="${href}" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="${slug}"><span class="card-phase">${esc(tag)}</span><h3>${esc(title)}</h3><p>${esc(desc)}</p></a></li>`;
   const list = `
 <section class="blog-list bp-list" aria-label="Blueprints">
   <ol class="post-grid">
 ${BLUEPRINTS.map(a => card(`${a.slug}/`, a.tag, a.title, a.desc, a.slug)).join('\n')}
-${card('../blog/nutricion.html', 'Nutrición', nutri.title, nutri.desc, 'nutricion')}
   </ol>
   <p class="bp-soon">En preparación: frío y calor, movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
 </section>
