@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // Tests del plan en el tiempo (odd/tasks/planificacion.md · fase 1). Sin DOM:
 // js/plan.js es puro. Los programas se siembran con reindexCustomPrograms, como
 // en schedule.test.js. 2026-01-05 es lunes.
@@ -224,5 +225,54 @@ describe('planBlock (snapshot de Quirón)', () => {
 
   it('sin fase válida no añade nada', () => {
     expect(planBlock(seedDb({ phase: 9 }))).toEqual([]);
+  });
+});
+
+// ── Mapa del plan (Entrenar → Plan) ─────────────────────────────────────────
+import { planMapHtml } from '../js/ui/plan-map.js';
+
+describe('planMapHtml', () => {
+  const html = (db, ref) => {
+    const el = document.createElement('div');
+    el.innerHTML = planMapHtml(db, ref);
+    return el;
+  };
+
+  it('pinta todas las fases desde la activa, con su descarga y la fase en curso marcada', () => {
+    const el = html(seedDb(), '2026-01-05');
+    const filas = [...el.querySelectorAll('.plan-map-row')];
+    expect(filas.map(f => f.querySelector('.plan-map-name').textContent)).toEqual(['Fuerza', 'Descarga', 'Hipertrofia', 'Pico', 'Descarga']);
+    const actual = el.querySelector('[aria-current="step"]');
+    expect(actual.textContent).toContain('Semana 1 de 2');
+    expect(actual.querySelectorAll('.plan-map-dot')).toHaveLength(2);
+    expect(actual.querySelector('.plan-map-dot.is-now')).toBeTruthy();
+    expect(el.querySelector('.plan-map-end').textContent).toContain('Termina hacia');
+  });
+
+  it('las semanas cerradas salen rellenas', () => {
+    const ws = entrenos(4);
+    const el = html(seedDb({ workouts: ws }), ultimaFecha(ws));
+    const actual = el.querySelector('[aria-current="step"]');
+    expect(actual.querySelectorAll('.plan-map-dot.is-done')).toHaveLength(1);
+    expect(actual.textContent).toContain('Semana 2 de 2');
+  });
+
+  it('en descarga, la fila marcada es la de descarga', () => {
+    const ws = entrenos(6);
+    const el = html(seedDb({ workouts: ws }), ultimaFecha(ws));
+    expect(el.querySelector('[aria-current="step"]').classList.contains('plan-map-row--deload')).toBe(true);
+    expect(el.querySelector('.plan-map-row.is-current .plan-map-meta').textContent).toContain('Carga hecha');
+  });
+
+  it('las fases anteriores salen atenuadas y sin fechas', () => {
+    const ws = entrenos(2, { phase: 2 });
+    const el = html(seedDb({ phase: 2, workouts: ws }), ultimaFecha(ws));
+    const pasada = el.querySelector('.plan-map-row.is-past');
+    expect(pasada.textContent).toContain('Fuerza');
+    expect(pasada.textContent).not.toMatch(/→/);
+  });
+
+  it('sin fase válida no pinta nada', () => {
+    expect(planMapHtml(seedDb({ phase: 9 }))).toBe('');
   });
 });

@@ -126,7 +126,7 @@ Una sola primaria por vista.</p>
   <div class="plan-item is-open">
     <button type="button" class="plan-row" aria-expanded="true"><span class="plan-row-main"><span class="plan-row-name">Areté</span><span class="plan-row-meta">4 fases · Fuerza · Hipertrofia · Definición</span></span><span class="plan-row-now">Ahora</span><span class="material-symbols-outlined plan-row-chev" aria-hidden="true">expand_more</span></button>
     <ul class="plan-phases" role="list">
-      <li><button type="button" class="plan-phase is-selected" aria-current="true"><span class="plan-phase-num">I</span><span class="plan-phase-text"><span class="plan-phase-name">Fuerza</span><span class="plan-phase-desc">Full-body · 3×5 · 6 sesiones</span></span><span class="plan-phase-side">Quedan 3 de 6</span></button></li>
+      <li><button type="button" class="plan-phase is-selected" aria-current="true"><span class="plan-phase-num">I</span><span class="plan-phase-text"><span class="plan-phase-name">Fuerza</span><span class="plan-phase-desc">Full-body · 3×5 · 6 sesiones</span></span><span class="plan-phase-side">Semana 3 de 6</span></button></li>
       <li><button type="button" class="plan-phase"><span class="plan-phase-num">II</span><span class="plan-phase-text"><span class="plan-phase-name">Hipertrofia</span><span class="plan-phase-desc">Torso-Pierna · 5 sesiones</span></span></button></li>
     </ul>
   </div>
@@ -134,6 +134,21 @@ Una sola primaria por vista.</p>
 </div>
 <p class="nota"><code>.plan-row</code> despliega sin cambiar nada; <code>.plan-phase</code> cambia plan y fase a la vez y se deshace con el toast.
 Un único seleccionado, en tinta. Usado en la hoja <code>#programModal</code>.</p>
+
+<h3>Mapa del plan (línea de tiempo)</h3>
+<div style="max-width:var(--measure-form)">
+<section class="plan-map">
+  <div class="plan-map-head"><h3 class="plan-map-title">Tu plan</h3><span class="plan-map-end">Termina hacia el 6 mar</span></div>
+  <ol class="plan-map-list" role="list">
+    <li class="plan-map-row is-current" aria-current="step"><button type="button" class="plan-map-phase"><span class="plan-map-num">I</span><span class="plan-map-main"><span class="plan-map-name">Fuerza</span><span class="plan-map-meta">Semana 3 de 6 · 20 oct → 28 nov</span><span class="plan-map-dots"><span class="plan-map-dot is-done"></span><span class="plan-map-dot is-done"></span><span class="plan-map-dot is-now"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span></span></span><span class="plan-map-now">Ahora</span></button></li>
+    <li class="plan-map-row plan-map-row--deload"><span class="plan-map-deload"><span class="plan-map-name">Descarga</span><span class="plan-map-meta">1 dic → 5 dic</span></span></li>
+    <li class="plan-map-row"><button type="button" class="plan-map-phase"><span class="plan-map-num">II</span><span class="plan-map-main"><span class="plan-map-name">Hipertrofia</span><span class="plan-map-meta">6 semanas · 8 dic → 16 ene</span><span class="plan-map-dots"><span class="plan-map-dot"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span><span class="plan-map-dot"></span></span></span></button></li>
+  </ol>
+  <p class="plan-map-note">Las fechas se recalculan con cada entreno.</p>
+</section>
+</div>
+<p class="nota"><code>.plan-map</code> arriba de Entrenar → Plan (<code>js/ui/plan-map.js</code>). La fase en curso lleva borde y número en tinta, como <code>.plan-phase.is-selected</code>;
+la semana en curso es el punto con anillo. La descarga es una fila sin tarjeta. Las fases anteriores (<code>.is-past</code>) van con borde discontinuo y sin fechas.</p>
 
 <h3>Botón «3D» (animación de ejercicio, en pruebas)</h3>
 <div class="fila"><span style="font:var(--type-body-strong)">Peso muerto</span><button type="button" class="anim3d-btn">3D</button></div>

@@ -123,7 +123,10 @@ descargar o qué hacer con una rodilla que molesta.
      vaciaba tras una pasada por las sesiones de la fase.
    - Quirón recibe el bloque en el snapshot y la descarga en `get_next_prescription`.
    - Semanas: Areté 6·6·4·4; Kettlebell 2·2·2·4 (las del libro); el resto, 4.
-2. **Pestaña Plan + metas.** Metas atadas a dominios y eventos; construcción hacia atrás
+2. **Pestaña Plan + metas.** *Adelantado (2-nov): el mapa del plan —todas las fases en una
+   línea de tiempo vertical con semanas, descargas y fechas proyectadas— vive arriba de
+   Entrenar → Plan (`js/ui/plan-map.js`). Falta: metas, construcción hacia atrás y sitio propio.*
+   Metas atadas a dominios y eventos; construcción hacia atrás
    desde la meta A; línea de tiempo; absorbe «Plan y fase»; componente en `patterns.html`.
 3. **Estado del atleta.** `db.athleteState` + sync; tool `report_state`; tarjeta de
    check-in opcional; zonas cruzadas con la ontología de ejercicios.

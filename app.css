@@ -3474,6 +3474,41 @@ a:hover{opacity:.8}
 .plan-phase-desc{font:var(--type-caption);color:var(--color-text-secondary);overflow-wrap:anywhere}
 .plan-phase-side{flex-shrink:0;font:var(--type-caption);color:var(--color-text-secondary)}
 @media(prefers-reduced-motion:reduce){.plan-row-chev{transition:none}}
+/* Mapa del plan (js/ui/plan-map.js): el programa entero en vertical. Mismo
+   lenguaje que la hoja de fases — número en círculo, la fase en curso con borde
+   en tinta —, más un punto por semana. La descarga es una fila baja y sin
+   tarjeta entre fases; las fases ya pasadas, atenuadas y sin fechas. */
+.plan-map{margin-bottom:var(--sp-5)}
+.plan-map-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);margin-bottom:var(--sp-3)}
+.plan-map-title{margin:0;font:var(--type-title);letter-spacing:var(--track-title)}
+.plan-map-end{font:var(--type-caption);color:var(--color-text-secondary);text-align:right}
+.plan-map-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-1)}
+.plan-map-phase{display:flex;align-items:center;gap:var(--gap-tight);width:100%;min-height:56px;
+  padding:var(--sp-3);background:var(--color-surface-1);border:1.5px solid var(--color-line);
+  border-radius:var(--radius-md);text-align:left;color:inherit;font-family:var(--font);cursor:pointer;
+  transition:transform var(--dur-instant)}
+.plan-map-phase:active{transform:scale(.98)}
+.plan-map-row.is-current .plan-map-phase{border-color:var(--color-action-ink)}
+.plan-map-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;background:var(--color-surface-2);font:var(--type-label);font-size:var(--fs-sm)}
+.plan-map-row.is-current .plan-map-num{background:var(--color-action-ink);color:var(--color-action-ink-fg)}
+.plan-map-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.plan-map-name{font:var(--type-body-strong);overflow-wrap:anywhere}
+.plan-map-meta{font:var(--type-caption);color:var(--color-text-secondary);overflow-wrap:anywhere}
+.plan-map-now{flex-shrink:0;font:var(--type-label);padding:2px var(--sp-2);border-radius:var(--radius-pill);
+  background:var(--color-action-ink);color:var(--color-action-ink-fg)}
+.plan-map-dots{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin-top:var(--sp-1)}
+.plan-map-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--color-line-strong)}
+.plan-map-dot.is-done{background:var(--color-action-ink);border-color:var(--color-action-ink)}
+.plan-map-dot.is-now{border-color:var(--color-action-ink);box-shadow:0 0 0 2px var(--color-surface-1),0 0 0 3.5px var(--color-action-ink)}
+.plan-map-row.is-past .plan-map-phase{background:none;border-style:dashed}
+.plan-map-row.is-past .plan-map-name,.plan-map-row.is-past .plan-map-num{color:var(--color-text-tertiary)}
+.plan-map-deload{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 var(--sp-2);
+  padding:var(--sp-1) var(--sp-3) var(--sp-1) calc(var(--sp-3) + 32px + var(--gap-tight))}
+.plan-map-deload .plan-map-name{font:var(--type-caption);color:var(--color-text-secondary)}
+.plan-map-row--deload.is-current .plan-map-name{color:var(--color-text-primary);font-weight:600}
+.plan-map-note{margin:var(--sp-3) 0 0;font:var(--type-caption);color:var(--color-text-tertiary)}
+@media(prefers-reduced-motion:reduce){.plan-map-phase{transition:none}}
 /* Animación 3D de ejercicio (js/anim3d, en pruebas). El botón «3D» va junto a
    la ilustración; la hoja es una sala oscura con la figura en mármol. */
 .anim3d-btn{display:inline-flex;align-items:center;justify-content:center;min-height:28px;min-width:40px;

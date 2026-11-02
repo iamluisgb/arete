@@ -13,6 +13,7 @@ import { renderProfile } from './profile.js';
 import { esc, phaseChipLabel } from '../utils.js';
 import { renderPlanSheet } from './plan-sheet.js';
 import { anim3dButton } from './exercise-pict.js';
+import { planMapHtml } from './plan-map.js';
 
 /** Update the phase name in the context bar */
 export function updatePhaseDisplay(db) {
@@ -200,6 +201,19 @@ function renderStrPlan(db) {
   $phase.onchange = () => renderPlanPhaseContent(progs, $phase.value, $content, db);
 
   renderPlanPhaseContent(progs, $phase.value, $content, db);
+
+  // Mapa del plan: tocar una fase la elige en el selector y enseña sus sesiones.
+  const $map = document.getElementById('strPlanMap');
+  if ($map) {
+    $map.innerHTML = planMapHtml(db);
+    $map.onclick = (e) => {
+      const fase = e.target.closest('[data-map-phase]')?.dataset.mapPhase;
+      if (!fase || !progs[fase]) return;
+      $phase.value = fase;
+      renderPlanPhaseContent(progs, fase, $content, db);
+      $phase.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    };
+  }
 }
 
 function renderPlanPhaseContent(progs, phaseKey, $content, db) {
