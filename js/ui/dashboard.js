@@ -5,6 +5,7 @@ import { computeProfile, ROMAN, LEVEL_NAMES } from '../domains.js';
 import { maybeCelebrateLevelUp } from './share-editor.js';
 import { getProgramById, getRunningProgram } from '../programs.js';
 import { planStatus } from '../plan.js';
+import { weekConflicts } from '../interference.js';
 import { scheduleDay, scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig, usesDefaultAnchors, PLAN_STRENGTH, PLAN_RUNNING } from '../schedule.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.6 for r=34
@@ -290,6 +291,21 @@ function lineaContexto(db) {
 }
 
 /**
+ * Interferencia de hoy o mañana (plan híbrido, paso 3): pierna pesada junto a
+ * series o tirada larga. Solo lo inmediato —lo de dentro de cinco días se ve en
+ * Ajustes— y con la puerta a cambiar los días. Avisa; no mueve nada.
+ */
+function hintInterferencia(db) {
+  const hoy = today();
+  const manana = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
+  const c = weekConflicts(db).find(x => [hoy, manana].includes(x.date) || [hoy, manana].includes(x.runDate));
+  if (!c) return '';
+  return `<div class="dash-sched-hint">${esc(c.text)}
+    <button type="button" class="dash-sched-hint-link" data-sched-settings>Cambiar días</button>
+  </div>`;
+}
+
+/**
  * Fase completada: si el atleta ya terminó un ciclo entero de la fase y el
  * programa tiene otra detrás, se le dice — avisar, nunca bloquear. Seguir en la
  * misma fase es legítimo (empieza otro ciclo); cambiar es un toque.
@@ -413,7 +429,7 @@ function renderSchedule(db) {
       <div class="dash-card-label">Toca hoy</div>
       ${contexto ? `<div class="dash-sched-context">${esc(contexto)}</div>` : ''}
     </div>
-    ${cuerpo}${atraso}${pend}${hintFaseSiguiente(db)}${hintRunsFantasma(db)}${hintDefaults(db)}${pieTarjeta(db)}
+    ${cuerpo}${atraso}${pend}${hintInterferencia(db)}${hintFaseSiguiente(db)}${hintRunsFantasma(db)}${hintDefaults(db)}${pieTarjeta(db)}
   </div>`;
 }
 

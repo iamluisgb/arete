@@ -3,6 +3,7 @@ import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
 import { getScheduleConfig, schedulePlan } from '../schedule.js';
 import { deloadEnabled, deloadShared } from '../plan.js';
+import { typicalWeek, weekConflicts } from '../interference.js';
 import { saveDB } from '../data.js';
 import * as LLM from '../ai/llm.js';
 import { isConnected, getSyncDiag } from '../drive.js';
@@ -114,6 +115,39 @@ export function renderScheduleAnchors(db) {
   }
   renderSchedulePreview(db);
   renderDeloadToggle(db);
+  renderTypicalWeek(db);
+}
+
+const NOMBRE_DIA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+/**
+ * «Tu semana»: los próximos siete días con lo que toca en cada carril y los
+ * choques de interferencia. Es la consecuencia de los días elegidos arriba,
+ * así que se repinta con ellos.
+ */
+function renderTypicalWeek(db) {
+  const $el = document.getElementById('schedWeek');
+  if (!$el) return;
+  const semana = typicalWeek(db);
+  const choques = weekConflicts(db);
+  if (!semana.length) { $el.innerHTML = '<p class="panel-note">Sin sesiones programadas esta semana.</p>'; return; }
+  const enChoque = new Set(choques.flatMap(c => [c.date, c.runDate]));
+  const dias = [...new Set(semana.map(e => e.date))];
+  const filas = dias.map(fecha => {
+    const d = new Date(fecha + 'T12:00:00');
+    const etiqueta = `${NOMBRE_DIA[d.getDay()]} ${d.getDate()}`;
+    const partes = semana.filter(e => e.date === fecha).map(e => {
+      const clase = e.plan === 'arete'
+        ? (e.heavyLegs ? ' · pierna pesada' : '')
+        : (e.long ? ' · tirada larga' : e.quality ? ' · calidad' : '');
+      return `${e.plan === 'arete' ? 'Fuerza' : 'Carrera'}: ${e.session}${clase}`;
+    });
+    const aviso = enChoque.has(fecha) ? '<span class="badge badge--warning listrow-status">Choque</span>' : '';
+    return `<div class="listrow"><div class="listrow-main"><div class="listrow-name">${esc(etiqueta)}</div>
+      <div class="listrow-desc">${esc(partes.join(' — '))}</div></div>${aviso}</div>`;
+  }).join('');
+  const textos = choques.map(c => `<p class="panel-note">${esc(c.text)}</p>`).join('');
+  $el.innerHTML = filas + textos;
 }
 
 /** Interruptor de la semana de descarga (db.settings.plan.deload, por defecto sí). */

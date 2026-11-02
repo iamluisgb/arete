@@ -8,6 +8,7 @@ import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/r
 import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import { scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig } from '../schedule.js';
 import { planStatus, planTimeline, deloadShared } from '../plan.js';
+import { weekConflicts } from '../interference.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
@@ -167,6 +168,13 @@ export function buildSnapshot(db, prog = {}, ref = new Date()) {
 
   // Programación semanal: hoy / mañana / atrasadas / cola. Solo si hay anclas.
   L.push(...scheduleBlock(db, ref));
+
+  // Interferencia fuerza ↔ carrera en los próximos 7 días (js/interference.js).
+  const choques = weekConflicts(db, ref);
+  if (choques.length) {
+    L.push('INTERFERENCIA EN LA SEMANA (calculada por la app; avisar y proponer mover un día, nunca imponer):');
+    for (const c of choques) L.push(`  ${c.date}: ${c.text}`);
+  }
 
   // Perfil de los 7 dominios — el núcleo del producto (ver AGENTS.md y js/domains.js).
   //

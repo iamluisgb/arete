@@ -169,7 +169,13 @@ Pasos:
    semana del programa**: la descarga se intercala y esa semana se hace completa después.
    Interruptor «Descarga compartida con carrera» en Ajustes. En Entrenar → Plan, «Semana a
    semana» con las dos columnas y la descarga compartida a lo ancho (`hybridWeeks`).
-3. Semana tipo con avisos de interferencia.
+3. ✅ **Semana tipo con avisos de interferencia** (2-nov). `js/interference.js` clasifica
+   por contenido: pierna pesada = un básico de tren inferior a ≤ 8 reps o dos de volumen;
+   carrera de calidad = series o Z3+; tirada larga = 75 min o 15 km seguidos (calentamiento y
+   calma no cuentan). Tres reglas: pierna pesada el día antes de calidad/tirada, el mismo día,
+   o tirada el día antes de la pierna. «Tu semana» en Ajustes → Programación semanal (los
+   próximos 7 días con su clase y los choques), aviso en «Hoy» si el choque es hoy o mañana
+   y bloque en el snapshot de Quirón. Avisa y explica; no mueve nada.
 4. Crear el plan con Quirón y editor manual.
 
 ## Criterios de aceptación

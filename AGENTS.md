@@ -148,6 +148,10 @@ del historial: no se guarda ninguna posición**.
   (`deloadShared`). Las carreras de esa semana salen de `deloadRunSegments` (60 % del volumen,
   misma intensidad) y se guardan con `deload: true`; la cola de running las ignora, así que la
   descarga **se intercala** y no se come una semana de la preparación.
+- **Interferencia** ([`js/interference.js`](js/interference.js)): las sesiones se clasifican por
+  su contenido (ejercicios y segmentos), no por el nombre. Pierna pesada junto a series o
+  tirada larga se avisa en Ajustes → Programación semanal, en «Hoy» (si es hoy o mañana) y a
+  Quirón. Nunca se mueve una sesión sola.
 - La configuración de anclas vive en [`js/schedule-config.js`](js/schedule-config.js) para que
   `plan.js` y `schedule.js` la lean sin importarse en círculo.
 
