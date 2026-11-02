@@ -146,9 +146,13 @@ integrar.
 - [ ] **Atención → «Foco y aprendizaje»** (`blueprints/digital-detox/`, slug igual): entrar en
   estado de alerta y foco (capítulo 47, el más largo del libro), aprender de los errores (49),
   ensayo mental (52). Orientado a aprender técnica en el entreno.
-- [ ] **Respiración → «Respiración y estrés»** (`blueprints/breathwork/`, slug igual): subir el
+- [x] **Respiración → «Respiración y estrés»** (`blueprints/breathwork/`, slug igual): subir el
   pico de cortisol y catecolaminas por la mañana (capítulo 30) y suplementos para el estrés
   (capítulo 31: ashwagandha y demás), con sus riesgos.
+  *Hecho: «Plan de respiración y estrés», intro de estrés agudo/crónico y balancín, P15 (pico
+  de la mañana, remite a sueño y a frío-calor; regaliz y pomelo descartados por presión arterial
+  e interacciones) y P16 (ashwagandha, L-teanina, rodiola y fosfatidilserina, con riesgos y la
+  evaluación de ANSES de 2024). Fuera del núcleo; 22 referencias nuevas, 47 en total.*
 - [ ] **Blueprint nuevo de Luz** (`blueprints/luz/`): sol en la piel y vitamina D (capítulo 44),
   luz roja e infrarroja (45), y remitir a sueño para la luz de ojos (41–43) sin duplicarla. Si
   la evidencia de luz roja no aguanta, se dice y se marca tentativa o se deja fuera.
