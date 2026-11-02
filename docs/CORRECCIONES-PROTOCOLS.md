@@ -143,9 +143,15 @@ integrar.
 
 ## Bloque 5 · Huecos frente al libro (2-nov-2026, segunda tanda)
 
-- [ ] **Atención → «Foco y aprendizaje»** (`blueprints/digital-detox/`, slug igual): entrar en
+- [x] **Atención → «Foco y aprendizaje»** (`blueprints/digital-detox/`, slug igual): entrar en
   estado de alerta y foco (capítulo 47, el más largo del libro), aprender de los errores (49),
   ensayo mental (52). Orientado a aprender técnica en el entreno.
+  *Retitulado «Plan de foco y aprendizaje»; Fase 3 reordenada como bloque de aprendizaje
+  (WOOP → estado → errores → micropausas → autoexamen → sostenibilidad), 16 protocolos y
+  29 → 48 referencias. El 52 trata en realidad de autoevaluarse (Roediger y Karpicke 2006); el
+  ensayo mental sale de Toth 2020. Fuera: el «30 % de error para lo motor» (sin fuente en las
+  notas), los 90 min como ley, el foco visual (no está en el libro), binaurales, alfa-GPC,
+  nicotina y fármacos (solo una FAQ que los deja fuera).*
 - [ ] **Respiración → «Respiración y estrés»** (`blueprints/breathwork/`, slug igual): subir el
   pico de cortisol y catecolaminas por la mañana (capítulo 30) y suplementos para el estrés
   (capítulo 31: ashwagandha y demás), con sus riesgos.
