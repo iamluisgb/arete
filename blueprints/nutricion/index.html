@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de nutrición · Areté</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../assets/icons/icon-16.png">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="../../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--bp-fs-xs:.7rem;--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
+.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
+.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
+.phase-bar-fill{height:100%;border-radius:2px}
+.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
+.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
+:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
+.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.ex-card .meta strong{color:var(--text2)}
+.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6}
+.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
+.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
+.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
+.tl-item{display:flex;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--ghost-border)}
+.tl-item:last-child{border-bottom:none}
+.tl-time{min-width:70px;font-size:var(--bp-fs-sm);font-weight:700;color:var(--accent);text-align:right}
+.tl-content{flex:1}
+.tl-content h4{font-size:var(--bp-fs-md);font-weight:700;color:var(--text);margin-bottom:2px}
+.tl-content p{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.5}
+.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
+.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
+.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
+.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
+.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm)}
+.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+.ref-box p{color:var(--ink-body);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
+.ref-box em{color:var(--text3)}
+@media(max-width:639px){.check-grid{grid-template-columns:1fr}}
+</style>
+<meta name="description" content="Plan de nutrición para el atleta híbrido: comida real, proteína en cada comida, carbohidratos según la carga, hidratación, fermentados, omega-3 y los suplementos que funcionan. 3 fases y 12 protocolos con su evidencia.">
+<link rel="canonical" href="https://arete.raiatech.com/blueprints/nutricion/">
+<meta property="og:title" content="Plan de nutrición — Areté">
+<meta property="og:description" content="Plan de nutrición para el atleta híbrido: comida real, proteína en cada comida, carbohidratos según la carga, hidratación, fermentados, omega-3 y los suplementos que funcionan.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/blueprints/nutricion/">
+<meta property="og:site_name" content="Areté">
+<meta property="og:image" content="https://arete.raiatech.com/assets/blog/og/bp-nutricion.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Plan de nutrición — Areté">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@iamluisgb">
+<meta name="twitter:creator" content="@iamluisgb">
+<meta name="twitter:title" content="Plan de nutrición — Areté">
+<meta name="twitter:description" content="Plan de nutrición para el atleta híbrido: comida real, proteína en cada comida, carbohidratos según la carga, hidratación, fermentados, omega-3 y los suplementos que funcionan.">
+<meta name="twitter:image" content="https://arete.raiatech.com/assets/blog/og/bp-nutricion.png"><!-- blog:head -->
+<meta property="article:published_time" content="2026-11-02">
+<meta property="article:modified_time" content="2026-11-02">
+<meta property="article:author" content="Luis González">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Plan de nutrición","description":"Comida real, proteína en cada comida, carbohidratos según la carga, fermentados y los suplementos que funcionan. 12 protocolos.","inLanguage":"es","url":"https://arete.raiatech.com/blueprints/nutricion/","mainEntityOfPage":"https://arete.raiatech.com/blueprints/nutricion/","image":"https://arete.raiatech.com/assets/blog/og/bp-nutricion.png","datePublished":"2026-11-02","dateModified":"2026-11-02","timeRequired":"PT23M","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"publisher":{"@type":"Organization","name":"Areté","url":"https://arete.raiatech.com","logo":"https://arete.raiatech.com/assets/icons/icon-192.png"}}</script>
+<script src="../../blog/blog.js" defer></script>
+<!-- /blog:head --></head>
+<body>
+<nav class="site-nav">
+  <a href="../../index.html" class="logo"><img src="../../assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Aret<span>é</span></a>
+  <div class="nav-links"><a href="../../blog/index.html">Blog</a><a href="../../app.html">Mi Entreno</a></div>
+</nav>
+
+<div class="article-header">
+  <a href="../index.html" class="back">← Volver a blueprints</a>
+  <div class="phase-tag">Blueprint</div>
+  <h1>Plan de <span>nutrición</span></h1>
+  <div class="subtitle">Comer para entrenar fuerza y carrera a la vez. Comida real, proteína en cada comida y carbohidratos según lo que te toca ese día. Cada protocolo con su dosis, su momento y lo fuerte que es la evidencia que lo respalda.</div><!-- blog:byline --><div class="byline"><img src="../../assets/landing/luis.webp" alt="" width="36" height="36" decoding="async"><div><a href="https://luisgonzalezbernal.com" rel="author">Luis González</a><span>Actualizado el <time datetime="2026-11-02">2 de noviembre de 2026</time> · 23 min de lectura</span></div></div><!-- /blog:byline -->
+  <div class="badge-row">
+    <span class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">checklist</span> 3 fases · 12 protocolos · 20 referencias</span>
+  </div>
+</div>
+
+<div class="article-body">
+
+<!-- ═══════ DOSIS MÍNIMA ═══════ -->
+<div class="info-box">
+  <div class="box-title">Si solo haces una cosa</div>
+  <p><strong>Pon una ración de proteína de calidad en cada comida</strong>: unos 0,3–0,4 g por kilo de peso (25–40 g para la mayoría), tres o cuatro veces al día. Es el protocolo con más evidencia de este plan, sostiene la fuerza y la recuperación de la carrera, y arrastra lo demás: un plato que empieza por la proteína deja menos sitio a los ultraprocesados.</p>
+</div>
+
+<!-- ═══════ PREREQUISITO ═══════ -->
+<div class="ref-box">
+  <div class="ref-title">Prerequisito: tres días de registro</div>
+  <p>Antes de cambiar nada, apunta todo lo que comes y bebes durante <strong>tres días normales</strong>, uno de ellos de entreno duro. Sin juzgar, sin ajustar. Luego responde:</p>
+  <p><strong>1. Comida real</strong> — ¿Qué parte de lo que comiste era de un solo ingrediente o poco procesado (carne, pescado, huevos, legumbre, arroz, patata, verdura, fruta, yogur natural)?</p>
+  <p><strong>2. Proteína</strong> — ¿Cuántos gramos al día por kilo de peso? ¿Cuántas comidas llevaban una ración de verdad?</p>
+  <p><strong>3. Combustible</strong> — El día duro, ¿comiste carbohidratos antes y después? ¿Llegaste a la sesión con hambre o sin fuerzas?</p>
+  <p><strong>4. Tendencia</strong> — Pésate tres mañanas en ayunas. ¿El peso medio sube, baja o se mantiene? ¿Va donde quieres?</p>
+  <p>Tu resultado define por dónde empezar:</p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> &lt;70 % comida real — Fase 1 entera</div>
+  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> Proteína &lt;1,4 g/kg — Fase 1, P02</div>
+  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> Base sólida — Fase 2</div>
+  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> Todo en orden — Fase 3</div>
+</div>
+
+<!-- ═══════ TOC ═══════ -->
+<div class="toc">
+  <h2>Índice</h2>
+  <ol>
+    <li><a href="#ciencia">Lo que dice la ciencia</a></li>
+    <li><a href="#fase1">Fase 1 · Semanas 1–4 · La base</a>
+      <ol class="sub">
+        <li><a href="#comida-real">Comida real, ≥90 %</a></li>
+        <li><a href="#proteina">Proteína de calidad en cada comida</a></li>
+        <li><a href="#verdura">Verdura, fibra y fruta</a></li>
+        <li><a href="#hidratacion">Hidratación diaria</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase2">Fase 2 · Semanas 5–8 · Combustible para entrenar</a>
+      <ol class="sub">
+        <li><a href="#calorias">Calorías y tendencia de peso</a></li>
+        <li><a href="#carbohidratos">Carbohidratos según la carga</a></li>
+        <li><a href="#peri">Antes, durante y después del entreno</a></li>
+        <li><a href="#grasas">Grasas</a></li>
+      </ol>
+    </li>
+    <li><a href="#fase3">Fase 3 · Semanas 9–12 · Afinar</a>
+      <ol class="sub">
+        <li><a href="#fermentados">Fermentados a diario</a></li>
+        <li><a href="#omega3">Pescado azul y omega-3</a></li>
+        <li><a href="#suplementos">Suplementos que funcionan</a></li>
+        <li><a href="#fases-cuerpo">Volumen, definición y mantenimiento</a></li>
+      </ol>
+    </li>
+    <li><a href="#no-funciona">Lo que no funciona</a></li>
+    <li><a href="#rutina">Día tipo</a></li>
+    <li><a href="#checklist">Checklist de progreso</a></li>
+    <li><a href="#faq">Preguntas frecuentes</a></li>
+    <li><a href="#refs">Referencias</a></li>
+  </ol>
+</div>
+
+<!-- ═══════ CIENCIA ═══════ -->
+<div id="ciencia" class="section-label">Lo que dice la ciencia</div>
+<p><strong>El peso lo deciden las calorías; el rendimiento y la salud, lo que hay dentro.</strong> En un ensayo con 20 adultos ingresados en una unidad metabólica, la dieta ultraprocesada hizo comer unas 500 kcal más al día que la no procesada, con la misma oferta de azúcar, grasa, fibra y sal (Hall 2019). Lo procesado no engorda por magia: engorda porque se come más sin darse cuenta.</p>
+<p><strong>La proteína tiene un techo útil, y está más bajo de lo que se repite en el gimnasio.</strong> En 49 ensayos con 1.863 personas, la ganancia de masa magra dejó de crecer por encima de 1,6 g/kg al día (con el intervalo de confianza llegando a 2,2) (Morton 2018). La ISSN fija 1,4–2,0 g/kg para la mayoría de quienes entrenan y 2,3–3,1 g/kg para conservar músculo en déficit (Jäger 2017).</p>
+<p><strong>Los carbohidratos se escalan con la carga, no con la moda.</strong> El consenso del ACSM y de los dietistas deportivos pide de 3–5 g/kg en días ligeros a 6–10 g/kg con 1–3 horas diarias de entreno moderado o intenso (Thomas 2016, Burke 2011). Quien corre y levanta pesas está casi siempre en la parte media de esa tabla.</p>
+<p><strong>Comer de menos durante semanas tiene nombre.</strong> El déficit relativo de energía en el deporte (REDs) baja el rendimiento, la densidad ósea, las hormonas y el estado de ánimo, en hombres y en mujeres (Mountjoy 2023). En un atleta híbrido suele llegar por recortar carbohidratos mientras sube el kilometraje.</p>
+<p><strong>Fibra y fermentados cuidan el intestino por dos vías.</strong> Comer 25–29 g de fibra al día se asocia con un 15–30 % menos de mortalidad y de enfermedad cardiovascular que comer poca (Reynolds 2019). Y en un ensayo aleatorizado de Stanford, subir los fermentados a unas seis raciones al día aumentó la diversidad del microbioma y bajó marcadores de inflamación; la dieta alta en fibra, en cambio, no cambió la diversidad (Wastyk 2021).</p>
+
+<div class="info-box">
+  <div class="box-title">Cuando las fuentes chocan, manda el consenso</div>
+  <p>Este plan parte de siete protocolos de nutrición para la salud general (comida real, agua, proteína, verdura, grasas, fermentados y omega-3) y los adapta a quien entrena fuerza y carrera. Donde la recomendación general choca con la nutrición deportiva de consenso (ISSN, ACSM), gana el consenso, y se dice en el protocolo. Los choques principales: <strong>limitar el almidón a un tercio de las calorías</strong> no vale para quien corre (P06); <strong>dejar el almidón para perder grasa</strong> no es compatible con entrenar duro (P12); y <strong>las fórmulas de agua fijas</strong> no sustituyen a medir tu sudor (P04, P07).</p>
+</div>
+
+<!-- ═══════ FASE 1 ═══════ -->
+<div id="fase1" class="section-label">Fase 1 · Semanas 1–4 · La base</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: que la comida de cada día esté hecha de ingredientes, con proteína en cada plato, verdura en la mayoría y agua suficiente. Sin contar calorías todavía.</p>
+<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+
+<div id="comida-real" class="section-label" style="margin-top:0">Comida real · ≥90 % de lo que comes</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Ultraprocesado es un producto de varios ingredientes, envasado, listo para comer o solo para calentar. Cocer arroz, asar patatas o hacer lentejas no es procesar: es cocinar. El ensayo de Hall (2019) es la prueba más directa de por qué importa: con lo procesado se come más sin tener más hambre.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 01</div>
+  <h3>Comida real, ≥90 % del total</h3>
+  <div class="meta">
+    <span><strong>Cuándo:</strong> todas las comidas</span>
+    <span><strong>Evidencia:</strong> moderada</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Compra ingredientes:</strong> carne, pescado, huevos, legumbre, arroz, patata, pasta, avena, verdura, fruta, aceite de oliva, yogur natural, especias.</li>
+    <li><strong>Lee la etiqueta</strong> de salsas, aliños y panes: casi todos llevan azúcar añadido. Si la lista de ingredientes no cabe en una línea, desconfía.</li>
+    <li><strong>Lácteos, naturales:</strong> yogur, kéfir y requesón sin sabor; endulza tú con fruta o canela.</li>
+    <li><strong>Frutos secos y cremas:</strong> sí, pero cuentan como grasa, no como proteína. Si estás en definición, raciones pequeñas.</li>
+    <li><strong>El 10 % restante</strong> es para la vida: una comida fuera, un postre casero, la tarta de un cumpleaños. No es un fallo, es el margen.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Cocinar no es procesar</span>
+    <span class="tip tip-key">· El paladar se recalibra en 1–2 semanas</span>
+    <span class="tip tip-no">· No compres «fitness» envasado: suele ser ultraprocesado</span>
+  </div>
+</div>
+
+<div id="proteina" class="section-label">Proteína de calidad · En cada comida</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Una proteína es «completa» si trae los nueve aminoácidos esenciales. La pregunta útil no es solo esa, sino <strong>cuánta proteína completa trae por caloría</strong>: la relación proteína completa/calorías (CP:C). Con 150 kcal, la pechuga de pollo aporta unos 28 g; la ternera magra, 25; el tofu, 15; los huevos enteros, 13; las alubias con arroz, 6. Para llegar a la proteína del pollo con alubias y arroz harían falta unas 700 kcal.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 02</div>
+  <h3>Proteína de alta CP:C en cada comida</h3>
+  <div class="meta">
+    <span><strong>Dosis:</strong> 0,3–0,4 g/kg por comida</span>
+    <span><strong>Total:</strong> 1,6–2,2 g/kg/día</span>
+    <span><strong>Evidencia:</strong> fuerte</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Cada comida principal empieza por la proteína:</strong> 25–40 g (una pechuga grande, 150–200 g de pescado, 3–4 huevos con claras, un bol de yogur griego o requesón).</li>
+    <li><strong>3–4 tomas al día</strong>, separadas 3–5 horas. Repartir mejora algo la síntesis muscular frente a dos tomas, pero el total diario manda (Kerksick 2017).</li>
+    <li><strong>Objetivo diario 1,6–2,2 g/kg.</strong> 1,6 g/kg es donde se aplana la ganancia de músculo (Morton 2018); 2,2 g/kg (1 g por libra) es el techo cómodo, no el suelo. En definición, 2,3–3,1 g/kg (Jäger 2017).</li>
+    <li><strong>Entiende la CP:C:</strong> cuando las calorías mandan (definición), prioriza pollo, pescado, carne magra, marisco, claras, yogur griego, requesón y proteína de suero. Cuando necesitas energía (bloque de carrera), la legumbre y los cereales suman proteína <em>y</em> el carbohidrato que te hace falta.</li>
+    <li><strong>Si comes de más:</strong> come la proteína primero, luego el almidón, y la verdura al final.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· La soja es proteína completa y sirve para ganar músculo</span>
+    <span class="tip tip-key">· La CP:C es densidad proteica: útil en déficit, menos en volumen</span>
+    <span class="tip tip-no">· Frutos secos, crema de cacahuete y casi todos los quesos no son tu fuente de proteína</span>
+  </div>
+</div>
+
+<div id="verdura" class="section-label">Verdura, fibra y fruta · Cada día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La verdura aporta micronutrientes (magnesio, potasio, calcio, flavonoides) y fibra con muy pocas calorías. La fruta, lo mismo con algo más de azúcar y agua. Para alguien sedentario la verdura puede ser la fuente principal de carbohidrato; para quien corre, no basta: el almidón limpio entra en P06.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 03</div>
+  <h3>Verdura, fibra y fruta</h3>
+  <div class="meta">
+    <span><strong>Fibra:</strong> ≥25 g (mujer) · ≥35 g (hombre)</span>
+    <span><strong>Fruta:</strong> 2–4 piezas</span>
+    <span><strong>Evidencia:</strong> fuerte</span>
+  </div>
+  <ol class="steps">
+    <li><strong>El plato en tercios:</strong> un tercio de proteína, un tercio de verdura y, si toca almidón, el último tercio. Los días de entreno duro, el almidón crece.</li>
+    <li><strong>Fibra sobre todo de verdura y fruta</strong>, sin olvidar legumbre, avena y pan integral o de centeno.</li>
+    <li><strong>Fruta entera, no zumo.</strong> 2–4 piezas al día; quien corre mucho puede comer más (es carbohidrato fácil de digerir).</li>
+    <li><strong>Sube la fibra poco a poco</strong> (unos 5 g por semana) para evitar gases e hinchazón. Mastica la verdura.</li>
+    <li><strong>Antes de series o de competir:</strong> poca fibra en las 2–3 h previas. Es la excepción que confirma la regla.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· 25–29 g/día de fibra: menos mortalidad cardiovascular</span>
+    <span class="tip tip-key">· Una taza de espinacas cocidas: un tercio del magnesio diario</span>
+    <span class="tip tip-no">· El zumo no cuenta como fruta: es azúcar sin la fibra</span>
+  </div>
+</div>
+
+<div id="hidratacion" class="section-label">Hidratación diaria · Sobre todo por la mañana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Perder un 2 % del peso corporal en agua ya empeora el rendimiento aeróbico y la atención (Sawka 2007). Los riñones filtran mejor de día que de noche: beber pronto y bajar el ritmo al final del día reduce los despertares para ir al baño. Las cantidades de abajo son una guía razonable, no una dosis demostrada en ensayos.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 04</div>
+  <h3>Agua repartida durante el día</h3>
+  <div class="meta">
+    <span><strong>Al despertar:</strong> 500–700 ml</span>
+    <span><strong>Primeras 10 h:</strong> ~2,4 l</span>
+    <span><strong>Evidencia:</strong> tentativa</span>
+  </div>
+  <ol class="steps">
+    <li><strong>0–30 min tras despertar:</strong> 500–700 ml de agua antes del café.</li>
+    <li><strong>Durante las 10 h siguientes:</strong> un vaso o dos cada hora, hasta unos 2,4 litros. Más con calor o si te mueves mucho.</li>
+    <li><strong>Las 2–3 h antes de dormir:</strong> sorbos, no vasos. Beber despacio retrasa la orina.</li>
+    <li><strong>Café y té cuentan</strong>, pero si pasas de 2 cafés fuertes (200–400 mg de cafeína), añade agua.</li>
+    <li><strong>Si comes casi sin procesados</strong>, probablemente tomes poca sal: con calor o sudor abundante, una pizca de sal en el agua.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Bebe antes de tener sed los días de entreno</span>
+    <span class="tip tip-key">· El color de la orina es una pista, no una medida</span>
+    <span class="tip tip-no">· No bebas mucho de golpe antes de acostarte</span>
+  </div>
+</div>
+
+<!-- ═══════ FASE 2 ═══════ -->
+<div id="fase2" class="section-label">Fase 2 · Semanas 5–8 · Combustible para entrenar</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: que la energía y los carbohidratos sigan a la carga. Es la fase que separa comer sano de comer para rendir en fuerza y en carrera a la vez.</p>
+<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+
+<div id="calorias" class="section-label" style="margin-top:0">Calorías · Medir la tendencia, no el día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Calorías que entran contra calorías que gastas: es termodinámica, no opinión. El ayuno intermitente funciona si te hace comer menos; con las mismas calorías, comer en una ventana de 8 horas no adelgazó más en un ensayo de un año (Liu 2022). Lo que sí cambia el reparto entre músculo y grasa es entrenar fuerza y comer proteína suficiente (Aragon 2017).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 05</div>
+  <h3>Calorías y tendencia de peso</h3>
+  <div class="meta">
+    <span><strong>Frecuencia:</strong> 2 semanas de registro, 1–2 veces al año</span>
+    <span><strong>Evidencia:</strong> fuerte</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Estima el mantenimiento:</strong> Mifflin-St Jeor (hombre: 10 × peso + 6,25 × altura − 5 × edad + 5; mujer: el mismo cálculo − 161) multiplicado por 1,55–1,75 según tu volumen semanal. La app lo calcula.</li>
+    <li><strong>Registra dos semanas</strong> lo que comes (la app o cualquier contador) y pésate 3–7 mañanas por semana en ayunas.</li>
+    <li><strong>Compara medias semanales</strong>, no días sueltos: el agua y el glucógeno mueven el peso 1–2 kg de un día a otro.</li>
+    <li><strong>Ajusta 150–250 kcal</strong> si la media no va donde quieres. Espera dos semanas antes de volver a ajustar.</li>
+    <li><strong>Señales de que comes poco</strong> para lo que entrenas: rendimiento que cae, sueño peor, irritabilidad, lesiones repetidas, en mujeres reglas irregulares. Eso es REDs: sube calorías antes que nada.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· La media semanal es tu dato</span>
+    <span class="tip tip-key">· Ayuno intermitente: herramienta de adherencia, no de metabolismo</span>
+    <span class="tip tip-no">· No cuentes calorías para siempre: dos semanas calibran el ojo</span>
+  </div>
+</div>
+
+<div id="carbohidratos" class="section-label">Carbohidratos · Según la carga del día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La recomendación general de limitar el almidón a un tercio de las calorías está pensada para quien no hace mucho cardio. La propia regla exime a quien entrena más de hora y media al día. Para el atleta híbrido manda el consenso deportivo: el glucógeno es el combustible de las series, los intervalos y las tiradas largas, y recortarlo baja la calidad de la sesión (Thomas 2016, Burke 2011).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 06</div>
+  <h3>Carbohidratos periodizados</h3>
+  <div class="meta">
+    <span><strong>Ligero:</strong> 3–5 g/kg</span>
+    <span><strong>~1 h/día:</strong> 5–7 g/kg</span>
+    <span><strong>1–3 h/día:</strong> 6–10 g/kg</span>
+    <span><strong>Evidencia:</strong> fuerte</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Mira la semana, no el día suelto:</strong> descanso o técnica, 3–5 g/kg; fuerza + rodaje (~1 h), 5–7 g/kg; doble sesión, series o tirada larga, 6–10 g/kg.</li>
+    <li><strong>Almidón limpio:</strong> arroz, patata, boniato, avena, legumbre, pasta, pan de masa madre o de centeno. Sin mucha grasa ni azúcar encima: esa combinación es la que hace comer de más.</li>
+    <li><strong>Pon el almidón alrededor del entreno:</strong> en la comida anterior a la sesión dura y en la siguiente. Los días de descanso, más verdura y menos almidón.</li>
+    <li><strong>Fruta como carbohidrato de rápida digestión</strong> antes de entrenar o entre dos sesiones.</li>
+    <li><strong>Si quieres perder grasa,</strong> recorta en los días ligeros, no en los de series ni en los de tirada larga.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· El carbohidrato sigue a la carga</span>
+    <span class="tip tip-key">· Almidón + grasa + azúcar: la combinación que dispara el apetito</span>
+    <span class="tip tip-no">· No cortes el almidón con un bloque de carrera encima</span>
+  </div>
+</div>
+
+<div id="peri" class="section-label">Alrededor del entreno · Antes, durante y después</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La «ventana anabólica» de 30 minutos era exagerada: si comes proteína unas horas antes, la de después puede esperar. El momento importa cuando entrenas dos veces al día, en ayunas o durante más de 90 minutos (Kerksick 2017). Para beber durante el ejercicio circula una fórmula de bolsillo, la de Andy Galpin: peso en libras ÷ 30 = onzas cada 15–20 min. En el sistema métrico son unos <strong>2 ml por kilo cada 15–20 min</strong> (unos 150 ml para 70 kg). No sale de una guía: coincide con la pauta de un único ensayo con 8 corredores (Fallowfield 1996), en el que beber 2 ml/kg cada 15 min alargó el tiempo hasta el agotamiento de 78 a 103 min frente a no beber. Úsala para empezar; luego manda tu tasa de sudor (Sawka 2007).</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 07</div>
+  <h3>Antes, durante y después</h3>
+  <div class="meta">
+    <span><strong>Antes:</strong> 1–4 h</span>
+    <span><strong>Durante:</strong> &gt;60 min</span>
+    <span><strong>Después:</strong> 0–2 h</span>
+    <span><strong>Evidencia:</strong> moderada</span>
+  </div>
+  <ol class="steps">
+    <li><strong>1–4 h antes:</strong> comida con proteína y carbohidrato de fácil digestión, poca grasa y poca fibra. Si solo tienes 30–60 min, fruta o yogur.</li>
+    <li><strong>Durante, si pasa de 60 min:</strong> agua a unos 2 ml/kg cada 15–20 min como punto de partida; 30–60 g/h de carbohidrato en sesiones de 1–2,5 h, y hasta 90 g/h si son más largas (Thomas 2016). Con calor o mucho sudor, bebida con 500–700 mg de sodio por litro.</li>
+    <li><strong>Mide tu sudor una vez:</strong> pésate antes y después de una sesión de una hora, sin ropa mojada. Cada kilo perdido es aproximadamente un litro. El objetivo es no perder más del 2 % (Sawka 2007).</li>
+    <li><strong>0–2 h después:</strong> 0,3 g/kg de proteína (20–40 g) y carbohidrato según lo que viene. Si vuelves a entrenar en menos de 8 h: 1,0–1,2 g/kg/h de carbohidrato las primeras 4 h.</li>
+    <li><strong>Repón líquido:</strong> 1,25–1,5 litros por cada kilo perdido, con algo de sal, en las horas siguientes.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Tu báscula mide tu sudor mejor que cualquier fórmula</span>
+    <span class="tip tip-key">· Doble sesión: el carbohidrato entre ambas es lo que más importa</span>
+    <span class="tip tip-no">· No hagas en ayunas las series ni la tirada larga</span>
+  </div>
+</div>
+
+<div id="grasas" class="section-label">Grasas · En la mayoría de comidas</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La grasa no es el enemigo: forma las membranas, transporta vitaminas y da saciedad. La que más interesa es la insaturada (aceite de oliva, aguacate, aceitunas, pescado azul, frutos secos). Sobre los aceites de semillas (girasol, soja, maíz, colza) hay mucho ruido: en 30 cohortes, tener más ácido linoleico en sangre se asoció a <em>menos</em> enfermedad cardiovascular (Marklund 2019). Cocina con aceite de oliva porque es mejor, no porque los demás sean veneno; el problema de los aceites de semillas suele ser la fritura y el ultraprocesado que los lleva.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 08</div>
+  <h3>Grasas, sobre todo insaturadas</h3>
+  <div class="meta">
+    <span><strong>Total:</strong> 20–35 % de las calorías</span>
+    <span><strong>Saturada:</strong> ≤10 %</span>
+    <span><strong>Evidencia:</strong> moderada</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Aceite de oliva</strong> para cocinar y aliñar. Para fuego muy alto, aceite de aguacate u oliva refinado.</li>
+    <li><strong>Saturada con moderación:</strong> la que trae la carne, el huevo y los lácteos basta. Elige cortes magros; mantequilla, en poca cantidad.</li>
+    <li><strong>Nada de fritos a diario</strong> ni de grasas trans industriales (aceites parcialmente hidrogenados en bollería y snacks).</li>
+    <li><strong>No bajes de un 20 %</strong> de grasa ni en definición: es lo que el consenso deportivo considera el mínimo saludable (Thomas 2016).</li>
+    <li><strong>Los días de entreno</strong> no hace falta más grasa: lo que sube es el carbohidrato.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Aceite de oliva: el que no discute nadie</span>
+    <span class="tip tip-key">· La grasa pesa 9 kcal/g: una cucharada son ~90 kcal</span>
+    <span class="tip tip-no">· No hace falta eliminar los aceites de semillas; sí los fritos y el ultraprocesado</span>
+  </div>
+</div>
+
+<!-- ═══════ FASE 3 ═══════ -->
+<div id="fase3" class="section-label">Fase 3 · Semanas 9–12 · Afinar</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: con la base y el combustible en su sitio, añadir lo que suma poco a poco: fermentados, omega-3, los tres suplementos con evidencia y la estrategia para cambiar de composición corporal sin perder rendimiento.</p>
+<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+
+<div id="fermentados" class="section-label" style="margin-top:0">Fermentados · 2–4 raciones al día</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">En el ensayo de Wastyk (2021), 36 adultos sanos pasaron 17 semanas en una de dos dietas: alta en fibra o alta en fermentados (yogur, kéfir, chucrut, kimchi, kombucha, salmuera de verduras). El grupo de fermentados aumentó la diversidad del microbioma y bajó 19 proteínas inflamatorias en sangre, entre ellas la IL-6. Es un ensayo pequeño y mide marcadores, no enfermedad ni rendimiento; por eso la evidencia es moderada. Pero es barato y no tiene contra.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 09</div>
+  <h3>Fermentados bajos en azúcar, a diario</h3>
+  <div class="meta">
+    <span><strong>Dosis:</strong> 2–4 raciones/día</span>
+    <span><strong>Ración:</strong> un yogur, un vaso de kéfir o dos cucharadas de chucrut</span>
+    <span><strong>Evidencia:</strong> moderada</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Lácteos fermentados naturales:</strong> yogur, yogur griego, kéfir. Sin azúcar ni sabores. Además son proteína de buena CP:C.</li>
+    <li><strong>Verduras fermentadas refrigeradas:</strong> chucrut, kimchi, encurtidos en salmuera. Si están en el estante y no en la nevera, están pasteurizados y no llevan bacterias vivas.</li>
+    <li><strong>Soja fermentada:</strong> miso, natto, tempeh.</li>
+    <li><strong>Kombucha</strong> con moderación: suele llevar azúcar y algo de alcohol.</li>
+    <li><strong>Sube poco a poco,</strong> una ración por semana. Si te dan picores, hinchazón o niebla mental (reacción a la histamina), baja la dosis o prueba otro fermentado.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Yogur y kéfir naturales cuentan: no hay que moderarlos</span>
+    <span class="tip tip-key">· Refrigerado = vivo</span>
+    <span class="tip tip-no">· Yogures de sabores: postre, no fermentado</span>
+  </div>
+</div>
+
+<div id="omega3" class="section-label">Pescado azul y omega-3 · 2 veces por semana</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El cuerpo no fabrica los omega-3 de cadena larga (EPA y DHA): vienen del pescado azul o de un suplemento. En deportistas hay algo de evidencia de mejor recuperación tras ejercicio excéntrico y de menor coste de oxígeno en resistencia, pero no de más músculo con el entreno de fuerza (Philpott 2019). Primero el pescado; el suplemento, si no lo comes.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 10</div>
+  <h3>Pescado azul y, si hace falta, omega-3</h3>
+  <div class="meta">
+    <span><strong>Pescado:</strong> 2 raciones/semana</span>
+    <span><strong>Suplemento:</strong> ~1 g/día de EPA</span>
+    <span><strong>Evidencia:</strong> tentativa</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Sardina, caballa, arenque, boquerón, salmón:</strong> dos raciones por semana. Las pequeñas y baratas tienen además menos mercurio.</li>
+    <li><strong>Evita a menudo</strong> el pez espada y el atún grande: son los que más mercurio acumulan.</li>
+    <li><strong>Si no comes pescado:</strong> aceite de pescado o de krill que aporte ~1 g de EPA al día; si eres vegano, aceite de algas.</li>
+    <li><strong>Busca certificación de un tercero</strong> (pureza y oxidación) y guarda el aceite líquido en la nevera.</li>
+    <li><strong>Con anticoagulantes</strong> o antes de una operación, consulta con tu médico.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Primero el pescado, después la cápsula</span>
+    <span class="tip tip-key">· Mira los mg de EPA, no los de «aceite de pescado»</span>
+    <span class="tip tip-no">· No esperes más músculo por tomar omega-3</span>
+  </div>
+</div>
+
+<div id="suplementos" class="section-label">Suplementos · La guinda, nunca la base</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Tres suplementos tienen posicionamiento propio de la ISSN y evidencia fuerte para quien entrena fuerza y resistencia. Todo lo demás es, como mucho, un matiz. Elige siempre productos con certificación de un tercero contra sustancias prohibidas.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 11</div>
+  <h3>Creatina, proteína de suero y cafeína</h3>
+  <div class="meta">
+    <span><strong>Creatina:</strong> 3–5 g/día</span>
+    <span><strong>Cafeína:</strong> 3–6 mg/kg</span>
+    <span><strong>Evidencia:</strong> fuerte</span>
+  </div>
+  <ol class="steps">
+    <li><strong>Creatina monohidrato, 3–5 g al día, todos los días,</strong> a la hora que quieras. Sin fase de carga satura en 3–4 semanas; con carga (0,3 g/kg/día durante 5–7 días), en una (Kreider 2017). No hace falta retirarla en definición: no hay «efecto rebote» que buscar. Puede subir 1–2 kg de agua intramuscular.</li>
+    <li><strong>Proteína de suero:</strong> comida, no magia. Úsala cuando no llegues al objetivo de P02 con comida o después de entrenar (20–40 g). Suma algo de fuerza y masa magra mientras la proteína total no llega a ~1,6 g/kg; por encima, nada (Morton 2018).</li>
+    <li><strong>Cafeína:</strong> 3–6 mg/kg unos 60 min antes de la sesión clave (Guest 2021). Para 70 kg, 200–400 mg. Mejora la resistencia y, algo menos, la fuerza.</li>
+    <li><strong>La cafeína tiene coste:</strong> deja 8–10 h entre la última toma y la hora de dormir (ver el <a href="../sleep/">plan de sueño</a>). Mejor reservarla para las sesiones que importan que tomarla a diario.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· Creatina: el suplemento más estudiado y seguro</span>
+    <span class="tip tip-key">· Cafeína: más no es mejor por encima de 6 mg/kg</span>
+    <span class="tip tip-no">· No sustituyas comidas por batidos</span>
+  </div>
+</div>
+
+<div id="fases-cuerpo" class="section-label">Volumen, definición y mantenimiento</div>
+<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Areté alterna fases de superávit y de déficit. Para un atleta híbrido, ninguna de las dos puede comerse la calidad de las sesiones clave. Las cifras de abajo combinan la ISSN (Jäger 2017, Aragon 2017), el consenso del ACSM (Thomas 2016) y la preparación de culturistas naturales (Helms 2014), ajustadas a quien también corre.</p>
+
+<div class="ex-card">
+  <div class="num">Protocolo 12</div>
+  <h3>Macros por fase</h3>
+  <div class="meta">
+    <span><strong>Ritmo de pérdida:</strong> 0,5–1 % del peso/semana</span>
+    <span><strong>Evidencia:</strong> moderada</span>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Fase</th><th>Calorías</th><th>Proteína</th><th>Carbohidrato</th><th>Grasa</th></tr>
+    <tr><td>Volumen</td><td>+250–500 kcal</td><td>1,6–2,2 g/kg</td><td>4–7 g/kg según carrera</td><td>20–35 %</td></tr>
+    <tr><td>Mantenimiento</td><td>Equilibrio</td><td>1,6–2,2 g/kg</td><td>3–7 g/kg según carga</td><td>20–35 %</td></tr>
+    <tr><td>Definición</td><td>−300–500 kcal</td><td>2,2–3,1 g/kg</td><td>3–5 g/kg; más en días duros</td><td>20–30 %</td></tr>
+  </table>
+  </div>
+  <ol class="steps">
+    <li><strong>Definición sin perder rendimiento:</strong> recorta sobre todo grasa y almidón de los días ligeros. Mantén el carbohidrato antes y después de las series y de la tirada larga.</li>
+    <li><strong>Ritmo de 0,5–1 % del peso por semana</strong> (Helms 2014). Más rápido cuesta músculo y rendimiento.</li>
+    <li><strong>Definición muy baja en carbohidratos</strong> (menos de 1 g/kg, como la Fase III del programa): solo en semanas sin series ni tiradas largas, y corta. Con un plan de carrera encima, no.</li>
+    <li><strong>Al salir de un déficit,</strong> sube 100–150 kcal por semana hasta el mantenimiento para controlar la tendencia.</li>
+    <li><strong>Volumen:</strong> superávit pequeño. Más calorías solo añaden grasa, no músculo más rápido.</li>
+  </ol>
+  <div class="tips">
+    <span class="tip tip-ok">· En definición, la proteína sube y el entreno de fuerza se mantiene</span>
+    <span class="tip tip-key">· Recorta en los días ligeros, no en los duros</span>
+    <span class="tip tip-no">· Sin almidón no hay series de calidad</span>
+  </div>
+</div>
+
+<!-- ═══════ LO QUE NO FUNCIONA ═══════ -->
+<div id="no-funciona" class="section-label">Lo que no funciona (o no merece la pena)</div>
+<ul>
+  <li><strong>Quemadores de grasa:</strong> casi siempre cafeína cara con aditivos que no aportan nada.</li>
+  <li><strong>BCAA con proteína suficiente:</strong> ya vienen en la comida. Solo tienen sentido si entrenas en ayunas y no puedes comer proteína.</li>
+  <li><strong>Glutamina para ganar músculo:</strong> sin evidencia en atletas sanos.</li>
+  <li><strong>«Potenciadores de testosterona»</strong> (tribulus y compañía): no suben la testosterona de forma relevante.</li>
+  <li><strong>Pre-entrenos de 15 ingredientes:</strong> lo que funciona es la cafeína (y la creatina, que no es pre-entreno). Cómpralas por separado.</li>
+  <li><strong>Eliminar la soja por miedo a las hormonas:</strong> en hombres, ni la soja ni las isoflavonas alteran la testosterona ni los estrógenos (Reed 2021), y la proteína de soja da las mismas ganancias de fuerza y masa que la animal (Messina 2018).</li>
+  <li><strong>Seis comidas al día para «acelerar el metabolismo»:</strong> la frecuencia apenas cambia el gasto. Come las veces que te encajen, con proteína en cada una.</li>
+</ul>
+
+<!-- ═══════ RUTINA DIARIA ═══════ -->
+<div id="rutina" class="section-label">Día tipo de un atleta híbrido</div>
+<div class="timeline">
+  <h2>Día con fuerza a mediodía y rodaje por la tarde</h2>
+  <p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Los tiempos van referidos al despertar, al entreno y a la hora de dormir. Ejemplo con despertar a las 7:00, fuerza a las 13:00 y a la cama a las 23:00.</p>
+  <div class="tl-item">
+    <div class="tl-time">Al despertar</div>
+    <div class="tl-content">
+      <h4>Agua primero</h4>
+      <p>500–700 ml antes del café (7:00).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">+0–2 h</div>
+    <div class="tl-content">
+      <h4>Desayuno con proteína</h4>
+      <p>Huevos o yogur griego con kéfir, avena y fruta. 25–40 g de proteína (7:30–9:00).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">1–4 h antes</div>
+    <div class="tl-content">
+      <h4>Comida previa ligera</h4>
+      <p>Proteína y carbohidrato, poca grasa y poca fibra. Si queda menos de una hora, fruta (9:00–12:00).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Durante</div>
+    <div class="tl-content">
+      <h4>Agua a sorbos</h4>
+      <p>~2 ml/kg cada 15–20 min. Carbohidrato solo si pasa de 60 min de trabajo duro.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">0–2 h después</div>
+    <div class="tl-content">
+      <h4>Comida post-entreno</h4>
+      <p>Proteína (0,3 g/kg) + almidón + verdura + fermentado. Creatina con la comida (14:00–15:00).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">Entre sesiones</div>
+    <div class="tl-content">
+      <h4>Recarga</h4>
+      <p>Si el rodaje es en menos de 8 h, carbohidrato fácil (fruta, pan, arroz) y agua. Deja de beber a vasos 10 h después de despertar (17:00).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">2–3 h antes de dormir</div>
+    <div class="tl-content">
+      <h4>Última comida</h4>
+      <p>Proteína, verdura y almidón según el día. Si tienes hambre más tarde, un yogur o requesón (20:00).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CHECKLIST ═══════ -->
+<div id="checklist" class="checklist">
+  <h2>Checklist de progreso</h2>
+  <div class="check-grid">
+    <div class="check-col">
+      <h4>Semanas 1–4</h4>
+      <ul>
+        <li>Registro de 3 días hecho y comparado con el plan</li>
+        <li>≥90 % de comidas a base de ingredientes</li>
+        <li>Proteína en cada comida, 1,6 g/kg o más</li>
+        <li>Verdura en dos comidas al día, fruta entera</li>
+        <li>Agua al despertar como hábito</li>
+      </ul>
+      <h4>Semanas 5–8</h4>
+      <ul>
+        <li>Dos semanas de registro y media de peso semanal</li>
+        <li>Carbohidrato distinto en días ligeros y duros</li>
+        <li>Tasa de sudor medida en una sesión de 1 h</li>
+        <li>Comida post-entreno con proteína y almidón</li>
+      </ul>
+    </div>
+    <div class="check-col">
+      <h4>Semanas 9–12</h4>
+      <ul>
+        <li>2 o más raciones de fermentados al día</li>
+        <li>Pescado azul 2 veces por semana (o EPA)</li>
+        <li>Creatina 3–5 g/día sin fallar</li>
+        <li>Cafeína reservada para las sesiones clave</li>
+      </ul>
+      <h4>Cada cambio de fase</h4>
+      <ul>
+        <li>Calorías y macros recalculados</li>
+        <li>Ritmo de pérdida 0,5–1 % por semana</li>
+        <li>Rendimiento en series y fuerza estable</li>
+        <li>Sueño y ánimo sin empeorar</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FAQ ═══════ -->
+<div id="faq" class="section-label">Preguntas frecuentes</div>
+<h3>¿Tengo que pesar la comida para siempre?</h3>
+<p>No. Dos semanas de registro una o dos veces al año bastan para calibrar el ojo. El resto del tiempo, el plato en tercios y la media semanal del peso hacen el trabajo.</p>
+<h3>¿Sirve la proteína vegetal?</h3>
+<p>Sí. La soja es completa y da las mismas ganancias de fuerza que la animal (Messina 2018); la legumbre con cereal se completa a lo largo del día, no hace falta juntarlas en el mismo plato. El precio es la CP:C: para la misma proteína entran más calorías. Para quien corre mucho eso no es un problema, porque necesita esa energía.</p>
+<h3>¿Puedo hacer ayuno intermitente y entrenar fuerza y carrera?</h3>
+<p>Puedes, si te ayuda a comer lo que toca. No adelgaza más que el mismo déficit sin ventana (Liu 2022). Lo que no conviene es meter las series, la tirada larga o la sesión pesada de pierna en ayunas, ni dejar sin comida la ventana entre dos sesiones.</p>
+<h3>¿Necesito bebida isotónica?</h3>
+<p>Para menos de una hora, agua. Por encima de 60–90 min de trabajo intenso, o con calor y sudor abundante, una bebida con carbohidrato y 500–700 mg de sodio por litro, o agua con algo de sal y un gel o fruta.</p>
+<h3>¿El café deshidrata?</h3>
+<p>Poco, con las dosis normales. Cuenta como líquido; si pasas de dos cafés fuertes al día, añade agua y algo de sal.</p>
+<h3>¿Y los aceites de semillas?</h3>
+<p>No hay evidencia que justifique eliminarlos. Elige aceite de oliva por sus beneficios, y evita los fritos y los ultraprocesados, que es donde los aceites de semillas suelen venir.</p>
+<h3>¿Qué cambia si entreno dos veces al día?</h3>
+<p>El carbohidrato y la proteína entre sesiones. Si median menos de 8 horas, empieza a comer en la primera hora tras la primera sesión: 1,0–1,2 g/kg de carbohidrato por hora durante las primeras horas y 0,3 g/kg de proteína.</p>
+
+<!-- ═══════ REFERENCIAS ═══════ -->
+<div id="refs" class="section-label">Referencias</div>
+<details class="ref-box refs">
+  <summary class="ref-title">Evidencia científica · 20 referencias</summary>
+  <p><strong>Thomas DT, Erdman KA, Burke LM.</strong> "American College of Sports Medicine Joint Position Statement. Nutrition and Athletic Performance." <em>Med Sci Sports Exerc.</em> 2016;48(3):543-568. doi:10.1249/MSS.0000000000000852 — Consenso ACSM, Academy of Nutrition and Dietetics y Dietitians of Canada: carbohidratos por carga, proteína, grasas, hidratación y timing.</p>
+  <p><strong>Burke LM, Hawley JA, Wong SH, Jeukendrup AE.</strong> "Carbohydrates for training and competition." <em>J Sports Sci.</em> 2011;29(Suppl 1):S17-S27. doi:10.1080/02640414.2011.585473 — Tabla de carbohidratos diarios según el volumen de entreno.</p>
+  <p><strong>Jäger R, Kerksick CM, Campbell BI, et al.</strong> "International Society of Sports Nutrition Position Stand: protein and exercise." <em>J Int Soc Sports Nutr.</em> 2017;14:20. doi:10.1186/s12970-017-0177-8 — 1,4–2,0 g/kg/día para la mayoría; 2,3–3,1 g/kg en déficit con entreno de fuerza.</p>
+  <p><strong>Morton RW, Murphy KT, McKellar SR, et al.</strong> "A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults." <em>Br J Sports Med.</em> 2018;52(6):376-384. doi:10.1136/bjsports-2017-097608 — 49 ensayos, 1.863 personas: la ganancia de masa magra se aplana por encima de 1,62 g/kg/día.</p>
+  <p><strong>Kerksick CM, Arent S, Schoenfeld BJ, et al.</strong> "International society of sports nutrition position stand: nutrient timing." <em>J Int Soc Sports Nutr.</em> 2017;14:33. doi:10.1186/s12970-017-0189-4 — Proteína cada 3–4 h, carbohidrato durante el ejercicio largo, recuperación entre sesiones.</p>
+  <p><strong>Aragon AA, Schoenfeld BJ, Wildman R, et al.</strong> "International society of sports nutrition position stand: diets and body composition." <em>J Int Soc Sports Nutr.</em> 2017;14:16. doi:10.1186/s12970-017-0174-y — El déficit calórico manda en la pérdida de grasa; la proteína y el entreno de fuerza protegen la masa magra.</p>
+  <p><strong>Helms ER, Aragon AA, Fitschen PJ.</strong> "Evidence-based recommendations for natural bodybuilding contest preparation: nutrition and supplementation." <em>J Int Soc Sports Nutr.</em> 2014;11:20. doi:10.1186/1550-2783-11-20 — Pérdida de 0,5–1 % del peso por semana para conservar músculo.</p>
+  <p><strong>Mountjoy M, Ackerman KE, Bailey DM, et al.</strong> "2023 International Olympic Committee's (IOC) consensus statement on Relative Energy Deficiency in Sport (REDs)." <em>Br J Sports Med.</em> 2023;57(17):1073-1097. doi:10.1136/bjsports-2023-106994 — Consecuencias de comer poco para lo que se entrena, en hombres y mujeres.</p>
+  <p><strong>Liu D, Huang Y, Huang C, et al.</strong> "Calorie Restriction with or without Time-Restricted Eating in Weight Loss." <em>N Engl J Med.</em> 2022;386(16):1495-1504. doi:10.1056/NEJMoa2114833 — Un año, 139 personas con obesidad: con las mismas calorías, la ventana de 8 h no añadió pérdida de peso ni de grasa.</p>
+  <p><strong>Hall KD, Ayuketah A, Brychta R, et al.</strong> "Ultra-Processed Diets Cause Excess Calorie Intake and Weight Gain: An Inpatient Randomized Controlled Trial of Ad Libitum Food Intake." <em>Cell Metab.</em> 2019;30(1):67-77.e3. doi:10.1016/j.cmet.2019.05.008 — 20 adultos ingresados: unas 500 kcal/día más con la dieta ultraprocesada.</p>
+  <p><strong>Reynolds A, Mann J, Cummings J, et al.</strong> "Carbohydrate quality and human health: a series of systematic reviews and meta-analyses." <em>Lancet.</em> 2019;393(10170):434-445. doi:10.1016/S0140-6736(18)31809-9 — 25–29 g/día de fibra, asociados a un 15–30 % menos de mortalidad y enfermedad cardiovascular.</p>
+  <p><strong>Wastyk HC, Fragiadakis GK, Perelman D, et al.</strong> "Gut-microbiota-targeted diets modulate human immune status." <em>Cell.</em> 2021;184(16):4137-4153.e14. doi:10.1016/j.cell.2021.06.019 — Ensayo aleatorizado de 17 semanas (18 por grupo): la dieta alta en fermentados subió la diversidad del microbioma y bajó marcadores inflamatorios; la alta en fibra no cambió la diversidad.</p>
+  <p><strong>Sawka MN, Burke LM, Eichner ER, et al.</strong> "American College of Sports Medicine position stand. Exercise and fluid replacement." <em>Med Sci Sports Exerc.</em> 2007;39(2):377-390. doi:10.1249/mss.0b013e31802ca597 — Beber para no perder más del 2 % del peso; pauta individual según la tasa de sudor; sodio en la bebida.</p>
+  <p><strong>Fallowfield JL, Williams C, Booth J, et al.</strong> "Effect of water ingestion on endurance capacity during prolonged running." <em>J Sports Sci.</em> 1996;14(6):497-502. doi:10.1080/02640419608727736 — 8 corredores: 2 ml/kg cada 15 min alargaron la carrera hasta el agotamiento de 77,7 a 103 min. Es la pauta que reproduce la fórmula de bolsillo de P07.</p>
+  <p><strong>Marklund M, Wu JHY, Imamura F, et al.</strong> "Biomarkers of Dietary Omega-6 Fatty Acids and Incident Cardiovascular Disease and Mortality." <em>Circulation.</em> 2019;139(21):2422-2436. doi:10.1161/CIRCULATIONAHA.118.038908 — 30 cohortes: más ácido linoleico en sangre, menos enfermedad cardiovascular.</p>
+  <p><strong>Philpott JD, Witard OC, Galloway SDR.</strong> "Applications of omega-3 polyunsaturated fatty acid supplementation for sport performance." <em>Res Sports Med.</em> 2019;27(2):219-237. doi:10.1080/15438627.2018.1550401 — Algo de evidencia en recuperación y resistencia; insuficiente para ganar músculo.</p>
+  <p><strong>Kreider RB, Kalman DS, Antonio J, et al.</strong> "International Society of Sports Nutrition position stand: safety and efficacy of creatine supplementation in exercise, sport, and medicine." <em>J Int Soc Sports Nutr.</em> 2017;14:18. doi:10.1186/s12970-017-0173-z — Creatina monohidrato: eficaz y segura; 3–5 g/día.</p>
+  <p><strong>Guest NS, VanDusseldorp TA, Nelson MT, et al.</strong> "International society of sports nutrition position stand: caffeine and exercise performance." <em>J Int Soc Sports Nutr.</em> 2021;18(1):1. doi:10.1186/s12970-020-00383-4 — 3–6 mg/kg unos 60 min antes; efecto mayor en resistencia.</p>
+  <p><strong>Messina M, Lynch H, Dickinson JM, Reed KE.</strong> "No Difference Between the Effects of Supplementing With Soy Protein Versus Animal Protein on Gains in Muscle Mass and Strength in Response to Resistance Exercise." <em>Int J Sport Nutr Exerc Metab.</em> 2018;28(6):674-685. doi:10.1123/ijsnem.2018-0071 — Proteína de soja y animal: mismas ganancias de fuerza y masa.</p>
+  <p><strong>Reed KE, Camargo J, Hamilton-Reeves J, et al.</strong> "Neither soy nor isoflavone intake affects male reproductive hormones: An expanded and updated meta-analysis of clinical studies." <em>Reprod Toxicol.</em> 2021;100:60-67. doi:10.1016/j.reprotox.2020.12.019 — La soja no altera la testosterona ni los estrógenos en hombres.</p>
+</details>
+
+<!-- blog:end -->
+<div class="info-box end-cta" style="text-align:center">
+  <div class="box-title">Del protocolo a los datos</div>
+  <p>Areté mide tus 7 dominios con tests concretos y te dice cuál te está frenando. Gratis.</p>
+  <p style="margin-top:.75rem"><a href="../../app.html" class="cta">Descubre tu nivel →</a></p>
+</div>
+<nav class="read-next" aria-label="Más blueprints"><h2 class="read-next-title">Más blueprints</h2><div class="read-next-grid"><a href="../movilidad/" class="read-next-card"><span class="card-phase">Movilidad</span><span class="nav-title">Plan de movilidad: 12 semanas</span><span class="nav-desc">Control activo del rango de movimiento, medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.</span></a><a href="../sleep/" class="read-next-card"><span class="card-phase">Sueño</span><span class="nav-title">Plan de sueño</span><span class="nav-desc">Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.</span></a></div></nav>
+<!-- /blog:end --></div><!-- .article-body -->
+
+<!-- blog:footer --><footer class="site-footer">
+  <nav class="footer-links" aria-label="Areté">
+    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/blueprints/">Blueprints</a>
+  </nav>
+  <p class="footer-maker">Areté · App de entrenamiento · Creada por <a href="https://luisgonzalezbernal.com">Luis González</a></p>
+</footer><!-- /blog:footer -->
+
+<script>
+(function(){var mq=matchMedia('(prefers-color-scheme:dark)');function applyTheme(){document.documentElement.classList.toggle('dark',mq.matches)}applyTheme();mq.addEventListener('change',applyTheme)})();
+</script>
+</body>
+</html>

@@ -27,7 +27,7 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 - [ ] **Recuperación · agua fría tras fuerza** (`blueprints/recovery/index.html`, P07): «2h» →
   **≥6 h**, o antes de entrenar, o en día libre, o terminar con ducha caliente (a1086; estudios
   en a2991-a2992: Fyfe 2019, Roberts 2015, Grgic 2023, Piñero 2024, Malta 2021).
-- [ ] **Nutrición · fermentados** (`blog/nutricion.html`): «moderar lácteos fermentados» →
+- [x] **Nutrición · fermentados** (`blog/nutricion.html`): «moderar lácteos fermentados» →
   consumir fermentados bajos en azúcar a diario (capítulo 38 del libro; verificar el estudio
   primario: Wastyk et al., *Cell* 2021).
 
@@ -99,7 +99,7 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   Movilidad: versión de 10 min, 2–4×/sem (a971-a979) además del plan de 12 semanas.
 - [ ] **Preguntas frecuentes** al final de cada protocolo o blueprint (el libro las tiene en
   todos los capítulos).
-- [ ] **Nutrición como blueprint de verdad** (`blueprints/nutricion/`): fases y protocolos.
+- [x] **Nutrición como blueprint de verdad** (`blueprints/nutricion/`): fases y protocolos.
   Del libro: ≥90 % sin procesar (cap. 33), hidratación (34), proteína de calidad en cada
   comida (35), carbohidratos de verdura con fibra y fruta (36), grasas (37), fermentados (38),
   omega-3 (39). Mantener lo bueno del artículo (macros por fase, creatina). El artículo del
