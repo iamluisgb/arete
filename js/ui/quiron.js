@@ -950,7 +950,12 @@ function renderRunCard(db, p, msg) {
       <button class="btn btn-sm q-prop-apply"></button>
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Carrera registrada — ${r.date} · verla en Running → Historial`,
-    () => applyRun(db, r), (t) => undoRun(db, t));
+    () => {
+      const t = applyRun(db, r);
+      // Si la carrera cierra la semana de running, se pasa a la siguiente (con deshacer).
+      import('./running-plan.js').then(m => m.announceRunWeekAdvance(db)).catch(() => {});
+      return t;
+    }, (t) => undoRun(db, t));
   return card;
 }
 

@@ -137,6 +137,34 @@ descargar o qué hacer con una rodilla que molesta.
    historial de ajustes; evals de Quirón (`docs/EVALS.md`) con conversaciones de
    lesión, agujetas, viaje y semana mala.
 
+## Plan híbrido: fuerza y carrera en un mismo plan
+
+Decidido el 2-nov. **Un plan con dos carriles, no un programa mezclado.** La fuerza vive en
+`workouts` y la carrera en `runningLogs` (importada de GPX/TCX, con zonas, marcas y perfil
+encima); una sesión que mezclara las dos rompería todo eso por poco a cambio.
+
+- **H1 — `db.plan`** por encima de los dos programas: nombre, programa de fuerza, programa de
+  carrera, inicio y (fase 2) meta. Los programas siguen siendo lo que son.
+- **H2 — Un calendario de bloques para los dos**: las semanas avanzan juntas y **la descarga cae
+  la misma semana en los dos carriles**.
+- **H3 — Semana tipo con interferencia**: cada carril con sus días (los anclas de hoy); la app
+  avisa —no bloquea— de pierna pesada y series o tirada larga en días seguidos.
+- **H4 — Mapa de dos carriles**: fuerza y carrera en paralelo, descargas compartidas a lo ancho.
+- **H5 — Creación con Quirón** («la media de marzo sin perder fuerza, 5 días» → los dos
+  programas y la semana tipo, con diff) y un editor sencillo para elegir programas y días.
+
+Pasos:
+1. ✅ **Las semanas de running avanzan solas** (2-nov). `advanceRunWeek` en `schedule.js`:
+   al vaciarse la cola de la semana con al menos una carrera registrada en ella, pasa a la
+   siguiente, con toast de deshacer. La cola de running filtra por `log.week` (un «Rodaje»
+   de la semana 1 ya no tacha el de la 2). El registro manual tiene «Sesión del plan» (propone
+   la siguiente pendiente), y editar una importada permite asignarle la suya. De paso: editar
+   una carrera duplicaba en vez de editar, y reescribía una importada como manual pisando su
+   recorrido en IndexedDB.
+2. `db.plan` híbrido con descarga compartida y mapa de dos carriles.
+3. Semana tipo con avisos de interferencia.
+4. Crear el plan con Quirón y editor manual.
+
 ## Criterios de aceptación
 
 - Perder una semana entera corre el plan y recalcula las fechas sin perder sesiones.

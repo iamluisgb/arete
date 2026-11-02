@@ -17,7 +17,7 @@ import { renderRunHistory as _renderRunHistory } from './running-history.js';
 import { openShareEditor } from './share-editor.js';
 import { renderRunProgress as _renderRunProgress } from './running-progress.js';
 import { initRunCalendar, renderRunCalendar } from './running-calendar.js';
-import { populateRunWeeks as _populateRunWeeks, renderAllWeekSessions as _renderAllWeekSessions, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar } from './running-plan.js';
+import { populateRunWeeks as _populateRunWeeks, renderAllWeekSessions as _renderAllWeekSessions, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar, populateManualSessionSelect, announceRunWeekAdvance } from './running-plan.js';
 import { buildQueue, PLAN_RUNNING } from '../schedule.js';
 
 // Re-export for backward compatibility
@@ -64,6 +64,8 @@ function emergencySaveRun(snap, db) {
     date: new Date(t.startTime || snap.savedAt).toISOString().slice(0, 10),
     type: snap.activeRunType || 'libre',
     session: snap.activePlanSession || '',
+    program: db.runningProgram || '',
+    week: db.runningWeek || 0,
     distance: +(t.distance || 0).toFixed(3),
     duration: Math.round(t.elapsed || 0),
     pace: t.distance > 0 ? Math.round((t.elapsed || 0) / t.distance) : 0,
@@ -842,6 +844,7 @@ function saveGpsRun(db) {
   }
   closeLiveOverlay();
   refreshRunning(db);
+  announceRunWeekAdvance(db, () => refreshRunning(db));
 }
 
 function discardGpsRun() {
@@ -1632,6 +1635,7 @@ function openManualModal(db) {
   document.getElementById('runDeleteBtn').style.display = 'none';
   document.getElementById('runSaveBtn').textContent = 'Guardar sesión';
   document.getElementById('runSplitInputs').innerHTML = '';
+  populateManualSessionSelect(db);
   document.getElementById('runManualModal').classList.add('open');
 }
 
@@ -1688,11 +1692,12 @@ function saveManualLog(db) {
   }
 
   const splits = collectManualSplits();
+  const original = editingId ? (db.runningLogs || []).find(l => l.id === editingId) : null;
 
-  const log = {
+  let log = {
     id: editingId || Date.now(),
     date: document.getElementById('runDate').value || today(),
-    session: '',
+    session: document.getElementById('runManualSession')?.value || '',
     program: db.runningProgram || '',
     week: db.runningWeek || 0,
     type: document.getElementById('runType').value,
@@ -1709,6 +1714,17 @@ function saveManualLog(db) {
     notes: document.getElementById('runNotes').value.trim()
   };
 
+  // Editar no reescribe la procedencia. Una carrera importada o de GPS sigue
+  // siéndolo, con su programa y su semana, y conserva recorrido, segmentos y
+  // pulso: el formulario no los enseña, así que no puede decidir sobre ellos.
+  // Antes se guardaba como 'manual' con route: null, y el put de IndexedDB
+  // pisaba el recorrido con solo los splits del formulario.
+  if (original) {
+    const { route, segments, source, program, week, splits: formSplits, ...campos } = log;
+    log = { ...original, ...campos, source: original.source || source };
+    if (formSplits.length) log.splits = formSplits;
+  }
+
   if (!Array.isArray(db.runningLogs)) db.runningLogs = [];
 
   if (editingId) {
@@ -1719,14 +1735,17 @@ function saveManualLog(db) {
     db.runningLogs.push(log);
   }
 
-  // Store heavy fields in IndexedDB (splits for manual logs)
-  const heavy = extractHeavyFields(log);
-  if (heavy) saveRunRoute(log.id, heavy);
+  // Lo pesado va a IndexedDB. Al editar se FUSIONA con lo que ya hubiera allí
+  // (el recorrido de una importada) en vez de sustituirlo.
+  const heavy = original ? (splits.length ? { splits } : null) : extractHeavyFields(log);
+  if (heavy && original) loadRunRoute(log.id).then(prev => saveRunRoute(log.id, { ...(prev || {}), ...heavy }));
+  else if (heavy) saveRunRoute(log.id, heavy);
   saveDB(db);
   checkAndNotifyPRs(db, log);
   toast(editingId ? 'Sesión actualizada' : 'Sesión guardada');
   closeManualModal();
   refreshRunning(db);
+  announceRunWeekAdvance(db, () => refreshRunning(db));
 }
 
 // ── Edit / Delete ────────────────────────────────────────
@@ -1735,8 +1754,12 @@ function startRunEdit(id, db) {
   const log = (db.runningLogs || []).find(l => l.id === id);
   if (!log) return;
 
-  editingId = id;
+  // openManualModal deja el formulario en «nueva carrera» (editingId = null):
+  // el id de la edición se fija DESPUÉS. En el orden inverso, editar una
+  // carrera guardaba una copia nueva y dejaba la original intacta.
   openManualModal(db);
+  editingId = id;
+  populateManualSessionSelect(db, log.session || '', log.week || null);
 
   document.getElementById('runDate').value = log.date || '';
   document.getElementById('runType').value = log.type || 'libre';

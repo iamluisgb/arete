@@ -139,6 +139,11 @@ del historial: no se guarda ninguna posición**.
   «Toca hoy» daba el plan por completado en la primera semana de un bloque de seis. Las
   pendientes de fuerza son las de la semana; las atrasadas, los anclas que pasaron sin entrenar
   desde el último entreno.
+- **Running también se cierra por sesiones**: cuando la cola de la semana activa se vacía con
+  una carrera registrada en ella, `advanceRunWeek` pasa a la siguiente (toast con deshacer).
+  La cola de running solo cuenta carreras de su semana (`log.week`); por eso el registro manual
+  y la edición llevan «Sesión del plan». Plan híbrido (fuerza + carrera en dos carriles): ver
+  la sección en `odd/tasks/planificacion.md`.
 - La configuración de anclas vive en [`js/schedule-config.js`](js/schedule-config.js) para que
   `plan.js` y `schedule.js` la lean sin importarse en círculo.
 

@@ -1,4 +1,7 @@
 import { esc } from '../utils.js';
+import { saveDB } from '../data.js';
+import { toast } from './toast.js';
+import { buildQueue, advanceRunWeek, PLAN_RUNNING } from '../schedule.js';
 import { getRunningProgramList, getRunningPhases } from '../programs.js';
 import { ZONE_COLORS, ZONE_LABELS, parseSegDistance, parseSegDuration, estimateZone, getPaceZones } from './running-helpers.js';
 
@@ -148,6 +151,41 @@ export function populateSumSessionSelect(db) {
       }
     }
   }
+}
+
+/**
+ * Selector «Sesión del plan» del registro manual: las sesiones de la semana
+ * activa. Sin él, una carrera manual o importada nunca tachaba su sesión y, en
+ * la web (sin GPS), la semana de running no se podía cerrar. Al registrar una
+ * nueva se propone la siguiente pendiente; al editar, la que tenía.
+ */
+export function populateManualSessionSelect(db, current = null, week = null) {
+  const $sel = document.getElementById('runManualSession');
+  if (!$sel) return;
+  // Al editar, las sesiones de la semana de ESA carrera: la sesión solo tacha
+  // la de su semana (schedule.js filtra por log.week).
+  const semana = getRunningPhases(db.runningProgram || '')?.[week || db.runningWeek || 1];
+  const nombres = semana?.sessions ? Object.keys(semana.sessions) : [];
+  if (current && !nombres.includes(current)) nombres.push(current);
+  $sel.innerHTML = '<option value="">Ninguna</option>' +
+    nombres.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  $sel.value = current ?? (buildQueue(db, PLAN_RUNNING)[0] || '');
+}
+
+/**
+ * Tras guardar una carrera: si con ella se cerró la semana, se pasa a la
+ * siguiente y se avisa con deshacer (avisar, nunca bloquear).
+ */
+export function announceRunWeekAdvance(db, onChange) {
+  const adv = advanceRunWeek(db);
+  if (!adv) return null;
+  saveDB(db);
+  onChange?.();
+  toast(`Semana ${adv.from} completada — pasas a la semana ${adv.to}`, 'success', {
+    action: 'Deshacer',
+    onAction: () => { db.runningWeek = adv.from; saveDB(db); onChange?.(); },
+  });
+  return adv;
 }
 
 export function updateRunContextBar(db) {

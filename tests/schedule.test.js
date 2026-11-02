@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import {
   SCHEDULE_DEFAULTS, getScheduleConfig, buildQueue, pendingCount,
   schedulePlan, scheduleAll, scheduleDay, scheduleOverdue,
-  scheduleMissed, usesDefaultAnchors,
+  scheduleMissed, usesDefaultAnchors, advanceRunWeek,
 } from '../js/schedule.js';
 import { reindexCustomPrograms } from '../js/programs.js';
 
@@ -21,6 +21,7 @@ const PLAN_FUERZA = {
 const PLAN_RUN = {
   _meta: { name: 'Run test', sport: 'running' }, _customId: 't-run',
   1: { name: 'Semana 1', sessions: { 'Series': [], 'Rodaje': [] } },
+  2: { name: 'Semana 2', sessions: { 'Rodaje': [], 'Tirada': [] } },
 };
 
 function seedDb(over = {}) {
@@ -312,5 +313,43 @@ describe('usesDefaultAnchors (F3: hint de defaults sin config)', () => {
     const db = seedDb({ settings: {} });
     usesDefaultAnchors(db);
     expect(db.settings.schedule).toBeUndefined();
+  });
+});
+
+describe('running: semanas que se cierran al hacer sus sesiones', () => {
+  const run = (session, week, over = {}) => ({ date: '2026-01-05', session, program: 't-run', week, ...over });
+
+  it('una carrera de otra semana no tacha la sesión del mismo nombre', () => {
+    const db = seedDb({ runningWeek: 2, runningLogs: [run('Rodaje', 1)] });
+    expect(buildQueue(db, 'running')).toEqual(['Rodaje', 'Tirada']);
+  });
+
+  it('las carreras antiguas sin semana cuentan, como siempre', () => {
+    const db = seedDb({ runningWeek: 2, runningLogs: [run('Rodaje', undefined)] });
+    expect(buildQueue(db, 'running')).toEqual(['Tirada']);
+  });
+
+  it('hechas todas las de la semana, pasa a la siguiente', () => {
+    const db = seedDb({ runningLogs: [run('Series', 1), run('Rodaje', 1)] });
+    expect(advanceRunWeek(db)).toEqual({ from: 1, to: 2 });
+    expect(db.runningWeek).toBe(2);
+    expect(buildQueue(db, 'running')).toEqual(['Rodaje', 'Tirada']);
+  });
+
+  it('con sesiones pendientes no avanza', () => {
+    const db = seedDb({ runningLogs: [run('Series', 1)] });
+    expect(advanceRunWeek(db)).toBeNull();
+    expect(db.runningWeek).toBe(1);
+  });
+
+  it('en la última semana no avanza', () => {
+    const db = seedDb({ runningWeek: 2, runningLogs: [run('Rodaje', 2), run('Tirada', 2)] });
+    expect(advanceRunWeek(db)).toBeNull();
+  });
+
+  it('una cola vaciada solo por carreras antiguas sin semana no avanza sola', () => {
+    const db = seedDb({ runningLogs: [run('Series', undefined), run('Rodaje', 0)] });
+    expect(buildQueue(db, 'running')).toEqual([]);
+    expect(advanceRunWeek(db)).toBeNull();
   });
 });

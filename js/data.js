@@ -232,7 +232,7 @@ export function normalizeRun(r) {
 export function applyRun(db, run, meta = {}) {
   const id = Date.now() + Math.floor(Math.random() * 1000);
   const norm = normalizeRun(run);
-  const log = { id, ...norm, program: meta.program ?? db.runningProgram ?? '', week: 0 };
+  const log = { id, ...norm, program: meta.program ?? db.runningProgram ?? '', week: meta.week ?? db.runningWeek ?? 0 };
   if (!Array.isArray(db.runningLogs)) db.runningLogs = [];
   db.runningLogs.push(log);
   saveDB(db);

@@ -1088,6 +1088,10 @@
       <option value="libre">Libre</option>
     </select></div>
   </div>
+  <!-- Sesión del plan: tachar la sesión de la semana es lo que cierra la semana
+       de running (schedule.js · advanceRunWeek). Al editar una importada, aquí se
+       le asigna la suya. -->
+  <div class="mb"><label for="runManualSession">Sesión del plan</label><select id="runManualSession"><option value="">Ninguna</option></select></div>
   <div class="row mb">
     <div><label>Distancia (km)</label><input type="number" id="runDistance" step="0.1" min="0" placeholder="0.0" inputmode="decimal" autocomplete="off"></div>
     <div><label>Duración (mm:ss)</label><input type="text" id="runDuration" placeholder="32:15" inputmode="numeric" autocomplete="off"></div>

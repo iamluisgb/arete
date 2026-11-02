@@ -74,8 +74,10 @@ function sesionesRunning(db) {
  *  - Fuerza: lo que queda del ciclo del bloque, empezando por lo pendiente de
  *    la semana en curso (blockQueue en js/plan.js).
  *  - Running: las sesiones de la semana activa en orden declarado; cada carrera
- *    hecha consume la primera aparición pendiente de su nombre. Así, tras hacer
- *    A y B, la cola empieza en C; repetir A y B no re-encola nada.
+ *    hecha EN ESA SEMANA (log.week) consume la primera aparición pendiente de su
+ *    nombre. Así, tras hacer A y B, la cola empieza en C. Sin el filtro de
+ *    semana, un «Rodaje Z2» de la semana 1 tachaba el de la semana 2. Las
+ *    carreras antiguas sin semana cuentan en cualquiera, como siempre.
  */
 export function buildQueue(db, plan = PLAN_STRENGTH, ref = new Date()) {
   // Fuerza va por semanas del bloque (js/plan.js): la cola es lo que queda del
@@ -91,6 +93,7 @@ export function buildQueue(db, plan = PLAN_STRENGTH, ref = new Date()) {
     const name = item?.session || '';
     if (!name || !enPlan.has(name)) continue;
     if ((item.program || '') !== (db.runningProgram || '')) continue;
+    if (item.week && item.week !== (db.runningWeek || 1)) continue;
     done[name] = (done[name] || 0) + 1;
   }
 
@@ -217,4 +220,25 @@ export function scheduleMissed(db, ref = new Date(), lookbackDays = OVERDUE_LOOK
  */
 export function scheduleOverdue(db, ref = new Date()) {
   return scheduleMissed(db, ref);
+}
+
+/**
+ * Avance de semana de running (odd/tasks/planificacion.md · plan híbrido, paso 1).
+ * Una semana se cierra al hacer sus sesiones, como las de fuerza: cuando la cola
+ * de la semana activa se vacía con al menos una carrera registrada EN ella, pasa
+ * a la siguiente. Muta db.runningWeek y devuelve { from, to }, o null si no
+ * toca (quedan sesiones, no hay semana siguiente o la cola se vació solo con
+ * carreras antiguas sin semana). Quien llama guarda y avisa con deshacer.
+ */
+export function advanceRunWeek(db) {
+  const prog = getRunningProgram(db?.runningProgram || '');
+  if (!prog) return null;
+  const actual = db.runningWeek || 1;
+  if (!prog[String(actual + 1)]) return null;
+  if (buildQueue(db, PLAN_RUNNING).length) return null;
+  const enEsta = (db.runningLogs || []).some(l =>
+    l?.session && l.week === actual && (l.program || '') === (db.runningProgram || ''));
+  if (!enEsta) return null;
+  db.runningWeek = actual + 1;
+  return { from: actual, to: actual + 1 };
 }
