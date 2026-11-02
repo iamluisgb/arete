@@ -107,8 +107,8 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   dormir» (a1714 explica por qué). Los timelines llevan un ejemplo con horas pero dicen de
   dónde salen.
   - [x] breathwork.
-  - *Producto (pendiente de decisión de Luis)*: que la app pida la hora de despertar y
-    calcule el timeline. No lo hacen los agentes de esta tanda.
+  - *Producto (decidido el 2-nov-2026: no)*: la app no pide la hora de despertar ni calcula
+    el timeline. Los blueprints se quedan con tiempos relativos y un ejemplo con horas.
   - [x] digital-detox (movilidad no tiene horas de reloj).
 - [x] **Dosis mínima** al principio de cada blueprint: «si solo haces una cosa». Recortar el
   sistema diario de respiración (hoy suma >60 min/día) a un núcleo realista.
