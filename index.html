@@ -279,6 +279,28 @@
     .feats{grid-template-columns:1fr}
     .import-chip{white-space:normal;width:max-content;max-width:92%;text-align:center}
   }
+  /* ---- Escritorio: aprovechar el ancho. Copia y visual lado a lado,
+     alternando; en móvil todo sigue apilado y centrado. ---- */
+  @media (min-width:1024px){
+    .wrap{max-width:1200px;padding:0 40px}
+    .duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(48px,6vw,96px);align-items:center;text-align:left}
+    .duo .beat-copy{margin:0;max-width:560px}
+    .duo.rev .beat-copy{justify-self:end}
+    .duo .support{margin-left:0}
+    .duo .cta-row{justify-content:flex-start}
+    .duo .beat-visual{margin:0;text-align:center}
+    .duo.rev>.beat-visual{order:-1}
+    .duo+.duo{margin-top:clamp(72px,11vh,120px)}
+    .hero-card{max-width:500px}
+    .q-grid{max-width:none}
+    .anims{max-width:none;gap:20px}
+    .feats{max-width:none;gap:18px}
+    .feat{padding:22px 22px 20px}
+    .faq-duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:clamp(48px,6vw,96px);align-items:start;text-align:left}
+    .faq-duo .beat-copy{margin:0;position:sticky;top:100px}
+    .faq-duo .faq{margin:0;max-width:none}
+    .proof{max-width:none}
+  }
 </style>
   <!-- Umami Analytics: solo carga en producción (servimos el tracker en /u/s.js); en localhost, nada -->
   <script>
@@ -308,7 +330,7 @@
 
 <!-- Beat 1 · La promesa -->
 <header class="beat" data-beat="hero">
-  <div class="wrap">
+  <div class="wrap duo">
     <div class="beat-copy">
       <img class="hero-logo" src="assets/icons/icon-192.png" alt="Logo de Areté" width="84" height="84">
       <p class="product-name">Areté</p>
@@ -335,6 +357,7 @@
 <!-- Beat 2 · El problema y la tesis -->
 <section class="beat alt" data-beat="problema">
   <div class="wrap">
+   <div class="duo">
     <div class="beat-copy">
       <h2>Fuerte en el gimnasio.<br>Roto en la primera cuesta.</h2>
       <p class="support">Todos nos especializamos sin darnos cuenta: entrenamos lo que se nos da bien y evitamos lo que duele. Los números lo esconden, hasta que alguien mide todo.</p>
@@ -354,6 +377,8 @@
       </div>
       <p class="split-note">¿Tu nivel? <b>I.</b></p>
     </div>
+   </div>
+   <div class="duo rev">
     <div class="beat-copy split-lead">
       <h2>Tu nivel es tu dominio más bajo.</h2>
       <p class="support">No la media. No tu récord favorito. En Areté el nivel global es el <b>mínimo</b> de tus siete dominios, así que solo hay una forma de subir: <b>entrenar lo que evitas</b>.</p>
@@ -374,12 +399,13 @@
       </div>
       <p class="mindemo-note" id="demoNote">Es el sistema de verdad. Pruébalo.</p>
     </div>
+   </div>
   </div>
 </section>
 
 <!-- Beat 3 · La confianza -->
 <section class="beat" data-beat="tests">
-  <div class="wrap">
+  <div class="wrap duo rev">
     <div class="beat-copy">
       <h2>Medido, no sentido.</h2>
       <p class="support">Cada dominio se mide con un test guiado y un protocolo publicado: 5K, snatch test, Simple &amp; Sinister, McGill, AKE… Los estándares se ajustan a <b>tu peso corporal</b>, no a una tabla genérica.</p>
@@ -433,7 +459,7 @@
 
 <!-- Beat 5 · Del diagnóstico al plan -->
 <section class="beat" data-beat="plan">
-  <div class="wrap">
+  <div class="wrap duo">
     <div class="beat-copy">
       <p class="product-name" style="letter-spacing:.16em;font-size:12px">Planes y progresión</p>
       <h2>Del diagnóstico al plan.</h2>
@@ -479,7 +505,7 @@
   <div class="wrap">
     <div class="beat-copy">
       <h2>Cada ejercicio, en 3D.</h2>
-      <p class="support">Pulsa «3D» junto al ejercicio y gíralo para verlo desde el ángulo que te haga falta. Ya hay <b>20</b>, de la sentadilla al press militar.</p>
+      <p class="support">Pulsa «3D» junto al ejercicio y gíralo para verlo desde el ángulo que te haga falta. Ya hay <b>30</b>, de la sentadilla al press militar.</p>
     </div>
     <div class="beat-visual anims" aria-label="Cuatro ejercicios animados de la app">
       <figure class="anim"><img data-frames="squat" src="assets/anim3d/frames/squat-0.webp" width="320" height="320" alt="Sentadilla con barra" loading="lazy"><figcaption>Sentadilla</figcaption></figure>
@@ -521,6 +547,7 @@
 <!-- FAQ -->
 <section class="beat alt" data-beat="faq">
   <div class="wrap">
+   <div class="faq-duo">
     <div class="beat-copy">
       <h2>Preguntas frecuentes</h2>
     </div>
@@ -566,6 +593,7 @@
         <p class="ans">Sí, es una PWA instalable: entrenar, registrar series y consultar tu perfil funciona offline. Quirón sí necesita conexión.</p>
       </details>
     </div>
+   </div>
     <ul class="proof">
       <li class="proof-maker"><img src="assets/landing/luis.webp" alt="" width="28" height="28" loading="lazy" decoding="async"><span>Hecha por <a href="https://luisgonzalezbernal.com"><b>Luis González</b></a>, en España</span></li>
       <li><span>Tests de protocolos publicados: <b>McGill</b>, <b>Simple &amp; Sinister</b>, <b>AKE</b></span></li>
