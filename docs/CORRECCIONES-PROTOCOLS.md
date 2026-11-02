@@ -138,3 +138,19 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 Ficheros compartidos (`blueprints/index.html`, `sitemap.xml`, `tests/blog.test.js`,
 imágenes OG): los toca solo quien crea un blueprint nuevo; los conflictos se resuelven al
 integrar.
+
+---
+
+## Bloque 5 · Huecos frente al libro (2-nov-2026, segunda tanda)
+
+- [ ] **Atención → «Foco y aprendizaje»** (`blueprints/digital-detox/`, slug igual): entrar en
+  estado de alerta y foco (capítulo 47, el más largo del libro), aprender de los errores (49),
+  ensayo mental (52). Orientado a aprender técnica en el entreno.
+- [ ] **Respiración → «Respiración y estrés»** (`blueprints/breathwork/`, slug igual): subir el
+  pico de cortisol y catecolaminas por la mañana (capítulo 30) y suplementos para el estrés
+  (capítulo 31: ashwagandha y demás), con sus riesgos.
+- [ ] **Blueprint nuevo de Luz** (`blueprints/luz/`): sol en la piel y vitamina D (capítulo 44),
+  luz roja e infrarroja (45), y remitir a sueño para la luz de ojos (41–43) sin duplicarla. Si
+  la evidencia de luz roja no aguanta, se dice y se marca tentativa o se deja fuera.
+- Fuera de alcance: crecimiento personal (capítulo 7). La escritura expresiva podría entrar en
+  sueño más adelante.
