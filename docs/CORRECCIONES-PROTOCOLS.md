@@ -50,19 +50,19 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
     *Am J Physiol* 278:E245-9. *(corregida; tampoco habla de luz azul: texto ajustado)*
   - [x] Lehrer & Gevirtz 2014: en el texto pone *Biofeedback*, en referencias *Front Psychol*.
     *Es Front Psychol 5:756; corregido en el texto.*
-  - Movilidad: hay una referencia que es solo «PMC6373037.» sin autor.
-- [ ] **Pasada a las 84 referencias** (recuperación hecha: 20 → 27, todas con DOI comprobado;
-  Sharman 2006 y el título de Howatson 2008 eran falsos y se sustituyen; los g de Dupuy y
-  la cifra de Wang estaban mal) de los 5 blueprints: cada una con autor, título, revista,
+  - [x] Movilidad: hay una referencia que es solo «PMC6373037.» sin autor. → Christopher et al.,
+    *Arch Physiother* 2019;9:2 (no dice lo que se le atribuía; corregido).
+- [x] **Pasada a las 84 referencias** de los 5 blueprints: cada una con autor, título, revista,
   año y DOI/PMID comprobados. Lo que no se encuentre, fuera.
   - [x] sleep: 17 → 38, todas con DOI o PMID comprobados en PubMed.
   - [x] breathwork: las 20 revisadas; 5 se quedan (Balban con la descripción corregida), 15 fuera o sustituidas; 25 en total, todas con DOI o PMID salvo un libro (McKeown, origen del BOLT).
-- [ ] **Tono**: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
+  - [x] recovery: 20 → 27; Sharman 2006 y el título de Howatson 2008 eran falsos; los g de Dupuy y la cifra de Wang estaban mal.
+  - [x] digital-detox (20 → 29 refs) y movilidad (7 → 14 refs).
+- [x] **Tono**: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
   tape bucal — evidencia floja). Añadir **nivel de evidencia** por protocolo
   (fuerte · moderada · tentativa), con el mismo marcado en todos los blueprints.
-  - [x] breathwork. Marcado: `<span><strong>Evidencia:</strong> moderada</span>` dentro del
-    `.meta` de cada `.ex-card`, y la leyenda en un `.ref-box` «Nivel de evidencia de cada
-    protocolo» antes del índice. Sin CSS nuevo.
+  - [x] sleep, recovery, frío-calor, digital-detox, movilidad, nutrición: badge al principio de cada `.evidence`.
+  - [x] breathwork pasado al mismo badge.
 
 ## Bloque 3 · Protocolos que faltan
 
@@ -94,28 +94,29 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   Hussain y Cohen 2018 y Scoon 2007, con la evidencia de rendimiento marcada como tentativa.*
 
 **Atención (desconexión digital) → foco y aprendizaje**
-- [ ] Micropausas: 10–30 s entre repeticiones motoras, 5–10 min en aprendizaje cognitivo
+- [x] Micropausas: 10–30 s entre repeticiones motoras, 5–10 min en aprendizaje cognitivo
   (a2196-a2204, Bönstrup 2019, Buch 2021). Enlazar con el aprendizaje de técnica (kettlebell).
-- [ ] Contraste mental (capítulo 48), dormir bien la noche tras aprender (capítulo 50).
+- [x] Contraste mental (capítulo 48), dormir bien la noche tras aprender (capítulo 50).
 
 **Movimiento diario** (recuperación o movilidad)
 - [x] Caminar 5–10 min tras comer; 5 min por cada 30 sentado (a685).
 
 ## Bloque 4 · Forma
 
-- [ ] **Tiempos relativos** *(sleep hecho)*, no horas de reloj: «0–1 h tras despertar», «8–10 h antes de
+- [x] **Tiempos relativos**, no horas de reloj: «0–1 h tras despertar», «8–10 h antes de
   dormir» (a1714 explica por qué). Los timelines llevan un ejemplo con horas pero dicen de
   dónde salen.
   - [x] breathwork.
   - *Producto (pendiente de decisión de Luis)*: que la app pida la hora de despertar y
     calcule el timeline. No lo hacen los agentes de esta tanda.
-- [ ] **Dosis mínima** *(sleep hecho)* al principio de cada blueprint: «si solo haces una cosa». Recortar el
+  - [x] digital-detox (movilidad no tiene horas de reloj).
+- [x] **Dosis mínima** al principio de cada blueprint: «si solo haces una cosa». Recortar el
   sistema diario de respiración (hoy suma >60 min/día) a un núcleo realista.
   Movilidad: versión de 10 min, 2–4×/sem (a971-a979) además del plan de 12 semanas.
-  - [x] breathwork: «Si solo haces una cosa» arriba; núcleo de 10-15 min/día y extras.
-- [ ] **Preguntas frecuentes** *(sleep hecho: `details.info-box.refs`)* al final de cada protocolo o blueprint (el libro las tiene en
-  todos los capítulos).
-  - [x] breathwork.
+  - [x] sleep, breathwork (núcleo de 10-15 min/día), recovery, frío-calor, nutrición,
+    digital-detox y movilidad (con fuerza en recorrido completo, a976 y nota 130).
+- [x] **Preguntas frecuentes** al final de cada blueprint (el libro las tiene en
+  todos los capítulos). Todos los blueprints, con `details.info-box.refs`.
 - [x] **Nutrición como blueprint de verdad** (`blueprints/nutricion/`): fases y protocolos.
   Del libro: ≥90 % sin procesar (cap. 33), hidratación (34), proteína de calidad en cada
   comida (35), carbohidratos de verdura con fibra y fruta (36), grasas (37), fermentados (38),

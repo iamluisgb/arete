@@ -175,8 +175,8 @@ ${rest.map(a => `    <li><a href="${a.slug}.html" class="article-card" data-umam
 // ── Blueprints: mismas piezas (firma, imagen social, cierre, pie) y su portada ──
 export const BLUEPRINTS = [
   { slug: 'movilidad', tag: 'Movilidad', title: 'Plan de movilidad: 12 semanas',
-    desc: 'Control activo del rango de movimiento, medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.',
-    published: '2026-07-03', updated: '2026-08-24' },
+    desc: 'Dosis mínima de 10 minutos o plan de 12 semanas medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.',
+    published: '2026-07-03', updated: '2026-11-02' },
   { slug: 'sleep', tag: 'Sueño', title: 'Plan de sueño',
     desc: 'Luz, temperatura, cafeína, alcohol, suplementos y jet lag, con dosis, momento y nivel de evidencia. 3 fases y 14 protocolos.',
     published: '2026-07-05', updated: '2026-11-02' },
@@ -190,8 +190,8 @@ export const BLUEPRINTS = [
     desc: 'Qué respiración usar para el estrés, la recuperación, la activación y el sueño, y cuánta evidencia hay detrás. Núcleo de 10 min al día y 14 protocolos.',
     published: '2026-07-08', updated: '2026-11-02' },
   { slug: 'digital-detox', tag: 'Atención', title: 'Plan de desconexión digital',
-    desc: 'Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.',
-    published: '2026-07-08', updated: '2026-08-24' },
+    desc: 'Mañanas sin móvil, notificaciones agrupadas, trabajo profundo y micropausas para aprender técnica. 13 protocolos con su nivel de evidencia.',
+    published: '2026-07-08', updated: '2026-11-02' },
   { slug: 'nutricion', tag: 'Nutrición', title: 'Plan de nutrición',
     desc: 'Comida real, proteína en cada comida, carbohidratos según la carga, fermentados y los suplementos que funcionan. 12 protocolos.',
     published: '2026-11-02', updated: '2026-11-02' },
