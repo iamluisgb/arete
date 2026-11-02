@@ -14,13 +14,13 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 
 ## Bloque 1 · Datos que el libro contradice
 
-- [ ] **Sueño · alcohol** (`blueprints/sleep/index.html`, P06 y timeline/checklist): «3h antes»
+- [x] **Sueño · alcohol** (`blueprints/sleep/index.html`, P06 y timeline/checklist): «3h antes»
   → **8 h antes de dormir** (a497). Revisar también el texto «metaboliza ~1 unidad/hora».
-- [ ] **Sueño · cafeína** (P05, timeline): cut-off fijo a las 14:00 → **8–10 h antes de
+- [x] **Sueño · cafeína** (P05, timeline): cut-off fijo a las 14:00 → **8–10 h antes de
   acostarse, 12 h si eres sensible** (a464). El retraso de 90–120 min pasa a opcional
   (60–90 min, «solo una sugerencia», a481) y se quita el mecanismo «si no, el cortisol no
   pica». Compatible con café pre-entreno temprano (a486).
-- [ ] **Sueño · suplementos** (P08): magnesio 300–400 → **145–250 mg** bisglicinato o
+- [x] **Sueño · suplementos** (P08): magnesio 300–400 → **145–250 mg** bisglicinato o
   L-treonato; glicina 3 g → **1–2 g**; añadir apigenina 50 mg y teanina 100–200 mg (no si
   pesadillas o sonambulismo); melatonina 0.5–1.5 mg solo con evidencia en mayores/desfase,
   no crónica (a400, a416, a434); exigir certificación de terceros NSF/USP (a445).
@@ -42,30 +42,31 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
     (a3451): Werntz 1983, Shannahoff-Khalsa 1991, Vanutelli 2024.
   - Telles 2017 «sukha pranayama» citado como respiración alterna.
   - Haghayegh 2019: es *Sleep Med Rev* 46:124-135 y trata del baño caliente, no de
-    «activación parasimpática». Aparece en sleep y breathwork.
-  - Zeitzer 2000 (sleep): el libro lo cita como *J Physiol* 526(3):695-702 (a2592); Areté pone
-    *Am J Physiol* 278:E245-9.
+    «activación parasimpática». Aparece en sleep y breathwork. *(sleep: corregida)*
+  - [x] Zeitzer 2000 (sleep): el libro lo cita como *J Physiol* 526(3):695-702 (a2592); Areté pone
+    *Am J Physiol* 278:E245-9. *(corregida; tampoco habla de luz azul: texto ajustado)*
   - Lehrer & Gevirtz 2014: en el texto pone *Biofeedback*, en referencias *Front Psychol*.
   - Movilidad: hay una referencia que es solo «PMC6373037.» sin autor.
 - [ ] **Pasada a las 84 referencias** de los 5 blueprints: cada una con autor, título, revista,
   año y DOI/PMID comprobados. Lo que no se encuentre, fuera.
-- [ ] **Tono**: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
+  *(sleep hecho: 17 → 38, todas con DOI o PMID comprobados en PubMed)*
+- [ ] **Tono** *(sleep hecho: nivel de evidencia con `.badge` al inicio de `.evidence`)*: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
   tape bucal — evidencia floja). Añadir **nivel de evidencia** por protocolo
   (fuerte · moderada · tentativa), con el mismo marcado en todos los blueprints.
 
 ## Bloque 3 · Protocolos que faltan
 
 **Sueño**
-- [ ] Luz al final de la tarde, 10–15 min al aire libre antes del ocaso (a178).
-- [ ] Subir 1–3 °C la habitación (o ropa) 1–2 h antes de despertar (a326-a331; el libro
+- [x] Luz al final de la tarde, 10–15 min al aire libre antes del ocaso (a178).
+- [x] Subir 1–3 °C la habitación (o ropa) 1–2 h antes de despertar (a326-a331; el libro
   admite menos datos: evidencia tentativa).
-- [ ] Experimento de cronotipo: una semana en cama a las 20:30–21:00 (a237-a241). Hoy P03
+- [x] Experimento de cronotipo: una semana en cama a las 20:30–21:00 (a237-a241). Hoy P03
   solo fija la hora de despertar.
-- [ ] Siestas: matizar «nunca 30–60» (con déficit de sueño 30–90 vale, a341); **con insomnio
+- [x] Siestas: matizar «nunca 30–60» (con déficit de sueño 30–90 vale, a341); **con insomnio
   no hay siesta** (a364); NSDR como alternativa (a342); hora límite por experimento (a337).
-- [ ] Jet lag: preparar con luz, cafeína y ejercicio 30–45 min antes/después según dirección
+- [x] Jet lag: preparar con luz, cafeína y ejercicio 30–45 min antes/después según dirección
   (a551-a567). Hoy la melatonina dice «solo para jet lag» y no hay protocolo.
-- [ ] Comida: última 2–3 h antes; un tentempié pequeño si hay hambre (a240).
+- [x] Comida: última 2–3 h antes; un tentempié pequeño si hay hambre (a240).
 
 **Respiración / estrés / recuperación**
 - [ ] NSDR 10–30 min (a1134-a1139). No aparece en ningún sitio de Areté.
@@ -89,15 +90,15 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 
 ## Bloque 4 · Forma
 
-- [ ] **Tiempos relativos**, no horas de reloj: «0–1 h tras despertar», «8–10 h antes de
+- [ ] **Tiempos relativos** *(sleep hecho)*, no horas de reloj: «0–1 h tras despertar», «8–10 h antes de
   dormir» (a1714 explica por qué). Los timelines llevan un ejemplo con horas pero dicen de
   dónde salen.
   - *Producto (pendiente de decisión de Luis)*: que la app pida la hora de despertar y
     calcule el timeline. No lo hacen los agentes de esta tanda.
-- [ ] **Dosis mínima** al principio de cada blueprint: «si solo haces una cosa». Recortar el
+- [ ] **Dosis mínima** *(sleep hecho)* al principio de cada blueprint: «si solo haces una cosa». Recortar el
   sistema diario de respiración (hoy suma >60 min/día) a un núcleo realista.
   Movilidad: versión de 10 min, 2–4×/sem (a971-a979) además del plan de 12 semanas.
-- [ ] **Preguntas frecuentes** al final de cada protocolo o blueprint (el libro las tiene en
+- [ ] **Preguntas frecuentes** *(sleep hecho: `details.info-box.refs`)* al final de cada protocolo o blueprint (el libro las tiene en
   todos los capítulos).
 - [ ] **Nutrición como blueprint de verdad** (`blueprints/nutricion/`): fases y protocolos.
   Del libro: ≥90 % sin procesar (cap. 33), hidratación (34), proteína de calidad en cada

@@ -179,7 +179,7 @@ export const BLUEPRINTS = [
     published: '2026-07-03', updated: '2026-08-24' },
   { slug: 'sleep', tag: 'Sueño', title: 'Plan de sueño',
     desc: 'Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.',
-    published: '2026-07-05', updated: '2026-08-24' },
+    published: '2026-07-05', updated: '2026-11-02' },
   { slug: 'recovery', tag: 'Recuperación', title: 'Plan de recuperación',
     desc: 'Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 13 protocolos.',
     published: '2026-07-05', updated: '2026-08-24' },
