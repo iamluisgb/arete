@@ -3,26 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blog — Areté</title>
+<title>Blog de Areté — entrenamiento híbrido, explicado</title>
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/icons/icon-16.png">
 <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../style.css">
-<style>
-  .guide-layers{max-width:1080px;margin:1rem auto 0;padding:0 20px;display:flex;flex-direction:column;gap:2.5rem}
-  .layer-head{border-top:1px solid var(--border);padding-top:1rem;margin-bottom:1rem}
-  .layer-num{font-size:var(--fs-sm);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-  .layer-head h2{margin:.2rem 0 .25rem;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
-  .layer-head p{margin:0;color:var(--text3);font-size:.9rem;max-width:60ch}
-  .article-card-soon{opacity:.55;cursor:default;pointer-events:none}
-  .article-card-soon .card-phase{color:var(--text3)}
-</style>
-<meta name="description" content="Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento, test guiados, GPS tracker, y un sistema de niveles que no miente.">
+<meta name="description" content="El blog de Areté: por qué entrenar para todo, cómo se miden los 7 dominios del atleta híbrido y cómo se aplica en planes, nutrición y pesa rusa.">
 <link rel="canonical" href="https://arete.raiatech.com/blog/">
 <meta property="og:title" content="Blog — Areté">
-<meta property="og:description" content="Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento, test guiados, GPS tracker, y un sistema de niveles que no miente.">
+<meta property="og:description" content="El blog de Areté: por qué entrenar para todo, cómo se miden los 7 dominios del atleta híbrido y cómo se aplica en planes, nutrición y pesa rusa.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://arete.raiatech.com/blog/">
 <meta property="og:site_name" content="Areté">
@@ -33,11 +24,10 @@
 <meta name="twitter:site" content="@iamluisgb">
 <meta name="twitter:creator" content="@iamluisgb">
 <meta name="twitter:title" content="Blog — Areté">
-<meta name="twitter:description" content="Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento, test guiados, GPS tracker, y un sistema de niveles que no miente.">
-<meta name="twitter:image" content="https://arete.raiatech.com/assets/og-default.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Blog — Areté","url":"https://arete.raiatech.com/blog/","description":"Areté: entrenamiento híbrido de fuerza y resistencia. 7 dominios de rendimiento, test guiados, GPS tracker, y un sistema de niveles que no miente.","inLanguage":"es","publisher":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"}}</script>
-
-  <!-- Umami Analytics: solo carga en producción (servimos el tracker en /u/s.js); en localhost, nada -->
+<meta name="twitter:description" content="El blog de Areté: por qué entrenar para todo, cómo se miden los 7 dominios del atleta híbrido y cómo se aplica en planes, nutrición y pesa rusa.">
+<meta name="twitter:image" content="https://arete.raiatech.com/assets/og-default.png"><!-- blog:head -->
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Blog","name":"Blog de Areté","url":"https://arete.raiatech.com/blog/","inLanguage":"es","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"blogPost":[{"@type":"BlogPosting","headline":"Areté: el manifiesto","url":"https://arete.raiatech.com/blog/filosofia-arete","datePublished":"2026-03-27","dateModified":"2026-07-10"},{"@type":"BlogPosting","headline":"Los dominios del Atleta Híbrido","url":"https://arete.raiatech.com/blog/8-dominios","datePublished":"2026-07-05","dateModified":"2026-07-10"},{"@type":"BlogPosting","headline":"Areté: el programa completo","url":"https://arete.raiatech.com/blog/programa-arete","datePublished":"2026-07-05","dateModified":"2026-07-10"},{"@type":"BlogPosting","headline":"Crea tu propio plan","url":"https://arete.raiatech.com/blog/crear-plan","datePublished":"2026-02-28","dateModified":"2026-07-10"},{"@type":"BlogPosting","headline":"Come como un animal","url":"https://arete.raiatech.com/blog/nutricion","datePublished":"2026-02-10","dateModified":"2026-07-10"},{"@type":"BlogPosting","headline":"Efecto Kettlebell: 10 semanas","url":"https://arete.raiatech.com/blog/efecto-kettlebell","datePublished":"2026-02-17","dateModified":"2026-07-10"}]}</script>
+<!-- /blog:head --><!-- Umami Analytics: solo carga en producción (servimos el tracker en /u/s.js); en localhost, nada -->
   <script>
   if (location.hostname === 'arete.raiatech.com') {
     var u = document.createElement('script');
@@ -60,80 +50,38 @@
 
 <div class="hero">
   <h1>La tesis, documentada.</h1>
-  <p>Esto no es un blog de fitness — es la documentación de una tesis. Se lee en capas, de arriba abajo: primero por qué, luego qué medimos, luego cómo se aplica.</p>
+  <p>No es un blog de fitness: es la tesis de Areté, escrita en seis piezas. Por qué entrenar para todo, qué medimos y cómo se aplica.</p>
 </div>
 
-<div class="guide-layers">
-
-  <section class="layer">
-    <div class="layer-head"><span class="layer-num">Capa 1</span><h2>El manifiesto</h2><p>El ancla. Por qué existe Areté y qué defiende.</p></div>
-    <div class="articles-grid">
-      <a href="filosofia-arete.html" class="article-card">
-        <div class="card-phase">Manifiesto</div>
-        <h3>Areté: el manifiesto</h3>
-        <p>Excelencia sin días libres. Por qué existimos y qué defendemos.</p>
-      </a>
+<!-- blog:list -->
+<section class="blog-featured" aria-label="Empieza aquí">
+  <a href="8-dominios.html" class="feature-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="8-dominios">
+    <div class="feature-text">
+      <span class="card-phase">Empieza aquí · Niveles</span>
+      <h2>Los dominios del Atleta Híbrido</h2>
+      <p>7 dominios de rendimiento, medidos con tests concretos. Tu nivel es el más bajo, y cada uno sube con datos.</p>
+      <span class="card-meta">22 min · 10 de julio de 2026</span>
     </div>
-  </section>
-
-  <section class="layer">
-    <div class="layer-head"><span class="layer-num">Capa 2</span><h2>Los pilares</h2><p>El núcleo defendible: qué medimos y por qué nadie más lo mide así.</p></div>
-    <div class="articles-grid">
-      <a href="8-dominios.html" class="article-card article-card-featured">
-        <div class="card-phase">Niveles</div>
-        <h3>Los dominios del Atleta Híbrido</h3>
-        <p>7 dominios de rendimiento, medidos con ciencia. Tu nivel es el más bajo — y cada uno sube con datos.</p>
-      </a>
-    </div>
-  </section>
-
-  <section class="layer">
-    <div class="layer-head"><span class="layer-num">Capa 3</span><h2>La aplicación</h2><p>Del diagnóstico al entrenamiento: planes, nutrición y ejemplos importables.</p></div>
-    <div class="articles-grid">
-      <a href="programa-arete.html" class="article-card">
-        <div class="card-phase">Programa</div>
-        <h3>Areté: el programa completo</h3>
-        <p>Un plan de ejemplo importable en 4 fases: fuerza, hipertrofia, definición y ajustes.</p>
-      </a>
-      <a href="crear-plan.html" class="article-card">
-        <div class="card-phase">Personaliza</div>
-        <h3>Crea tu propio plan</h3>
-        <p>El formato JSON importable de Areté. Diséñalo con IA o a mano, impórtalo y entrena.</p>
-      </a>
-      <a href="nutricion.html" class="article-card">
-        <div class="card-phase">Blueprint</div>
-        <h3>Come como un animal</h3>
-        <p>El Blueprint de nutrición: calorías, macros, timing y suplementos para cada fase.</p>
-      </a>
-      <a href="efecto-kettlebell.html" class="article-card">
-        <div class="card-phase">Aplicación</div>
-        <h3>Efecto Kettlebell: 10 semanas</h3>
-        <p>Cómo entrenar el dominio de resistencia de fuerza con una sola pesa rusa, sin gimnasio.</p>
-      </a>
-    </div>
-  </section>
-
-  <section class="layer">
-    <div class="layer-head"><span class="layer-num">Capa 4</span><h2>Del dominio al evento</h2><p>Readiness específica: cuando el perfil general no basta y hay una fecha en el calendario.</p></div>
-    <div class="articles-grid">
-      <div class="article-card article-card-soon" aria-disabled="true">
-        <div class="card-phase">Próximamente</div>
-        <h3>Readiness para un ultra 100K</h3>
-        <p>Del perfil de 7 dominios a la línea de salida: volumen pico, long run, back-to-backs y nutrición en carrera.</p>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<footer class="site-footer">
-  <div style="display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;align-items:center;max-width:640px;margin:0 auto;font-size:var(--fs-sm)">
-    <span>Areté</span>
-    <span style="opacity:.4">·</span>
-    <a href="https://luisgonzalezbernal.com" style="color:var(--text3);text-decoration:none">por Luis González</a>
-    <span style="opacity:.4">·</span>
-  </div>
-</footer>
+    <figure><img src="../assets/landing/perfil-ejemplo.webp" alt="Perfil de ejemplo con los 7 dominios de Areté" width="560" height="700" loading="lazy" decoding="async"><figcaption>Perfil de ejemplo</figcaption></figure>
+  </a>
+</section>
+<section class="blog-list" aria-labelledby="orden">
+  <h2 id="orden" class="list-title">Todo, en orden de lectura</h2>
+  <ol class="post-grid">
+    <li><a href="filosofia-arete.html" class="article-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="filosofia-arete"><span class="card-phase">Manifiesto</span><h3>Areté: el manifiesto</h3><p>Excelencia sin días libres. Por qué existe Areté y qué defiende.</p><span class="card-meta">15 min · 10 de julio de 2026</span></a></li>
+    <li><a href="programa-arete.html" class="article-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="programa-arete"><span class="card-phase">Programa</span><h3>Areté: el programa completo</h3><p>Un plan de ejemplo importable en 4 fases: fuerza, hipertrofia, definición y ajustes.</p><span class="card-meta">5 min · 10 de julio de 2026</span></a></li>
+    <li><a href="crear-plan.html" class="article-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="crear-plan"><span class="card-phase">Personaliza</span><h3>Crea tu propio plan</h3><p>El formato importable de Areté. Diséñalo con IA o a mano, impórtalo y entrena.</p><span class="card-meta">4 min · 10 de julio de 2026</span></a></li>
+    <li><a href="nutricion.html" class="article-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="nutricion"><span class="card-phase">Nutrición</span><h3>Come como un animal</h3><p>Calorías, macros, timing y suplementos para cada fase, sin dietas absurdas.</p><span class="card-meta">5 min · 10 de julio de 2026</span></a></li>
+    <li><a href="efecto-kettlebell.html" class="article-card" data-umami-event="Blog: abrir artículo" data-umami-event-articulo="efecto-kettlebell"><span class="card-phase">Aplicación</span><h3>Efecto Kettlebell: 10 semanas</h3><p>Cómo entrenar la resistencia de fuerza con una sola pesa rusa, sin gimnasio.</p><span class="card-meta">5 min · 10 de julio de 2026</span></a></li>
+  </ol>
+</section>
+<!-- /blog:list -->
+<!-- blog:footer --><footer class="site-footer">
+  <nav class="footer-links" aria-label="Areté">
+    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/blueprints/">Blueprints</a>
+  </nav>
+  <p class="footer-maker"><img src="/assets/landing/luis.webp" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Escrito por <a href="https://luisgonzalezbernal.com">Luis González</a>, que hace Areté.</span></p>
+</footer><!-- /blog:footer -->
 <script>
 (function(){
   // Tema: sigue el ajuste del dispositivo
