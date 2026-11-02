@@ -24,7 +24,7 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   L-treonato; glicina 3 g → **1–2 g**; añadir apigenina 50 mg y teanina 100–200 mg (no si
   pesadillas o sonambulismo); melatonina 0.5–1.5 mg solo con evidencia en mayores/desfase,
   no crónica (a400, a416, a434); exigir certificación de terceros NSF/USP (a445).
-- [ ] **Recuperación · agua fría tras fuerza** (`blueprints/recovery/index.html`, P07): «2h» →
+- [x] **Recuperación · agua fría tras fuerza** (`blueprints/recovery/index.html`, P07): «2h» →
   **≥6 h**, o antes de entrenar, o en día libre, o terminar con ducha caliente (a1086; estudios
   en a2991-a2992: Fyfe 2019, Roberts 2015, Grgic 2023, Piñero 2024, Malta 2021).
 - [x] **Nutrición · fermentados** (`blog/nutricion.html`): «moderar lácteos fermentados» →
@@ -51,7 +51,9 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   - [x] Lehrer & Gevirtz 2014: en el texto pone *Biofeedback*, en referencias *Front Psychol*.
     *Es Front Psychol 5:756; corregido en el texto.*
   - Movilidad: hay una referencia que es solo «PMC6373037.» sin autor.
-- [ ] **Pasada a las 84 referencias** de los 5 blueprints: cada una con autor, título, revista,
+- [ ] **Pasada a las 84 referencias** (recuperación hecha: 20 → 27, todas con DOI comprobado;
+  Sharman 2006 y el título de Howatson 2008 eran falsos y se sustituyen; los g de Dupuy y
+  la cifra de Wang estaban mal) de los 5 blueprints: cada una con autor, título, revista,
   año y DOI/PMID comprobados. Lo que no se encuentre, fuera.
   - [x] sleep: 17 → 38, todas con DOI o PMID comprobados en PubMed.
   - [x] breathwork: las 20 revisadas; 5 se quedan (Balban con la descripción corregida), 15 fuera o sustituidas; 25 en total, todas con DOI o PMID salvo un libro (McKeown, origen del BOLT).
@@ -82,11 +84,14 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
   5 → 10 → 20 min (a1150, a1963).
 
 **Nuevo blueprint: frío y calor** (el «En preparación» del índice)
-- [ ] Separar dos objetivos: frío para **recuperación** (agujetas: 11–15 °C, 10–15 min) y
+- [x] Separar dos objetivos: frío para **recuperación** (agujetas: 11–15 °C, 10–15 min) y
   frío para **resiliencia/catecolaminas** (1–3 min incómodamente frío, 3–7×/sem, o protocolo
   de «muros», a1079, a1112; Søberg ~11 min/sem en 2–4 sesiones, a1126). Regla de las 6 h tras
   fuerza. Alternativa sin agua: hiperventilación cíclica 3–5 min (a1128). Calor: verificar en
   el libro qué dice de sauna antes de escribir nada.
+  *Hecho en `blueprints/frio-calor/` (8 protocolos, 18 referencias). El libro apenas trata la
+  sauna (hidratación a1478, sueño a303, a961, a1811); el protocolo sale de Laukkanen 2015,
+  Hussain y Cohen 2018 y Scoon 2007, con la evidencia de rendimiento marcada como tentativa.*
 
 **Atención (desconexión digital) → foco y aprendizaje**
 - [ ] Micropausas: 10–30 s entre repeticiones motoras, 5–10 min en aprendizaje cognitivo
@@ -94,7 +99,7 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 - [ ] Contraste mental (capítulo 48), dormir bien la noche tras aprender (capítulo 50).
 
 **Movimiento diario** (recuperación o movilidad)
-- [ ] Caminar 5–10 min tras comer; 5 min por cada 30 sentado (a685).
+- [x] Caminar 5–10 min tras comer; 5 min por cada 30 sentado (a685).
 
 ## Bloque 4 · Forma
 
