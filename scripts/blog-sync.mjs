@@ -185,7 +185,7 @@ export const BLUEPRINTS = [
     published: '2026-07-05', updated: '2026-08-24' },
   { slug: 'breathwork', tag: 'Respiración', title: 'Plan de respiración',
     desc: 'Qué respiración usar para el estrés, la recuperación, la activación y el rendimiento, y por qué. 12 protocolos.',
-    published: '2026-07-08', updated: '2026-08-24' },
+    published: '2026-07-08', updated: '2026-11-02' },
   { slug: 'digital-detox', tag: 'Atención', title: 'Plan de desconexión digital',
     desc: 'Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.',
     published: '2026-07-08', updated: '2026-08-24' },

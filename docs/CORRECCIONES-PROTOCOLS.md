@@ -33,26 +33,34 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 
 ## Bloque 2 · Referencias y rigor
 
-- [ ] **Balban 2023 mal descrito** (`breathwork`, P06): no es «en menos de 5 min»; fue
+- [x] **Balban 2023 mal descrito** (`breathwork`, P06): no es «en menos de 5 min»; fue
   **5 min/día de suspiro cíclico durante un mes** (108 participantes, 4 grupos), el que más
   mejoró el ánimo (a1074-a1075). Añadir el uso diario de 5 min además del agudo de 1–3.
 - [ ] **Citas dudosas a verificar y corregir o quitar**:
-  - Kozhevnikov 2013 PLoS ONE, título «The influence of Buddhism…» — el artículo real de esa
+  - [x] Kozhevnikov 2013 PLoS ONE, título «The influence of Buddhism…» — el artículo real de esa
     revista trata de g-tummo. Sustitutos posibles del libro para la respiración por una fosa
-    (a3451): Werntz 1983, Shannahoff-Khalsa 1991, Vanutelli 2024.
-  - Telles 2017 «sukha pranayama» citado como respiración alterna.
+    (a3451): Werntz 1983, Shannahoff-Khalsa 1991, Vanutelli 2024. *Quitado; entran los tres,
+    verificados, más Nam 2024 (metaanálisis de fosas alternas).*
+  - [x] Telles 2017 «sukha pranayama» citado como respiración alterna. *No existe en PubMed ni
+    Crossref: quitado.*
   - Haghayegh 2019: es *Sleep Med Rev* 46:124-135 y trata del baño caliente, no de
-    «activación parasimpática». Aparece en sleep y breathwork. *(sleep: corregida)*
+    «activación parasimpática». Aparece en sleep y breathwork. *Corregida en sleep y quitada en
+    breathwork.*
   - [x] Zeitzer 2000 (sleep): el libro lo cita como *J Physiol* 526(3):695-702 (a2592); Areté pone
     *Am J Physiol* 278:E245-9. *(corregida; tampoco habla de luz azul: texto ajustado)*
-  - Lehrer & Gevirtz 2014: en el texto pone *Biofeedback*, en referencias *Front Psychol*.
+  - [x] Lehrer & Gevirtz 2014: en el texto pone *Biofeedback*, en referencias *Front Psychol*.
+    *Es Front Psychol 5:756; corregido en el texto.*
   - Movilidad: hay una referencia que es solo «PMC6373037.» sin autor.
 - [ ] **Pasada a las 84 referencias** de los 5 blueprints: cada una con autor, título, revista,
   año y DOI/PMID comprobados. Lo que no se encuentre, fuera.
-  *(sleep hecho: 17 → 38, todas con DOI o PMID comprobados en PubMed)*
-- [ ] **Tono** *(sleep hecho: nivel de evidencia con `.badge` al inicio de `.evidence`)*: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
+  - [x] sleep: 17 → 38, todas con DOI o PMID comprobados en PubMed.
+  - [x] breathwork: las 20 revisadas; 5 se quedan (Balban con la descripción corregida), 15 fuera o sustituidas; 25 en total, todas con DOI o PMID salvo un libro (McKeown, origen del BOLT).
+- [ ] **Tono**: quitar absolutos sin respaldo («No es placebo», «el hack más efectivo» del
   tape bucal — evidencia floja). Añadir **nivel de evidencia** por protocolo
   (fuerte · moderada · tentativa), con el mismo marcado en todos los blueprints.
+  - [x] breathwork. Marcado: `<span><strong>Evidencia:</strong> moderada</span>` dentro del
+    `.meta` de cada `.ex-card`, y la leyenda en un `.ref-box` «Nivel de evidencia de cada
+    protocolo» antes del índice. Sin CSS nuevo.
 
 ## Bloque 3 · Protocolos que faltan
 
@@ -69,8 +77,8 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 - [x] Comida: última 2–3 h antes; un tentempié pequeño si hay hambre (a240).
 
 **Respiración / estrés / recuperación**
-- [ ] NSDR 10–30 min (a1134-a1139). No aparece en ningún sitio de Areté.
-- [ ] Micro-meditación de 5 min en la cama al despertar, progresión 10 respiraciones →
+- [x] NSDR 10–30 min (a1134-a1139). No aparece en ningún sitio de Areté.
+- [x] Micro-meditación de 5 min en la cama al despertar, progresión 10 respiraciones →
   5 → 10 → 20 min (a1150, a1963).
 
 **Nuevo blueprint: frío y calor** (el «En preparación» del índice)
@@ -93,13 +101,16 @@ Estado: `[ ]` pendiente · `[x]` hecho (con commit).
 - [ ] **Tiempos relativos** *(sleep hecho)*, no horas de reloj: «0–1 h tras despertar», «8–10 h antes de
   dormir» (a1714 explica por qué). Los timelines llevan un ejemplo con horas pero dicen de
   dónde salen.
+  - [x] breathwork.
   - *Producto (pendiente de decisión de Luis)*: que la app pida la hora de despertar y
     calcule el timeline. No lo hacen los agentes de esta tanda.
 - [ ] **Dosis mínima** *(sleep hecho)* al principio de cada blueprint: «si solo haces una cosa». Recortar el
   sistema diario de respiración (hoy suma >60 min/día) a un núcleo realista.
   Movilidad: versión de 10 min, 2–4×/sem (a971-a979) además del plan de 12 semanas.
+  - [x] breathwork: «Si solo haces una cosa» arriba; núcleo de 10-15 min/día y extras.
 - [ ] **Preguntas frecuentes** *(sleep hecho: `details.info-box.refs`)* al final de cada protocolo o blueprint (el libro las tiene en
   todos los capítulos).
+  - [x] breathwork.
 - [ ] **Nutrición como blueprint de verdad** (`blueprints/nutricion/`): fases y protocolos.
   Del libro: ≥90 % sin procesar (cap. 33), hidratación (34), proteína de calidad en cada
   comida (35), carbohidratos de verdura con fibra y fruta (36), grasas (37), fermentados (38),
