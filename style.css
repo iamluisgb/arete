@@ -177,10 +177,7 @@ img{max-width:100%;border-radius:var(--sp-3)}
 /* Pie */
 .footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;font-size:.9rem;font-weight:600;margin-bottom:var(--sp-4)}
 .footer-links a{color:var(--text2)}
-.footer-maker{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 8px;font-size:.85rem;color:var(--text3)}
-.footer-maker img{width:24px;height:24px;border-radius:50%}
-.footer-by{display:inline-flex;align-items:center;gap:8px}
-.footer-by a{margin-left:-4px}
+.footer-maker{text-align:center;font-size:.85rem;color:var(--text3)}
 .footer-maker a{color:var(--text2);font-weight:600}
 @media(prefers-reduced-motion:reduce){.feature-card,.read-next-card,.to-top,.cta{transition:none}}
 /* Código y tablas anchas: se desplazan dentro, nunca empujan la página */
