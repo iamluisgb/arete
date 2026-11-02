@@ -195,6 +195,9 @@ export const BLUEPRINTS = [
   { slug: 'nutricion', tag: 'Nutrición', title: 'Plan de nutrición',
     desc: 'Comida real, proteína en cada comida, carbohidratos según la carga, fermentados y los suplementos que funcionan. 12 protocolos.',
     published: '2026-11-02', updated: '2026-11-02' },
+  { slug: 'luz', tag: 'Luz', title: 'Plan de luz',
+    desc: 'Sol en la piel sin quemarte, vitamina D (cuándo medirla y suplementar) y luz roja e infrarroja con lo poco que se sabe. 6 protocolos.',
+    published: '2026-11-02', updated: '2026-11-02' },
 ];
 const bpOg = slug => ogImage(`bp-${slug}`);
 

@@ -155,7 +155,7 @@ integrar.
 - [ ] **Respiración → «Respiración y estrés»** (`blueprints/breathwork/`, slug igual): subir el
   pico de cortisol y catecolaminas por la mañana (capítulo 30) y suplementos para el estrés
   (capítulo 31: ashwagandha y demás), con sus riesgos.
-- [ ] **Blueprint nuevo de Luz** (`blueprints/luz/`): sol en la piel y vitamina D (capítulo 44),
+- [x] **Blueprint nuevo de Luz** (`blueprints/luz/`): sol en la piel y vitamina D (capítulo 44),
   luz roja e infrarroja (45), y remitir a sueño para la luz de ojos (41–43) sin duplicarla. Si
   la evidencia de luz roja no aguanta, se dice y se marca tentativa o se deja fuera.
 - Fuera de alcance: crecimiento personal (capítulo 7). La escritura expresiva podría entrar en
