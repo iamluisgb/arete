@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Genera las imágenes sociales del blog (1200×630) en assets/blog/og/<slug>.png
-// a partir de ARTICLES de blog-sync.mjs. Necesita Playwright; si no está en este
+// Genera las imágenes sociales (1200×630) en assets/blog/og/<slug>.png (blog) y
+// bp-<slug>.png (blueprints) a partir de ARTICLES y BLUEPRINTS de blog-sync.mjs. Necesita Playwright; si no está en este
 // repo: PLAYWRIGHT=/ruta/a/node_modules/playwright/index.mjs node scripts/blog-og.mjs
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { ARTICLES } from './blog-sync.mjs';
+import { ARTICLES, BLUEPRINTS } from './blog-sync.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { chromium } = await import(process.env.PLAYWRIGHT ? pathToFileURL(process.env.PLAYWRIGHT).href : 'playwright');
@@ -14,7 +14,7 @@ const logo = `data:image/png;base64,${b64('assets/icons/icon-192.png')}`;
 const luis = `data:image/webp;base64,${b64('assets/landing/luis.webp')}`;
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-const page = a => `<!doctype html><html><head><meta charset="utf-8"><style>
+const page = (a, kind = 'Blog', path = 'blog') => `<!doctype html><html><head><meta charset="utf-8"><style>
 *{margin:0;box-sizing:border-box}
 body{width:1200px;height:630px;background:#f4f2f0;font-family:Inter,'Helvetica Neue',system-ui,sans-serif;color:#1c1b1b;padding:64px 72px;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .top{display:flex;align-items:center;gap:14px;font-size:30px;font-weight:800;letter-spacing:-.02em}
@@ -28,9 +28,9 @@ p{font-size:28px;line-height:1.35;color:#6a5652;max-width:900px}
 .ring{position:absolute;right:-120px;top:-120px;width:460px;height:460px;border-radius:50%;border:2px solid rgba(212,55,44,.14)}
 .ring.b{right:-60px;top:-60px;width:340px;height:340px}
 </style></head><body><div class="ring"></div><div class="ring b"></div>
-<div class="top"><img src="${logo}"><b>Aret<span>é</span></b><em>· Blog</em></div>
+<div class="top"><img src="${logo}"><b>Aret<span>é</span></b><em>· ${kind}</em></div>
 <div class="tag">${esc(a.tag)}</div><h1>${esc(a.title)}</h1><p>${esc(a.desc)}</p>
-<div class="by"><img src="${luis}">Luis González · arete.raiatech.com/blog</div>
+<div class="by"><img src="${luis}">Luis González · arete.raiatech.com/${path}</div>
 </body></html>`;
 
 const browser = await chromium.launch();
@@ -39,5 +39,10 @@ for (const a of ARTICLES) {
   await p.setContent(page(a), { waitUntil: 'load' });
   await p.screenshot({ path: join(ROOT, 'assets/blog/og', `${a.slug}.png`) });
   console.log('og', a.slug);
+}
+for (const a of BLUEPRINTS) {
+  await p.setContent(page(a, 'Blueprints', 'blueprints'), { waitUntil: 'load' });
+  await p.screenshot({ path: join(ROOT, 'assets/blog/og', `bp-${a.slug}.png`) });
+  console.log('og', 'bp-' + a.slug);
 }
 await browser.close();

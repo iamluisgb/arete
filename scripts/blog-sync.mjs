@@ -42,7 +42,7 @@ const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&
 
 export function readingMinutes(html) {
   const body = html.split('class="article-body"')[1] || '';
-  const text = body.replace(/<!-- blog:next -->[\s\S]*$/, '').replace(/<footer[\s\S]*$/, '')
+  const text = body.replace(/<!-- blog:(?:next|end) -->[\s\S]*$/, '').replace(/<footer[\s\S]*$/, '')
     .replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ');
   return Math.max(1, Math.round(text.split(/\s+/).filter(Boolean).length / 230));
 }
@@ -55,6 +55,7 @@ function region(html, name, content, legacy) {
   const re = new RegExp(`<!-- blog:${name} -->[\\s\\S]*?<!-- /blog:${name} -->`);
   if (re.test(html)) return html.replace(re, () => block);
   if (!legacy || !legacy.test(html)) throw new Error(`no encuentro dónde poner blog:${name}`);
+  if (legacy.before) return html.replace(legacy, m => block + m);
   return html.replace(legacy, m => (typeof legacy.keep === 'function' ? legacy.keep(m) : '') + block);
 }
 
@@ -171,7 +172,100 @@ ${rest.map(a => `    <li><a href="${a.slug}.html" class="article-card" data-umam
   return [file, html];
 }
 
-export function syncAll() { return [...ARTICLES.map(syncArticle), syncIndex()]; }
+// ── Blueprints: mismas piezas (firma, imagen social, cierre, pie) y su portada ──
+export const BLUEPRINTS = [
+  { slug: 'movilidad', tag: 'Movilidad', title: 'Plan de movilidad: 12 semanas',
+    desc: 'Control activo del rango de movimiento, medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.',
+    published: '2026-07-03', updated: '2026-08-24' },
+  { slug: 'sleep', tag: 'Sueño', title: 'Sleep Blueprint',
+    desc: 'Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.',
+    published: '2026-07-05', updated: '2026-08-24' },
+  { slug: 'recovery', tag: 'Recuperación', title: 'Recovery Protocols',
+    desc: 'Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 13 protocolos.',
+    published: '2026-07-05', updated: '2026-08-24' },
+  { slug: 'breathwork', tag: 'Respiración', title: 'Breathwork Blueprint',
+    desc: 'Qué respiración usar para el estrés, la recuperación, la activación y el rendimiento, y por qué. 12 protocolos.',
+    published: '2026-07-08', updated: '2026-08-24' },
+  { slug: 'digital-detox', tag: 'Atención', title: 'Digital Detox Blueprint',
+    desc: 'Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.',
+    published: '2026-07-08', updated: '2026-08-24' },
+];
+const bpOg = slug => ogImage(`bp-${slug}`);
+
+function bpHead(a, minutes) {
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'Article',
+    headline: a.title, description: a.desc, inLanguage: 'es',
+    url: `${SITE}/blueprints/${a.slug}/`, mainEntityOfPage: `${SITE}/blueprints/${a.slug}/`,
+    image: bpOg(a.slug), datePublished: a.published, dateModified: a.updated, timeRequired: `PT${minutes}M`,
+    author: { '@type': 'Person', ...AUTHOR },
+    publisher: { '@type': 'Organization', name: 'Areté', url: SITE, logo: `${SITE}/assets/icons/icon-192.png` },
+  };
+  return `
+<meta property="article:published_time" content="${a.published}">
+<meta property="article:modified_time" content="${a.updated}">
+<meta property="article:author" content="${AUTHOR.name}">
+<script type="application/ld+json">${JSON.stringify(ld)}</script>
+<script src="../../blog/blog.js" defer></script>
+`;
+}
+
+function bpEnd(i) {
+  const others = [BLUEPRINTS[(i + 1) % BLUEPRINTS.length], BLUEPRINTS[(i + 2) % BLUEPRINTS.length]];
+  const card = a => `<a href="../${a.slug}/" class="read-next-card"><span class="card-phase">${esc(a.tag)}</span><span class="nav-title">${esc(a.title)}</span><span class="nav-desc">${esc(a.desc)}</span></a>`;
+  return `
+<div class="info-box end-cta" style="text-align:center">
+  <div class="box-title">Del protocolo a los datos</div>
+  <p>Areté mide tus 7 dominios con tests concretos y te dice cuál te está frenando. Gratis.</p>
+  <p style="margin-top:.75rem"><a href="../../app.html" class="cta">Descubre tu nivel →</a></p>
+</div>
+<nav class="read-next" aria-label="Más blueprints"><h2 class="read-next-title">Más blueprints</h2><div class="read-next-grid">${others.map(card).join('')}</div></nav>
+`;
+}
+
+function syncBlueprint(a, i) {
+  const file = join(ROOT, 'blueprints', a.slug, 'index.html');
+  let html = readFileSync(file, 'utf8');
+  const minutes = readingMinutes(html);
+  html = html.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*(">)/g, `$1${bpOg(a.slug)}$2`);
+  html = html.replace(/<meta property="og:image:width" content="\d+">/, '<meta property="og:image:width" content="1200">');
+  html = html.replace(/<meta property="og:image:height" content="\d+">/, '<meta property="og:image:height" content="630">');
+  if (!html.includes('og:image:alt')) {
+    html = html.replace(/(<meta property="og:image:height" content="630">)/, `$1\n<meta property="og:image:alt" content="${esc(a.title)} — Areté">`);
+  }
+  html = region(html, 'head', bpHead(a, minutes), /\s*<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/);
+  const sub = /<div class="subtitle">[\s\S]*?<\/div>/;
+  sub.keep = m => m;
+  html = region(html, 'byline', byline(a, minutes).replace('../assets/', '../../assets/'), sub);
+  const end = /<\/div><!-- \.article-body -->/;
+  end.before = true;
+  html = region(html, 'end', bpEnd(i), end);
+  html = region(html, 'footer', footer(), /<footer class="site-footer">[\s\S]*?<\/footer>/);
+  return [file, html];
+}
+
+function syncBlueprintIndex() {
+  const file = join(ROOT, 'blueprints', 'index.html');
+  let html = readFileSync(file, 'utf8');
+  const nutri = ARTICLES.find(a => a.slug === 'nutricion');
+  const card = (href, tag, title, desc, slug) => `    <li><a href="${href}" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="${slug}"><span class="card-phase">${esc(tag)}</span><h3>${esc(title)}</h3><p>${esc(desc)}</p></a></li>`;
+  const list = `
+<section class="blog-list bp-list" aria-label="Blueprints">
+  <ol class="post-grid">
+${BLUEPRINTS.map(a => card(`${a.slug}/`, a.tag, a.title, a.desc, a.slug)).join('\n')}
+${card('../blog/nutricion.html', 'Nutrición', nutri.title, nutri.desc, 'nutricion')}
+  </ol>
+  <p class="bp-soon">En preparación: frío y calor, movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
+</section>
+`;
+  html = region(html, 'list', list, /<div class="blueprints-grid">[\s\S]*?\n<\/div>\n\s*(?=<footer)/);
+  html = region(html, 'footer', footer(), /<footer class="site-footer">[\s\S]*?<\/footer>/);
+  return [file, html];
+}
+
+export function syncAll() {
+  return [...ARTICLES.map(syncArticle), syncIndex(), ...BLUEPRINTS.map(syncBlueprint), syncBlueprintIndex()];
+}
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const check = process.argv.includes('--check');

@@ -10,39 +10,6 @@
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../style.css">
-<style>
-.blueprints-grid {
-  display: flex; flex-direction: column; gap: var(--sp-3);
-  padding: 0 var(--sp-5) 60px;
-  max-width: 640px; margin: 0 auto;
-  animation: fadeIn .3s ease-out;
-}
-.bp-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: var(--sp-5);
-  border: 1px solid var(--ghost-border);
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-  transition: transform .15s, box-shadow .2s;
-  text-decoration: none;
-  display: block;
-}
-:root.dark .bp-card { box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.bp-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
-}
-:root.dark .bp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.3); }
-.bp-card .bp-status {
-  font-size: .6rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .5px; margin-bottom: 6px;
-}
-.bp-card .bp-status.done { color: var(--green); }
-.bp-card .bp-status.pending { color: var(--text3); }
-.bp-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: var(--sp-1); color: var(--text); }
-.bp-card p { font-size: .9rem; color: var(--text2); line-height: 1.45; }
-.bp-card .bp-meta { font-size: .65rem; color: var(--text3); margin-top: var(--sp-3); font-weight: 500; }
-</style>
 <meta name="description" content="Planos detallados de entrenamiento: movilidad, fuerza, carrera y más. Programas listos para cargar en la app.">
 <link rel="canonical" href="https://arete.raiatech.com/blueprints/">
 <meta property="og:title" content="Blueprints — Areté">
@@ -72,65 +39,27 @@
   <a href="../index.html" class="back">← Volver al inicio</a>
   <div class="phase-tag">Sistema</div>
   <h1>Blueprints</h1>
-  <div class="subtitle">Guías interactivas para cada pilar de Areté. Protocolos con fases progresivas, evidencia detrás, y ejecución concreta.</div>
+  <div class="subtitle">Lo que sostiene el entrenamiento: sueño, recuperación, movilidad, respiración, atención y nutrición. Cada uno con fases, protocolos concretos y la evidencia detrás.</div>
 </div>
 
-<div class="blueprints-grid">
-  <a href="movilidad/index.html" class="bp-card article-card-featured">
-    <div class="bp-status done">✓ Completado</div>
-    <h3>Plan de Movilidad</h3>
-    <p>12 semanas · 21 ejercicios · Integrado con running y fuerza. Fases progresivas con videos verificados.</p>
-    <div class="bp-meta">🏃 3–4 runs/sem · 💪 2–3 fuerza/sem · 📅 5–7 min diarios</div>
-  </a>
-
-  <a href="sleep/index.html" class="bp-card article-card-featured">
-    <div class="bp-status done">✓ Completado</div>
-    <h3>Sleep Blueprint</h3>
-    <p>Protocolo de sueño basado en evidencia. Luz, temperatura, cafeína, suplementos. 3 fases, 11 protocolos, 18 referencias.</p>
-    <div class="bp-meta">3 fases · 11 protocolos · 18 referencias</div>
-  </a>
-
-  <div class="bp-card" style="opacity:.5;pointer-events:none">
-    <div class="bp-status pending">Próximamente</div>
-    <h3>Cold/Heat Exposure</h3>
-    <p>Hormesis: protocolos de ducha fría, sauna, timing correcto. Progresión gradual con evidencia.</p>
-  </div>
-
-  <a href="breathwork/index.html" class="bp-card article-card-featured">
-    <div class="bp-status done">✓ Completado</div>
-    <h3>Breathwork Blueprint</h3>
-    <p>Box breathing, respiración diafragmática, Wim Hof, Buteyko. Protocolos por contexto: estrés agudo, recuperación, activación, rendimiento. 3 fases, 12 protocolos, 20 referencias.</p>
-    <div class="bp-meta">3 fases · 12 protocolos · 20 referencias</div>
-  </a>
-
-  <div class="bp-card" style="opacity:.5;pointer-events:none">
-    <div class="bp-status pending">Próximamente</div>
-    <h3>Desk Mobility</h3>
-    <p>Movilidad para sesiones largas de código. Micro-pausas horarias para caderas, hombros y columna.</p>
-  </div>
-
-  <div class="bp-card" style="opacity:.5;pointer-events:none">
-    <div class="bp-status pending">Próximamente</div>
-    <h3>Injury Prevention for Runners</h3>
-    <p>Los 5–6 problemas más comunes en ultra: rodilla del corredor, fascia plantar, IT band. Tests + ejercicios preventivos.</p>
-  </div>
-
-  <a href="digital-detox/index.html" class="bp-card article-card-featured">
-    <div class="bp-status done">✓ Completado</div>
-    <h3>Digital Detox Blueprint</h3>
-    <p>Protocolos para desconectar: no-phone mornings, app blockers, environmental design para deep work. 3 fases, 11 protocolos, 20 referencias.</p>
-    <div class="bp-meta">3 fases · 11 protocolos · 20 referencias</div>
-  </a>
-
-  <a href="recovery/" class="bp-card article-card-featured">
-    <div class="bp-status done">✓ Completado</div>
-    <h3>Recovery Protocols</h3>
-    <p>Active recovery, CWI, foam rolling, nutrición post-entreno, deload, HRV. 3 fases, 13 protocolos, 20 referencias.</p>
-    <div class="bp-meta">3 fases · 13 protocolos · 20 referencias</div>
-  </a>
-</div>
-
-<footer class="site-footer">Blueprints · Areté</footer>
+<!-- blog:list -->
+<section class="blog-list bp-list" aria-label="Blueprints">
+  <ol class="post-grid">
+    <li><a href="movilidad/" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="movilidad"><span class="card-phase">Movilidad</span><h3>Plan de movilidad: 12 semanas</h3><p>Control activo del rango de movimiento, medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.</p></a></li>
+    <li><a href="sleep/" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="sleep"><span class="card-phase">Sueño</span><h3>Sleep Blueprint</h3><p>Luz, temperatura, cafeína y suplementos, con mecanismo y dosis. 3 fases y 11 protocolos.</p></a></li>
+    <li><a href="recovery/" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="recovery"><span class="card-phase">Recuperación</span><h3>Recovery Protocols</h3><p>Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 13 protocolos.</p></a></li>
+    <li><a href="breathwork/" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="breathwork"><span class="card-phase">Respiración</span><h3>Breathwork Blueprint</h3><p>Qué respiración usar para el estrés, la recuperación, la activación y el rendimiento, y por qué. 12 protocolos.</p></a></li>
+    <li><a href="digital-detox/" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="digital-detox"><span class="card-phase">Atención</span><h3>Digital Detox Blueprint</h3><p>Mañanas sin móvil, bloqueadores y un entorno pensado para el trabajo profundo. 11 protocolos.</p></a></li>
+    <li><a href="../blog/nutricion.html" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="nutricion"><span class="card-phase">Nutrición</span><h3>Come como un animal</h3><p>Calorías, macros, timing y suplementos para cada fase, sin dietas absurdas.</p></a></li>
+  </ol>
+  <p class="bp-soon">En preparación: frío y calor, movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
+</section>
+<!-- /blog:list --><!-- blog:footer --><footer class="site-footer">
+  <nav class="footer-links" aria-label="Areté">
+    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/blueprints/">Blueprints</a>
+  </nav>
+  <p class="footer-maker"><img src="/assets/landing/luis.webp" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Escrito por <a href="https://luisgonzalezbernal.com">Luis González</a>, que hace Areté.</span></p>
+</footer><!-- /blog:footer -->
 
 <script>
 (function(){

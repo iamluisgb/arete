@@ -11,18 +11,20 @@
     t.parentNode.insertBefore(w, t); w.appendChild(t);
   });
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var slug = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+  // /blog/8-dominios(.html) → 8-dominios · /blueprints/sleep/ → sleep
+  var slug = location.pathname.replace(/\/(index)?(\.html)?$/, '').split('/').pop().replace(/\.html$/, '');
 
   function track(name, data) {
     try { if (window.umami && window.umami.track) window.umami.track(name, data); } catch (e) {}
   }
 
-  // Índice de secciones: solo en artículos largos (5+ secciones).
+  // Índice de secciones: solo en artículos largos (5+ secciones) que no traen
+  // el suyo (los blueprints tienen .toc propio).
   var heads = [].slice.call(body.querySelectorAll('h2[id]')).filter(function (h) { return !h.closest('.read-next'); });
   var links = [];
-  if (heads.length >= 5) {
+  if (heads.length >= 5 && !document.querySelector('.toc')) {
     var nav = document.createElement('nav');
-    nav.className = 'toc';
+    nav.className = 'art-toc';
     nav.setAttribute('aria-label', 'En este artículo');
     var details = document.createElement('details');
     var summary = document.createElement('summary');
