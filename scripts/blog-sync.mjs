@@ -148,7 +148,7 @@ function syncIndex() {
       <p>${esc(featured.desc)}</p>
       ${meta(featured)}
     </div>
-    <figure><img src="../assets/landing/perfil-ejemplo.webp" alt="Perfil de ejemplo con los 7 dominios de Areté" width="560" height="700" loading="lazy" decoding="async"><figcaption>Perfil de ejemplo</figcaption></figure>
+    <figure><img src="../assets/landing/perfil-ejemplo.webp" alt="Perfil de ejemplo con los 7 dominios de Areté" width="880" height="880" loading="lazy" decoding="async"><figcaption>Perfil de ejemplo</figcaption></figure>
   </a>
 </section>
 <section class="blog-list" aria-labelledby="orden">

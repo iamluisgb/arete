@@ -161,7 +161,7 @@ img{max-width:100%;border-radius:var(--sp-3)}
 .feature-card p{font-size:1.02rem;color:var(--text2);line-height:1.5;margin-bottom:var(--sp-4)}
 .feature-card figure{margin:0;justify-self:center;text-align:center;width:100%;max-width:240px}
 .feature-card figcaption{font-size:.75rem;color:var(--text3);margin-top:8px}
-.feature-card img{width:100%;display:block;border-radius:var(--sp-3);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.feature-card img{width:100%;height:auto;display:block;border-radius:var(--sp-3);box-shadow:0 12px 32px rgba(0,0,0,.12)}
 .card-phase{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
 .list-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin:var(--sp-10) 0 var(--sp-4)}
 .post-grid{list-style:none;padding:0;margin:0 0 var(--sp-10);display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--sp-4)}
