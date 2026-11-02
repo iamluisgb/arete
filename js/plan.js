@@ -305,3 +305,107 @@ export function planTimeline(db, ref = new Date()) {
   }
   return out;
 }
+
+// ── Plan híbrido: fuerza y carrera en dos carriles ──────────────────────────
+// (odd/tasks/planificacion.md · «Plan híbrido», paso 2). El plan híbrido es el
+// par de programas activos (db.program + db.runningProgram): no hay un objeto
+// nuevo hasta que haga falta nombrarlo (paso 4, creación). Lo que los une es el
+// calendario de bloques: la descarga de fuerza es también la de carrera.
+
+/** ¿Hay programa de carrera activo, y comparte la descarga? */
+export function deloadShared(db) {
+  return !!db?.runningProgram && deloadEnabled(db) && db?.settings?.plan?.shareDeload !== false;
+}
+
+/** ¿Las carreras de esta semana se hacen en descarga? */
+export function isRunDeloadWeek(db, ref = new Date()) {
+  return deloadShared(db) && isDeloadWeek(db, ref);
+}
+
+const CALMA = /calentamiento|calma|enfriamiento|warm|cool/i;
+const DUR = /^(\d+)h(\d+)?$|^(\d+)\s*min$/i;
+
+/** '1h' → 60, '45min' → 45, '1h30' → 90; null si no se entiende. */
+function minutos(str) {
+  const m = String(str || '').trim().match(DUR);
+  if (!m) return null;
+  return m[3] != null ? +m[3] : +m[1] * 60 + (+m[2] || 0);
+}
+
+/**
+ * Una sesión de carrera en descarga: el 60 % del volumen con la misma
+ * intensidad (menos series, rodajes más cortos), que es la descarga habitual
+ * en resistencia. Calentamiento y vuelta a la calma no se tocan. Devuelve una
+ * copia; el programa no se modifica.
+ */
+export function deloadRunSegments(segs) {
+  return (segs || []).map(seg => {
+    const s = { ...seg };
+    if (s.mode === 'run-intervals' && s.reps > 1) {
+      s.reps = Math.max(1, Math.round(s.reps * DELOAD_SETS));
+    } else if (s.mode === 'run-steady' && !CALMA.test(s.name || '')) {
+      const min = minutos(s.duration);
+      if (min) s.duration = `${Math.max(5, Math.round((min * DELOAD_SETS) / 5) * 5)}min`;
+      const km = String(s.distance || '').match(/^([\d.]+)\s*km$/i);
+      if (km) s.distance = `${Math.max(1, Math.round(+km[1] * DELOAD_SETS))}km`;
+    }
+    return s;
+  });
+}
+
+/**
+ * Semana a semana, los dos carriles desde la semana en curso: qué toca en
+ * fuerza y qué en carrera, con las descargas compartidas a lo ancho. Es una
+ * proyección a una semana de plan por semana de calendario (las semanas reales
+ * se cierran por sesiones, así que si se pierde una, todo se corre).
+ *
+ * Con la descarga compartida, la de carrera se INTERCALA: la semana del
+ * programa de carrera que tocaba se hace después, no se pierde.
+ *
+ * @param {Object} db
+ * @param {{ref?: Date|string, runningPhases?: Object}} opts runningPhases: las
+ *   semanas del programa de carrera ({ '1': {name, sessions}, … }).
+ * @returns {Array<{ start, fuerza: {label, kind, phase}|null, carrera: {label, kind, week}|null, shared }>}
+ */
+export function hybridWeeks(db, { ref = new Date(), runningPhases = null } = {}) {
+  const st = planStatus(db, ref);
+  const fuerza = [];
+  if (st) {
+    const blocks = programBlocks(db);
+    for (let i = blocks.findIndex(b => b.id === st.phase); i >= 0 && i < blocks.length; i++) {
+      const b = blocks[i];
+      const actual = b.id === st.phase;
+      const desde = actual ? (st.kind === 'carga' ? st.week : b.weeks + 1) : 1;
+      for (let w = desde; w <= b.weeks; w++) fuerza.push({ label: `${b.name} · ${w}/${b.weeks}`, kind: 'carga', phase: b.id });
+      if (b.deload) fuerza.push({ label: 'Descarga', kind: 'descarga', phase: b.id });
+    }
+  }
+
+  const carrera = [];
+  if (runningPhases && db?.runningProgram) {
+    const keys = Object.keys(runningPhases).map(Number).filter(n => !Number.isNaN(n)).sort((a, b) => a - b);
+    const total = keys.length ? keys[keys.length - 1] : 0;
+    const compartida = deloadShared(db);
+    let semana = db.runningWeek || 1;
+    for (let i = 0; semana <= total; i++) {
+      if (compartida && fuerza[i]?.kind === 'descarga') {
+        carrera.push({ label: 'Descarga', kind: 'descarga', week: semana });
+        continue;
+      }
+      const w = runningPhases[String(semana)];
+      carrera.push({ label: w?.name || `Semana ${semana}`, kind: 'carga', week: semana });
+      semana++;
+    }
+  }
+
+  const lunes = normDate(ref);
+  lunes.setDate(lunes.getDate() - (isoWeekday(lunes) - 1));
+  const n = Math.min(Math.max(fuerza.length, carrera.length), 52);
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(lunes);
+    d.setDate(d.getDate() + i * 7);
+    const f = fuerza[i] || null;
+    const c = carrera[i] || null;
+    return { start: toISO(d), fuerza: f, carrera: c, shared: f?.kind === 'descarga' && c?.kind === 'descarga' };
+  });
+}

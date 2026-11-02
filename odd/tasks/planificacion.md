@@ -161,7 +161,14 @@ Pasos:
    la siguiente pendiente), y editar una importada permite asignarle la suya. De paso: editar
    una carrera duplicaba en vez de editar, y reescribía una importada como manual pisando su
    recorrido en IndexedDB.
-2. `db.plan` híbrido con descarga compartida y mapa de dos carriles.
+2. ✅ **Descarga compartida y mapa de dos carriles** (2-nov). Sin objeto `db.plan` todavía:
+   el plan híbrido es el par de programas activos; el objeto con nombre llega con la creación
+   (paso 4), que es cuando hace falta. Cuando fuerza descarga, las carreras de esa semana van
+   al 60 % de volumen con la misma intensidad (`deloadRunSegments`: menos series, rodajes más
+   cortos; calentamiento y calma intactos), se guardan con `deload: true` y **no cierran su
+   semana del programa**: la descarga se intercala y esa semana se hace completa después.
+   Interruptor «Descarga compartida con carrera» en Ajustes. En Entrenar → Plan, «Semana a
+   semana» con las dos columnas y la descarga compartida a lo ancho (`hybridWeeks`).
 3. Semana tipo con avisos de interferencia.
 4. Crear el plan con Quirón y editor manual.
 

@@ -7,7 +7,7 @@
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
 import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
 import { scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig } from '../schedule.js';
-import { planStatus, planTimeline } from '../plan.js';
+import { planStatus, planTimeline, deloadShared } from '../plan.js';
 import {
   e1rmByExercise, weeklySeries, loadRatio, recentPRs, bodyTrend,
   lastStrengthSessions, lastRuns, periodStats, runIntensitySplit, patternVolume,
@@ -56,6 +56,9 @@ export function planBlock(db, ref = new Date()) {
   const lines = ['PLAN DE FUERZA EN EL TIEMPO (calculado por la app — cítalo tal cual; una semana se cierra al completar sus sesiones, las fechas son proyección):'];
   lines.push(`  Fase "${st.name}"${ciclo}: ${semana} · ${st.weekDone}/${st.perWeek} sesiones hechas esta semana`);
   if (st.kind === 'carga' && st.deloadIn != null) lines.push(`  Descarga en ${st.deloadIn} semana${st.deloadIn === 1 ? '' : 's'}`);
+  if (deloadShared(db) && (st.kind === 'descarga' || st.deloadIn != null)) {
+    lines.push(`  Descarga COMPARTIDA con carrera: esa semana las carreras van al 60 % del volumen (misma intensidad) y la semana del plan de carrera se hace después.${st.kind === 'descarga' ? ' Es ESTA semana.' : ''}`);
+  }
   const tl = planTimeline(db, ref).filter(t => !t.current).slice(0, 4);
   if (tl.length) {
     lines.push(`  Después: ${tl.map(t => `${t.kind === 'descarga' ? 'descarga' : `"${t.name}" ${t.weeks} sem`} ${t.start}→${t.end}`).join(' · ')}`);

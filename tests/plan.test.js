@@ -276,3 +276,81 @@ describe('planMapHtml', () => {
     expect(planMapHtml(seedDb({ phase: 9 }))).toBe('');
   });
 });
+
+// ── Plan híbrido: descarga compartida y dos carriles ────────────────────────
+import { deloadShared, isRunDeloadWeek, deloadRunSegments, hybridWeeks } from '../js/plan.js';
+import { planLanesHtml } from '../js/ui/plan-map.js';
+import { buildQueue, advanceRunWeek } from '../js/schedule.js';
+
+const CARRERA = {
+  _meta: { name: 'Carrera test', sport: 'running' }, _customId: 't-carrera',
+  1: { name: 'Base', sessions: { Series: [], Rodaje: [] } },
+  2: { name: 'Volumen', sessions: { Series: [], Tirada: [] } },
+  3: { name: 'Pico', sessions: { Tirada: [] } },
+};
+const hibrida = (over = {}) => seedDb({ customPrograms: [PLAN, CARRERA], runningProgram: 't-carrera', runningWeek: 1, ...over });
+
+describe('descarga compartida', () => {
+  it('se comparte por defecto si hay carrera; Ajustes la separa; sin descarga no hay nada que compartir', () => {
+    expect(deloadShared(hibrida())).toBe(true);
+    expect(deloadShared(seedDb())).toBe(false);
+    expect(deloadShared(hibrida({ settings: { plan: { shareDeload: false } } }))).toBe(false);
+    expect(deloadShared(hibrida({ settings: { plan: { deload: false } } }))).toBe(false);
+  });
+
+  it('las carreras van en descarga cuando fuerza está en su semana de descarga', () => {
+    const ws = entrenos(6);
+    expect(isRunDeloadWeek(hibrida({ workouts: ws }), ultimaFecha(ws))).toBe(true);
+    expect(isRunDeloadWeek(hibrida({ workouts: entrenos(3) }), ultimaFecha(entrenos(3)))).toBe(false);
+  });
+
+  it('una sesión en descarga: 60 % de series y de rodaje, calentamiento y calma intactos', () => {
+    const segs = [
+      { name: 'Calentamiento', mode: 'run-steady', duration: '20min', zone: 'Z2' },
+      { name: 'Series', mode: 'run-intervals', reps: 12, distance: '200m', zone: 'Z5' },
+      { name: 'Rodaje', mode: 'run-steady', duration: '1h', zone: 'Z2' },
+      { name: 'Tirada', mode: 'run-steady', distance: '18km', zone: 'Z2' },
+      { name: 'Vuelta a la calma', mode: 'run-steady', duration: '10min', zone: 'Z1' },
+    ];
+    const d = deloadRunSegments(segs);
+    expect(d.map(s => s.duration || s.reps || s.distance)).toEqual(['20min', 7, '35min', '11km', '10min']);
+    expect(d[1].zone).toBe('Z5');            // misma intensidad
+    expect(segs[1].reps).toBe(12);           // el programa no se toca
+  });
+
+  it('las carreras de la descarga no cierran su semana del programa: se intercala', () => {
+    const run = (session, over = {}) => ({ date: '2026-01-05', session, program: 't-carrera', week: 1, ...over });
+    const db = hibrida({ runningLogs: [run('Series', { deload: true }), run('Rodaje', { deload: true })] });
+    expect(buildQueue(db, 'running')).toEqual(['Series', 'Rodaje']);
+    expect(advanceRunWeek(db)).toBeNull();
+  });
+});
+
+describe('hybridWeeks: dos carriles semana a semana', () => {
+  it('fuerza y carrera desde la semana en curso, con la descarga compartida intercalada', () => {
+    const semanas = hybridWeeks(hibrida(), { ref: '2026-01-07', runningPhases: CARRERA });
+    expect(semanas[0].start).toBe('2026-01-05');      // lunes de la semana de ref
+    expect(semanas.slice(0, 4).map(w => [w.fuerza?.label, w.carrera?.label, w.shared])).toEqual([
+      ['Fuerza · 1/2', 'Base', false],
+      ['Fuerza · 2/2', 'Volumen', false],
+      ['Descarga', 'Descarga', true],
+      ['Hipertrofia · 1/3', 'Pico', false],
+    ]);
+  });
+
+  it('sin descarga compartida, carrera sigue su programa sin hueco', () => {
+    const semanas = hybridWeeks(hibrida({ settings: { plan: { shareDeload: false } } }), { ref: '2026-01-07', runningPhases: CARRERA });
+    expect(semanas.slice(0, 3).map(w => w.carrera?.label)).toEqual(['Base', 'Volumen', 'Pico']);
+    expect(semanas[2].shared).toBe(false);
+  });
+
+  it('el mapa pinta los dos carriles solo con carrera activa', () => {
+    const el = document.createElement('div');
+    el.innerHTML = planMapHtml(hibrida(), '2026-01-07');
+    expect(el.querySelector('#planLanesTitle').textContent).toBe('Semana a semana');
+    expect(el.querySelector('#planMapTitle').textContent).toBe('Fases de fuerza');
+    expect(el.querySelector('.plan-lanes-row.is-deload').textContent).toContain('fuerza y carrera');
+    expect(el.querySelector('.plan-lanes-row.is-current').textContent).toContain('Base');
+    expect(planLanesHtml(seedDb(), '2026-01-07')).toBe('');
+  });
+});

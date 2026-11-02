@@ -19,6 +19,7 @@ import { renderRunProgress as _renderRunProgress } from './running-progress.js';
 import { initRunCalendar, renderRunCalendar } from './running-calendar.js';
 import { populateRunWeeks as _populateRunWeeks, renderAllWeekSessions as _renderAllWeekSessions, inferRunType, populateSumSessionSelect, updateRunContextBar, renderRunProgramModal, renderRunWeekModal, setOnStartSession, getNextPlanSession, buildSegmentBar, populateManualSessionSelect, announceRunWeekAdvance } from './running-plan.js';
 import { buildQueue, PLAN_RUNNING } from '../schedule.js';
+import { isRunDeloadWeek, deloadRunSegments } from '../plan.js';
 
 // Re-export for backward compatibility
 export { formatPace, formatRunDuration, parseRunDuration, parseSegDuration, segModeToRunType };
@@ -811,6 +812,7 @@ function saveGpsRun(db) {
     session: document.getElementById('runSumSession').value || '',
     program: db.runningProgram || '',
     week: db.runningWeek || 0,
+    ...(isRunDeloadWeek(db) ? { deload: true } : {}),
     type: document.getElementById('runSumType').value || 'libre',
     distance: result.distance || 0,
     duration: result.duration || 0,
@@ -1700,6 +1702,7 @@ function saveManualLog(db) {
     session: document.getElementById('runManualSession')?.value || '',
     program: db.runningProgram || '',
     week: db.runningWeek || 0,
+    ...(isRunDeloadWeek(db) ? { deload: true } : {}),
     type: document.getElementById('runType').value,
     distance: distance || 0,
     duration: duration || 0,
@@ -1720,7 +1723,7 @@ function saveManualLog(db) {
   // Antes se guardaba como 'manual' con route: null, y el put de IndexedDB
   // pisaba el recorrido con solo los splits del formulario.
   if (original) {
-    const { route, segments, source, program, week, splits: formSplits, ...campos } = log;
+    const { route, segments, source, program, week, deload, splits: formSplits, ...campos } = log;
     log = { ...original, ...campos, source: original.source || source };
     if (formSplits.length) log.splits = formSplits;
   }
@@ -2163,8 +2166,9 @@ export function refreshRunning(db) {
 export function startPlanSessionFromName(db, name) {
   const phases = getRunningPhases(db.runningProgram);
   const week = phases[db.runningWeek];
-  const segs = week?.sessions?.[name];
-  if (!segs || segs.length === 0) return false;
+  const plan = week?.sessions?.[name];
+  if (!plan || plan.length === 0) return false;
+  const segs = isRunDeloadWeek(db) ? deloadRunSegments(plan) : plan;
   activeSegments = segs;
   activeRunType = inferRunType(segs);
   activePlanSession = name;

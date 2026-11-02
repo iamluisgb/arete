@@ -94,6 +94,9 @@ export function buildQueue(db, plan = PLAN_STRENGTH, ref = new Date()) {
     if (!name || !enPlan.has(name)) continue;
     if ((item.program || '') !== (db.runningProgram || '')) continue;
     if (item.week && item.week !== (db.runningWeek || 1)) continue;
+    // Una carrera hecha en la descarga compartida no cierra su semana del
+    // programa: la descarga se intercala y esa semana se hace después.
+    if (item.deload) continue;
     done[name] = (done[name] || 0) + 1;
   }
 
@@ -237,7 +240,7 @@ export function advanceRunWeek(db) {
   if (!prog[String(actual + 1)]) return null;
   if (buildQueue(db, PLAN_RUNNING).length) return null;
   const enEsta = (db.runningLogs || []).some(l =>
-    l?.session && l.week === actual && (l.program || '') === (db.runningProgram || ''));
+    l?.session && !l.deload && l.week === actual && (l.program || '') === (db.runningProgram || ''));
   if (!enEsta) return null;
   db.runningWeek = actual + 1;
   return { from: actual, to: actual + 1 };

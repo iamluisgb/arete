@@ -2,6 +2,7 @@ import { esc } from '../utils.js';
 import { saveDB } from '../data.js';
 import { toast } from './toast.js';
 import { buildQueue, advanceRunWeek, PLAN_RUNNING } from '../schedule.js';
+import { isRunDeloadWeek, deloadRunSegments } from '../plan.js';
 import { getRunningProgramList, getRunningPhases } from '../programs.js';
 import { ZONE_COLORS, ZONE_LABELS, parseSegDistance, parseSegDuration, estimateZone, getPaceZones } from './running-helpers.js';
 
@@ -106,12 +107,18 @@ export function renderAllWeekSessions(db, weekKey, $segments) {
   const week = phases[String(weekKey)];
   if (!week?.sessions) { $segments.innerHTML = '<div class="empty-state">No hay sesiones en esta semana</div>'; return; }
 
+  // Descarga compartida con fuerza: la semana activa se hace al 60 % de volumen.
+  const descarga = String(weekKey) === String(db.runningWeek || 1) && isRunDeloadWeek(db);
+  const segsDe = name => (descarga ? deloadRunSegments(week.sessions[name]) : week.sessions[name]);
   const sessionNames = Object.keys(week.sessions);
-  $segments.innerHTML = sessionNames.map(name => {
-    const segs = week.sessions[name];
+  const aviso = descarga
+    ? '<p class="str-plan-desc">Semana de descarga, compartida con fuerza: menos series y rodajes más cortos, a la misma intensidad. Esta semana del plan se hace completa después.</p>'
+    : '';
+  $segments.innerHTML = aviso + sessionNames.map(name => {
+    const segs = segsDe(name);
     if (!segs || segs.length === 0) return '';
     return `<div class="run-plan-session-card">
-      <div class="run-plan-session-header">${esc(name)}</div>
+      <div class="run-plan-session-header">${esc(name)}${descarga ? ' · descarga' : ''}</div>
       ${buildSegmentBar(segs, db)}
       ${renderSegmentCards(segs, db)}
       <button class="btn run-seg-start-btn" data-session="${esc(name)}" style="width:100%;margin-top:8px">Iniciar esta sesión</button>
@@ -121,7 +128,7 @@ export function renderAllWeekSessions(db, weekKey, $segments) {
   $segments.querySelectorAll('.run-seg-start-btn[data-session]').forEach(btn => {
     btn.addEventListener('click', () => {
       const name = btn.dataset.session;
-      const segs = week.sessions[name];
+      const segs = segsDe(name);
       const runType = inferRunType(segs);
       _onStartSession?.(segs, runType, name, db);
     });
@@ -247,7 +254,7 @@ export function getNextPlanSession(db) {
 
   return {
     name: nextName,
-    segments: week.sessions[nextName],
+    segments: isRunDeloadWeek(db) ? deloadRunSegments(week.sessions[nextName]) : week.sessions[nextName],
     weekName: week.name || `Semana ${db.runningWeek}`,
     weekKey: db.runningWeek,
     done: doneSessions.size,

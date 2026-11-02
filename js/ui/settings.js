@@ -2,7 +2,7 @@ import { formatDate, esc } from '../utils.js';
 import { getActiveProgram, getCustomPrograms } from '../programs.js';
 import { formatRunDuration } from './running-helpers.js';
 import { getScheduleConfig, schedulePlan } from '../schedule.js';
-import { deloadEnabled } from '../plan.js';
+import { deloadEnabled, deloadShared } from '../plan.js';
 import { saveDB } from '../data.js';
 import * as LLM from '../ai/llm.js';
 import { isConnected, getSyncDiag } from '../drive.js';
@@ -123,6 +123,15 @@ function renderDeloadToggle(db) {
   const on = deloadEnabled(db);
   btn.classList.toggle('active', on);
   btn.setAttribute('aria-checked', String(on));
+  // Compartida: su propio ajuste (por defecto sí). Sin descarga no hay nada que
+  // compartir, así que se desactiva en vez de mentir con un «sí».
+  const share = document.getElementById('shareDeloadToggle');
+  if (share) {
+    const sOn = on && db?.settings?.plan?.shareDeload !== false;
+    share.classList.toggle('active', sOn);
+    share.setAttribute('aria-checked', String(sOn));
+    share.disabled = !on;
+  }
 }
 
 const PREVIEW_IDS = [['arete', 'schedPreviewArete'], ['running', 'schedPreviewRunning']];
@@ -336,6 +345,14 @@ export function initSettingsNav(db) {
     if (e.target.closest('#deloadToggle')) {
       if (!db.settings || typeof db.settings !== 'object') db.settings = {};
       db.settings.plan = { ...(db.settings.plan || {}), deload: !deloadEnabled(db) };
+      saveDB(db);
+      renderDeloadToggle(db);
+      return;
+    }
+    if (e.target.closest('#shareDeloadToggle')) {
+      if (!db.settings || typeof db.settings !== 'object') db.settings = {};
+      const actual = db.settings.plan?.shareDeload !== false;
+      db.settings.plan = { ...(db.settings.plan || {}), shareDeload: !actual };
       saveDB(db);
       renderDeloadToggle(db);
       return;

@@ -144,6 +144,10 @@ del historial: no se guarda ninguna posición**.
   La cola de running solo cuenta carreras de su semana (`log.week`); por eso el registro manual
   y la edición llevan «Sesión del plan». Plan híbrido (fuerza + carrera en dos carriles): ver
   la sección en `odd/tasks/planificacion.md`.
+- **La descarga de fuerza es también la de carrera** si hay programa de carrera activo
+  (`deloadShared`). Las carreras de esa semana salen de `deloadRunSegments` (60 % del volumen,
+  misma intensidad) y se guardan con `deload: true`; la cola de running las ignora, así que la
+  descarga **se intercala** y no se come una semana de la preparación.
 - La configuración de anclas vive en [`js/schedule-config.js`](js/schedule-config.js) para que
   `plan.js` y `schedule.js` la lean sin importarse en círculo.
 

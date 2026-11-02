@@ -3509,6 +3509,24 @@ a:hover{opacity:.8}
 .plan-map-row--deload.is-current .plan-map-name{color:var(--color-text-primary);font-weight:600}
 .plan-map-note{margin:var(--sp-3) 0 0;font:var(--type-caption);color:var(--color-text-tertiary)}
 @media(prefers-reduced-motion:reduce){.plan-map-phase{transition:none}}
+/* Semana a semana (plan híbrido): fuerza y carrera en dos columnas, una fila
+   por semana. La descarga compartida ocupa las dos columnas; la semana en
+   curso, en peso y con la fecha en tinta. */
+.plan-lanes{margin-bottom:var(--sp-6)}
+.plan-lanes-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-1)}
+.plan-lanes-row{display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1fr);gap:var(--sp-1);align-items:stretch}
+.plan-lanes-row--head{margin-bottom:var(--sp-1);font:var(--type-label);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--color-text-tertiary)}
+.plan-lanes-date{align-self:center;font:var(--type-caption);color:var(--color-text-secondary);white-space:nowrap}
+.plan-lanes-cell{padding:var(--sp-2);border-radius:var(--radius-sm);background:var(--color-surface-1);
+  border:1px solid var(--color-line);font:var(--type-caption);overflow-wrap:anywhere;min-width:0}
+.plan-lanes-cell.is-empty{background:none;border-style:dashed;color:var(--color-text-tertiary)}
+.plan-lanes-cell.is-deload,.plan-lanes-cell--span{background:var(--color-surface-2);border-color:transparent;color:var(--color-text-secondary)}
+.plan-lanes-cell--span{grid-column:2 / span 2;text-align:center}
+.plan-lanes-row.is-current .plan-lanes-date{color:var(--color-text-primary);font-weight:700}
+.plan-lanes-row.is-current .plan-lanes-cell:not(.is-empty){border-color:var(--color-action-ink);font-weight:600}
+.plan-lanes-more{margin-top:var(--sp-1)}
+.plan-lanes-more>summary{cursor:pointer;padding:var(--sp-2) 0;font:var(--type-caption);color:var(--color-text-secondary)}
 /* Animación 3D de ejercicio (js/anim3d, en pruebas). El botón «3D» va junto a
    la ilustración; la hoja es una sala oscura con la figura en mármol. */
 .anim3d-btn{display:inline-flex;align-items:center;justify-content:center;min-height:28px;min-width:40px;

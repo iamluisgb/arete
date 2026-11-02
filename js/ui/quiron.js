@@ -27,7 +27,7 @@ import {
 } from '../sessions.js';
 import { validateWorkout, normalizeWorkout, applyWorkout, undoWorkout, validateRun, normalizeRun, applyRun, undoRun } from '../data.js';
 import { esc } from '../utils.js';
-import { isDeloadWeek } from '../plan.js';
+import { isDeloadWeek, isRunDeloadWeek } from '../plan.js';
 import { setQuironSyncHooks } from '../sync/quiron.js';
 import { loadMemorias, saveMemorias, listMemorias, upsertMemoria, deleteMemoria, MAX_MEMORIAS, CATEGORIAS } from '../quiron-memory.js';
 import { formatPace, formatRunDuration } from './running-helpers.js';
@@ -951,7 +951,7 @@ function renderRunCard(db, p, msg) {
     </div>`;
   wireProposalActions(card, p, 'Registrar', `Carrera registrada — ${r.date} · verla en Running → Historial`,
     () => {
-      const t = applyRun(db, r);
+      const t = applyRun(db, r, { deload: isRunDeloadWeek(db) });
       // Si la carrera cierra la semana de running, se pasa a la siguiente (con deshacer).
       import('./running-plan.js').then(m => m.announceRunWeekAdvance(db)).catch(() => {});
       return t;

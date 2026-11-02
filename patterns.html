@@ -150,6 +150,22 @@ Un único seleccionado, en tinta. Usado en la hoja <code>#programModal</code>.</
 <p class="nota"><code>.plan-map</code> arriba de Entrenar → Plan (<code>js/ui/plan-map.js</code>). La fase en curso lleva borde y número en tinta, como <code>.plan-phase.is-selected</code>;
 la semana en curso es el punto con anillo. La descarga es una fila sin tarjeta. Las fases anteriores (<code>.is-past</code>) van con borde discontinuo y sin fechas.</p>
 
+<h3>Semana a semana (plan híbrido, dos carriles)</h3>
+<div style="max-width:var(--measure-form)">
+<section class="plan-lanes">
+  <div class="plan-map-head"><h3 class="plan-map-title">Semana a semana</h3><span class="plan-map-end">Fuerza y carrera</span></div>
+  <div class="plan-lanes-row plan-lanes-row--head" aria-hidden="true"><span></span><span>Fuerza</span><span>Carrera</span></div>
+  <ol class="plan-lanes-list" role="list">
+    <li class="plan-lanes-row is-current" aria-current="true"><span class="plan-lanes-date">2 nov</span><span class="plan-lanes-cell">Fuerza · 5/6</span><span class="plan-lanes-cell">Semana 3</span></li>
+    <li class="plan-lanes-row"><span class="plan-lanes-date">9 nov</span><span class="plan-lanes-cell">Fuerza · 6/6</span><span class="plan-lanes-cell">Semana 4</span></li>
+    <li class="plan-lanes-row is-deload"><span class="plan-lanes-date">16 nov</span><span class="plan-lanes-cell plan-lanes-cell--span">Descarga · fuerza y carrera</span></li>
+    <li class="plan-lanes-row"><span class="plan-lanes-date">23 nov</span><span class="plan-lanes-cell">Hipertrofia · 1/6</span><span class="plan-lanes-cell is-empty">—</span></li>
+  </ol>
+</section>
+</div>
+<p class="nota"><code>.plan-lanes</code> encima del mapa de fases cuando hay programa de carrera activo. Una fila por semana; la descarga compartida
+(<code>.plan-lanes-cell--span</code>) ocupa las dos columnas. La semana en curso, con la fecha en peso y las celdas con borde en tinta.</p>
+
 <h3>Botón «3D» (animación de ejercicio, en pruebas)</h3>
 <div class="fila"><span style="font:var(--type-body-strong)">Peso muerto</span><button type="button" class="anim3d-btn">3D</button></div>
 <p class="nota"><code>.anim3d-btn</code> junto a la ilustración de los ejercicios con animación (<code>js/anim3d/catalog.js</code>).
