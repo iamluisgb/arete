@@ -101,3 +101,41 @@ describe('createDictation (motor del navegador)', () => {
     d.stop();
   });
 });
+
+// Chrome Android repite en cada resultado final todo lo dicho en la sesión. Antes se
+// sumaban todos y salía "hola hola probando hola probando nota…".
+const { mergeResults } = await import('../js/ai/dictation-engine.js');
+const res = (...items) => items.map(([text, isFinal]) => Object.assign([{ transcript: text }], { isFinal }));
+
+describe('mergeResults', () => {
+  it('Android: finales acumulativos no se repiten', () => {
+    const r = res(['hola', true], ['hola probando', true], ['Hola probando nota de voz', true]);
+    expect(mergeResults(r)).toEqual({ final: 'Hola probando nota de voz', interim: '' });
+  });
+
+  it('Android: el provisional que repite lo final solo aporta lo nuevo', () => {
+    const r = res(['hola probando', true], ['hola probando nota', false]);
+    expect(mergeResults(r)).toEqual({ final: 'hola probando', interim: 'nota' });
+  });
+
+  it('escritorio: frases distintas se juntan tal cual', () => {
+    const r = res(['hola probando', true], ['nota de voz', true], ['y algo', false]);
+    expect(mergeResults(r)).toEqual({ final: 'hola probando nota de voz', interim: 'y algo' });
+  });
+});
+
+describe('createDictation con resultados de Android', () => {
+  it('no duplica el texto ni entre eventos ni entre reinicios', () => {
+    window.SpeechRecognition = FakeRecognition;
+    const seen = [];
+    const d = createDictation({ onText: (full) => seen.push(full) });
+    d.start();
+    const r = instances[0];
+    r.onresult({ resultIndex: 0, results: res(['hola', true]) });
+    r.onresult({ resultIndex: 0, results: res(['hola', true], ['hola probando', true]) });
+    r.onend();                       // pausa: rearranca, la sesión nueva empieza vacía
+    r.onresult({ resultIndex: 0, results: res(['nota de voz', true]) });
+    expect(seen.at(-1)).toBe('hola probando nota de voz ');
+    d.stop();
+  });
+});
