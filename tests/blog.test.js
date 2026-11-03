@@ -65,6 +65,18 @@ describe('blog', () => {
     expect(idx).not.toContain('Próximamente');
   });
 
+  it('los protocolos tienen el formato del blog: sin CSS propio ni fuentes aparte, fases en h2', () => {
+    for (const a of PROTOCOLOS) {
+      const html = read(`protocolos/${a.slug}/index.html`);
+      expect(html, a.slug).not.toContain('<style>');
+      expect(html, a.slug).not.toContain('fonts.googleapis.com');
+      expect(html, a.slug).not.toMatch(/class="(toc|ex-card|section-label|phase-bar)"/);
+      expect(html, a.slug).toContain('<h2 id="fase1">');
+      expect(html, a.slug).toContain('class="protocol-card"');
+      expect(html, a.slug).toMatch(/class="nav-links">.*>Protocolos<\/a>/);
+    }
+  });
+
   it('el índice del blog no choca con el .toc propio de los protocolos', () => {
     expect(read('style.css')).not.toMatch(/(^|[^-])\.toc\{/m);
     expect(read('blog/blog.js')).toContain("!document.querySelector('.toc')");

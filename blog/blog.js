@@ -19,7 +19,7 @@
   }
 
   // Índice de secciones: solo en artículos largos (5+ secciones) que no traen
-  // el suyo (los protocolos tienen .toc propio).
+  // el suyo. Los protocolos ya no lo traen: sus fases son h2 y salen aquí.
   var heads = [].slice.call(body.querySelectorAll('h2[id]')).filter(function (h) { return !h.closest('.read-next'); });
   var links = [];
   if (heads.length >= 5 && !document.querySelector('.toc')) {

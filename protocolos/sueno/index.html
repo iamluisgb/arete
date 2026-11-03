@@ -10,70 +10,6 @@
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../../style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-<style>
-:root{--bp-fs-xs:.7rem;--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
-.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
-.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
-.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
-.phase-bar-fill{height:100%;border-radius:2px}
-.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
-.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
-:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
-.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
-.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
-.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
-.ex-card .meta strong{color:var(--text2)}
-.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6}
-.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
-.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
-.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
-.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
-.ex-card .evidence{font-size:var(--bp-fs-xs);color:var(--text3);margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--ghost-border);line-height:1.5}
-.ex-card .evidence strong{color:var(--text2)}
-/* Timeline */
-.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:4px;color:var(--text)}
-.timeline .tl-desc{font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-4)}
-.tl-grid{display:flex;flex-direction:column;gap:var(--sp-2)}
-.tl-row{display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--ghost-border)}
-.tl-row:last-child{border-bottom:none}
-.tl-time{font-size:var(--bp-fs-xs);font-weight:700;color:var(--accent);min-width:70px;text-align:right;padding-top:2px}
-.tl-content{flex:1}
-.tl-content .tl-title{font-size:var(--bp-fs-md);font-weight:600;color:var(--text);margin-bottom:2px}
-.tl-content .tl-detail{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.4}
-/* Level badge */
-.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
-.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
-/* Reference box */
-.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm)}
-.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
-.ref-box p{color:var(--ink-body);line-height:1.5;margin-bottom:4px}.ref-box p:last-child{margin-bottom:0}
-.ref-box em{color:var(--text3)}
-/* Checklist */
-.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
-.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
-.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
-.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
-.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
-.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
-/* Info box */
-.info-box{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-4) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .info-box{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.info-box .box-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:var(--sp-2)}
-.info-box p{font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6;margin-bottom:var(--sp-2)}
-.info-box p:last-child{margin-bottom:0}
-.info-box strong{color:var(--text)}
-</style>
 <meta name="description" content="Protocolo de sueño basado en evidencia: luz, temperatura, cafeína, alcohol, suplementos, siestas y jet lag, con dosis, momento y nivel de evidencia de cada uno.">
 <link rel="canonical" href="https://arete.raiatech.com/protocolos/sueno/">
 <meta property="og:title" content="Plan de sueño — Areté">
@@ -94,7 +30,7 @@
 <meta property="article:published_time" content="2026-07-05">
 <meta property="article:modified_time" content="2026-11-02">
 <meta property="article:author" content="Luis González">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Plan de sueño","description":"Luz, temperatura, cafeína, alcohol, suplementos y jet lag, con dosis, momento y nivel de evidencia. 3 fases y 14 protocolos.","inLanguage":"es","url":"https://arete.raiatech.com/protocolos/sueno/","mainEntityOfPage":"https://arete.raiatech.com/protocolos/sueno/","image":"https://arete.raiatech.com/assets/blog/og/protocolo-sueno.png","datePublished":"2026-07-05","dateModified":"2026-11-02","timeRequired":"PT32M","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"publisher":{"@type":"Organization","name":"Areté","url":"https://arete.raiatech.com","logo":"https://arete.raiatech.com/assets/icons/icon-192.png"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Plan de sueño","description":"Luz, temperatura, cafeína, alcohol, suplementos y jet lag, con dosis, momento y nivel de evidencia. 3 fases y 14 protocolos.","inLanguage":"es","url":"https://arete.raiatech.com/protocolos/sueno/","mainEntityOfPage":"https://arete.raiatech.com/protocolos/sueno/","image":"https://arete.raiatech.com/assets/blog/og/protocolo-sueno.png","datePublished":"2026-07-05","dateModified":"2026-11-02","timeRequired":"PT31M","author":{"@type":"Person","name":"Luis González","url":"https://luisgonzalezbernal.com"},"publisher":{"@type":"Organization","name":"Areté","url":"https://arete.raiatech.com","logo":"https://arete.raiatech.com/assets/icons/icon-192.png"}}</script>
 <script src="../../blog/blog.js" defer></script>
 <!-- /blog:head --></head>
 <body>
@@ -104,10 +40,10 @@
 </nav>
 
 <div class="article-header">
-  <a href="../index.html" class="back">← Protocolos</a>
+  <a href="../index.html" class="back">← Volver a protocolos</a>
   <div class="phase-tag">Sueño</div>
   <h1>Plan de <span>sueño</span></h1>
-  <div class="subtitle">Sueño basado en evidencia, sin consejos genéricos: cada protocolo con su mecanismo, su dosis, su momento y lo fuerte que es la evidencia que lo sostiene. Diseñado para atletas híbridos.</div><!-- blog:byline --><div class="byline"><img src="../../assets/landing/luis.webp" alt="" width="36" height="36" decoding="async"><div><a href="https://luisgonzalezbernal.com" rel="author">Luis González</a><span>Actualizado el <time datetime="2026-11-02">2 de noviembre de 2026</time> · 32 min de lectura</span></div></div><!-- /blog:byline -->
+  <div class="subtitle">Sueño basado en evidencia, sin consejos genéricos: cada protocolo con su mecanismo, su dosis, su momento y lo fuerte que es la evidencia que lo sostiene. Diseñado para atletas híbridos.</div><!-- blog:byline --><div class="byline"><img src="../../assets/landing/luis.webp" alt="" width="36" height="36" decoding="async"><div><a href="https://luisgonzalezbernal.com" rel="author">Luis González</a><span>Actualizado el <time datetime="2026-11-02">2 de noviembre de 2026</time> · 31 min de lectura</span></div></div><!-- /blog:byline -->
   <div class="badge-row">
     <span class="badge">12 semanas</span>
     <span class="badge">3 fases</span>
@@ -125,8 +61,8 @@
 </div>
 
 <!-- ═══════ PRERREQUISITO: EVALUACIÓN ═══════ -->
-<div class="ref-box">
-  <div class="ref-title">Prerrequisito: evalúa tu sueño</div>
+<h2 id="antes-evalua-tu-sueno">Antes de empezar: evalúa tu sueño</h2>
+  
   <p>Antes de empezar, mide tu punto de partida. Responde con sinceridad:</p>
   <p><strong>1.</strong> ¿Cuánto tardas en dormirte? (latencia) — <strong>&gt;30 min</strong> = problema</p>
   <p><strong>2.</strong> ¿Cuántas veces te despiertas por noche durante más de 5 minutos? — <strong>&gt;2</strong> = problema</p>
@@ -134,73 +70,32 @@
   <p><strong>4.</strong> ¿Te despiertas con energía? — <strong>aturdido &gt;30 min</strong> = problema</p>
   <p><strong>5.</strong> ¿Tu horario varía más de 1 h entre días? — <strong>sí</strong> = problema</p>
   <p><em>Latencia, despertares de más de 5 minutos, tiempo despierto en la cama y eficiencia son los indicadores de calidad en los que coincide el panel de expertos de la National Sleep Foundation (Ohayon et al., 2017).</em></p>
-</div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
-  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> 4-5 problemas — Empieza Fase 1</div>
-  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> 2-3 problemas — Fase 1, acelera a Fase 2</div>
-  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> 1 problema — Ve directo a Fase 2</div>
-  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> 0 problemas — Fase 3 (siestas, viajes, ajuste fino)</div>
+<div class="level-grid">
+  <div class="level-badge level-poor">4-5 problemas — Empieza Fase 1</div>
+  <div class="level-badge level-avg">2-3 problemas — Fase 1, acelera a Fase 2</div>
+  <div class="level-badge level-good">1 problema — Ve directo a Fase 2</div>
+  <div class="level-badge level-excellent">0 problemas — Fase 3 (siestas, viajes, ajuste fino)</div>
 </div>
 
 <!-- ═══════ INFO BOX: LA CIENCIA ═══════ -->
-<div class="info-box">
-  <div class="box-title">Lo que dice la ciencia</div>
+<h2 id="lo-que-dice-la-ciencia">Lo que dice la ciencia</h2>
+  
   <p>El sueño se regula por dos procesos (Borbély, 1982): <strong>Proceso S</strong> (presión homeostática — acumula somnolencia mientras estás despierto, se descarga mientras duermes) y <strong>Proceso C</strong> (ritmo circadiano — reloj de ~24 h en el núcleo supraquiasmático, sincronizado por la luz). Dormir bien = alinear ambos.</p>
   <p>El sueño tiene ciclos de ~90 minutos con 4 etapas: N1 (transición), N2 (ligero, la mitad de la noche), N3 (profundo, reparación física) y REM (memoria, emoción). El REM se concentra al final de la noche: quien recorta por la mañana recorta sobre todo REM.</p>
   <p><strong>Walker (2017)</strong>, en <em>Why We Sleep</em>, recoge la evidencia epidemiológica: dormir menos de 7 h de forma crónica se asocia con más riesgo cardiovascular, metabólico y de deterioro cognitivo. Es el pilar más infravalorado de la salud y el rendimiento.</p>
   <p><strong>Cada protocolo lleva su nivel de evidencia.</strong> <em>Fuerte</em>: ensayos controlados o metaanálisis que apuntan en la misma dirección. <em>Moderada</em>: ensayos pequeños o estudios observacionales coherentes con un mecanismo conocido. <em>Tentativa</em>: mecanismo plausible y pocos datos en personas; pruébalo y mídete.</p>
-</div>
-
-<!-- ═══════ TOC ═══════ -->
-<div class="toc">
-  <h2>Índice</h2>
-  <ol>
-    <li><a href="#una-cosa">Si solo haces una cosa</a></li>
-    <li><a href="#fase1">Fase 1 · Cimientos · Semanas 1–4</a>
-      <ol class="sub">
-        <li><a href="#luz-manana">Luz matutina (ancla circadiana)</a></li>
-        <li><a href="#luz-atardecer">Luz al final de la tarde</a></li>
-        <li><a href="#luz-tarde">Gestión de luz nocturna</a></li>
-        <li><a href="#horario">Horario fijo y experimento de cronotipo</a></li>
-        <li><a href="#ambiente">Ambiente del dormitorio</a></li>
-      </ol>
-    </li>
-    <li><a href="#fase2">Fase 2 · Optimización · Semanas 5–8</a>
-      <ol class="sub">
-        <li><a href="#cafeina">Gestión de cafeína</a></li>
-        <li><a href="#alcohol">Alcohol y sueño</a></li>
-        <li><a href="#wind-down">Rutina de desconexión y última comida</a></li>
-        <li><a href="#suplementos">Suplementos con evidencia</a></li>
-      </ol>
-    </li>
-    <li><a href="#fase3">Fase 3 · Adaptación · Semanas 9–12</a>
-      <ol class="sub">
-        <li><a href="#naps">Siestas y NSDR</a></li>
-        <li><a href="#termico">Ducha o baño caliente</a></li>
-        <li><a href="#calor-despertar">Calor antes de despertar</a></li>
-        <li><a href="#jet-lag">Jet lag</a></li>
-        <li><a href="#troubleshooting">Si nada funciona</a></li>
-      </ol>
-    </li>
-    <li><a href="#timeline">Timeline diario</a></li>
-    <li><a href="#checklist">Checklist de progreso</a></li>
-    <li><a href="#faq">Preguntas frecuentes</a></li>
-    <li><a href="#refs">Referencias</a></li>
-  </ol>
-</div>
 
 <!-- ═══════ FASE 1 ═══════ -->
-<div id="fase1" class="section-label">Fase 1 · Cimientos · Semanas 1–4</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: anclar el ritmo circadiano y optimizar el entorno. Sin esto, nada más funciona.</p>
-<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+<h2 id="fase1">Fase 1 · Cimientos · Semanas 1–4</h2>
+<p>Objetivo: anclar el ritmo circadiano y optimizar el entorno. Sin esto, nada más funciona.</p>
 
-<div id="luz-manana" class="section-label" style="margin-top:0">Luz matutina · 10–30 min · todos los días</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La luz de la mañana es la señal más potente para sincronizar el reloj circadiano. Las células ganglionares de la retina intrínsecamente fotosensibles (ipRGC) proyectan al núcleo supraquiasmático, que coordina melatonina, cortisol y temperatura corporal.</p>
+<h3 id="luz-manana">Luz matutina · 10–30 min · todos los días</h3>
+<p>La luz de la mañana es la señal más potente para sincronizar el reloj circadiano. Las células ganglionares de la retina intrínsecamente fotosensibles (ipRGC) proyectan al núcleo supraquiasmático, que coordina melatonina, cortisol y temperatura corporal.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 01</div>
-  <h3>Luz matutina al aire libre</h3>
+  <h4>Luz matutina al aire libre</h4>
   <div class="meta"><span><strong>Cuándo:</strong> 0–1 h tras despertar</span> <span><strong>Duración:</strong> 10–30 min</span> <span><strong>Dosis:</strong> luz exterior</span></div>
   <ol class="steps">
     <li><strong>Sal al exterior</strong> dentro de la primera hora tras despertar. No vale la ventana: el cristal filtra buena parte de la luz.</li>
@@ -216,12 +111,12 @@
   <div class="evidence"><span class="badge">Evidencia: fuerte</span> <strong>Estudios:</strong> Berson et al. (2002), <em>Science</em> — descubrimiento de las ipRGC que informan al núcleo supraquiasmático. Khalsa et al. (2003), <em>J Physiol</em> — curva de respuesta de fase: la luz en la mañana biológica adelanta el reloj y la luz al anochecer lo retrasa. Brown et al. (2022), <em>PLoS Biol</em> — el consenso internacional pide al menos 250 lux melanópicos durante el día, algo que el interior de una casa rara vez da.</div>
 </div>
 
-<div id="luz-atardecer" class="section-label" style="margin-top:var(--sp-5)">Luz al final de la tarde · 10–15 min antes del ocaso</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La sensibilidad de la retina a la luz depende de cuánta luz has visto antes. Quien pasa el día a oscuras (oficina, casa) llega a la noche más sensible, y la luz artificial le suprime más la melatonina. Ver luz natural al final de la tarde amortigua ese efecto.</p>
+<h3 id="luz-atardecer">Luz al final de la tarde · 10–15 min antes del ocaso</h3>
+<p>La sensibilidad de la retina a la luz depende de cuánta luz has visto antes. Quien pasa el día a oscuras (oficina, casa) llega a la noche más sensible, y la luz artificial le suprime más la melatonina. Ver luz natural al final de la tarde amortigua ese efecto.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 02</div>
-  <h3>Luz al final de la tarde</h3>
+  <h4>Luz al final de la tarde</h4>
   <div class="meta"><span><strong>Cuándo:</strong> antes del ocaso</span> <span><strong>Duración:</strong> 10–15 min</span> <span><strong>Dónde:</strong> exterior</span></div>
   <ol class="steps">
     <li><strong>Sal 10–15 min</strong> al final de la tarde, antes de que se ponga el sol. No hace falta ver la puesta: basta la luz ambiente de exterior.</li>
@@ -237,12 +132,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> te Kulve et al. (2019), <em>Sci Rep</em> — en 12 mujeres, 2,5 h de luz brillante al principio de la tarde redujeron la caída de melatonina y de somnolencia que provoca la luz a última hora. Hébert et al. (2002), <em>J Pineal Res</em> — tras una semana con más luz diurna (unas 4 h al día), la luz nocturna suprimió menos melatonina que tras una semana en penumbra, con mucha variación entre personas. Son estudios pequeños de laboratorio; la pauta concreta de 10–15 min al ocaso no se ha probado.</div>
 </div>
 
-<div id="luz-tarde" class="section-label" style="margin-top:var(--sp-5)">Gestión de luz nocturna · 2–3 h antes de dormir</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La luz por la noche suprime la melatonina y retrasa el reloj. Incluso la luz normal de una habitación (&lt;200 lux) adelanta poco a poco la noche biológica: la melatonina empieza más tarde y dura unos 90 minutos menos.</p>
+<h3 id="luz-tarde">Gestión de luz nocturna · 2–3 h antes de dormir</h3>
+<p>La luz por la noche suprime la melatonina y retrasa el reloj. Incluso la luz normal de una habitación (&lt;200 lux) adelanta poco a poco la noche biológica: la melatonina empieza más tarde y dura unos 90 minutos menos.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 03</div>
-  <h3>Reducción de luz nocturna</h3>
+  <h4>Reducción de luz nocturna</h4>
   <div class="meta"><span><strong>Inicio:</strong> 2–3 h antes de dormir</span> <span><strong>Meta:</strong> luz tenue y cálida</span></div>
   <ol class="steps">
     <li><strong>3–2 h antes:</strong> baja las luces. Lámparas cálidas (2700–3000 K) a la altura de la mesa, no focos de techo blancos.</li>
@@ -258,12 +153,12 @@
   <div class="evidence"><span class="badge">Evidencia: fuerte</span> <strong>Estudios:</strong> Gooley et al. (2011), <em>J Clin Endocrinol Metab</em> — la luz de habitación antes de dormir retrasó el inicio de la melatonina en el 99 % de los participantes y acortó su duración unos 90 min; durante las horas de sueño la suprimió más de un 50 % en el 85 % de los casos. Zeitzer et al. (2000), <em>J Physiol</em> — con luz tenue de habitación (~100 lux) se obtiene la mitad del retraso de fase y de la supresión de melatonina que produce la luz brillante (~9000 lux). Brown et al. (2022), <em>PLoS Biol</em> — recomiendan menos de 10 lux melanópicos desde 3 h antes de acostarse y menos de 1 lux durante el sueño.</div>
 </div>
 
-<div id="horario" class="section-label" style="margin-top:var(--sp-5)">Horario fijo · ±30 min · 7 días/semana</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El cuerpo no sabe que es fin de semana. Variar el horario de sueño más de 1 h entre días laborables y fin de semana produce «jet lag social»: el equivalente a volar de Madrid a Nueva York cada viernes y volver cada lunes.</p>
+<h3 id="horario">Horario fijo · ±30 min · 7 días/semana</h3>
+<p>El cuerpo no sabe que es fin de semana. Variar el horario de sueño más de 1 h entre días laborables y fin de semana produce «jet lag social»: el equivalente a volar de Madrid a Nueva York cada viernes y volver cada lunes.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 04</div>
-  <h3>Ancla tu horario y encuentra tu cronotipo</h3>
+  <h4>Ancla tu horario y encuentra tu cronotipo</h4>
   <div class="meta"><span><strong>Variación máx:</strong> ±30 min</span> <span><strong>Incluye:</strong> fines de semana</span> <span><strong>Experimento:</strong> 1 semana</span></div>
   <ol class="steps">
     <li><strong>Fija la hora de despertar</strong>, no la de dormir. Es la que ancla el ritmo. Si te acuestas tarde, te levantas a la misma hora (recuperas la noche siguiente).</li>
@@ -279,12 +174,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Lunsford-Avery et al. (2018), <em>Sci Rep</em> — en 1978 adultos mayores, la irregularidad del horario se asoció con más riesgo cardiometabólico con independencia de las horas dormidas (observacional). Wittmann et al. (2006), <em>Chronobiol Int</em> — el desfase entre días de trabajo y libres («jet lag social») se asocia con peor bienestar y más consumo de estimulantes. Wright et al. (2013), <em>Curr Biol</em> — una semana de acampada solo con luz natural adelantó el reloj de todos y más el de los cronotipos tardíos, que quedaron parecidos a los madrugadores. El experimento de una semana en casa es una aplicación práctica de ese hallazgo, no un protocolo probado.</div>
 </div>
 
-<div id="ambiente" class="section-label" style="margin-top:var(--sp-5)">Ambiente del dormitorio</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El dormitorio debe ser oscuro, fresco y silencioso. La temperatura central baja para iniciar y mantener el sueño profundo, y una habitación o una cama demasiado cálidas lo impiden.</p>
+<h3 id="ambiente">Ambiente del dormitorio</h3>
+<p>El dormitorio debe ser oscuro, fresco y silencioso. La temperatura central baja para iniciar y mantener el sueño profundo, y una habitación o una cama demasiado cálidas lo impiden.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 05</div>
-  <h3>Optimización del entorno</h3>
+  <h4>Optimización del entorno</h4>
   <div class="meta"><span><strong>Temperatura:</strong> fresca (~19–21 °C)</span> <span><strong>Luz:</strong> oscuridad total</span> <span><strong>Ruido:</strong> &lt;30 dB</span></div>
   <ol class="steps">
     <li><strong>Temperatura:</strong> fresca, en torno a 19–21 °C, y más fresca si tu ropa de cama abriga mucho. Lo que importa es no pasar calor bajo el edredón. Si no tienes termostato, abre la ventana 15 min antes de dormir.</li>
@@ -301,16 +196,15 @@
 </div>
 
 <!-- ═══════ FASE 2 ═══════ -->
-<div id="fase2" class="section-label">Fase 2 · Optimización · Semanas 5–8</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: quitar lo que estropea el sueño y añadir lo que lo mejora. Con la base sólida, ajusta las variables que más pesan.</p>
-<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+<h2 id="fase2">Fase 2 · Optimización · Semanas 5–8</h2>
+<p>Objetivo: quitar lo que estropea el sueño y añadir lo que lo mejora. Con la base sólida, ajusta las variables que más pesan.</p>
 
-<div id="cafeina" class="section-label" style="margin-top:0">Gestión de cafeína</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La cafeína bloquea los receptores de adenosina, la molécula que acumula presión de sueño mientras estás despierto, pero no la elimina. Su vida media ronda las 5 horas y varía mucho entre personas: un café a media tarde sigue activo a la hora de acostarte, aunque te duermas igual.</p>
+<h3 id="cafeina">Gestión de cafeína</h3>
+<p>La cafeína bloquea los receptores de adenosina, la molécula que acumula presión de sueño mientras estás despierto, pero no la elimina. Su vida media ronda las 5 horas y varía mucho entre personas: un café a media tarde sigue activo a la hora de acostarte, aunque te duermas igual.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 06</div>
-  <h3>Corte de cafeína</h3>
+  <h4>Corte de cafeína</h4>
   <div class="meta"><span><strong>Última dosis:</strong> 8–10 h antes de acostarte</span> <span><strong>Si eres sensible:</strong> 12 h</span> <span><strong>Máx:</strong> 400 mg/día</span></div>
   <ol class="steps">
     <li><strong>Última cafeína 8–10 h antes de acostarte</strong> (12 h si eres sensible o si es un preentreno con más de 200 mg). Si apagas la luz a las 23:00, eso es entre las 13:00 y las 15:00; si a las 22:00, entre las 12:00 y las 14:00.</li>
@@ -326,12 +220,12 @@
   <div class="evidence"><span class="badge">Evidencia: fuerte</span> <strong>Estudios:</strong> Drake et al. (2013), <em>J Clin Sleep Med</em> — 400 mg de cafeína 6 h antes de acostarse alteraron el sueño de forma significativa frente a placebo, medido en casa con monitor objetivo. Gardiner et al. (2023), <em>Sleep Med Rev</em> — metaanálisis de 24 estudios: la cafeína quitó de media 45 min de sueño y 11 min de sueño profundo; para no perder sueño, un café (~107 mg) debería tomarse al menos 8,8 h antes de acostarse y un preentreno (~217 mg) al menos 13,2 h antes.</div>
 </div>
 
-<div id="alcohol" class="section-label" style="margin-top:var(--sp-5)">Alcohol y sueño</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El alcohol es un sedante, no un inductor del sueño. Te duermes antes, pero retrasa el primer REM, reduce el REM total y fragmenta la segunda mitad de la noche. El resultado: te despiertas cansado sin saber por qué.</p>
+<h3 id="alcohol">Alcohol y sueño</h3>
+<p>El alcohol es un sedante, no un inductor del sueño. Te duermes antes, pero retrasa el primer REM, reduce el REM total y fragmenta la segunda mitad de la noche. El resultado: te despiertas cansado sin saber por qué.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 07</div>
-  <h3>Alcohol: regla de las 8 horas</h3>
+  <h4>Alcohol: regla de las 8 horas</h4>
   <div class="meta"><span><strong>Última copa:</strong> 8 h antes de dormir</span> <span><strong>Dosis:</strong> cuanto menos, mejor</span></div>
   <ol class="steps">
     <li><strong>Nada de alcohol en las 8 h previas a dormir.</strong> El objetivo es que no quede alcohol en sangre al acostarte. Si apagas la luz a las 23:00, la última copa es a las 15:00: en la práctica, nada en la cena.</li>
@@ -347,12 +241,12 @@
   <div class="evidence"><span class="badge">Evidencia: fuerte</span> <strong>Estudios:</strong> Ebrahim et al. (2013), <em>Alcohol Clin Exp Res</em> — revisión de todos los estudios en voluntarios sanos: a cualquier dosis el alcohol acorta la latencia, consolida la primera mitad de la noche y fragmenta la segunda; retrasa el primer REM a todas las dosis y reduce el REM total a dosis moderadas y altas. Pietilä et al. (2018), <em>JMIR Ment Health</em> — en 4098 trabajadores finlandeses, la recuperación medida por variabilidad cardiaca en las 3 primeras horas de sueño cayó un 9 %, un 24 % y un 39 % con dosis bajas, moderadas y altas. Las 8 h son una regla práctica para llegar a la cama sin alcohol en sangre, no un umbral medido en un ensayo.</div>
 </div>
 
-<div id="wind-down" class="section-label" style="margin-top:var(--sp-5)">Rutina de desconexión · 60–90 min</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El cuerpo necesita tiempo para pasar de la activación del día al descanso. Una rutina fija le dice al cerebro que el día se acaba, y la cena es parte de ella: cenar tarde se asocia con dormir peor.</p>
+<h3 id="wind-down">Rutina de desconexión · 60–90 min</h3>
+<p>El cuerpo necesita tiempo para pasar de la activación del día al descanso. Una rutina fija le dice al cerebro que el día se acaba, y la cena es parte de ella: cenar tarde se asocia con dormir peor.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 08</div>
-  <h3>Rutina de desconexión y última comida</h3>
+  <h4>Rutina de desconexión y última comida</h4>
   <div class="meta"><span><strong>Duración:</strong> 60–90 min</span> <span><strong>Última comida:</strong> 2–3 h antes</span> <span><strong>Frecuencia:</strong> cada noche</span></div>
   <ol class="steps">
     <li><strong>3–2 h antes: última comida.</strong> Si a la hora de acostarte tienes hambre de verdad, toma un tentempié pequeño 1 h antes: el hambre también despierta.</li>
@@ -368,12 +262,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Qaseem et al. (2016), <em>Ann Intern Med</em> — la guía del American College of Physicians pone la terapia cognitivo-conductual para el insomnio (que incluye el control de estímulos: «levántate si no duermes») como primera línea. Haghayegh et al. (2019), <em>Sleep Med Rev</em> — el baño caliente 1–2 h antes acorta la latencia. Yan et al. (2024), <em>PLoS One</em> — en 7023 adultos (NHANES), cenar más tarde se asoció con peor calidad de sueño; es un estudio observacional, así que la ventana de 2–3 h es prudente, no exacta.</div>
 </div>
 
-<div id="suplementos" class="section-label" style="margin-top:var(--sp-5)">Suplementos con evidencia</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Los suplementos no sustituyen a las fases 1 y 2. Los estudios son pocos y pequeños, y lo que pone la etiqueta muchas veces no es lo que lleva el bote. Si quieres probar, que sea uno a uno, a dosis bajas y de un fabricante con certificación independiente.</p>
+<h3 id="suplementos">Suplementos con evidencia</h3>
+<p>Los suplementos no sustituyen a las fases 1 y 2. Los estudios son pocos y pequeños, y lo que pone la etiqueta muchas veces no es lo que lleva el bote. Si quieres probar, que sea uno a uno, a dosis bajas y de un fabricante con certificación independiente.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 09</div>
-  <h3>Magnesio, glicina, apigenina, teanina y melatonina</h3>
+  <h4>Magnesio, glicina, apigenina, teanina y melatonina</h4>
   <div class="meta"><span><strong>Magnesio:</strong> 145–250 mg</span> <span><strong>Glicina:</strong> 1–2 g</span> <span><strong>Apigenina:</strong> 50 mg</span> <span><strong>Teanina:</strong> 100–200 mg</span> <span><strong>Melatonina:</strong> 0,5–1,5 mg</span></div>
   <ol class="steps">
     <li><strong>Cuándo:</strong> unos 30 min antes de acostarte. <strong>Cómo:</strong> uno cada vez, unas noches cada uno, empezando por la dosis más baja. Si funciona, lo mantienes; si no, lo quitas antes de probar el siguiente.</li>
@@ -394,16 +288,15 @@
 </div>
 
 <!-- ═══════ FASE 3 ═══════ -->
-<div id="fase3" class="section-label">Fase 3 · Adaptación · Semanas 9–12</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: mantener el sueño en condiciones que no son ideales — viajes, estrés, días largos. Aquí es donde la mayoría falla: el protocolo funciona en vacaciones, no en la vida real.</p>
-<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+<h2 id="fase3">Fase 3 · Adaptación · Semanas 9–12</h2>
+<p>Objetivo: mantener el sueño en condiciones que no son ideales — viajes, estrés, días largos. Aquí es donde la mayoría falla: el protocolo funciona en vacaciones, no en la vida real.</p>
 
-<div id="naps" class="section-label" style="margin-top:0">Siestas y descanso profundo sin dormir</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Una siesta bien hecha mejora la alerta y el rendimiento sin dañar la noche. Una mal hecha te deja aturdido (inercia de sueño) y gasta presión de sueño que necesitabas para dormirte. Si no tienes sueño de día, no hace falta que la duermas.</p>
+<h3 id="naps">Siestas y descanso profundo sin dormir</h3>
+<p>Una siesta bien hecha mejora la alerta y el rendimiento sin dañar la noche. Una mal hecha te deja aturdido (inercia de sueño) y gasta presión de sueño que necesitabas para dormirte. Si no tienes sueño de día, no hace falta que la duermas.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 10</div>
-  <h3>Siesta corta, larga solo con déficit, y NSDR</h3>
+  <h4>Siesta corta, larga solo con déficit, y NSDR</h4>
   <div class="meta"><span><strong>Por defecto:</strong> 10–20 min</span> <span><strong>Con déficit:</strong> 30–90 min</span> <span><strong>Con insomnio:</strong> sin siesta</span></div>
   <ol class="steps">
     <li><strong>Por defecto, 10–20 min</strong> a primera hora de la tarde. Mejora la alerta casi de inmediato y no da tiempo a caer en sueño profundo.</li>
@@ -420,12 +313,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Brooks y Lack (2006), <em>Sleep</em> — tras una noche de 5 h, la siesta de 10 min dio la mejora más rápida y duradera; la de 30 min provocó inercia al despertar y después mejoró el rendimiento. Lovato y Lack (2010), <em>Prog Brain Res</em> — las siestas largas (&gt;30 min) producen inercia breve y luego un beneficio más largo, y cuanto más tiempo llevas despierto más compensan. Borbély (1982) — dormir de día descarga parte del Proceso S. Datta et al. (2021), <em>Natl Med J India</em> — en 41 pacientes con insomnio crónico, la práctica de yoga nidra mejoró el sueño de forma comparable a la terapia cognitivo-conductual.</div>
 </div>
 
-<div id="termico" class="section-label" style="margin-top:var(--sp-5)">Ducha o baño caliente antes de dormir</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Paradójico, pero cierto: calentar el cuerpo por fuera acelera su enfriamiento por dentro. El agua caliente lleva sangre a manos y pies; al salir, esa piel disipa calor y la temperatura central baja más rápido.</p>
+<h3 id="termico">Ducha o baño caliente antes de dormir</h3>
+<p>Paradójico, pero cierto: calentar el cuerpo por fuera acelera su enfriamiento por dentro. El agua caliente lleva sangre a manos y pies; al salir, esa piel disipa calor y la temperatura central baja más rápido.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 11</div>
-  <h3>Baño térmico antes de dormir</h3>
+  <h4>Baño térmico antes de dormir</h4>
   <div class="meta"><span><strong>Cuándo:</strong> 1–2 h antes de dormir</span> <span><strong>Duración:</strong> ≥10 min</span> <span><strong>Temp:</strong> 40–42,5 °C</span></div>
   <ol class="steps">
     <li><strong>Ducha o baño caliente</strong> (40–42,5 °C) de al menos 10 min, entre 1 y 2 h antes de acostarte.</li>
@@ -441,12 +334,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Haghayegh et al. (2019), <em>Sleep Med Rev</em> — revisión sistemática y metaanálisis (17 estudios, 13 en el metaanálisis): el agua a 40–42,5 °C se asoció con mejor calidad de sueño autopercibida y mejor eficiencia, y tomada 1–2 h antes de acostarse, aunque fueran solo 10 min, acortó la latencia. Los autores piden más estudios sobre el momento y la duración óptimos.</div>
 </div>
 
-<div id="calor-despertar" class="section-label" style="margin-top:var(--sp-5)">Calor antes de despertar</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La temperatura central toca su mínimo unas 2 h antes de tu hora habitual de despertar y desde ahí empieza a subir. Despertamos, sobre todo, en esa fase de subida. Ayudarla con un poco de calor al final de la noche podría hacer el despertar más fácil.</p>
+<h3 id="calor-despertar">Calor antes de despertar</h3>
+<p>La temperatura central toca su mínimo unas 2 h antes de tu hora habitual de despertar y desde ahí empieza a subir. Despertamos, sobre todo, en esa fase de subida. Ayudarla con un poco de calor al final de la noche podría hacer el despertar más fácil.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 12</div>
-  <h3>Sube 1–2 °C en las últimas 1–2 h de sueño</h3>
+  <h4>Sube 1–2 °C en las últimas 1–2 h de sueño</h4>
   <div class="meta"><span><strong>Cuándo:</strong> 1–2 h antes de despertar</span> <span><strong>Cuánto:</strong> +1–2 °C</span> <span><strong>Prueba:</strong> 2 semanas</span></div>
   <ol class="steps">
     <li><strong>Con termostato programable:</strong> que la habitación suba 1–2 °C a partir de 1–2 h antes de tu hora de despertar. Sigue fresca para dormirte (<a href="#ambiente">protocolo 05</a>).</li>
@@ -462,12 +355,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> Gillberg y Åkerstedt (1982), <em>Sleep</em> — con siete horarios de sueño distintos, la temperatura rectal subía al final del sueño y los despertares tendían a caer en la fase ascendente del ritmo de temperatura. Que calentar la habitación al final de la noche mejore el despertar no se ha probado en un ensayo: pruébalo como experimento personal.</div>
 </div>
 
-<div id="jet-lag" class="section-label" style="margin-top:var(--sp-5)">Jet lag</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Tu reloj sigue en la hora de casa durante días. La herramienta más potente para moverlo es la luz a la hora correcta; los horarios de comida y de ejercicio ayudan menos. Volar hacia el este cuesta más: es más fácil aguantar despierto que dormirse antes.</p>
+<h3 id="jet-lag">Jet lag</h3>
+<p>Tu reloj sigue en la hora de casa durante días. La herramienta más potente para moverlo es la luz a la hora correcta; los horarios de comida y de ejercicio ayudan menos. Volar hacia el este cuesta más: es más fácil aguantar despierto que dormirse antes.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 13</div>
-  <h3>Prepara el viaje y usa la luz a la hora correcta</h3>
+  <h4>Prepara el viaje y usa la luz a la hora correcta</h4>
   <div class="meta"><span><strong>Antes:</strong> 2–3 días</span> <span><strong>Al llegar:</strong> luz según tu mínimo de temperatura</span> <span><strong>Viajes &lt;2 días:</strong> hora de casa</span></div>
   <ol class="steps">
     <li><strong>Hacia el este</strong> (p. ej. Madrid → Tokio): 2–3 días antes, adelanta 30–60 min al día la hora de acostarte y de levantarte, y ve luz brillante nada más despertar. Toma la cafeína temprano y entrena dentro de la primera hora tras levantarte.</li>
@@ -485,12 +378,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Burgess et al. (2003), <em>J Biol Rhythms</em> — adelantar el sueño 1 h al día durante 3 días con luz brillante por la mañana adelantó el reloj 1,5–2 h (0,6 h sin luz brillante). Eastman et al. (2005), <em>Sleep</em> — adelantar 1 h al día con luz intermitente por la mañana funcionó igual que 2 h al día y con menos problemas para dormir. Khalsa et al. (2003), <em>J Physiol</em> — curva de respuesta de fase: el sentido del cambio depende de si la luz cae antes o después del mínimo de temperatura. Herxheimer y Petrie (2002), revisión Cochrane — 9 de 10 ensayos: la melatonina tomada a la hora de acostarse en destino redujo el jet lag en vuelos de 5 o más husos; entre 0,5 y 5 mg funcionan de forma parecida. El papel de la cafeína y del ejercicio aquí es secundario y está menos estudiado.</div>
 </div>
 
-<div id="troubleshooting" class="section-label" style="margin-top:var(--sp-5)">Si nada funciona</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Si has seguido las fases 1 y 2 durante 8 semanas o más y sigues durmiendo mal, el problema no es de higiene del sueño. Estos son los siguientes pasos.</p>
+<h3 id="troubleshooting">Si nada funciona</h3>
+<p>Si has seguido las fases 1 y 2 durante 8 semanas o más y sigues durmiendo mal, el problema no es de higiene del sueño. Estos son los siguientes pasos.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 14</div>
-  <h3>Diagnóstico y siguientes pasos</h3>
+  <h4>Diagnóstico y siguientes pasos</h4>
   <div class="meta"><span><strong>Si:</strong> 8+ semanas sin mejora</span> <span><strong>Acción:</strong> descartar causas médicas</span></div>
   <ol class="steps">
     <li><strong>¿Roncas o haces pausas al respirar?</strong> Pide a alguien que te escuche o grábate con una aplicación. La apnea moderada o grave afecta a 1 de cada 10 hombres de 30–49 años y no se arregla con higiene del sueño: necesita diagnóstico médico.</li>
@@ -508,9 +401,9 @@
 </div>
 
 <!-- ═══════ TIMELINE DIARIO ═══════ -->
-<div id="timeline" class="timeline">
-  <h2>Timeline diario</h2>
-  <div class="tl-desc">Cada paso cuelga de dos horas tuyas: la de despertar (<strong>D</strong>) y la de apagar la luz (<strong>A</strong>). Las horas son un ejemplo para quien se levanta a las 07:00 y apaga la luz a las 23:00; si tu horario es otro, desplaza todo igual.</div>
+<h2 id="timeline">Timeline diario</h2><p>Cada paso cuelga de dos horas tuyas: la de despertar (<strong>D</strong>) y la de apagar la luz (<strong>A</strong>). Las horas son un ejemplo para quien se levanta a las 07:00 y apaga la luz a las 23:00; si tu horario es otro, desplaza todo igual.</p><div class="timeline">
+  
+  
   <div class="tl-grid">
     <div class="tl-row">
       <div class="tl-time">D<br>07:00</div>
@@ -600,8 +493,8 @@
 </div>
 
 <!-- ═══════ CHECKLIST ═══════ -->
-<div id="checklist" class="checklist">
-  <h2>Checklist de progreso</h2>
+<h2 id="checklist">Checklist de progreso</h2><div class="checklist">
+  
   <div class="check-grid">
     <div class="check-col">
       <h4>Semana 1–2</h4>
@@ -652,34 +545,34 @@
 </div>
 
 <!-- ═══════ PREGUNTAS FRECUENTES ═══════ -->
-<div id="faq" class="section-label">Preguntas frecuentes</div>
-<details class="info-box refs">
+<h2 id="faq">Preguntas frecuentes</h2>
+<details class="faq refs">
   <summary><strong>¿Tengo que esperar 90 minutos para el primer café?</strong></summary>
   <p>No. Retrasarlo 60–90 min es opcional y no tiene ensayo clínico detrás; pruébalo solo si tienes bajones por la tarde. Si entrenas temprano, tómalo al despertar. Lo que sí está medido es la otra punta: la cafeína tomada en las 8–10 h previas a acostarte te quita sueño aunque te duermas (Gardiner et al., 2023).</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Una copa de vino con la cena es un problema?</strong></summary>
   <p>Una copa pesa menos que tres, pero no es neutra: incluso dosis bajas empeoraron la recuperación nocturna medida con variabilidad cardiaca (Pietilä et al., 2018). Si es algo ocasional, asume que esa noche dormirás algo peor. Si es cada noche, es lo primero que cambiaría.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Qué suplemento pruebo primero?</strong></summary>
   <p>Ninguno hasta llevar 4 semanas con la Fase 1. Después, uno cada vez a la dosis más baja, de una marca con certificación NSF o USP. La melatonina no es para cada noche: guárdala para el jet lag o, si tienes más de 50 años, coméntalo con tu médico.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Soy búho o me lo parece?</strong></summary>
   <p>Haz el experimento del <a href="#horario">protocolo 04</a>. En una semana de acampada con solo luz natural, el reloj de todos se adelantó y el de los cronotipos tardíos, más (Wright et al., 2013): buena parte del «soy de noches» es luz artificial. Si tras varias noches acostándote pronto sigues sin dormirte, eres búho de verdad y no pasa nada: mantén fijo tu horario.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Las siestas son malas?</strong></summary>
   <p>No, si son cortas (10–20 min) o si arrastras déficit (hasta 90 min). Sí lo son si tienes insomnio, porque gastan la presión de sueño que necesitas por la noche. Si de día no tienes sueño, no hace falta que te fuerces a dormir la siesta.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>Me despierto de madrugada para ir al baño. ¿Qué hago?</strong></summary>
   <p>Es normal despertarse una vez. No mires el reloj ni el móvil y no enciendas la luz del techo: la luz durante las horas de sueño suprime la melatonina (Gooley et al., 2011). Una luz nocturna baja basta, y lo normal es volver a dormirse en menos de media hora.</p>
 </details>
 
 <!-- ═══════ REFERENCIAS ═══════ -->
-<div id="refs" class="section-label">Referencias</div>
+<h2 id="refs">Referencias</h2>
 <details class="ref-box refs">
   <summary class="ref-title">Evidencia científica · 38 referencias</summary>
   <p><strong>Borbély AA.</strong> "A two process model of sleep regulation." <em>Hum Neurobiol.</em> 1982;1(3):195-204. PMID 7185792. — Modelo fundacional: Proceso S (homeostasis) + Proceso C (circadiano).</p>

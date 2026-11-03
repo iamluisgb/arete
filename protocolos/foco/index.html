@@ -10,65 +10,6 @@
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="../../style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-<style>
-:root{--bp-fs-xs:.7rem;--bp-fs-sm:.75rem;--bp-fs-base:.85rem;--bp-fs-md:.95rem;--bp-fs-lg:1.05rem;--bp-fs-xl:1.2rem;--bp-fs-2xl:1.5rem}
-.toc{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:0 auto var(--sp-8);max-width:640px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .toc{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.toc h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-3);color:var(--text)}
-.toc ol{padding-left:var(--sp-5);margin:0}.toc li{margin-bottom:6px;font-size:var(--bp-fs-md)}.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}.toc .sub{padding-left:var(--sp-4);margin-top:4px}.toc .sub li{font-size:var(--bp-fs-sm);margin-bottom:4px;color:var(--text2)}
-.phase-bar{width:100%;height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:var(--sp-3) 0 var(--sp-5)}
-.phase-bar-fill{height:100%;border-radius:2px}
-.phase-bar-fill.p1{width:33%;background:var(--accent)}.phase-bar-fill.p2{width:66%;background:#f59e0b}.phase-bar-fill.p3{width:100%;background:var(--green)}
-.ex-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin-bottom:var(--sp-3);box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .15s,box-shadow .2s}
-:root.dark .ex-card{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.ex-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-:root.dark .ex-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.ex-card .num{font-size:var(--bp-fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
-.ex-card h3{font-size:var(--bp-fs-lg);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-2);color:var(--text)}
-.ex-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
-.ex-card .meta span{font-size:var(--bp-fs-xs);color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
-.ex-card .meta strong{color:var(--text2)}
-.ex-card .steps{margin:0 0 var(--sp-3) var(--sp-5);font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6}
-.ex-card .steps li{margin-bottom:4px}.ex-card .steps li strong{color:var(--text)}
-.ex-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
-.tip{font-size:var(--bp-fs-xs);padding:2px 8px;border-radius:var(--sp-2);font-weight:500}
-.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}.tip-no{background:rgba(220,38,38,.1);color:var(--red)}.tip-key{background:var(--accent-glow);color:var(--accent)}
-.ex-card .evidence{font-size:var(--bp-fs-xs);color:var(--text3);margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--ghost-border);line-height:1.5}
-.ex-card .evidence strong{color:var(--text2)}
-.timeline{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .timeline{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.timeline h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:4px;color:var(--text)}
-.timeline .tl-desc{font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-4)}
-.tl-grid{display:flex;flex-direction:column;gap:var(--sp-2)}
-.tl-row{display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--ghost-border)}
-.tl-row:last-child{border-bottom:none}
-.tl-time{font-size:var(--bp-fs-xs);font-weight:700;color:var(--accent);min-width:70px;text-align:right;padding-top:2px}
-.tl-content{flex:1}
-.tl-content .tl-title{font-size:var(--bp-fs-md);font-weight:600;color:var(--text);margin-bottom:2px}
-.tl-content .tl-detail{font-size:var(--bp-fs-sm);color:var(--text2);line-height:1.4}
-.level-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--sp-3);font-size:var(--bp-fs-sm);font-weight:700;margin-bottom:var(--sp-3)}
-.level-poor{background:rgba(220,38,38,.08);color:var(--red)}.level-avg{background:rgba(234,179,8,.08);color:#b45309}.level-good{background:rgba(22,163,74,.08);color:var(--green)}.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
-.ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-4) 0;font-size:var(--bp-fs-sm)}
-.ref-box .ref-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
-.ref-box p{color:var(--ink-body);line-height:1.5;margin-bottom:4px;overflow-wrap:anywhere}.ref-box p:last-child{margin-bottom:0}
-.ref-box em{color:var(--text3)}
-.checklist{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-5) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .checklist{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.checklist h2{font-size:var(--bp-fs-xl);font-weight:700;margin-bottom:var(--sp-4);color:var(--text)}
-.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
-.check-col h4{font-size:var(--bp-fs-md);font-weight:700;margin-bottom:var(--sp-2);color:var(--accent)}
-.check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4) 0}
-.check-col li{font-size:var(--bp-fs-sm);color:var(--text2);padding:4px 0 4px 20px;position:relative;line-height:1.4}
-.check-col li::before{content:'';position:absolute;left:0;top:10px;width:12px;height:12px;border:1.5px solid var(--ghost-border);border-radius:3px}
-.info-box{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-4) 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-:root.dark .info-box{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.info-box .box-title{font-size:var(--bp-fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:var(--sp-2)}
-.info-box p{font-size:var(--bp-fs-md);color:var(--ink-body);line-height:1.6;margin-bottom:var(--sp-2)}
-.info-box p:last-child{margin-bottom:0}
-.info-box strong{color:var(--text)}
-</style>
 <meta name="description" content="Recupera tu atención y úsala para aprender: móvil bajo control, trabajo profundo y, para la técnica del entreno o el estudio, foco, errores a la medida, micropausas y autoexamen. Con nivel de evidencia.">
 <link rel="canonical" href="https://arete.raiatech.com/protocolos/foco/">
 <meta property="og:title" content="Plan de foco y aprendizaje — Areté">
@@ -99,7 +40,7 @@
 </nav>
 
 <div class="article-header">
-  <a href="../index.html" class="back">← Protocolos</a>
+  <a href="../index.html" class="back">← Volver a protocolos</a>
   <div class="phase-tag">Atención</div>
   <h1>Plan de <span>foco y aprendizaje</span></h1>
   <div class="subtitle">Recupera tu atención y úsala para aprender. Primero, el móvil en su sitio, sin irte a una cueva; después, cómo aprender una técnica en el entreno (kettlebell, halterofilia, carrera) o algo que te exija la cabeza. Protocolos con mecanismo, dosis y nivel de evidencia.</div><!-- blog:byline --><div class="byline"><img src="../../assets/landing/luis.webp" alt="" width="36" height="36" decoding="async"><div><a href="https://luisgonzalezbernal.com" rel="author">Luis González</a><span>Actualizado el <time datetime="2026-11-02">2 de noviembre de 2026</time> · 45 min de lectura</span></div></div><!-- /blog:byline -->
@@ -113,33 +54,31 @@
 <div class="article-body">
 
 <!-- ═══════ PRERREQUISITO: EVALUACIÓN ═══════ -->
-<div class="ref-box">
-  <div class="ref-title">Prerequisito: mide tu baseline digital</div>
+<h2 id="antes-mide-tu-baseline-digital">Antes de empezar: mide tu baseline digital</h2>
+  
   <p>Antes de empezar, necesitas datos. Activa el screen time de tu teléfono (iOS: Tiempo de uso; Android: Bienestar digital) y responde honestamente:</p>
   <p><strong>1.</strong> ¿Cuántas horas de pantalla al día? — <strong>&gt;4h</strong> en teléfono = problema</p>
   <p><strong>2.</strong> ¿Cuántas veces desbloqueas el teléfono? — <strong>&gt;80/día</strong> = problema</p>
   <p><strong>3.</strong> ¿Coges el teléfono en los primeros 5 min tras despertar? — <strong>sí</strong> = problema</p>
   <p><strong>4.</strong> ¿Revisas notificaciones mientras hablas con alguien o comes? — <strong>sí</strong> = problema</p>
   <p><strong>5.</strong> ¿Sientes ansiedad si no tienes el teléfono encima? — <strong>sí</strong> = problema</p>
-</div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-6)">
-  <div class="level-badge level-poor"><span class="material-symbols-outlined" style="font-size:16px">warning</span> 4-5 problemas — Empieza Fase 1</div>
-  <div class="level-badge level-avg"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> 2-3 problemas — Fase 1, acelera a Fase 2</div>
-  <div class="level-badge level-good"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span> 1 problema — Ve directo a Fase 2</div>
-  <div class="level-badge level-excellent"><span class="material-symbols-outlined" style="font-size:16px">star</span> 0 problemas — Fase 3 (aprendizaje)</div>
+<div class="level-grid">
+  <div class="level-badge level-poor">4-5 problemas — Empieza Fase 1</div>
+  <div class="level-badge level-avg">2-3 problemas — Fase 1, acelera a Fase 2</div>
+  <div class="level-badge level-good">1 problema — Ve directo a Fase 2</div>
+  <div class="level-badge level-excellent">0 problemas — Fase 3 (aprendizaje)</div>
 </div>
 
 <!-- ═══════ INFO BOX: LA CIENCIA ═══════ -->
-<div class="info-box">
-  <div class="box-title">Lo que dice la ciencia</div>
-  <p>Tu atención no se está "perdiendo". Se la está robando un sistema diseñado para capturarla. Las apps usan <strong>recompensas variables</strong> — el mismo mecanismo que hace adictiva a una máquina tragaperras. No sabes cuándo aparecerá la recompensa (un like, un mensaje, una noticia), y esa incertidumbre dispara dopamina en el nucleus accumbens. Berridge & Robinson (1998) reunieron la evidencia de que la dopamina no da placer — da <em>querer</em>. Quieres coger el teléfono aunque cogerlo no te haga feliz.</p>
+<h2 id="lo-que-dice-la-ciencia">Lo que dice la ciencia</h2>
+  
+  <p>Tu atención no se está "perdiendo". Se la está robando un sistema diseñado para capturarla. Las apps usan <strong>recompensas variables</strong> — el mismo mecanismo que hace adictiva a una máquina tragaperras. No sabes cuándo aparecerá la recompensa (un like, un mensaje, una noticia), y esa incertidumbre dispara dopamina en el nucleus accumbens. Berridge &amp; Robinson (1998) reunieron la evidencia de que la dopamina no da placer — da <em>querer</em>. Quieres coger el teléfono aunque cogerlo no te haga feliz.</p>
   <p>El coste no es solo tiempo. Es <strong>fragmentación</strong>: Mark et al. (2005) siguieron minuto a minuto a 24 trabajadores de oficina. Cambiaban de proyecto cada 11 min de media, el 57 % de sus tareas se interrumpía y, cuando retomaban lo interrumpido ese mismo día, tardaban de media 25 min en volver a ello, después de pasar por otras dos tareas. Y la interrupción se paga aunque se recupere: quien trabaja interrumpido compensa yendo más rápido, con más estrés y más frustración (Mark et al., 2008).</p>
   <p>El teléfono tampoco necesita sonar. En los experimentos de <strong>Ward et al. (2017)</strong>, quienes tenían el móvil sobre la mesa rindieron peor en memoria de trabajo que quienes lo dejaron en otra habitación, estuviera encendido o apagado. Un metaanálisis posterior (Parry, 2024) confirma el efecto solo en memoria de trabajo, y más pequeño de lo que se pensaba. Sacarlo de la habitación cuesta poco; no esperes milagros, pero tampoco hay motivo para dejarlo a la vista.</p>
   <p><strong>Newport (2019)</strong>, en <em>Digital Minimalism</em>, articula el principio: no se trata de usar menos tecnología, sino de usarla con intención. El valor de una tecnología debe superar el coste que impone. Si no lo supera, se va. Este plan es el camino para llegar ahí.</p>
   <p>Y la atención recuperada sirve para algo más que no distraerse: <strong>decide qué aprendes</strong>. En un experimento clásico, con las mismas imágenes delante, la gente solo mejoró en el rasgo que se le pidió mirar (Ahissar &amp; Hochstein, 1993). Para aprender una técnica, además, hace falta fallar a la medida, parar entre intentos y recordar sin mirar al acabar. Es la Fase 3.</p>
   <p>Cada protocolo lleva su <strong>nivel de evidencia</strong>: <strong>fuerte</strong> (varios ensayos o metaanálisis que coinciden), <strong>moderada</strong> (algún ensayo controlado o metaanálisis con limitaciones) o <strong>tentativa</strong> (estudios pequeños, de laboratorio u observacionales, o un mecanismo plausible sin ensayo directo). En atención digital casi nada llega a fuerte: está dicho protocolo a protocolo.</p>
-</div>
 
 <!-- ═══════ DOSIS MÍNIMA ═══════ -->
 <div id="una-cosa" class="info-box">
@@ -148,57 +87,16 @@
   <p><strong>Si estás aprendiendo una técnica o estudiando:</strong> al acabar cada sesión, dos minutos para recordar sin mirar qué has aprendido, dónde has fallado y qué lo arregló (Protocolo 15). Sacarlo de memoria fija lo aprendido mejor que volver a leerlo (Roediger &amp; Karpicke, 2006).</p>
 </div>
 
-<!-- ═══════ TOC ═══════ -->
-<div class="toc">
-  <h2>Índice</h2>
-  <ol>
-    <li><a href="#una-cosa">Si solo haces una cosa</a></li>
-    <li><a href="#fase1">Fase 1 · Cimientos · Semanas 1–4</a>
-      <ol class="sub">
-        <li><a href="#audit">Audit de pantalla (baseline)</a></li>
-        <li><a href="#manana">No-phone mornings</a></li>
-        <li><a href="#notificaciones">Audit de notificaciones</a></li>
-        <li><a href="#ambiente">Diseño ambiental</a></li>
-      </ol>
-    </li>
-    <li><a href="#fase2">Fase 2 · Proteger la atención · Semanas 5–8</a>
-      <ol class="sub">
-        <li><a href="#friction">Friction design y app blockers</a></li>
-        <li><a href="#deep-work">Bloques de deep work</a></li>
-        <li><a href="#grayscale">Modo escala de grises</a></li>
-        <li><a href="#sabbath">Digital sabbath semanal</a></li>
-        <li><a href="#social">Protocolo de redes sociales</a></li>
-        <li><a href="#attention">Restauración atencional</a></li>
-      </ol>
-    </li>
-    <li><a href="#fase3">Fase 3 · Foco y aprendizaje · Semanas 9–12</a>
-      <ol class="sub">
-        <li><a href="#contraste">Contraste mental (WOOP)</a></li>
-        <li><a href="#estado">Entrar en estado de aprendizaje</a></li>
-        <li><a href="#errores">Errores a la medida</a></li>
-        <li><a href="#micropausas">Micropausas y la noche después de aprender</a></li>
-        <li><a href="#autoexamen">Autoexamen y ensayo mental</a></li>
-        <li><a href="#sostenibilidad">Sostenibilidad y recaída</a></li>
-      </ol>
-    </li>
-    <li><a href="#timeline">Timeline diario</a></li>
-    <li><a href="#checklist">Checklist de progreso</a></li>
-    <li><a href="#faq">Preguntas frecuentes</a></li>
-    <li><a href="#refs">Referencias</a></li>
-  </ol>
-</div>
-
 <!-- ═══════ FASE 1 ═══════ -->
-<div id="fase1" class="section-label">Fase 1 · Cimientos · Semanas 1–4</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: medir, reducir fricción y rediseñar el entorno. Sin datos y sin diseño ambiental, la fuerza de voluntad pierde siempre contra un sistema diseñado para capturar tu atención.</p>
-<div class="phase-bar"><div class="phase-bar-fill p1"></div></div>
+<h2 id="fase1">Fase 1 · Cimientos · Semanas 1–4</h2>
+<p>Objetivo: medir, reducir fricción y rediseñar el entorno. Sin datos y sin diseño ambiental, la fuerza de voluntad pierde siempre contra un sistema diseñado para capturar tu atención.</p>
 
-<div id="audit" class="section-label" style="margin-top:0">Audit de pantalla · Día 1 · 7 días de datos</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">No puedes cambiar lo que no mides. El primer paso es obtener un baseline honesto de tu uso digital: lo que crees que usas el móvil y lo que lo usas de verdad no coinciden, sobre todo en cuántas veces lo coges. Los datos no juzgan — informan.</p>
+<h3 id="audit">Audit de pantalla · Día 1 · 7 días de datos</h3>
+<p>No puedes cambiar lo que no mides. El primer paso es obtener un baseline honesto de tu uso digital: lo que crees que usas el móvil y lo que lo usas de verdad no coinciden, sobre todo en cuántas veces lo coges. Los datos no juzgan — informan.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 01</div>
-  <h3>Audit de 7 días</h3>
+  <h4>Audit de 7 días</h4>
   <div class="meta"><span><strong>Duración:</strong> 7 días</span> <span><strong>Herramienta:</strong> Screen Time / Bienestar Digital</span> <span><strong>Objetivo:</strong> baseline honesto</span></div>
   <ol class="steps">
     <li><strong>Activa el screen time</strong> en iOS (Ajustes → Tiempo de uso) o Android (Ajustes → Bienestar digital). No cambies nada todavía — mide tu comportamiento real.</li>
@@ -215,12 +113,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Andrews et al. (2015), <em>PLOS ONE</em> — en 23 personas medidas dos semanas, la estimación de cuántas veces cogían el móvil no se correlacionaba con el registro real; la del tiempo total se acercaba más. Boase &amp; Ling (2013), <em>J Computer-Mediated Communication</em> — el uso declarado se correlaciona solo moderadamente con el registrado por el operador. Que medir te haga cambiar no está probado; que sin medir te equivocas, sí.</div>
 </div>
 
-<div id="manana" class="section-label" style="margin-top:var(--sp-5)">No-phone mornings · Primeros 60 min · todos los días</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Coger el teléfono en los primeros 5 minutos tras despertar establece el tono del día: pasas de intención a reacción, y la agenda la marcan los mensajes de otros antes de que hayas decidido qué hacer con la tuya. Los primeros 60 min son para ti, no para la cola de notificaciones acumuladas.</p>
+<h3 id="manana">No-phone mornings · Primeros 60 min · todos los días</h3>
+<p>Coger el teléfono en los primeros 5 minutos tras despertar establece el tono del día: pasas de intención a reacción, y la agenda la marcan los mensajes de otros antes de que hayas decidido qué hacer con la tuya. Los primeros 60 min son para ti, no para la cola de notificaciones acumuladas.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 02</div>
-  <h3>No-phone mornings</h3>
+  <h4>No-phone mornings</h4>
   <div class="meta"><span><strong>Timing:</strong> 0–1 h tras despertar</span> <span><strong>Frecuencia:</strong> 7 días/semana</span> <span><strong>Objetivo:</strong> empezar el día con intención</span></div>
   <ol class="steps">
     <li><strong>Compra un despertador físico.</strong> Usa el móvil como alarma es la excusa #1 para cogerlo al despertar. Un despertador de 15€ rompe esa cadena.</li>
@@ -237,12 +135,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> no hay ensayos de «mañanas sin móvil» como tal. El apoyo es indirecto: Ward et al. (2017), <em>J Assoc Consum Res</em> — con el móvil sobre la mesa la memoria de trabajo rinde menos que con el móvil en otra habitación; Parry (2024), <em>Media Psychology</em> — el metaanálisis lo confirma solo para memoria de trabajo y con un efecto pequeño. El resto del protocolo es diseño de hábitos: quitar el disparador (el móvil en la mesilla) en lugar de resistirlo.</div>
 </div>
 
-<div id="notificaciones" class="section-label" style="margin-top:var(--sp-5)">Audit de notificaciones · 1 sesión · 30 min</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Las notificaciones interrumpen, y lo interrumpido tarda en retomarse: en oficinas, una media de 25 min, con otras dos tareas por medio (Mark et al., 2005). La solución no es silenciar todo — quien quitó todas las notificaciones en un ensayo acabó con más ansiedad — sino filtrar por intención y agrupar el resto (Fitz et al., 2019).</p>
+<h3 id="notificaciones">Audit de notificaciones · 1 sesión · 30 min</h3>
+<p>Las notificaciones interrumpen, y lo interrumpido tarda en retomarse: en oficinas, una media de 25 min, con otras dos tareas por medio (Mark et al., 2005). La solución no es silenciar todo — quien quitó todas las notificaciones en un ensayo acabó con más ansiedad — sino filtrar por intención y agrupar el resto (Fitz et al., 2019).</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 03</div>
-  <h3>Audit y reducción de notificaciones</h3>
+  <h4>Audit y reducción de notificaciones</h4>
   <div class="meta"><span><strong>Duración:</strong> 30 min</span> <span><strong>Objetivo:</strong> reducir a solo esenciales</span> <span><strong>Mantener:</strong> llamadas, mensajes de personas</span></div>
   <ol class="steps">
     <li><strong>Lista todas tus apps</strong> y clasifica sus notificaciones en tres categorías: <strong>esencial</strong> (llamadas, mensajes de personas, calendario), <strong>útil</strong> (recordatorios, transporte), <strong>basura</strong> (redes sociales, promociones, news feeds, "X persona empezó a seguirte").</li>
@@ -260,12 +158,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Fitz et al. (2019), <em>Computers in Human Behavior</em> — ensayo de campo con 237 personas: recibir las notificaciones agrupadas tres veces al día mejoró atención, productividad percibida, ánimo y sensación de control; sin ninguna notificación, más ansiedad y miedo a perderse algo. Kushlev &amp; Dunn (2015), <em>Computers in Human Behavior</em> — una semana mirando el correo tres veces al día (con las notificaciones apagadas) dio menos estrés diario que una semana sin límite. Mark et al. (2005), <em>Proc CHI</em> — en 24 trabajadores observados, el trabajo interrumpido tardaba de media 25 min en retomarse. Medidas sobre todo autoinformadas.</div>
 </div>
 
-<div id="ambiente" class="section-label" style="margin-top:var(--sp-5)">Diseño ambiental · 1 sesión · 60 min</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Resistir un impulso cada vez cansa; quitar el disparador se hace una vez. Si el teléfono está sobre la mesa, lo cogerás. Si está en otra habitación, cogerlo exige levantarte, y esa pausa es donde decides. Diseña el entorno para que el comportamiento correcto sea el más fácil.</p>
+<h3 id="ambiente">Diseño ambiental · 1 sesión · 60 min</h3>
+<p>Resistir un impulso cada vez cansa; quitar el disparador se hace una vez. Si el teléfono está sobre la mesa, lo cogerás. Si está en otra habitación, cogerlo exige levantarte, y esa pausa es donde decides. Diseña el entorno para que el comportamiento correcto sea el más fácil.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 04</div>
-  <h3>Rediseño ambiental</h3>
+  <h4>Rediseño ambiental</h4>
   <div class="meta"><span><strong>Duración:</strong> 60 min</span> <span><strong>Principio:</strong> fricción al mal hábito, facilidad al bueno</span></div>
   <ol class="steps">
     <li><strong>Zonas libres de teléfono:</strong> dormitorio (ya hecho en P02), mesa de comedor, escritorio de trabajo cuando hagas deep work. Define 2-3 espacios donde el teléfono no entra.</li>
@@ -284,16 +182,15 @@
 </div>
 
 <!-- ═══════ FASE 2 ═══════ -->
-<div id="fase2" class="section-label">Fase 2 · Proteger la atención · Semanas 5–8</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: añadir fricción al consumo digital, proteger bloques de atención profunda y darle a la cabeza descansos de verdad. La base está puesta: ahora construye el sistema que hace que el uso intencional sea el camino por defecto.</p>
-<div class="phase-bar"><div class="phase-bar-fill p2"></div></div>
+<h2 id="fase2">Fase 2 · Proteger la atención · Semanas 5–8</h2>
+<p>Objetivo: añadir fricción al consumo digital, proteger bloques de atención profunda y darle a la cabeza descansos de verdad. La base está puesta: ahora construye el sistema que hace que el uso intencional sea el camino por defecto.</p>
 
-<div id="friction" class="section-label" style="margin-top:0">Friction design y app blockers · Diario</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La fricción es tu mejor herramienta. No necesitas dejar de usar una app — necesitas que usarla requiera una decisión consciente. Los app blockers añaden un muro entre el impulso y la acción. Ese muro es donde vive la intención.</p>
+<h3 id="friction">Friction design y app blockers · Diario</h3>
+<p>La fricción es tu mejor herramienta. No necesitas dejar de usar una app — necesitas que usarla requiera una decisión consciente. Los app blockers añaden un muro entre el impulso y la acción. Ese muro es donde vive la intención.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 05</div>
-  <h3>App blockers y friction design</h3>
+  <h4>App blockers y friction design</h4>
   <div class="meta"><span><strong>Herramienta:</strong> Opal / One Sec / AppBlock</span> <span><strong>Objetivo:</strong> 10s de pausa antes de abrir</span></div>
   <ol class="steps">
     <li><strong>Instala un app blocker.</strong> iOS: Opal o One Sec. Android: AppBlock o Digital Wellbeing. La función clave: un delay de 10-30s antes de abrir la app objetivo. No la bloquea — la frena.</li>
@@ -310,12 +207,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Grüning et al. (2023), <em>PNAS</em> — 280 usuarios de one sec durante 6 semanas: en el 36 % de los intentos cerraban la app tras la pausa, y al final abrían las apps objetivo un 57 % menos. En un segundo experimento preregistrado (500 personas), lo que más pesó fue la opción explícita de no abrir; la espera ayudó algo y el mensaje de reflexión, nada. Uno de los autores creó la app.</div>
 </div>
 
-<div id="deep-work" class="section-label" style="margin-top:var(--sp-5)">Bloques de deep work · 90 min · 2-3x/día</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El deep work no es "trabajar sin distracciones". Es un estado cognitivo de atención sostenida en una sola tarea compleja. Newport (2016) argumenta que es la habilidad más valiosa del siglo XXI — y la más escasa. Entrar en una tarea difícil cuesta unos minutos de arranque; si te interrumpes cada 11 minutos, que es lo que Mark et al. (2005) midieron en oficinas, apenas llegas a trabajar en ella.</p>
+<h3 id="deep-work">Bloques de deep work · 90 min · 2-3x/día</h3>
+<p>El deep work no es "trabajar sin distracciones". Es un estado cognitivo de atención sostenida en una sola tarea compleja. Newport (2016) argumenta que es la habilidad más valiosa del siglo XXI — y la más escasa. Entrar en una tarea difícil cuesta unos minutos de arranque; si te interrumpes cada 11 minutos, que es lo que Mark et al. (2005) midieron en oficinas, apenas llegas a trabajar en ella.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 06</div>
-  <h3>Bloques de deep work</h3>
+  <h4>Bloques de deep work</h4>
   <div class="meta"><span><strong>Duración:</strong> 60–90 min</span> <span><strong>Frecuencia:</strong> 2-3 bloques/día</span> <span><strong>Regla:</strong> cero cambios de contexto</span></div>
   <ol class="steps">
     <li><strong>Bloques de 60–90 min.</strong> Es un tope práctico, no una ley del cerebro: lo bastante largo para avanzar en algo difícil y lo bastante corto para sostener el foco. Empieza por 45–60 si hoy no llegas a 30.</li>
@@ -333,12 +230,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> Newport (2016), <em>Deep Work</em> — el argumento, no un ensayo: el trabajo profundo sostenido es escaso y valioso. Mark et al. (2005), <em>Proc CHI</em> — la fragmentación es real y medible (cambio de proyecto cada ~11 min, 57 % de tareas interrumpidas). Mark et al. (2008), <em>Proc CHI</em> — quien trabaja con interrupciones termina igual de rápido o más, pero con más estrés, frustración y esfuerzo. La duración exacta del bloque no tiene respaldo experimental: ajústala a ti.</div>
 </div>
 
-<div id="grayscale" class="section-label" style="margin-top:var(--sp-5)">Modo escala de grises · Diario · permanente</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Los iconos y los avisos usan rojos y colores saturados porque llaman la atención: el globo rojo con un número es una promesa de recompensa. Quitar el color le quita al teléfono parte de su atractivo y lo acerca a una herramienta. Feo, sí. El efecto medido es modesto, pero cuesta cero.</p>
+<h3 id="grayscale">Modo escala de grises · Diario · permanente</h3>
+<p>Los iconos y los avisos usan rojos y colores saturados porque llaman la atención: el globo rojo con un número es una promesa de recompensa. Quitar el color le quita al teléfono parte de su atractivo y lo acerca a una herramienta. Feo, sí. El efecto medido es modesto, pero cuesta cero.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 07</div>
-  <h3>Escala de grises permanente</h3>
+  <h4>Escala de grises permanente</h4>
   <div class="meta"><span><strong>Config:</strong> iOS Accesibilidad / Android Desarrollo</span> <span><strong>Objetivo:</strong> eliminar señales de recompensa visual</span></div>
   <ol class="steps">
     <li><strong>iOS:</strong> Ajustes → Accesibilidad → Pantalla y tamaño de texto → Filtros de color → Escala de grises. Configura un atajo (triple click botón lateral) para activar/desactivar rápido si necesitas color puntualmente (fotos, mapas).</li>
@@ -355,12 +252,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> Holte &amp; Ferraro (2023), <em>The Social Science Journal</em> — 161 universitarios; quienes pusieron el móvil en gris 8–10 días bajaron su tiempo de pantalla unos 38 min al día, sobre todo en redes y navegador (no en vídeo). La ansiedad y el ánimo mejoraron igual en el grupo de control, así que eso no se le puede atribuir al gris. Un solo estudio, corto y con estudiantes.</div>
 </div>
 
-<div id="sabbath" class="section-label" style="margin-top:var(--sp-5)">Digital sabbath semanal · 24h · 1 día/semana</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Un día a la semana sin pantalla es un experimento, no una cura. Lo que sí hace seguro es enseñarte qué echas de menos de verdad y qué era puro reflejo. El sabbath digital es la versión moderna del descanso: no desconectar del mundo, sino reconectar con lo que no es pantalla.</p>
+<h3 id="sabbath">Digital sabbath semanal · 24h · 1 día/semana</h3>
+<p>Un día a la semana sin pantalla es un experimento, no una cura. Lo que sí hace seguro es enseñarte qué echas de menos de verdad y qué era puro reflejo. El sabbath digital es la versión moderna del descanso: no desconectar del mundo, sino reconectar con lo que no es pantalla.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 08</div>
-  <h3>Digital sabbath de 24 horas</h3>
+  <h4>Digital sabbath de 24 horas</h4>
   <div class="meta"><span><strong>Duración:</strong> 24h (sábado o domingo)</span> <span><strong>Frecuencia:</strong> 1/semana</span> <span><strong>Regla:</strong> cero pantallas, llamadas permitidas</span></div>
   <ol class="steps">
     <li><strong>Elige un día.</strong> Sábado o domingo. El que mejor encaje con tu vida. La consistencia importa más que el día.</li>
@@ -379,12 +276,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> Radtke et al. (2022), <em>Mobile Media &amp; Communication</em> — revisión sistemática de 21 estudios (3.625 personas) sobre pausas del móvil: los efectos sobre bienestar, relaciones, autocontrol y rendimiento varían mucho; algunos positivos, otros nulos y alguno negativo. Newport (2019), <em>Digital Minimalism</em> — propone el día sin pantallas como parte de un uso intencional; es un argumento, no un ensayo.</div>
 </div>
 
-<div id="social" class="section-label" style="margin-top:var(--sp-5)">Protocolo de redes sociales · Diario · timeboxed</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">No necesitas borrar tus redes sociales. Necesitas usarlas con intención. El problema no es Instagram — es abrir Instagram 40 veces al día sin decidir abrirlo. El protocolo convierte el uso pasivo en uso activo: decides cuándo, cuánto y para qué.</p>
+<h3 id="social">Protocolo de redes sociales · Diario · timeboxed</h3>
+<p>No necesitas borrar tus redes sociales. Necesitas usarlas con intención. El problema no es Instagram — es abrir Instagram 40 veces al día sin decidir abrirlo. El protocolo convierte el uso pasivo en uso activo: decides cuándo, cuánto y para qué.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 09</div>
-  <h3>Redes sociales con intención</h3>
+  <h4>Redes sociales con intención</h4>
   <div class="meta"><span><strong>Objetivo:</strong> 1 sesión/día, 20–30 min máximo</span> <span><strong>Regla:</strong> nunca antes de deep work</span></div>
   <ol class="steps">
     <li><strong>Una ventana diaria.</strong> Elige un momento fijo: después de comer, al terminar el trabajo. 20–30 min máximo en total. Usa el timer del app blocker.</li>
@@ -401,12 +298,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Hunt et al. (2018), <em>J Social and Clinical Psychology</em> — ensayo con 143 universitarios: limitar Facebook, Instagram y Snapchat a 10 min por app y día durante 3 semanas redujo la soledad y la depresión frente a uso libre; la ansiedad y el miedo a perderse algo bajaron en los dos grupos, probablemente por el mero hecho de medirse. Thorisdottir et al. (2019), <em>Cyberpsychology, Behavior, and Social Networking</em> — en 10.563 adolescentes islandeses, el uso pasivo se asociaba a más ansiedad y ánimo deprimido; el activo, no (estudio transversal: asociación, no causa).</div>
 </div>
 
-<div id="attention" class="section-label" style="margin-top:var(--sp-5)">Restauración atencional · 2-3x/semana · 30-60 min</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">La atención dirigida se fatiga con el uso sostenido. La Teoría de Restauración Atencional (Kaplan, 1995) propone que la naturaleza la deja descansar porque atrae la atención sin exigirla. La evidencia la respalda en parte: mejora algunas medidas de atención, no todas.</p>
+<h3 id="attention">Restauración atencional · 2-3x/semana · 30-60 min</h3>
+<p>La atención dirigida se fatiga con el uso sostenido. La Teoría de Restauración Atencional (Kaplan, 1995) propone que la naturaleza la deja descansar porque atrae la atención sin exigirla. La evidencia la respalda en parte: mejora algunas medidas de atención, no todas.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 10</div>
-  <h3>Restauración atencional</h3>
+  <h4>Restauración atencional</h4>
   <div class="meta"><span><strong>Duración:</strong> 30-60 min</span> <span><strong>Frecuencia:</strong> 2-3x/semana</span> <span><strong>Entorno:</strong> naturaleza o aburrimiento</span></div>
   <ol class="steps">
     <li><strong>30-60 min en naturaleza sin teléfono.</strong> Caminar por un parque, bosque, playa o campo. Sin música, sin podcast, sin móvil. El objetivo es la "soft fascination" — atención involuntaria suave que deja descansar la atención dirigida.</li>
@@ -424,16 +321,15 @@
 </div>
 
 <!-- ═══════ FASE 3 ═══════ -->
-<div id="fase3" class="section-label">Fase 3 · Foco y aprendizaje · Semanas 9–12</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-2)">Objetivo: usar la atención recuperada para aprender, sea una técnica en el entreno (kettlebell, halterofilia, carrera) o algo que te exija la cabeza. Un bloque de aprendizaje sigue este orden: un objetivo con su obstáculo (P11), entrar alerta y en calma (P12), fallar a la medida (P13), pausas vacías entre intentos y una buena noche después (P14), y recordar sin mirar al acabar (P15). Cierra el sistema para no recaer (P16).</p>
-<div class="phase-bar"><div class="phase-bar-fill p3"></div></div>
+<h2 id="fase3">Fase 3 · Foco y aprendizaje · Semanas 9–12</h2>
+<p>Objetivo: usar la atención recuperada para aprender, sea una técnica en el entreno (kettlebell, halterofilia, carrera) o algo que te exija la cabeza. Un bloque de aprendizaje sigue este orden: un objetivo con su obstáculo (P11), entrar alerta y en calma (P12), fallar a la medida (P13), pausas vacías entre intentos y una buena noche después (P14), y recordar sin mirar al acabar (P15). Cierra el sistema para no recaer (P16).</p>
 
-<div id="contraste" class="section-label" style="margin-top:0">Contraste mental (WOOP) · 10 min · una vez por objetivo</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Has recuperado horas de atención. Ahora hay que darles un destino, o el móvil vuelve a ocuparlas. Imaginar el objetivo cumplido motiva un rato y luego desinfla; pensar solo en lo difícil, tampoco funciona. Lo que funciona es el contraste: el objetivo y, justo después, lo que se interpone, con un plan para cada obstáculo.</p>
+<h3 id="contraste">Contraste mental (WOOP) · 10 min · una vez por objetivo</h3>
+<p>Has recuperado horas de atención. Ahora hay que darles un destino, o el móvil vuelve a ocuparlas. Imaginar el objetivo cumplido motiva un rato y luego desinfla; pensar solo en lo difícil, tampoco funciona. Lo que funciona es el contraste: el objetivo y, justo después, lo que se interpone, con un plan para cada obstáculo.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 11</div>
-  <h3>Contraste mental (WOOP)</h3>
+  <h4>Contraste mental (WOOP)</h4>
   <div class="meta"><span><strong>Duración:</strong> 10 min, por escrito</span> <span><strong>Cuándo:</strong> al fijar un objetivo y al flaquear</span></div>
   <ol class="steps">
     <li><strong>Wish (deseo).</strong> Una frase concreta, con una habilidad o un resultado: «Hacer 100 swings con 24 kg sin parar», «Leer un libro técnico al mes». «Estar mejor» no vale.</li>
@@ -450,12 +346,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Oettingen et al. (2009), <em>Pers Soc Psychol Bull</em> — contrastar el futuro deseado con la realidad actual aumentó la energía (medida en el cuerpo y autoinformada), y esa energía explicaba el mayor compromiso con el objetivo cuando las expectativas de éxito eran altas. Wang et al. (2021), <em>Front Psychol</em> — metaanálisis de 21 estudios (15.907 personas): el contraste mental con planes «si… entonces…» mejora el logro de objetivos con un efecto pequeño-moderado (g = 0,34), probablemente algo menor por sesgo de publicación.</div>
 </div>
 
-<div id="estado" class="section-label" style="margin-top:var(--sp-5)">Entrar en estado de aprendizaje · 5–30 min · antes de cada bloque</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Para aprender lo que todavía no te sale hace falta estar despierto, pero no acelerado. Con poca activación no se fija nada; con demasiada, los nervios se comen la atención. Es la vieja curva en U invertida (la llamada ley de Yerkes-Dodson), con apoyo en personas más flojo de lo que se suele contar, aunque en 2024 volvió a aparecer, midiendo la activación por la pupila, en varias tareas de percepción (Beerendonk et al., 2024). Y lo que aprendes depende de dónde pones la atención, no solo de lo que tienes delante: con las mismas imágenes en pantalla, la gente solo mejoró en el rasgo que se le pidió mirar (Ahissar &amp; Hochstein, 1993).</p>
+<h3 id="estado">Entrar en estado de aprendizaje · 5–30 min · antes de cada bloque</h3>
+<p>Para aprender lo que todavía no te sale hace falta estar despierto, pero no acelerado. Con poca activación no se fija nada; con demasiada, los nervios se comen la atención. Es la vieja curva en U invertida (la llamada ley de Yerkes-Dodson), con apoyo en personas más flojo de lo que se suele contar, aunque en 2024 volvió a aparecer, midiendo la activación por la pupila, en varias tareas de percepción (Beerendonk et al., 2024). Y lo que aprendes depende de dónde pones la atención, no solo de lo que tienes delante: con las mismas imágenes en pantalla, la gente solo mejoró en el rasgo que se le pidió mirar (Ahissar &amp; Hochstein, 1993).</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 12</div>
-  <h3>Entrar en estado de aprendizaje</h3>
+  <h4>Entrar en estado de aprendizaje</h4>
   <div class="meta"><span><strong>Cuándo:</strong> antes de practicar técnica nueva o de estudiar</span> <span><strong>Duración:</strong> 5–30 min</span> <span><strong>Objetivo:</strong> alerta y en calma</span></div>
   <ol class="steps">
     <li><strong>Una sola cosa a la que atender.</strong> Por bloque, y dicha en una frase: «la cadera termina antes de que tire el brazo» en el swing, «codos rápidos» en la cargada, «pasos cortos y rápidos» en la carrera, «entender cómo se deriva la fórmula» en el estudio. Lo que no atiendes apenas se aprende, aunque lo tengas delante.</li>
@@ -475,12 +371,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Ahissar &amp; Hochstein (1993), <em>PNAS</em> — con estímulos visuales idénticos, practicar una tarea no mejoró la otra: se aprendió solo el rasgo al que se atendía. Beerendonk et al. (2024), <em>PNAS</em> — con la pupila como medida de activación, el rendimiento en varias tareas de percepción fue mejor con activación media que con baja o alta. Statton et al. (2015), <em>PLOS ONE</em> — 30 min de carrera moderada justo antes mejoraron la adquisición de una tarea motora (sobre todo la precisión), sin cambiar la retención entre días; con una hora de reposo en medio, el efecto bajaba. Roig et al. (2012), <em>PLOS ONE</em> — 48 jóvenes: ciclismo intenso antes o después de practicar mejoró la retención a 24 h y a 7 días; después, más. Wanner et al. (2020), <em>Neurosci Biobehav Rev</em> — metaanálisis de 22 estudios (862 personas): el ejercicio aeróbico agudo ayuda sobre todo a consolidar lo practicado, más cuanto más intenso. Giesbrecht et al. (2010), <em>Nutr Neurosci</em> — 40 mg de cafeína con 97 mg de teanina mejoraron la precisión al cambiar de tarea y la alerta percibida; Camfield et al. (2014), <em>Nutr Rev</em> — metaanálisis de 11 ensayos pequeños: efectos moderados en alerta y cambio de tarea durante las dos primeras horas (varios ensayos los hizo un fabricante de té). Basso et al. (2019), <em>Behav Brain Res</em> — 13 min diarios de meditación guiada mejoraron atención y memoria de trabajo frente a escuchar un pódcast, a las 8 semanas pero no a las 4. Souza &amp; Barbosa (2023), <em>J Cognition</em> — la música con letra empeoró memoria y comprensión lectora (d ≈ −0,3). Lo del agua fría es <strong>tentativo</strong>: Šrámek et al. (2000), <em>Eur J Appl Physiol</em> — una hora sumergidos a 14 °C subió la noradrenalina un 530 % y la dopamina un 250 %; Falla et al. (2021), <em>IJERPH</em> — en 15 de 18 estudios el frío empeoró el rendimiento cognitivo mientras duraba la exposición. Ningún ensayo ha medido el aprendizaje en las horas posteriores a una ducha fría.</div>
 </div>
 
-<div id="errores" class="section-label" style="margin-top:var(--sp-5)">Errores a la medida · Durante el bloque · aciertas la mayoría, fallas algunas</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Si ya te sale, el cerebro no tiene nada que cambiar. Lo que pone en marcha el aprendizaje de una técnica es la distancia entre lo que intentas y lo que te sale, y la señal de esa distancia es el error. Ese rato incómodo de fallar (hay quien lo llama «fricción límbica») no indica que vayas mal: indica que estás en el borde de lo que sabes hacer. El trabajo es quedarse ahí, ni tan fácil que no falles nunca ni tan difícil que falles casi siempre.</p>
+<h3 id="errores">Errores a la medida · Durante el bloque · aciertas la mayoría, fallas algunas</h3>
+<p>Si ya te sale, el cerebro no tiene nada que cambiar. Lo que pone en marcha el aprendizaje de una técnica es la distancia entre lo que intentas y lo que te sale, y la señal de esa distancia es el error. Ese rato incómodo de fallar (hay quien lo llama «fricción límbica») no indica que vayas mal: indica que estás en el borde de lo que sabes hacer. El trabajo es quedarse ahí, ni tan fácil que no falles nunca ni tan difícil que falles casi siempre.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 13</div>
-  <h3>Errores a la medida</h3>
+  <h4>Errores a la medida</h4>
   <div class="meta"><span><strong>Cuándo:</strong> en cada bloque de aprendizaje</span> <span><strong>Objetivo:</strong> fallar algo, no casi todo</span> <span><strong>Ajuste:</strong> cada pocos intentos</span></div>
   <ol class="steps">
     <li><strong>Busca la dificultad en la que aciertas la mayoría y fallas algunas.</strong> Como orientación, unas 8 o 9 de cada 10 bien hechas. Es una regla de pulgar que sale de un modelo matemático, no una cifra medida en personas: si todo sale, sube; si falla la mitad, baja.</li>
@@ -498,12 +394,12 @@
   <div class="evidence"><span class="badge">Evidencia: tentativa</span> <strong>Estudios:</strong> Wilson et al. (2019), <em>Nature Communications</em> — en modelos de aprendizaje (redes neuronales artificiales y modelos de neuronas biológicamente plausibles), el aprendizaje más rápido se da con un error de alrededor del 15 % (≈ 85 % de aciertos); es un resultado teórico, no un ensayo con personas. Guadagnoli &amp; Lee (2004), <em>J Motor Behavior</em> — el «punto de desafío»: la dificultad que más enseña depende del nivel de quien practica; es un marco con hipótesis, no un experimento. Albert &amp; Shadmehr (2016), <em>J Neurosci</em> — en una tarea de alcanzar con perturbación, la respuesta del cuerpo al error sirvió de plantilla para el intento siguiente, y quien respondía más al error aprendía más. Para el estudio la evidencia es <strong>moderada</strong>: Sinha &amp; Kapur (2021), <em>Rev Educ Res</em> — metaanálisis de 53 estudios: intentar resolver primero y recibir la explicación después supera al orden contrario (g = 0,36), salvo en niños de 2.º a 5.º de primaria.</div>
 </div>
 
-<div id="micropausas" class="section-label" style="margin-top:var(--sp-5)">Micropausas y la noche después · Dentro de cada bloque de aprendizaje</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Cuando el bloque es para <em>aprender</em> —una técnica nueva, un idioma, un instrumento— el foco no lo es todo. Las pausas cortas sin estímulo entre intentos forman parte del aprendizaje: el cerebro repasa lo que acabas de practicar mientras descansas. Y la consolidación grande llega esa noche, durmiendo. Las dos cosas se estropean con el mismo gesto: coger el móvil en el hueco.</p>
+<h3 id="micropausas">Micropausas y la noche después · Dentro de cada bloque de aprendizaje</h3>
+<p>Cuando el bloque es para <em>aprender</em> —una técnica nueva, un idioma, un instrumento— el foco no lo es todo. Las pausas cortas sin estímulo entre intentos forman parte del aprendizaje: el cerebro repasa lo que acabas de practicar mientras descansas. Y la consolidación grande llega esa noche, durmiendo. Las dos cosas se estropean con el mismo gesto: coger el móvil en el hueco.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 14</div>
-  <h3>Micropausas y la noche después</h3>
+  <h4>Micropausas y la noche después</h4>
   <div class="meta"><span><strong>Habilidad motora:</strong> 10–30 s entre intentos</span> <span><strong>Aprendizaje cognitivo:</strong> 5–10 min cada tanto</span> <span><strong>Esa noche:</strong> sueño completo</span></div>
   <ol class="steps">
     <li><strong>Habilidad motora: 10–30 s quieto entre intentos.</strong> Aprendiendo una secuencia nueva, haz el intento, para y no hagas nada 10–30 s, y vuelve. No hace falta cronometrar: 15 o 20 s valen igual.</li>
@@ -520,12 +416,12 @@
   <div class="evidence"><span class="badge">Evidencia: moderada</span> <strong>Estudios:</strong> Bönstrup et al. (2019), <em>Curr Biol</em> — aprendiendo una secuencia de teclas en intentos de 10 s con 10 s de descanso, casi toda la mejora temprana apareció en los descansos, no durante la práctica. Buch et al. (2021), <em>Cell Reports</em> — en esos descansos el cerebro repite la secuencia aprendida unas 20 veces más rápido, y cuanto más la repite, más se consolida. Walker et al. (2002), <em>Neuron</em> — una noche de sueño mejoró un 20 % la velocidad en una tarea motora sin perder precisión; el mismo tiempo despierto, no. Para las pausas de 5–10 min en tareas cognitivas la evidencia es más floja: el metaanálisis de Albulescu et al. (2022), <em>PLOS ONE</em>, encuentra efectos pequeños en energía y fatiga y ninguno claro en rendimiento.</div>
 </div>
 
-<div id="autoexamen" class="section-label" style="margin-top:var(--sp-5)">Autoexamen y ensayo mental · 1–5 min · al terminar cada bloque</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">Casi todo lo que practicas se olvida si no lo vuelves a sacar. Releer o volver a ver el vídeo da sensación de dominio; obligarte a recordarlo sin mirar es lo que lo fija. Es de lo más sólido de la psicología del aprendizaje, y cuesta cinco minutos al final de cada bloque.</p>
+<h3 id="autoexamen">Autoexamen y ensayo mental · 1–5 min · al terminar cada bloque</h3>
+<p>Casi todo lo que practicas se olvida si no lo vuelves a sacar. Releer o volver a ver el vídeo da sensación de dominio; obligarte a recordarlo sin mirar es lo que lo fija. Es de lo más sólido de la psicología del aprendizaje, y cuesta cinco minutos al final de cada bloque.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 15</div>
-  <h3>Autoexamen y ensayo mental</h3>
+  <h4>Autoexamen y ensayo mental</h4>
   <div class="meta"><span><strong>Duración:</strong> 1–5 min</span> <span><strong>Cuándo:</strong> al acabar el bloque y al empezar el siguiente</span> <span><strong>Regla:</strong> sin mirar</span></div>
   <ol class="steps">
     <li><strong>Cierra el material y saca lo que recuerdas.</strong> Escribe o di en voz alta lo esencial sin mirar; después compara con la fuente y marca lo que faltaba. Eso es lo que repasas.</li>
@@ -542,12 +438,12 @@
   <div class="evidence"><span class="badge">Evidencia: fuerte</span> <strong>Estudios:</strong> Roediger &amp; Karpicke (2006), <em>Psychological Science</em> — estudiantes que leyeron un texto y después intentaron escribir lo que recordaban lo retuvieron mejor a los 2 días y a la semana que quienes lo releyeron; releer solo ganó a los 5 minutos, y daba más confianza. Rowland (2014), <em>Psychol Bull</em>, y Adesope et al. (2017), <em>Rev Educ Res</em> — dos metaanálisis: practicar con pruebas supera a volver a estudiar, y más cuando hay que recordar que cuando basta con reconocer. Casi todo con material verbal o de estudio. Para el gesto la evidencia es <strong>moderada</strong>: Toth et al. (2020), <em>Psychol Sport Exerc</em> — 37 estudios sobre ensayo mental: efecto positivo pero pequeño (r = 0,13) tras corregir el sesgo de publicación, que depende de la duración, del tipo de tarea y del tipo de imaginación. Que anotar los fallos de técnica funcione como autoexamen es una extrapolación nuestra.</div>
 </div>
 
-<div id="sostenibilidad" class="section-label" style="margin-top:var(--sp-5)">Sostenibilidad y prevención de recaída · Diario · permanente</div>
-<p style="font-size:var(--bp-fs-sm);color:var(--text2);margin-bottom:var(--sp-3)">El detox no es un evento de 12 semanas. Es un sistema de vida. La recaída no es fracaso — es parte del proceso. Lo que importa no es no caer, sino cuánto tardas en levantarte. Este protocolo es el sistema de mantenimiento.</p>
+<h3 id="sostenibilidad">Sostenibilidad y prevención de recaída · Diario · permanente</h3>
+<p>El detox no es un evento de 12 semanas. Es un sistema de vida. La recaída no es fracaso — es parte del proceso. Lo que importa no es no caer, sino cuánto tardas en levantarte. Este protocolo es el sistema de mantenimiento.</p>
 
-<div class="ex-card">
+<div class="protocol-card">
   <div class="num">Protocolo 16</div>
-  <h3>Sistema de mantenimiento</h3>
+  <h4>Sistema de mantenimiento</h4>
   <div class="meta"><span><strong>Frecuencia:</strong> diario + revisión mensual</span> <span><strong>Objetivo:</strong> sistema sostenible, no perfección</span></div>
   <ol class="steps">
     <li><strong>Revisión semanal de screen time.</strong> Una vez por semana, 5 min: revisa tu tiempo de pantalla. ¿Subió? ¿Bajó? ¿Por qué? Sin culpa — con datos.</li>
@@ -566,9 +462,9 @@
 </div>
 
 <!-- ═══════ TIMELINE DIARIO ═══════ -->
-<div id="timeline" class="timeline">
-  <h2>Timeline diario</h2>
-  <div class="tl-desc">El día completo, desde despertar hasta dormir. Las horas cuentan desde que te levantas (+) o hacia atrás desde que te acuestas (−), porque tu reloj no es el de nadie más. Ejemplo: si te levantas a las 07:00 y te acuestas a las 23:00, «+1 h» son las 08:00 y «−2 h», las 21:00. El orden es lo que importa.</div>
+<h2 id="timeline">Timeline diario</h2><p>El día completo, desde despertar hasta dormir. Las horas cuentan desde que te levantas (+) o hacia atrás desde que te acuestas (−), porque tu reloj no es el de nadie más. Ejemplo: si te levantas a las 07:00 y te acuestas a las 23:00, «+1 h» son las 08:00 y «−2 h», las 21:00. El orden es lo que importa.</p><div class="timeline">
+  
+  
   <div class="tl-grid">
     <div class="tl-row">
       <div class="tl-time">Despertar</div>
@@ -672,8 +568,8 @@
 </div>
 
 <!-- ═══════ CHECKLIST ═══════ -->
-<div id="checklist" class="checklist">
-  <h2>Checklist de Progreso</h2>
+<h2 id="checklist">Checklist de progreso</h2><div class="checklist">
+  
   <div class="check-grid">
     <div class="check-col">
       <h4>Semana 1–2</h4>
@@ -729,46 +625,46 @@
 </div>
 
 <!-- ═══════ PREGUNTAS FRECUENTES ═══════ -->
-<div id="faq" class="section-label">Preguntas frecuentes</div>
-<details class="info-box refs">
+<h2 id="faq">Preguntas frecuentes</h2>
+<details class="faq refs">
   <summary><strong>¿Tengo que borrar las redes sociales?</strong></summary>
   <p>No. En el ensayo de Hunt et al. (2018), limitarlas a unos 30 minutos al día bastó para reducir la soledad y la depresión en tres semanas. Bórralas solo si, tras un mes con el bloqueador, sigues abriéndolas fuera de tu ventana (Protocolo 09).</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>Mi trabajo me exige estar localizable. ¿Esto no es para mí?</strong></summary>
   <p>Al contrario: no se trata de apagarlo todo. Quien quitó todas las notificaciones en el estudio de Fitz et al. (2019) acabó con más ansiedad; lo que funcionó fue agrupar el resto y dejar pasar lo urgente. Llamadas y personas clave, siempre; lo demás, en tres ventanas.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Las micropausas son lo mismo que descansar entre series?</strong></summary>
   <p>No. El descanso entre series de fuerza depende de la carga y del objetivo. Las micropausas son para <em>aprender</em> un gesto: practicar el snatch o el get-up en intentos cortos de calidad, con 10–30 s quieto entre uno y otro, sin mirar el móvil. En el laboratorio, casi toda la mejora temprana de una secuencia nueva apareció en esos descansos (Bönstrup et al., 2019).</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Por qué bloques de 60–90 minutos y no de cuatro horas?</strong></summary>
   <p>Porque es un tope práctico, no una ley del cerebro. La idea de un ciclo de atención de unos 90 minutos es popular, pero no hemos encontrado un ensayo que fije esa duración para el foco. Si a los 50 minutos ya te cuesta, para ahí, haz una pausa sin móvil y vuelve.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Cuántos fallos son demasiados al aprender una técnica?</strong></summary>
   <p>Si fallas la mitad o más, baja la dificultad; si no fallas nunca, súbela. La cifra de «85 % de aciertos» sale de un modelo matemático (Wilson et al., 2019), no de ensayos con personas: úsala como orientación. Y en el entreno el error se busca en el gesto con poco peso, nunca con la carga máxima sobre la cabeza o en la espalda.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿El ensayo mental sustituye a practicar?</strong></summary>
   <p>No. Imaginar el gesto bien hecho tiene un efecto real pero pequeño (Toth et al., 2020). Sirve para sumar repeticiones cuando no puedes entrenar, antes de una serie o al acabar, no para ahorrártelas.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Y la nicotina, la alfa-GPC, los ruidos binaurales o los fármacos para concentrarse?</strong></summary>
   <p>Fuera de este plan. La nicotina crea dependencia, sube la tensión y genera tolerancia rápido: pronto la necesitas solo para volver a tu nivel normal. Los fármacos estimulantes (metilfenidato, anfetaminas, modafinilo) son para un diagnóstico y con receta. De la alfa-GPC y los ruidos binaurales hay pocos estudios y con resultados dispares. Lo que sí está probado es más aburrido: dormir, moverte antes de aprender y quitar el móvil de la habitación.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿Cuánto tarda en volverse automático?</strong></summary>
   <p>Depende de la persona y del hábito. En el estudio de Lally et al. (2010), la mediana fue de 66 días, con un rango de 18 a 254. Saltarte un día no lo estropea; abandonar después de saltártelo, sí.</p>
 </details>
-<details class="info-box refs">
+<details class="faq refs">
   <summary><strong>¿La escala de grises funciona de verdad?</strong></summary>
   <p>Un poco, y cuesta cero. En el único estudio que la mide bien, quienes la usaron bajaron unos 38 minutos de pantalla al día durante poco más de una semana, pero no mejoraron su ansiedad más que el grupo de control (Holte &amp; Ferraro, 2023). Úsala como fricción extra, no como solución.</p>
 </details>
 
 <!-- ═══════ REFERENCIAS ═══════ -->
-<div id="refs" class="section-label">Referencias</div>
+<h2 id="refs">Referencias</h2>
 <details class="ref-box refs">
   <summary class="ref-title">Evidencia científica · 48 referencias</summary>
   <p><strong>Adesope OO, Trevisan DA, Sundararajan N.</strong> "Rethinking the use of tests: a meta-analysis of practice testing." <em>Review of Educational Research.</em> 2017;87(3):659-701. doi:10.3102/0034654316689306 — Practicar con pruebas supera a volver a estudiar y al resto de condiciones de control.</p>

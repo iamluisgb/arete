@@ -187,7 +187,6 @@ img{max-width:100%;border-radius:var(--sp-3)}
 .table-scroll{max-width:100%;overflow-x:auto;margin:var(--sp-4) 0;-webkit-overflow-scrolling:touch}
 .table-scroll table{margin:0;min-width:100%}
 .article-body th,.article-body td{white-space:normal}
-.article-body .toc li a{text-decoration:none}
 .bp-soon{font-size:.88rem;color:var(--text3);margin:0 0 var(--sp-10)}
 .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-4)}
 .badge{font-size:.78rem;font-weight:600;color:var(--text2);background:var(--surface-high);padding:4px 10px;border-radius:50px}
@@ -197,3 +196,66 @@ details.refs summary::after{content:"+";font-size:1.1rem;color:var(--text3)}
 details.refs[open] summary{margin-bottom:var(--sp-3)}
 details.refs[open] summary::after{content:"–"}
 .bp-list{max-width:680px}
+
+/* ── Protocolos: un artículo del blog con fichas (nov-2026) ──
+   Las fases son h2 (y salen en el índice lateral), los bloques h3 y cada
+   protocolo una ficha. Sin sombras ni movimiento: no son enlaces. */
+.protocol-card{background:var(--surface);border:1px solid var(--ghost-border);border-radius:var(--radius);padding:var(--sp-5);margin:var(--sp-3) 0 var(--sp-6)}
+.protocol-card .num{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:var(--sp-1)}
+.article-body .protocol-card h4{font-size:1.15rem;font-weight:700;letter-spacing:-.01em;margin:0 0 var(--sp-3);color:var(--text)}
+.protocol-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.protocol-card .meta span{font-size:.82rem;color:var(--text2);background:var(--surface-high);padding:3px 10px;border-radius:50px}
+.protocol-card .meta strong{color:var(--text)}
+.article-body .protocol-card .steps{margin-bottom:var(--sp-3);font-size:1rem;line-height:1.65}
+.protocol-card .tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.tip{font-size:.82rem;padding:3px 10px;border-radius:50px;font-weight:500;line-height:1.4}
+.tip-ok{background:rgba(22,163,74,.1);color:var(--green)}
+.tip-no{background:rgba(220,38,38,.08);color:var(--red)}
+.tip-key{background:var(--accent-glow);color:var(--accent)}
+.article-body .evidence{font-size:.88rem;color:var(--text2);line-height:1.55;margin:var(--sp-2) 0 var(--sp-4)}
+.article-body .protocol-card .evidence{margin:var(--sp-4) 0 0;padding-top:var(--sp-3);border-top:1px solid var(--ghost-border)}
+.article-body .evidence p{font-size:inherit;margin-bottom:var(--sp-2)}
+.evidence strong{color:var(--text)}
+.evidence .badge{margin-right:6px}
+.video-link{display:inline-flex;align-items:center;gap:4px;margin-top:var(--sp-3);font-size:.9rem;font-weight:500}
+.video-link .channel{color:var(--text3);margin-left:2px;font-weight:400}
+/* Niveles del test inicial */
+.level-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--sp-2);margin:0 0 var(--sp-6)}
+.level-badge{padding:8px 12px;border-radius:var(--sp-3);font-size:.88rem;font-weight:600;line-height:1.4}
+.level-poor{background:rgba(220,38,38,.08);color:var(--red)}
+.level-avg{background:rgba(234,179,8,.1);color:#b45309}
+.level-good{background:rgba(22,163,74,.08);color:var(--green)}
+.level-excellent{background:rgba(8,145,178,.08);color:var(--teal)}
+:root.dark .level-avg{color:#f59e0b}
+/* Día tipo: hora a la izquierda, qué hacer a la derecha */
+.timeline{margin:var(--sp-3) 0 var(--sp-6)}
+.tl-grid{display:flex;flex-direction:column}
+.tl-row,.tl-item{display:flex;align-items:flex-start;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--ghost-border)}
+.tl-row:last-child,.tl-item:last-child{border-bottom:none}
+.tl-time{flex:none;width:76px;font-size:.85rem;font-weight:700;color:var(--accent);text-align:right;padding-top:2px;font-variant-numeric:tabular-nums}
+.tl-content{flex:1;min-width:0}
+.tl-content .tl-title,.article-body .tl-content h4{font-size:1rem;font-weight:600;color:var(--text);margin:0 0 2px}
+.tl-content .tl-detail,.article-body .tl-content p{font-size:.95rem;color:var(--ink-body);line-height:1.55;margin:0}
+/* Checklist por fases */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin:var(--sp-3) 0 var(--sp-6)}
+.article-body .check-col h4{font-size:1rem;font-weight:700;margin:0 0 var(--sp-2);color:var(--text)}
+.article-body .check-col ul{list-style:none;padding:0;margin:0 0 var(--sp-4)}
+.article-body .check-col li{font-size:.95rem;padding:4px 0 4px 24px;position:relative;line-height:1.45}
+.check-col li::before{content:'';position:absolute;left:0;top:8px;width:13px;height:13px;border:1.5px solid var(--text3);border-radius:3px}
+@media(max-width:639px){.check-grid{grid-template-columns:1fr}}
+/* Semana tipo (movilidad) */
+.schedule-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:var(--sp-3) 0 var(--sp-6)}
+.s-day{background:var(--surface-high);border-radius:var(--sp-3);padding:var(--sp-3) var(--sp-2);text-align:center}
+.s-day.run{background:rgba(212,55,44,.07)}.s-day.strength{background:rgba(167,139,250,.12)}.s-day.test{background:rgba(8,145,178,.09)}
+.s-day .name{font-weight:600;font-size:.85rem;color:var(--text)}.s-day .type{font-size:.78rem;color:var(--text2)}
+@media(max-width:560px){.schedule-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.s-day{overflow-wrap:anywhere}}
+/* Preguntas frecuentes: filas plegables, sin caja */
+details.faq{border-bottom:1px solid var(--ghost-border);padding:var(--sp-3) 0}
+details.faq:first-of-type{border-top:1px solid var(--ghost-border)}
+details.faq summary{font-weight:600;color:var(--text);font-size:1.02rem;line-height:1.45;gap:var(--sp-3)}
+.article-body details.faq p{font-size:1rem}
+/* Referencias plegadas */
+.article-body .ref-box{background:var(--surface-high);border-radius:var(--radius);padding:var(--sp-4);margin:var(--sp-3) 0}
+.ref-box .ref-title{font-weight:600;color:var(--text)}
+.article-body .ref-box p{font-size:.88rem;line-height:1.55;margin-bottom:6px;overflow-wrap:anywhere}
+.ref-box a{overflow-wrap:anywhere}
