@@ -62,7 +62,7 @@ function region(html, name, content, legacy) {
 function footer() {
   return `<footer class="site-footer">
   <nav class="footer-links" aria-label="Areté">
-    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/blueprints/">Blueprints</a>
+    <a href="/">Areté</a><a href="/app" data-umami-event="Blog: abrir app" data-umami-event-sitio="pie">Abrir la app</a><a href="/blog/">Blog</a><a href="/protocolos/">Protocolos</a>
   </nav>
   <p class="footer-maker">Areté · App de entrenamiento · Creada por <a href="${AUTHOR.url}">${AUTHOR.name}</a></p>
 </footer>`;
@@ -172,24 +172,24 @@ ${rest.map(a => `    <li><a href="${a.slug}.html" class="article-card" data-umam
   return [file, html];
 }
 
-// ── Blueprints: mismas piezas (firma, imagen social, cierre, pie) y su portada ──
-export const BLUEPRINTS = [
+// ── Protocolos: mismas piezas (firma, imagen social, cierre, pie) y su portada ──
+export const PROTOCOLOS = [
   { slug: 'movilidad', tag: 'Movilidad', title: 'Plan de movilidad: 12 semanas',
     desc: 'Dosis mínima de 10 minutos o plan de 12 semanas medido con AKE. 21 ejercicios que encajan con la carrera y la fuerza.',
     published: '2026-07-03', updated: '2026-11-02' },
-  { slug: 'sleep', tag: 'Sueño', title: 'Plan de sueño',
+  { slug: 'sueno', tag: 'Sueño', title: 'Plan de sueño',
     desc: 'Luz, temperatura, cafeína, alcohol, suplementos y jet lag, con dosis, momento y nivel de evidencia. 3 fases y 14 protocolos.',
     published: '2026-07-05', updated: '2026-11-02' },
-  { slug: 'recovery', tag: 'Recuperación', title: 'Plan de recuperación',
+  { slug: 'recuperacion', tag: 'Recuperación', title: 'Plan de recuperación',
     desc: 'Recuperación activa, agua fría, deload y HRV para quien encadena fuerza y resistencia. 14 protocolos.',
     published: '2026-07-05', updated: '2026-11-02' },
   { slug: 'frio-calor', tag: 'Frío y calor', title: 'Plan de frío y calor',
     desc: 'Agua fría para recuperar o para entrenar el estrés, la regla de las 6 h tras la fuerza y la sauna con lo que se sabe. 8 protocolos.',
     published: '2026-11-02', updated: '2026-11-02' },
-  { slug: 'breathwork', tag: 'Respiración', title: 'Plan de respiración y estrés',
+  { slug: 'respiracion', tag: 'Respiración', title: 'Plan de respiración y estrés',
     desc: 'Respiración para el estrés, la recuperación y el sueño, el pico de cortisol de la mañana y los suplementos para rachas malas, con sus riesgos. Núcleo de 10–15 min y 16 protocolos.',
     published: '2026-07-08', updated: '2026-11-02' },
-  { slug: 'digital-detox', tag: 'Atención', title: 'Plan de foco y aprendizaje',
+  { slug: 'foco', tag: 'Atención', title: 'Plan de foco y aprendizaje',
     desc: 'El móvil en su sitio, trabajo profundo y cómo aprender técnica: foco, errores a la medida, micropausas y autoexamen. 16 protocolos con su nivel de evidencia.',
     published: '2026-07-08', updated: '2026-11-02' },
   { slug: 'nutricion', tag: 'Nutrición', title: 'Plan de nutrición',
@@ -199,13 +199,13 @@ export const BLUEPRINTS = [
     desc: 'Sol en la piel sin quemarte, vitamina D (cuándo medirla y suplementar) y luz roja e infrarroja con lo poco que se sabe. 6 protocolos.',
     published: '2026-11-02', updated: '2026-11-02' },
 ];
-const bpOg = slug => ogImage(`bp-${slug}`);
+const bpOg = slug => ogImage(`protocolo-${slug}`);
 
 function bpHead(a, minutes) {
   const ld = {
     '@context': 'https://schema.org', '@type': 'Article',
     headline: a.title, description: a.desc, inLanguage: 'es',
-    url: `${SITE}/blueprints/${a.slug}/`, mainEntityOfPage: `${SITE}/blueprints/${a.slug}/`,
+    url: `${SITE}/protocolos/${a.slug}/`, mainEntityOfPage: `${SITE}/protocolos/${a.slug}/`,
     image: bpOg(a.slug), datePublished: a.published, dateModified: a.updated, timeRequired: `PT${minutes}M`,
     author: { '@type': 'Person', ...AUTHOR },
     publisher: { '@type': 'Organization', name: 'Areté', url: SITE, logo: `${SITE}/assets/icons/icon-192.png` },
@@ -220,7 +220,7 @@ function bpHead(a, minutes) {
 }
 
 function bpEnd(i) {
-  const others = [BLUEPRINTS[(i + 1) % BLUEPRINTS.length], BLUEPRINTS[(i + 2) % BLUEPRINTS.length]];
+  const others = [PROTOCOLOS[(i + 1) % PROTOCOLOS.length], PROTOCOLOS[(i + 2) % PROTOCOLOS.length]];
   const card = a => `<a href="../${a.slug}/" class="read-next-card"><span class="card-phase">${esc(a.tag)}</span><span class="nav-title">${esc(a.title)}</span><span class="nav-desc">${esc(a.desc)}</span></a>`;
   return `
 <div class="info-box end-cta" style="text-align:center">
@@ -228,12 +228,12 @@ function bpEnd(i) {
   <p>Areté mide tus 7 dominios con tests concretos y te dice cuál te está frenando. Gratis.</p>
   <p style="margin-top:.75rem"><a href="../../app.html" class="cta">Descubre tu nivel →</a></p>
 </div>
-<nav class="read-next" aria-label="Más blueprints"><h2 class="read-next-title">Más blueprints</h2><div class="read-next-grid">${others.map(card).join('')}</div></nav>
+<nav class="read-next" aria-label="Más protocolos"><h2 class="read-next-title">Más protocolos</h2><div class="read-next-grid">${others.map(card).join('')}</div></nav>
 `;
 }
 
-function syncBlueprint(a, i) {
-  const file = join(ROOT, 'blueprints', a.slug, 'index.html');
+function syncProtocolo(a, i) {
+  const file = join(ROOT, 'protocolos', a.slug, 'index.html');
   let html = readFileSync(file, 'utf8');
   const minutes = readingMinutes(html);
   html = html.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*(">)/g, `$1${bpOg(a.slug)}$2`);
@@ -253,25 +253,25 @@ function syncBlueprint(a, i) {
   return [file, html];
 }
 
-function syncBlueprintIndex() {
-  const file = join(ROOT, 'blueprints', 'index.html');
+function syncProtocoloIndex() {
+  const file = join(ROOT, 'protocolos', 'index.html');
   let html = readFileSync(file, 'utf8');
-  const card = (href, tag, title, desc, slug) => `    <li><a href="${href}" class="article-card" data-umami-event="Blueprints: abrir" data-umami-event-blueprint="${slug}"><span class="card-phase">${esc(tag)}</span><h3>${esc(title)}</h3><p>${esc(desc)}</p></a></li>`;
+  const card = (href, tag, title, desc, slug) => `    <li><a href="${href}" class="article-card" data-umami-event="Protocolos: abrir" data-umami-event-protocolo="${slug}"><span class="card-phase">${esc(tag)}</span><h3>${esc(title)}</h3><p>${esc(desc)}</p></a></li>`;
   const list = `
-<section class="blog-list bp-list" aria-label="Blueprints">
+<section class="blog-list bp-list" aria-label="Protocolos">
   <ol class="post-grid">
-${BLUEPRINTS.map(a => card(`${a.slug}/`, a.tag, a.title, a.desc, a.slug)).join('\n')}
+${PROTOCOLOS.map(a => card(`${a.slug}/`, a.tag, a.title, a.desc, a.slug)).join('\n')}
   </ol>
   <p class="bp-soon">En preparación: movilidad para quien trabaja sentado y prevención de lesiones en corredores.</p>
 </section>
 `;
-  html = region(html, 'list', list, /<div class="blueprints-grid">[\s\S]*?\n<\/div>\n\s*(?=<footer)/);
+  html = region(html, 'list', list, /<div class="protocolos-grid">[\s\S]*?\n<\/div>\n\s*(?=<footer)/);
   html = region(html, 'footer', footer(), /<footer class="site-footer">[\s\S]*?<\/footer>/);
   return [file, html];
 }
 
 export function syncAll() {
-  return [...ARTICLES.map(syncArticle), syncIndex(), ...BLUEPRINTS.map(syncBlueprint), syncBlueprintIndex()];
+  return [...ARTICLES.map(syncArticle), syncIndex(), ...PROTOCOLOS.map(syncProtocolo), syncProtocoloIndex()];
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

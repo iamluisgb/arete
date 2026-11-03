@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Genera las imágenes sociales (1200×630) en assets/blog/og/<slug>.png (blog) y
-// bp-<slug>.png (blueprints) a partir de ARTICLES y BLUEPRINTS de blog-sync.mjs. Necesita Playwright; si no está en este
+// protocolo-<slug>.png (protocolos) a partir de ARTICLES y PROTOCOLOS de blog-sync.mjs. Necesita Playwright; si no está en este
 // repo: PLAYWRIGHT=/ruta/a/node_modules/playwright/index.mjs node scripts/blog-og.mjs
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { ARTICLES, BLUEPRINTS } from './blog-sync.mjs';
+import { ARTICLES, PROTOCOLOS } from './blog-sync.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { chromium } = await import(process.env.PLAYWRIGHT ? pathToFileURL(process.env.PLAYWRIGHT).href : 'playwright');
@@ -40,9 +40,9 @@ for (const a of ARTICLES) {
   await p.screenshot({ path: join(ROOT, 'assets/blog/og', `${a.slug}.png`) });
   console.log('og', a.slug);
 }
-for (const a of BLUEPRINTS) {
-  await p.setContent(page(a, 'Blueprints', 'blueprints'), { waitUntil: 'load' });
-  await p.screenshot({ path: join(ROOT, 'assets/blog/og', `bp-${a.slug}.png`) });
-  console.log('og', 'bp-' + a.slug);
+for (const a of PROTOCOLOS) {
+  await p.setContent(page(a, 'Protocolos', 'protocolos'), { waitUntil: 'load' });
+  await p.screenshot({ path: join(ROOT, 'assets/blog/og', `protocolo-${a.slug}.png`) });
+  console.log('og', 'protocolo-' + a.slug);
 }
 await browser.close();

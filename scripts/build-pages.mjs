@@ -33,10 +33,11 @@ const PUBLIC = [
   'auth',
   'assets',
   'blog',
-  'blueprints',
+  'protocolos',
   'programs',
   'u',          // tracker de Umami auto-hospedado (u/s.js)
   '404.html',   // Pages la sirve con 404 real a cualquier ruta inventada (sin ella, soft 404 con la landing)
+  '_redirects', // /blueprints/* → /protocolos/* (301)
   'robots.txt',
   'sitemap.xml',
 ];

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ARTICLES, BLUEPRINTS, syncAll } from '../scripts/blog-sync.mjs';
+import { ARTICLES, PROTOCOLOS, syncAll } from '../scripts/blog-sync.mjs';
 
 const read = f => readFileSync(resolve(process.cwd(), f), 'utf-8');
 
@@ -49,23 +49,23 @@ describe('blog', () => {
     expect(existsSync(resolve(process.cwd(), 'blog/blog.js'))).toBe(true);
   });
 
-  it('cada blueprint tiene firma, imagen social propia, cierre y referencias plegadas', () => {
-    for (const a of BLUEPRINTS) {
-      const html = read(`blueprints/${a.slug}/index.html`);
+  it('cada protocolo tiene firma, imagen social propia, cierre y referencias plegadas', () => {
+    for (const a of PROTOCOLOS) {
+      const html = read(`protocolos/${a.slug}/index.html`);
       expect(html).toContain('class="byline"');
-      expect(html).toContain(`assets/blog/og/bp-${a.slug}.png`);
+      expect(html).toContain(`assets/blog/og/protocolo-${a.slug}.png`);
       expect(html).toContain('<script src="../../blog/blog.js" defer></script>');
       expect(html).toContain('class="read-next"');
       expect(html).toContain('<details class="ref-box refs">');
       expect(html, a.slug).not.toMatch(/border-left:\s*\d/);
-      expect(existsSync(resolve(process.cwd(), `assets/blog/og/bp-${a.slug}.png`))).toBe(true);
+      expect(existsSync(resolve(process.cwd(), `assets/blog/og/protocolo-${a.slug}.png`))).toBe(true);
     }
-    const idx = read('blueprints/index.html');
-    for (const a of BLUEPRINTS) expect(idx).toContain(`href="${a.slug}/"`);
+    const idx = read('protocolos/index.html');
+    for (const a of PROTOCOLOS) expect(idx).toContain(`href="${a.slug}/"`);
     expect(idx).not.toContain('Próximamente');
   });
 
-  it('el índice del blog no choca con el .toc propio de los blueprints', () => {
+  it('el índice del blog no choca con el .toc propio de los protocolos', () => {
     expect(read('style.css')).not.toMatch(/(^|[^-])\.toc\{/m);
     expect(read('blog/blog.js')).toContain("!document.querySelector('.toc')");
   });

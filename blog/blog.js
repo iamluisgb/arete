@@ -11,7 +11,7 @@
     t.parentNode.insertBefore(w, t); w.appendChild(t);
   });
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // /blog/8-dominios(.html) → 8-dominios · /blueprints/sleep/ → sleep
+  // /blog/8-dominios(.html) → 8-dominios · /protocolos/sueno/ → sueno
   var slug = location.pathname.replace(/\/(index)?(\.html)?$/, '').split('/').pop().replace(/\.html$/, '');
 
   function track(name, data) {
@@ -19,7 +19,7 @@
   }
 
   // Índice de secciones: solo en artículos largos (5+ secciones) que no traen
-  // el suyo (los blueprints tienen .toc propio).
+  // el suyo (los protocolos tienen .toc propio).
   var heads = [].slice.call(body.querySelectorAll('h2[id]')).filter(function (h) { return !h.closest('.read-next'); });
   var links = [];
   if (heads.length >= 5 && !document.querySelector('.toc')) {

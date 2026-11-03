@@ -1,0 +1,11 @@
+# Los blueprints pasaron a llamarse protocolos (3-nov-2026), con rutas en español.
+/blueprints/sleep/*          /protocolos/sueno/:splat         301
+/blueprints/recovery/*       /protocolos/recuperacion/:splat  301
+/blueprints/breathwork/*     /protocolos/respiracion/:splat   301
+/blueprints/digital-detox/*  /protocolos/foco/:splat         301
+/blueprints/sleep            /protocolos/sueno/               301
+/blueprints/recovery         /protocolos/recuperacion/        301
+/blueprints/breathwork       /protocolos/respiracion/         301
+/blueprints/digital-detox    /protocolos/foco/                301
+/blueprints/*                /protocolos/:splat               301
+/blueprints                  /protocolos/                     301
