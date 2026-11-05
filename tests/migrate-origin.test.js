@@ -138,8 +138,10 @@ describe('migrateFromHash', () => {
 // página del origen viejo y desempaquetado por el módulo que corre en el nuevo.
 // Si esto falla, el atleta pierde sus datos en la mudanza.
 const FIXTURE_REAL = 'evals/fixtures/arete-real.json';
-describe.skipIf(!existsSync(FIXTURE_REAL))('ida y vuelta con un historial real', () => {
-  const real = JSON.parse(readFileSync(FIXTURE_REAL, 'utf8'));
+const hayFixture = existsSync(FIXTURE_REAL);
+describe.skipIf(!hayFixture)('ida y vuelta con un historial real', () => {
+  // vitest ejecuta este cuerpo aunque salte la suite: sin el fichero no hay que leerlo.
+  const real = hayFixture ? JSON.parse(readFileSync(FIXTURE_REAL, 'utf8')) : null;
 
   it('todo llega entero', async () => {
     const e = entorno(HASH_PREFIX + await empaquetar(real));
