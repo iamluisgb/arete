@@ -4,7 +4,7 @@
 // roto deje la app inservible, que se sobrescriba lo que ya hay sin preguntar, o
 // que un fragmento fallido se quede en la barra reintentándose en cada recarga.
 import { describe, it, expect, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   HASH_PREFIX, readMigrationHash, hasLocalData, describePayload, migrateFromHash,
 } from '../js/migrate-origin.js';
@@ -137,8 +137,9 @@ describe('migrateFromHash', () => {
 // La prueba que de verdad importa: un historial real, empaquetado como lo hace la
 // página del origen viejo y desempaquetado por el módulo que corre en el nuevo.
 // Si esto falla, el atleta pierde sus datos en la mudanza.
-describe('ida y vuelta con un historial real', () => {
-  const real = JSON.parse(readFileSync('evals/fixtures/arete-real.json', 'utf8'));
+const FIXTURE_REAL = 'evals/fixtures/arete-real.json';
+describe.skipIf(!existsSync(FIXTURE_REAL))('ida y vuelta con un historial real', () => {
+  const real = JSON.parse(readFileSync(FIXTURE_REAL, 'utf8'));
 
   it('todo llega entero', async () => {
     const e = entorno(HASH_PREFIX + await empaquetar(real));
