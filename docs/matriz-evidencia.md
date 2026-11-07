@@ -171,5 +171,5 @@ suficiente; 7-10 limita a III; < 7 a II) y el AKE como indicador (punto 2). Sigu
    indicador.
 3. **«Cambio real o ruido»:** solo merece la pena en movilidad y core; en el resto el escalón ya
    es varias veces el ruido.
-4. **Plancha lateral por lado** si se quiere que el ratio derecha/izquierda exista.
-5. **S&S y dominadas** no tienen estudios de fiabilidad: decirlo en el artículo.
+4. ~~Plancha lateral por lado~~ Hecho el 7-nov: se cronometran los dos lados y se apunta el peor; los ratios quedan como consejo en el artículo, no los calcula la app.
+5. ~~S&S y dominadas sin estudios de fiabilidad~~ Hecho: el artículo lo dice en los dos dominios.

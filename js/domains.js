@@ -116,12 +116,12 @@ export const DOMAINS = [
     icon: 'grid_view',
     color: 'var(--color-accent-text)',
     why: 'Estabilidad de la columna bajo fatiga sostenida, no fuerza explosiva.',
-    protocol: 'Protocolo McGill, los tres cronometrados hasta que la forma se rompe: flexor (supino, hombros levantados), extensor (prono, cuerpo en línea) y plancha lateral por cada lado.',
+    protocol: 'Protocolo McGill, los tres cronometrados hasta que la forma se rompe: flexor (supino, hombros levantados), extensor (prono, cuerpo en línea) y plancha lateral de cada lado: apunta el peor.',
     retest: RETEST_DAYS.cheap,
     metrics: [
       { key: 'mcgillFlexor', label: 'Flexor', unit: 's', dir: 'up', levels: [60, 90, 120, 150, 180] },
       { key: 'mcgillExtensor', label: 'Extensor', unit: 's', dir: 'up', levels: [60, 90, 120, 150, 180] },
-      { key: 'mcgillSide', label: 'Plancha lateral', unit: 's', dir: 'up', levels: [30, 45, 60, 75, 90] },
+      { key: 'mcgillSide', label: 'Plancha lateral (peor lado)', unit: 's', dir: 'up', levels: [30, 45, 60, 75, 90] },
     ],
   },
   {
