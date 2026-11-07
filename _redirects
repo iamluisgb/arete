@@ -9,3 +9,7 @@
 /blueprints/digital-detox    /protocolos/foco/                301
 /blueprints/*                /protocolos/:splat               301
 /blueprints                  /protocolos/                     301
+
+# La URL decía 8 dominios y el artículo presenta 7 (7-nov-2026).
+/blog/8-dominios.html  /blog/dominios  301
+/blog/8-dominios       /blog/dominios  301

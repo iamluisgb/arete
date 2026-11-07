@@ -224,7 +224,7 @@ Independiente de todo lo anterior. Resuelve el bloque P3 de [`mejoras_arete.md`]
 
 - [ ] `tools/verify-refs.py` — dado un claim, consulta `api.openalex.org` (CC0, sin API key)
       y devuelve título, año, revista, DOI y citas.
-- [ ] Pasar por él las referencias vivas de `blog/8-dominios.html`.
+- [ ] Pasar por él las referencias vivas de `blog/dominios.html`.
 - [ ] Es **herramienta de autoría**: la app no llama a OpenAlex en runtime.
 
 Probado ya: la consulta del weight-bearing lunge test (mejora #4) devuelve Bennell et al. 1998,

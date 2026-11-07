@@ -3,7 +3,7 @@
 import { resolveExercise } from './exercise-ontology.js';
 
 //
-// La tesis del producto vivía solo en `blog/8-dominios.html`: la app abría con
+// La tesis del producto vivía solo en `blog/dominios.html`: la app abría con
 // cuatro anillos genéricos y no mencionaba los dominios ni una vez. Este módulo
 // es esa tesis hecha código, y es la fuente de verdad del perfil.
 //
@@ -20,7 +20,7 @@ import { resolveExercise } from './exercise-ontology.js';
 //     Caducan: un dato de hace ocho meses no describe el cuerpo de hoy.
 //
 // CALIBRACIÓN: los umbrales están calibrados sobre normativos de hombre de
-// ~75 kg (StrengthLevel, McGill 2015, Tsatsouline 2013). Para mujeres, la
+// ~75 kg (StrengthLevel, McGill et al. 1999, Tsatsouline 2013). Para mujeres, la
 // referencia de fuerza es ~0.7× estos ratios y el S&S usa 24/32 kg en vez de
 // 32/48. Está declarado en el perfil, no escondido: ver `CALIBRATION_NOTE`.
 

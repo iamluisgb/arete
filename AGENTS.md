@@ -42,7 +42,7 @@ interno: **no** está en `PUBLIC`, no se despliega ni se precachea).
 ## Los 7 dominios — el núcleo del producto
 
 Areté no es un tracker: mide **7 dominios de rendimiento** y tu nivel es **el más bajo**. La
-tesis está argumentada en [`blog/8-dominios.html`](blog/8-dominios.html) y es código en
+tesis está argumentada en [`blog/dominios.html`](blog/dominios.html) y es código en
 [`js/domains.js`](js/domains.js), que es la **fuente de verdad del perfil**.
 
 Dos reglas que no se negocian, porque son el producto:

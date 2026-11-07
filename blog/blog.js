@@ -11,7 +11,7 @@
     t.parentNode.insertBefore(w, t); w.appendChild(t);
   });
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // /blog/8-dominios(.html) → 8-dominios · /protocolos/sueno/ → sueno
+  // /blog/dominios(.html) → dominios · /protocolos/sueno/ → sueno
   var slug = location.pathname.replace(/\/(index)?(\.html)?$/, '').split('/').pop().replace(/\.html$/, '');
 
   function track(name, data) {
