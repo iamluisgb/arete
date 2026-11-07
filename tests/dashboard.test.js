@@ -115,7 +115,7 @@ describe('tarjeta de primeros pasos', () => {
     const dash = await cargar();
     dash.renderDashboard(freshDB({
       bodyLogs: [{ date: '2026-01-01', weight: 75 }],
-      domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-01-01' }],
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-01-01' }],
     }));
     const card = document.querySelector('#dashStarter .dash-starter');
     const done = [...card.querySelectorAll('[data-starter-tab]')]

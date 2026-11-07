@@ -77,7 +77,10 @@ export const DOMAINS = [
     protocol: '400 m en pista, a tope, con calentamiento previo. Un solo intento.',
     retest: RETEST_DAYS.expensive,
     metrics: [
-      { key: 'run400', label: '400 m', unit: 's', dir: 'down', levels: [75, 70, 65, 60, 55] },
+      // Recalibrado el 7-nov-2026: con V en 55 s este dominio pedía bastante más que el
+      // resto de niveles V (un 5K por debajo de 19 min no suele ir con 400 m por debajo de 55 s) y,
+      // por la regla del mínimo, hundía el global. Ver docs/matriz-evidencia.md.
+      { key: 'run400', label: '400 m', unit: 's', dir: 'down', levels: [80, 75, 70, 65, 60] },
     ],
   },
   {
@@ -127,12 +130,21 @@ export const DOMAINS = [
     short: 'Movilidad',
     icon: 'accessibility_new',
     color: 'var(--color-state-success)',
-    why: 'Rango de movimiento real, sin el sesgo antropométrico del Sit & Reach.',
-    protocol: 'AKE: supino, cadera a 90°, extiende activamente la rodilla y mide el ángulo respecto a la perpendicular. Dorsiflexión: de rodillas frente a una pared, distancia máxima dedo-pared con la rodilla tocando y el talón pegado al suelo.',
+    why: 'Rango suficiente para moverte sin compensar. Pasado ese punto, más rango no es más rendimiento.',
+    protocol: 'Dorsiflexión: de rodillas frente a una pared, distancia máxima dedo-pared con la rodilla tocando y el talón pegado al suelo. Mide dos veces cada pierna y apunta la media de la peor. AKE (indicador, no da nivel): supino, cadera a 90°, extiende activamente la rodilla y mide el ángulo respecto a la perpendicular.',
     retest: RETEST_DAYS.cheap,
+    // Dominio umbral (7-nov-2026). La movilidad no es una capacidad que mejore sin
+    // techo: con rango suficiente, más no te hace mejor atleta. Por eso no tiene
+    // cinco niveles: o es suficiente (cuenta como V y no baja el global) o limita
+    // el global a III o a II. Los escalones de 3 cm superan el cambio mínimo
+    // detectable del lunge test (1,6-1,9 cm); los de 2 cm de antes, no.
+    gate: true,
     metrics: [
-      { key: 'ake', label: 'AKE', unit: '°', dir: 'up', levels: [-5, 0, 5, 15, 20] },
-      { key: 'dorsiflexion', label: 'Dorsiflexión', unit: 'cm', dir: 'up', levels: [5, 7, 9, 11, 13] },
+      { key: 'dorsiflexion', label: 'Dorsiflexión', unit: 'cm', dir: 'up', levels: [5, 7, 9, 11, 13],
+        gate: { limits: [[7, 2], [10, 3]], sufficient: 10 } },
+      // Indicador: se registra y se ve, pero no da nivel. Medido por uno mismo con el
+      // móvil, su error (hasta 10°) es mayor que un escalón de 5°.
+      { key: 'ake', label: 'AKE', unit: '°', dir: 'up', levels: [-5, 0, 5, 15, 20], indicator: true },
     ],
   },
 ];
@@ -153,6 +165,12 @@ export const METRICS = (() => {
  */
 export function levelFor(metric, value) {
   if (value == null || !Number.isFinite(value)) return 0;
+  if (metric.gate) {
+    // Umbral: suficiente = V; por debajo, el tope que marque el primer límite que no alcanza.
+    if (value >= metric.gate.sufficient) return 5;
+    for (const [bajoDe, tope] of metric.gate.limits) if (value < bajoDe) return tope;
+    return 5;
+  }
   const { levels, dir } = metric;
   let lvl = 1;
   for (let i = 0; i < levels.length; i++) {
@@ -348,7 +366,9 @@ export function computeProfile(db, ref = new Date()) {
       };
     });
 
-    const medidas = metrics.filter(m => m.level > 0);
+    // Los indicadores se enseñan pero no cuentan: ni para el nivel ni para "completo".
+    const cuentan = metrics.filter(m => !m.indicator);
+    const medidas = cuentan.filter(m => m.level > 0);
     // Regla 1: el dominio vale lo que su métrica más baja.
     const level = medidas.length ? Math.min(...medidas.map(m => m.level)) : 0;
     const weakest = medidas.length
@@ -356,7 +376,7 @@ export function computeProfile(db, ref = new Date()) {
       : null;
 
     // Caduca si TODAS sus métricas medibles llevan más de su periodo sin tocar.
-    const conFecha = metrics.filter(m => m.days != null);
+    const conFecha = cuentan.filter(m => m.days != null);
     const oldest = conFecha.length ? Math.max(...conFecha.map(m => m.days)) : null;
     const stale = d.retest != null && oldest != null && oldest > d.retest;
 
@@ -365,8 +385,8 @@ export function computeProfile(db, ref = new Date()) {
       metrics,
       level,
       weakest,
-      complete: medidas.length === metrics.length,
-      missing: metrics.filter(m => m.level === 0),
+      complete: medidas.length === cuentan.length,
+      missing: cuentan.filter(m => m.level === 0),
       oldest,
       stale,
     };
@@ -408,6 +428,17 @@ export function nextTest(profile) {
   // Nada urgente: el limitante es lo que más rinde volver a medir.
   const lim = profile.limitedBy;
   return lim?.protocol ? { domain: lim, reason: 'limitante' } : null;
+}
+
+/**
+ * Texto del nivel de un dominio o una métrica. Un dominio umbral suficiente no es
+ * "nivel V de movilidad", es que la movilidad no te limita; un indicador no tiene nivel.
+ * `short` para sitios de dos o tres caracteres (el radar de la tarjeta).
+ */
+export function levelText(level, item, { short = false } = {}) {
+  if (item?.indicator) return short ? '·' : 'Indicador';
+  if (item?.gate && level === 5) return short ? 'OK' : 'Suficiente';
+  return ROMAN[level];
 }
 
 /** Formatea el valor de una métrica para pantalla. */

@@ -5,7 +5,7 @@
 // (la resuelve el llamante desde programs.js) para poder testear con fixtures.
 
 import { formatPace, formatRunDuration, getPaceZones, getHRZones } from '../ui/running-helpers.js';
-import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
+import { computeProfile, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE, levelText } from '../domains.js';
 import { scheduleAll, scheduleOverdue, pendingCount, getScheduleConfig } from '../schedule.js';
 import { planStatus, planTimeline, deloadShared } from '../plan.js';
 import { weekConflicts } from '../interference.js';
@@ -35,7 +35,7 @@ export function domainSummary(db, ref = new Date()) {
     const w = p.limitedBy.weakest;
     lines.push(`  Te limita: ${p.limitedBy.name} (${levelLabel(p.limitedBy.level)})${w ? ` — por ${w.label}` : ''}`);
   }
-  lines.push('  ' + p.domains.map(d => `${d.short} ${d.level > 0 ? ROMAN[d.level] : '—'}${d.stale ? '(caducado)' : ''}`).join(' · '));
+  lines.push('  ' + p.domains.map(d => `${d.short} ${d.level > 0 ? levelText(d.level, d) : '—'}${d.stale ? '(caducado)' : ''}`).join(' · '));
   // La calibración es del producto, no del agente, y omitirla haría que Quirón leyera
   // como absolutos unos umbrales que no lo son. La app ya lo declara en pantalla.
   lines.push(`  ${CALIBRATION_NOTE}`);

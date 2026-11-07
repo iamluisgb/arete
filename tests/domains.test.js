@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   DOMAINS, METRICS, levelFor, bodyweight, derivedMetrics, latestTests,
-  computeProfile, nextTest, formatMetric, daysSince, unratedLifts,
+  computeProfile, nextTest, formatMetric, daysSince, unratedLifts, levelText,
 } from '../js/domains.js';
 
 const HOY = new Date('2026-08-04T12:00:00');
@@ -284,12 +284,49 @@ describe('regla 1: el dominio vale su métrica más baja', () => {
   });
 
   it('una métrica sin medir no arrastra el dominio a cero', () => {
-    // Solo AKE medido: movilidad vale lo que el AKE, y la dorsiflexión queda pendiente.
-    const d = db({ domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-08-01' }] });
-    const m = computeProfile(d, HOY).domains.find(x => x.id === 'mobility');
-    expect(m.level).toBe(4);
-    expect(m.complete).toBe(false);
+    // Core con solo el flexor medido: vale lo que el flexor, y el resto queda pendiente.
+    const d = db({ domainTests: [{ id: 1, metric: 'mcgillFlexor', value: 125, date: '2026-08-01' }] });
+    const c = computeProfile(d, HOY).domains.find(x => x.id === 'core');
+    expect(c.level).toBe(3);
+    expect(c.complete).toBe(false);
+    expect(c.missing.map(x => x.key)).toEqual(['mcgillExtensor', 'mcgillSide']);
+  });
+});
+
+describe('movilidad: dominio umbral', () => {
+  const mov = tests => computeProfile(db({ domainTests: tests }), HOY).domains.find(x => x.id === 'mobility');
+  const dorsi = v => ({ id: 1, metric: 'dorsiflexion', value: v, date: '2026-08-01' });
+
+  it('suficiente cuenta como V y no baja el global', () => {
+    expect(mov([dorsi(10)]).level).toBe(5);
+    expect(mov([dorsi(14)]).level).toBe(5);
+  });
+
+  it('por debajo limita el global a III, y muy por debajo a II', () => {
+    expect(mov([dorsi(9.5)]).level).toBe(3);
+    expect(mov([dorsi(7)]).level).toBe(3);
+    expect(mov([dorsi(6.9)]).level).toBe(2);
+    expect(mov([dorsi(2)]).level).toBe(2);
+  });
+
+  it('el AKE es indicador: se guarda y se ve, pero no da nivel ni deja el dominio incompleto', () => {
+    const m = mov([dorsi(12), { id: 2, metric: 'ake', value: -20, date: '2026-08-01' }]);
+    expect(m.level).toBe(5);
+    expect(m.complete).toBe(true);
+    expect(m.metrics.find(x => x.key === 'ake').value).toBe(-20);
+  });
+
+  it('solo con el AKE la movilidad sigue sin medir', () => {
+    const m = mov([{ id: 1, metric: 'ake', value: 25, date: '2026-08-01' }]);
+    expect(m.level).toBe(0);
     expect(m.missing.map(x => x.key)).toEqual(['dorsiflexion']);
+  });
+
+  it('el texto del nivel dice Suficiente, no V', () => {
+    const m = mov([dorsi(11)]);
+    expect(levelText(m.level, m)).toBe('Suficiente');
+    expect(levelText(3, m)).toBe('III');
+    expect(levelText(4, METRICS.ake.metric)).toBe('Indicador');
   });
 });
 
@@ -299,10 +336,10 @@ describe('regla 2: el nivel global es el mínimo de los dominios', () => {
       bodyLogs: conPeso(100),
       workouts: [wk('2026-07-01', 'Sentadilla', [{ kg: '150', reps: '1' }])],   // fuerza IV
       runningLogs: [{ date: '2026-07-01', distance: 5, duration: 1200 }],       // cardio V
-      domainTests: [{ id: 1, metric: 'ake', value: -10, date: '2026-08-01' }],  // movilidad I
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 5, date: '2026-08-01' }],  // movilidad II
     });
     const p = computeProfile(d, HOY);
-    expect(p.level).toBe(1);
+    expect(p.level).toBe(2);
     expect(p.limitedBy.id).toBe('mobility');
   });
 
@@ -314,7 +351,7 @@ describe('regla 2: el nivel global es el mínimo de los dominios', () => {
   });
 
   it('con dominios sin medir el nivel es provisional', () => {
-    const d = db({ domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-08-01' }] });
+    const d = db({ domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-08-01' }] });
     const p = computeProfile(d, HOY);
     expect(p.provisional).toBe(true);
     expect(p.measured).toBe(1);
@@ -323,7 +360,7 @@ describe('regla 2: el nivel global es el mínimo de los dominios', () => {
 
   it('los dominios sin medir NO cuentan como nivel 0 en el global', () => {
     // Si contaran, cualquier perfil incompleto daría nivel 0 y el radar no diría nada.
-    const d = db({ domainTests: [{ id: 1, metric: 'ake', value: 25, date: '2026-08-01' }] });
+    const d = db({ domainTests: [{ id: 1, metric: 'dorsiflexion', value: 12, date: '2026-08-01' }] });
     expect(computeProfile(d, HOY).level).toBe(5);
   });
 });
@@ -331,8 +368,8 @@ describe('regla 2: el nivel global es el mínimo de los dominios', () => {
 describe('caducidad y siguiente test', () => {
   it('un test viejo caduca según el periodo de su dominio', () => {
     // Movilidad se re-testea cada 6 semanas (42 días).
-    const reciente = db({ domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-07-20' }] });
-    const viejo = db({ domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-01-01' }] });
+    const reciente = db({ domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-07-20' }] });
+    const viejo = db({ domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-01-01' }] });
     const mob = p => computeProfile(p, HOY).domains.find(x => x.id === 'mobility');
     expect(mob(reciente).stale).toBe(false);
     expect(mob(viejo).stale).toBe(true);
@@ -361,7 +398,7 @@ describe('caducidad y siguiente test', () => {
         { id: 4, metric: 'mcgillFlexor', value: 150, date: '2026-07-25' },
         { id: 5, metric: 'mcgillExtensor', value: 150, date: '2026-07-25' },
         { id: 6, metric: 'mcgillSide', value: 75, date: '2026-07-25' },
-        { id: 7, metric: 'ake', value: 16, date: '2024-01-01' },        // muy caducado
+        { id: 7, metric: 'dorsiflexion', value: 8, date: '2024-01-01' },        // muy caducado
         { id: 8, metric: 'dorsiflexion', value: 11, date: '2024-01-01' },
       ],
     });

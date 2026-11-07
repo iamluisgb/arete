@@ -57,7 +57,7 @@ describe('radar', () => {
     const { profile } = await cargar();
     const db = freshDB({
       domainTests: [
-        { id: 1, metric: 'ake', value: 16, date: '2026-08-01' },
+        { id: 1, metric: 'dorsiflexion', value: 8, date: '2026-08-01' },
         { id: 2, metric: 'run400', value: 62, date: '2026-08-01' },
         { id: 3, metric: 'sns', value: 32, date: '2026-08-01' },
       ],
@@ -72,7 +72,7 @@ describe('radar', () => {
   it('los ejes sin medir van punteados', async () => {
     const { profile } = await cargar();
     profile.renderProfile(freshDB({
-      domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-08-01' }],
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-08-01' }],
     }));
     const punteados = [...document.querySelectorAll('#profRadar line')]
       .filter(l => l.getAttribute('stroke-dasharray'));
@@ -86,18 +86,18 @@ describe('cabecera', () => {
     const { profile } = await cargar();
     profile.renderProfile(freshDB({
       domainTests: [
-        { id: 1, metric: 'ake', value: -10, date: '2026-08-01' },   // movilidad I
+        { id: 1, metric: 'dorsiflexion', value: 5, date: '2026-08-01' },   // movilidad II
         { id: 2, metric: 'run400', value: 55, date: '2026-08-01' }, // glicolítico V
       ],
     }));
-    expect(document.getElementById('profLevel').textContent).toBe('I');
+    expect(document.getElementById('profLevel').textContent).toBe('II');
     expect(document.getElementById('profLimited').textContent).toContain('movilidad funcional');
   });
 
   it('avisa de que el nivel es provisional mientras falten dominios', async () => {
     const { profile } = await cargar();
     profile.renderProfile(freshDB({
-      domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-08-01' }],
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-08-01' }],
     }));
     expect(document.getElementById('profLimited').textContent).toContain('Provisional');
   });
@@ -199,7 +199,7 @@ describe('hoja de test', () => {
     sheet.querySelector('input[data-metric="run400"]').value = '58';
     sheet.querySelector('[data-save]').click();
 
-    expect(sheet.querySelector('.dtest-res-lvl').textContent).toBe('IV');
+    expect(sheet.querySelector('.dtest-res-lvl').textContent).toBe('V');
     expect(sheet.querySelector('.dtest-res-next').textContent).toContain('10 semanas');
   });
 

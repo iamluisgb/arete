@@ -11,7 +11,7 @@ import { saveDB } from '../data.js';
 import { esc, today, trapFocus } from '../utils.js';
 import { toast } from './toast.js';
 import { track, trackOnce } from '../track.js';
-import { ROMAN, LEVEL_NAMES, levelFor, computeProfile, formatMetric } from '../domains.js';
+import { ROMAN, LEVEL_NAMES, levelFor, levelText, computeProfile, formatMetric } from '../domains.js';
 import { markSeen } from './profile-card.js';
 import { openShareEditor } from './share-editor.js';
 
@@ -95,16 +95,16 @@ function renderResult(guardados, antes) {
   sheet.innerHTML = `
     <div class="sheet-panel">
       <div class="sheet-body dtest-result">
-        <div class="dtest-res-lvl" style="color:${domain.color}">${ROMAN[d.level]}</div>
-        <div class="dtest-res-name">${esc(domain.name)} · ${esc(LEVEL_NAMES[d.level])}</div>
-        ${subio ? `<div class="dtest-res-delta up">Has subido de ${ROMAN[antes]} a ${ROMAN[d.level]}</div>` : ''}
-        ${bajo ? `<div class="dtest-res-delta down">Baja de ${ROMAN[antes]} a ${ROMAN[d.level]}. Es un dato, no un juicio.</div>` : ''}
+        <div class="dtest-res-lvl" style="color:${domain.color}">${levelText(d.level, d)}</div>
+        <div class="dtest-res-name">${esc(domain.name)} · ${esc(d.gate && d.level === 5 ? 'No te limita' : LEVEL_NAMES[d.level])}</div>
+        ${subio ? `<div class="dtest-res-delta up">Has subido de ${levelText(antes, d)} a ${levelText(d.level, d)}</div>` : ''}
+        ${bajo ? `<div class="dtest-res-delta down">Baja de ${levelText(antes, d)} a ${levelText(d.level, d)}. Es un dato, no un juicio.</div>` : ''}
         <div class="dtest-res-metrics">
           ${guardados.map(g => `<div class="listrow dtest-res-metric">
-            <span class="listrow-name">${esc(g.label)}</span><b class="listrow-value">${esc(formatMetric(g))}</b><span class="dtest-res-mlvl">${ROMAN[g.level]}</span>
+            <span class="listrow-name">${esc(g.label)}</span><b class="listrow-value">${esc(formatMetric(g))}</b><span class="dtest-res-mlvl">${levelText(g.level, g)}</span>
           </div>`).join('')}
         </div>
-        ${d.weakest && d.metrics.length > 1
+        ${d.weakest && d.metrics.filter(m => !m.indicator).length > 1
           ? `<div class="dtest-res-note">El dominio lo define <b>${esc(d.weakest.label)}</b>, que es tu métrica más baja.</div>` : ''}
         ${profile.limitedBy?.id === d.id
           ? '<div class="dtest-res-note">Es tu dominio limitante: es lo que más te sube el nivel global.</div>' : ''}

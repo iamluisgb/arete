@@ -8,7 +8,7 @@
 
 import { esc } from '../utils.js';
 import {
-  DOMAINS, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE,
+  DOMAINS, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE, levelText,
   computeProfile, nextTest, formatMetric, bodyweight, unratedLifts, REP_CAP,
 } from '../domains.js';
 import { openTest } from './domain-test.js';
@@ -148,7 +148,7 @@ function metricRow(m) {
     <span class="listrow-name prof-metric-name">${esc(m.label)}</span>
     <span class="badge prof-metric-src">${esc(origen)}</span>
     <span class="listrow-value prof-metric-val">${esc(formatMetric(m))}</span>
-    <span class="prof-metric-lvl">${ROMAN[m.level]}</span>
+    <span class="prof-metric-lvl">${levelText(m.level, m)}</span>
   </div>`;
 }
 
@@ -171,12 +171,12 @@ function domainRow(d, profile) {
         <span class="prof-domain-name">${esc(d.name)}${chips.join('')}</span>
         <span class="prof-domain-bar"><span class="fill" style="width:${pct}%;background:${d.color}"></span></span>
       </span>
-      <span class="prof-domain-lvl" style="color:${d.level ? d.color : 'var(--color-text-tertiary)'}">${ROMAN[d.level]}</span>
+      <span class="prof-domain-lvl" style="color:${d.level ? d.color : 'var(--color-text-tertiary)'}">${levelText(d.level, d)}</span>
     </button>
     <div class="prof-domain-body">
       <div class="prof-domain-why">${esc(d.why)}</div>
       ${d.metrics.map(metricRow).join('')}
-      ${d.level > 0 && d.weakest && d.metrics.length > 1
+      ${d.level > 0 && d.weakest && d.metrics.filter(m => !m.indicator).length > 1
         ? `<div class="prof-domain-rule">El dominio vale su métrica más baja: <b>${esc(d.weakest.label)}</b>.</div>`
         : ''}
       ${d.protocol ? `<div class="prof-domain-proto">${esc(d.protocol)}</div>` : ''}
@@ -228,7 +228,7 @@ function renderRadarTable(profile) {
   if (!el) return;
   const rows = profile.domains
     .filter(d => d.level > 0)
-    .map(d => `<tr><td>${esc(d.name)}</td><td>${ROMAN[d.level]}</td><td>${d.stale ? 'Caducado' : ''}</td></tr>`)
+    .map(d => `<tr><td>${esc(d.name)}</td><td>${levelText(d.level, d)}</td><td>${d.stale ? 'Caducado' : ''}</td></tr>`)
     .join('');
   el.innerHTML = `<table>
     <caption>Nivel por dominio</caption>

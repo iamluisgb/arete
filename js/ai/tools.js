@@ -6,7 +6,7 @@
 import { workoutTonnage, epley } from './metrics.js';
 import { nextPrescription } from '../progression.js';
 import { isDeloadWeek, deloadSets } from '../plan.js';
-import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE } from '../domains.js';
+import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE, levelText } from '../domains.js';
 import { findExercises, explainExercise } from './exercise-catalog.js';
 import { listMemorias, upsertMemoria, deleteMemoria, loadMemorias, saveMemorias, MAX_MEMORIAS } from '../quiron-memory.js';
 
@@ -497,11 +497,11 @@ export function makeToolExecutor(db, deps = {}) {
         if (p.limitedBy) L.push(`LIMITANTE: ${p.limitedBy.name}${p.limitedBy.weakest ? ` — su métrica más baja es ${p.limitedBy.weakest.label}` : ''}`);
       }
       for (const d of doms) {
-        L.push(`${d.name} — nivel ${d.level > 0 ? ROMAN[d.level] : '—'}${d.stale ? ' · CADUCADO, conviene repetir el test' : ''}${d.complete ? '' : ` · ${d.missing.length} métrica(s) sin medir`}`);
+        L.push(`${d.name} — nivel ${d.level > 0 ? levelText(d.level, d) : '—'}${d.gate ? ' (dominio umbral: Suficiente no baja el global; por debajo lo limita a III o II)' : ''}${d.stale ? ' · CADUCADO, conviene repetir el test' : ''}${d.complete ? '' : ` · ${d.missing.length} métrica(s) sin medir`}`);
         for (const m of d.metrics) {
           const src = m.source === 'test' ? 'test' : m.source === 'derived' ? 'derivada del histórico' : 'sin medir';
           const age = m.days != null ? `, hace ${m.days} d` : '';
-          L.push(`  ${m.label}: ${formatMetric(m)} → nivel ${m.level > 0 ? ROMAN[m.level] : '—'} (${src}${age})`);
+          L.push(`  ${m.label}: ${formatMetric(m)} → nivel ${m.level > 0 ? levelText(m.level, m) : '—'}${m.indicator ? ' (indicador: no cuenta para el nivel)' : ''} (${src}${age})`);
         }
       }
       const nt = nextTest(p);

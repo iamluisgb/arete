@@ -92,7 +92,7 @@ describe('UX-11: tabla sr-only junto al radar', () => {
     const profile = await cargar();
     profile.renderProfile(freshDB({
       domainTests: [
-        { id: 1, metric: 'ake', value: -10, date: '2026-08-01' },
+        { id: 1, metric: 'dorsiflexion', value: 5, date: '2026-08-01' },
         { id: 2, metric: 'run400', value: 58, date: '2026-08-01' },
       ],
     }));
@@ -101,15 +101,15 @@ describe('UX-11: tabla sr-only junto al radar', () => {
     const texto = rows.map(r => r.textContent).join(' | ');
     expect(texto).toContain('Movilidad funcional');
     expect(texto).toContain('Capacidad glicolítica');
-    // AKE -10° es nivel I, run400 58 s es nivel IV (mismos umbrales que la tarjeta)
-    expect(texto).toContain('I');
-    expect(texto).toContain('IV');
+    // Dorsiflexión 5 cm limita a II, run400 58 s es nivel V (mismos umbrales que la tarjeta)
+    expect(texto).toContain('II');
+    expect(texto).toContain('V');
   });
 
   it('un test caducado se marca como tal, como el chip de la tarjeta', async () => {
     const profile = await cargar();
     profile.renderProfile(freshDB({
-      domainTests: [{ id: 1, metric: 'ake', value: 16, date: viejo() }],
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: viejo() }],
     }));
     const fila = document.querySelector('#profRadarTable tbody tr');
     expect(fila.textContent).toContain('Caducado');
@@ -118,7 +118,7 @@ describe('UX-11: tabla sr-only junto al radar', () => {
   it('los dominios sin medir no aparecen: la tabla no miente como el radar', async () => {
     const profile = await cargar();
     profile.renderProfile(freshDB({
-      domainTests: [{ id: 1, metric: 'ake', value: 16, date: '2026-08-01' }],
+      domainTests: [{ id: 1, metric: 'dorsiflexion', value: 8, date: '2026-08-01' }],
     }));
     const texto = document.getElementById('profRadarTable').textContent;
     expect(texto).not.toContain('Fuerza máxima');

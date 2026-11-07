@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { DOMAINS } from '../js/domains.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://arete.raiatech.com';
@@ -99,6 +100,30 @@ function nextBlock(i) {
   return `<nav class="read-next" aria-label="Sigue leyendo"><h2 class="read-next-title">Sigue leyendo</h2><div class="read-next-grid">${card(prev, '← Anterior')}${card(alt, next ? 'Siguiente →' : 'Empieza por aquí →')}</div></nav>`;
 }
 
+/**
+ * Tabla de umbrales del artículo de los dominios, generada desde js/domains.js:
+ * el artículo y la app tienen que dar los mismos niveles, y a mano se separaron.
+ */
+const fmtUmbral = (m, v) => {
+  const n = String(v).replace('.', ',');
+  if (m.unit === 'min') return `${v}:00`;
+  if (m.unit === '×BW') return `${n}×`;
+  if (m.unit === 'reps') return n;
+  return `${n} ${m.unit}`;
+};
+export function umbralesTable() {
+  const rows = [];
+  for (const d of DOMAINS) for (const m of d.metrics) {
+    if (m.indicator) continue;
+    const pre = m.dir === 'down' ? '≤ ' : '';
+    const celdas = m.gate
+      ? `<td colspan="5">&lt; ${fmtUmbral(m, m.gate.limits[0][0])}: limita a II · hasta ${fmtUmbral(m, m.gate.sufficient)}: limita a III · ${fmtUmbral(m, m.gate.sufficient)} o más: suficiente</td>`
+      : m.levels.map(v => `<td>${pre}${fmtUmbral(m, v)}</td>`).join('');
+    rows.push(`<tr><td>${esc(d.short)}</td><td>${esc(m.label)}</td>${celdas}</tr>`);
+  }
+  return `\n<div class="table-scroll"><table>\n<thead><tr><th>Dominio</th><th>Test</th><th>I</th><th>II</th><th>III</th><th>IV</th><th>V</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table></div>\n`;
+}
+
 function syncArticle(a, i) {
   const file = join(ROOT, 'blog', `${a.slug}.html`);
   let html = readFileSync(file, 'utf8');
@@ -125,6 +150,8 @@ function syncArticle(a, i) {
 
   // «Sigue leyendo» en lugar de la vieja navegación anterior/siguiente.
   html = region(html, 'next', nextBlock(i), /<div class="article-nav">[\s\S]*?\n<\/div>/);
+
+  if (html.includes('<!-- blog:umbrales -->')) html = region(html, 'umbrales', umbralesTable());
 
   // Pie común.
   html = region(html, 'footer', footer(), /<footer class="site-footer">[\s\S]*?<\/footer>/);

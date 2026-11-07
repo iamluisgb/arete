@@ -160,6 +160,10 @@ Tres conclusiones:
 
 ## Lo que sale de aquí
 
+Aplicado el 7-nov-2026: umbrales del artículo generados desde `domains.js` (punto 1), 400 m
+recalibrado a 80/75/70/65/60 s, movilidad como dominio umbral con la dorsiflexión (≥ 10 cm
+suficiente; 7-10 limita a III; < 7 a II) y el AKE como indicador (punto 2). Sigue pendiente lo demás.
+
 1. **Unificar umbrales entre artículo y código** (400 m, 5K, dominadas, S&S, AKE). Hoy el
    artículo promete unos niveles y la app calcula otros.
 2. **Movilidad:** ensanchar escalones (dorsiflexión a ≥ 3 cm, AKE a ≥ 10°) o pedir dos

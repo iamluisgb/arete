@@ -9,7 +9,7 @@
 // DOM); el dibujo recibe `t` de 0 a 1 para que la misma función sirva para la
 // imagen fija (t = 1), la animación y el vídeo.
 
-import { DOMAINS, ROMAN, LEVEL_NAMES } from '../domains.js';
+import { DOMAINS, ROMAN, LEVEL_NAMES, levelText } from '../domains.js';
 import {
   SHARE_URL, THEMES, span, text, textWidth, fit, wrap, pill, background, brand,
 } from './card-kit.js';
@@ -192,7 +192,8 @@ function radar(ctx, cx, cy, R, { now, before, raised }, th, t, labelSize) {
     const dy = s < -0.9 ? -labelSize * 0.9 : s > 0.6 ? labelSize * 0.5 : 0;
     const lvl = now.levels[d.id];
     const hot = hotFor(d);
-    const val = before && d.id === raised.id ? `${ROMAN[before.levels[d.id]]} → ${ROMAN[lvl]}` : lvl ? ROMAN[lvl] : '—';
+    const lt = n => levelText(n, d, { short: true });
+    const val = before && d.id === raised.id ? `${lt(before.levels[d.id])} → ${lt(lvl)}` : lvl ? lt(lvl) : '—';
     text(ctx, d.short, x, y + dy - labelSize * 0.62, { size: labelSize, weight: 600, color: hot ? th.accent : th.sub(.6), align, alpha: la });
     text(ctx, val, x, y + dy + labelSize * 0.68, { size: labelSize * 1.3, weight: 800, color: hot ? th.accent : th.text, align, alpha: la });
   });
