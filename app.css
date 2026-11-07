@@ -58,14 +58,16 @@
    fondo; fondos: bg #f4f2f0 · surface #fff · surface2 #ebe8e5 · high #f0eeeb):
 
      --color-text-primary   15,39 · 17,19 · 14,08 · 14,84   (AA y AAA)
-     --color-text-secondary  4,96 ·  5,34 ·  4,68 ·  4,85   (AA de texto)
-     --color-text-tertiary   3,36 ·  3,53 ·  3,23 ·  3,30   (AA no textual)
+     --color-text-secondary  6,44 ·  7,05 ·  5,98 ·  6,25   (AA de texto)
+     --color-text-tertiary   4,96 ·  5,34 ·  4,68 ·  4,85   (AA de texto)
+     --color-domain-running  5,44 ·  6,08 ·  4,98 ·  5,25   (AA de texto)
      --color-action-primary  4,29 ·  4,79 ·  3,93 ·  4,14
      blanco sobre la acción primaria: 4,79 (AA)
 
-   El alfa .80/.64 de secondary/tertiary está calibrado al límite: con .78 el
-   secundario caía a 4,46 sobre surface2 y fallaba por tres centésimas justo en
-   las tarjetas. Si tocas un color, vuelve a medir y escribe la cifra aquí. */
+   El terciario se usa como TEXTO (horas, ids, URLs, notas de serie), así que
+   tiene que pasar 4,5 en los cuatro fondos: .80 es el mínimo (con .78 cae a
+   4,46 sobre surface2). El secundario sube a .90 para que siga habiendo dos
+   escalones. El cian era #0891b2 (3,02 sobre surface2): ahora #0b6b85. Si tocas un color, vuelve a medir y escribe la cifra aquí. */
 :root{
   /* Papel: la página es blanca y el contenido va encima, sin tarjetas. Lo que
      separa una sección de otra es un filete (--color-line), no un salto de
@@ -77,8 +79,8 @@
   --color-surface-3:var(--sand-100);      /* hover de una superficie 1 */
   --color-surface-glass:rgba(255,255,255,.75);
   --color-text-primary:var(--brown-900);
-  --color-text-secondary:rgba(var(--brown-700-rgb),.80);
-  --color-text-tertiary:rgba(var(--brown-700-rgb),.64);
+  --color-text-secondary:rgba(var(--brown-700-rgb),.90);
+  --color-text-tertiary:rgba(var(--brown-700-rgb),.80);
   --color-text-inverse:var(--sand-0);
   --color-border-subtle:rgba(92,68,64,.08);
   --color-border-ghost:rgba(0,0,0,.06);
@@ -103,10 +105,10 @@
   --color-state-success:var(--green-600);
   --color-state-danger:var(--crimson-600);
   --color-state-warning:var(--amber-700);
-  --color-state-info:var(--cyan-600);
+  --color-state-info:var(--cyan-700);
   /* Dominio: fuerza es la marca, carrera es el cian. No son estados. */
   --color-domain-strength:var(--red-600);
-  --color-domain-running:var(--cyan-600);
+  --color-domain-running:var(--cyan-700);
   --color-scrim:rgba(0,0,0,.6);
   --color-focus-ring:rgba(var(--red-600-rgb),.3);
   /* Texto e iconos SOBRE un relleno saturado (acento, éxito, error, zona de
@@ -244,8 +246,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
    high #353534):
 
      --color-text-primary   14,42 · 12,76 · 11,14 · 9,53   (AA y AAA)
-     --color-text-secondary  7,02 ·  6,42 ·  5,76 · 5,07   (AA de texto)
-     --color-text-tertiary   4,85 ·  4,57 ·  4,21 · 3,80   (AA de texto)
+     --color-text-secondary  8,31 ·  7,50 ·  6,66 · 5,80   (AA de texto)
+     --color-text-tertiary   6,14 ·  5,67 ·  5,14 · 4,57   (AA de texto)
      --color-accent-text     5,87 ·  5,20 ·  4,54 · 3,88
 
    Y la corrección que trae este pase: el relleno de la acción primaria era
@@ -262,8 +264,8 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--color-accent-tex
   --color-surface-3:var(--ink-600);
   --color-surface-glass:rgba(32,31,31,.85);
   --color-text-primary:var(--ash-50);
-  --color-text-secondary:rgba(var(--rose-200-rgb),.78);
-  --color-text-tertiary:rgba(var(--rose-200-rgb),.62);
+  --color-text-secondary:rgba(var(--rose-200-rgb),.86);
+  --color-text-tertiary:rgba(var(--rose-200-rgb),.72);
   --color-text-inverse:var(--ink-900);
   /* En oscuro no hay borde: la separación la da el salto de superficie. */
   --color-border-subtle:transparent;
@@ -752,7 +754,7 @@ body{line-height:1.5}
   /* Estado y dominio */
   --green-600:#16a34a; --green-400:#30d158;
   --crimson-600:#dc2626; --crimson-400:#ff453a;
-  --amber-700:#a16207; --cyan-600:#0891b2; --cyan-300:#68d3fc;
+  --amber-700:#a16207; --cyan-700:#0b6b85; --cyan-300:#68d3fc;
 }
 /* ── 1.3 (los alias heredados, borrados) ────────────────────────────────────
    Aquí vivían --bg, --surface, --surface2, --text, --text2, --text3, --accent,
@@ -1515,8 +1517,8 @@ body.hiit-focus .ex-mode-info{display:none}
    confirmado", y eso se dice con la TIPOGRAFÍA (cifra en secundario en vez de
    en tinta) y con el trazo discontinuo, no con color. Al escribir encima, JS ya
    quita la clase y la cifra pasa a tinta: el cambio de peso visual es la
-   confirmación. El discontinuo va en --color-text-tertiary (3,36:1 en claro,
-   4,85:1 en oscuro sobre el lienzo), por encima del 3,0 de 1.4.11. */
+   confirmación. El discontinuo va en --color-text-tertiary (4,96:1 en claro,
+   6,14:1 en oscuro sobre el lienzo), por encima del 3,0 de 1.4.11. */
 input.prefilled{background:var(--color-surface-0);border:1px dashed var(--color-text-tertiary);color:var(--color-text-secondary)}
 input.prefilled:focus{background:var(--color-surface-1);border:1px solid transparent;color:var(--color-text-primary)}
 /* Custom programs list */
