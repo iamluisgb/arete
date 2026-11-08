@@ -21,7 +21,7 @@ export const ARTICLES = [
     published: '2026-03-27', updated: '2026-07-10' },
   { slug: 'dominios', tag: 'Niveles', title: 'Los dominios del Atleta Híbrido', featured: true,
     desc: '7 dominios de rendimiento, medidos con tests concretos. Tu nivel es el más bajo, y cada uno sube con datos.',
-    published: '2026-07-05', updated: '2026-11-07' },
+    published: '2026-07-05', updated: '2026-11-08' },
   { slug: 'programa-arete', tag: 'Programa', title: 'Areté: el programa completo',
     desc: 'Un plan de ejemplo importable en 4 fases: fuerza, hipertrofia, definición y ajustes.',
     published: '2026-07-05', updated: '2026-07-10' },
