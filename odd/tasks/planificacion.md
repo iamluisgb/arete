@@ -54,9 +54,10 @@ descargar o qué hacer con una rodilla que molesta.
   antes del evento, y el resto se reparte hacia atrás.
 - **D4 — Descargas por defecto y por señal.**
   - **Por defecto**: 1 semana de descarga cada 3–5 de carga, configurable.
-  - **Por señal**: el `loadRatio` por encima de 1,3 dos semanas seguidas, atascos de
-    `progression.js` en dos o más básicos a la vez, o un check-in malo sostenido
-    (ver D5).
+  - **Por señal**, en este orden (ver D10): un check-in malo sostenido o RPE de sesión
+    alta en sesiones que deberían ser fáciles (ver D5), atascos de `progression.js` en dos
+    o más básicos a la vez, y por último el `loadRatio` por encima de 1,3 dos semanas
+    seguidas, que solo propone si las dos primeras no dicen lo contrario.
 
   Una semana de descarga mantiene las sesiones con el 60 % de las series y −10 % de carga, y
   la aplica `progression.js`, no un plan aparte.
@@ -66,9 +67,13 @@ descargar o qué hacer con una rodilla que molesta.
     desde, hasta?, nota }`. La zona sale de una lista cerrada (hombro, codo, muñeca,
     lumbar, cadera, rodilla, tobillo, isquio, gemelo…) que encaja con la ontología de
     ejercicios.
-  - `checkin`: `{ sueño 1-5, energía 1-5, estrés 1-5, rpeSesion? }`. Es opcional: se
-    pregunta en una tarjeta de 3 toques antes de entrenar o lo saca Quirón de la
-    conversación.
+  - `checkin`: `{ recuperación 1-5, sueño 1-5, energía 1-5, estrés 1-5 }`. Se pregunta en
+    una tarjeta de 3 toques antes de entrenar (encendida por defecto, se puede apagar) o
+    lo saca Quirón de la conversación. «Recuperación» va primera: es la pregunta que más
+    pesa (D10).
+  - La **RPE de sesión** (1-10) no va en el estado sino en el entreno: `w.rpe` y
+    `log.rpe`, un toque al terminar la sesión o al registrar/importar una carrera.
+    Opcional: sin ella todo sigue funcionando como hoy.
   - `disponibilidad`: `{ desde, hasta, motivo: viaje|trabajo|enfermedad, material? }`.
 
   Quirón escribe aquí con una tool nueva, `report_state`. La memoria `dolor` se queda para
@@ -83,8 +88,10 @@ descargar o qué hacer con una rodilla que molesta.
   | Molestia (≤ 4) en una zona | Sustituir los ejercicios que cargan esa zona por variantes del catálogo (`find_exercises` con `evita`); mantener el resto |
   | Dolor (≥ 5) o lesión | Fuera los ejercicios de la zona hasta el alta; no cuentan como "fallados" para `progression.js`; aviso de ir al fisio si dura > 10 días |
   | Vuelta de lesión | Reentrada al 60–70 % del último peso, +10 % por sesión limpia |
-  | Check-in malo (sueño o energía ≤ 2) | La sesión de hoy pasa a ser la versión ligera (−30 % de volumen, sin intentos de récord) |
-  | `loadRatio` > 1,3 sostenido | Adelantar la descarga |
+  | Check-in malo (recuperación, sueño o energía ≤ 2) | La sesión de hoy pasa a ser la versión ligera (−30 % de volumen, sin intentos de récord) |
+  | Recuperación ≤ 2 tres días en una semana, o RPE ≥ 7 en sesiones fáciles dos veces seguidas | Proponer adelantar la descarga |
+  | Tres días duros seguidos (RPE ≥ 7, en cualquier carril) o una semana sin ningún día fácil (RPE ≤ 4) | Avisar en «Hoy» y a Quirón; no mover nada |
+  | `loadRatio` > 1,3 sostenido, sin check-in ni RPE que lo contradigan | Adelantar la descarga |
   | `loadRatio` < 0,8 dos semanas (no por descarga) | Avisar de pérdida de forma; reprogramar fechas |
   | Disponibilidad (viaje) | Sesiones de esos días a la versión con el material disponible o a la cola |
   | Meta A en peligro (proyección pasa de la fecha) | Proponer: alargar, recortar un bloque B o mover la meta |
@@ -108,6 +115,22 @@ descargar o qué hacer con una rodilla que molesta.
 - **D9 — Fuera de alcance.** HRV y wearables (la interfaz de `checkin` los admitirá
   después); diagnóstico médico (el motor no diagnostica: sustituye, reduce y deriva al
   fisio); planes de varios atletas.
+- **D10 — Lo que siente el atleta manda; el ratio de carga acompaña** (8-nov). Las medidas
+  subjetivas (recuperación percibida, fatiga, RPE de sesión) siguen la respuesta al
+  entrenamiento mejor que las objetivas (Saw et al., 2016, revisión sistemática,
+  [doi:10.1136/bjsports-2015-094758](https://doi.org/10.1136/bjsports-2015-094758)), y las
+  métricas de carga tipo ACWR/TRIMP/CTL-ATL no están validadas como predictores
+  (Impellizzeri et al., 2020, [doi:10.1123/ijspp.2019-0864](https://doi.org/10.1123/ijspp.2019-0864);
+  Passfield et al., 2022, [doi:10.1123/ijspp.2021-0536](https://doi.org/10.1123/ijspp.2021-0536)). Idea sacada de *La naturaleza del
+  entrenamiento* (Sola Arjona, 2022), que no se cita como fuente: se citan los estudios.
+  - **Regla «take the best»** (Gigerenzer): las señales se miran en orden —check-in y RPE,
+    luego atascos de progresión, luego `loadRatio`— y la primera que decide, decide. No se
+    promedian: un `loadRatio` bueno no compensa un «estoy reventado».
+  - **Polarizar por días, no por zonas.** La mayoría de días fáciles de verdad y pocos
+    duros, contados por RPE de sesión y en los dos carriles a la vez. Complementa a
+    `interference.js`, que clasifica por contenido.
+  - Sin check-in ni RPE, el motor funciona como hasta ahora con el `loadRatio`: no se
+    exige nada al atleta para que la app siga sirviendo.
 
 ## Fases
 
@@ -197,5 +220,5 @@ Pasos:
 - ¿La meta A puede ser de carrera mientras la fuerza sigue su propio bloque, o el plan es
   único y concurrente (híbrido real, con interferencia)? Propuesta: un plan, dos carriles
   (fuerza y carrera) con descargas sincronizadas.
-- ¿Check-in diario por defecto o solo cuando Quirón lo pide? Propuesta: apagado por
-  defecto, con un toque en «Hoy» para activarlo.
+- ~~¿Check-in diario por defecto o solo cuando Quirón lo pide?~~ Decidido (8-nov, D10):
+  encendido por defecto, de 3 toques y apagable en Ajustes; sin respuesta no pasa nada.
