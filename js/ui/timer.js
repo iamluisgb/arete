@@ -236,7 +236,7 @@ function setupMiniTimer() {
   observer.observe(timerBar);
   // Cambiar de pestaña esconde la barra sin moverla en el scroll, y eso el
   // IntersectionObserver no siempre lo avisa; el tamaño a 0 sí.
-  new ResizeObserver(() => updateMiniTimerVisibility()).observe(timerBar);
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => updateMiniTimerVisibility()).observe(timerBar);
 
   document.getElementById('miniTimerTime')?.addEventListener('click', () => {
     timerBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
