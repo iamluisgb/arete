@@ -877,10 +877,11 @@ nav button .material-symbols-outlined{font-size:var(--icon-xl)}
    la vista de registro es "Empezar sesión", y dos rellenos rojos a ancho
    completo en la misma pantalla es exactamente lo que prohíbe el §2.3. */
 #saveWorkoutBtn{position:sticky;bottom:max(var(--nav-h),env(safe-area-inset-bottom,0px) + var(--nav-h));z-index:var(--z-sticky-action);box-shadow:var(--shadow-2)}
-.ex-dots{display:none;justify-content:center;gap:6px;padding:4px 0 8px;position:sticky;top:82px;z-index:var(--z-sticky-dots);background:var(--color-surface-0)}
+/* Los puntos cuelgan de la cabecera: --header-h es su alto real, que en un
+   móvil con barra de estado no son los 82px que había fijos (quedaban sueltos
+   a media pantalla). Mismo cristal que la cabecera para leerse como una pieza. */
+.ex-dots{display:none;justify-content:center;gap:6px;padding:0 0 var(--sp-1);position:sticky;top:var(--header-h,62px);z-index:var(--z-sticky-dots);background:var(--color-surface-glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);margin-inline:calc(-1 * var(--sp-5))}
 .ex-dots.visible{display:flex}
-.ex-dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-subtle);transition:background var(--dur-base),transform var(--dur-base);cursor:pointer}
-.ex-dot.active{background:var(--color-text-primary);transform:scale(1.3)}
 .session-overview-card{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:16px;margin-bottom:var(--sp-3)}
 .so-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3)}
 .so-name{font-size:var(--fs-xl);font-weight:700}
@@ -3319,7 +3320,7 @@ nav button:hover:not(.active){color:var(--color-text-primary);background:var(--c
 
 .quiron-hbtn:hover,.cal-nav button:hover,.prefill-clear:hover{background:var(--color-surface-3);color:var(--color-accent-text)}
 .toggle-btn:hover{filter:brightness(.97)}
-.ex-dot:hover{background:var(--color-accent-soft)}
+.ex-dot:hover::after{background:var(--color-accent-soft)}
 a:hover{opacity:.8}
 }
 @media(prefers-reduced-motion:reduce){.detail-modal .modal,.run-detail-modal .modal{animation:none}}

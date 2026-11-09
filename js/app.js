@@ -120,9 +120,20 @@ function renderProgramSelector() {
 }
 
 // === INIT ===
+// Alto real de la cabecera pegajosa en --header-h: lo que se pega debajo
+// (los puntos de ejercicio) lo necesita, y cambia con la barra de estado.
+function trackHeaderHeight() {
+  const header = document.querySelector('header');
+  if (!header) return;
+  const set = () => document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+  set();
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(set).observe(header);
+}
+
 async function init() {
   initToast();
   initTheme();
+  trackHeaderHeight();
 
   // Datos que llegan del origen viejo (luisgonzalezbernal.com/arete) en el
   // fragmento de la URL. Va lo primero, antes de que nada dibuje: importar
