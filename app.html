@@ -61,7 +61,7 @@
 </head>
 <body>
 <div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">Sin conexión — los datos se guardan localmente</div>
-<header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite"></div></header>
+<header><h1><img src="assets/icons/icon-192.png" alt="" class="header-logo" aria-hidden="true">Areté</h1><div class="mini-timer" id="miniTimer"><button type="button" class="mini-timer-time" id="miniTimerTime" role="timer" aria-live="off" aria-label="Ir al temporizador"></button><button type="button" class="mini-timer-btn" id="miniTimerBtn" aria-label="Iniciar temporizador" title="Iniciar temporizador">▶</button></div><div class="sync-indicator" id="syncIndicator" role="status" aria-live="polite"></div></header>
 <!-- HOY — migrada. Lo primero que se ve al abrir la app: el saludo, tu nivel, la
      semana y la acción de hoy. El bento de anillos se queda porque es identidad;
      lo que cambia es que ya no hay dos acciones primarias compitiendo. -->
@@ -233,7 +233,6 @@
       <button class="timer-start" id="timerStartBtn" aria-label="Iniciar temporizador" title="Iniciar temporizador">▶</button>
       <button class="timer-reset" id="timerResetBtn" aria-label="Reiniciar temporizador" title="Reiniciar temporizador">↩️</button>
     </div>
-    <div class="mini-timer" id="miniTimer"><span class="mini-timer-time" id="miniTimerTime" role="timer" aria-live="off"></span><button class="mini-timer-stop" id="miniTimerStop" aria-label="Parar timer" title="Parar timer">⏹</button></div>
     <div id="sessionOverview"></div>
     <div class="ex-dots" id="exerciseDots"></div>
     <div id="exerciseList"></div>

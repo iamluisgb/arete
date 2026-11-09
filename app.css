@@ -834,7 +834,6 @@ body{line-height:1.5}
   --z-raised:1;
   --z-sticky-action:40;     /* el botón de guardar pegado al pie */
   --z-sticky-dots:45;       /* los puntos de ejercicio */
-  --z-sticky-mini:46;       /* el mini-timer */
   --z-sticky-timer:50;      /* la barra de timer */
   --z-sticky-context:55;    /* la barra de contexto */
   --z-header:60;
@@ -981,11 +980,15 @@ nav button .material-symbols-outlined{font-size:var(--icon-xl)}
 .timer-bar.mode-stopwatch .timer-custom-input{display:none}
 .timer-bar.mode-stopwatch .timer-reset{display:flex}
 .timer-bar.mode-countdown .timer-reset{display:none}
-.mini-timer{display:none;position:sticky;top:82px;z-index:var(--z-sticky-mini);background:var(--color-surface-glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:var(--radius-pill);padding:4px 12px 4px 16px;margin:0 auto var(--sp-2);align-items:center;justify-content:center;gap:var(--sp-2);width:fit-content;box-shadow:var(--shadow-1);cursor:pointer;transition:opacity var(--dur-base)}
+/* El mini-timer vive en la cabecera: se queda pegado arriba sin tapar las
+   series, y parado ofrece ▶ para el siguiente descanso sin volver a subir. */
+.mini-timer{display:none;margin-left:auto;margin-right:var(--sp-2);background:var(--color-surface-2);border-radius:var(--radius-pill);padding:3px 3px 3px 12px;align-items:center;gap:var(--sp-2)}
 .mini-timer.visible{display:flex}
-.mini-timer-time{font-size:var(--fs-lg);font-weight:700;font-variant-numeric:tabular-nums}
+.mini-timer-time{background:none;border:none;color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);font-weight:700;font-variant-numeric:tabular-nums;padding:0;cursor:pointer}
 .mini-timer-time.warning{color:var(--color-state-danger);animation:pulse var(--dur-slower) ease-in-out infinite}
-.mini-timer-stop{background:var(--color-state-danger);color:var(--color-on-fill);border:none;width:28px;height:28px;border-radius:50%;font-size:var(--fs-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.mini-timer-time.done{color:var(--color-state-success)}
+.mini-timer-btn{background:var(--color-action-ink);color:var(--color-action-ink-fg);border:none;width:32px;height:32px;border-radius:50%;font-size:var(--fs-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.mini-timer-btn.running{background:var(--color-state-danger);color:var(--color-on-fill)}
 .cal-container{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:16px;margin-bottom:var(--sp-3)}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-header .cal-title{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em}

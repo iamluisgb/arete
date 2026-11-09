@@ -97,10 +97,12 @@ function tick() {
     if (document.visibilityState === 'hidden') showAlarmNotification();
     stopTimer();
     const d = document.getElementById('timerDisplay');
+    const mt = document.getElementById('miniTimerTime');
     d.classList.add('done'); d.textContent = '¡GO!';
+    if (mt) { mt.classList.add('done'); mt.textContent = '¡GO!'; }
     playAlarm();
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-    setTimeout(() => { d.classList.remove('done'); updateTimerDisplay(); }, 3000);
+    setTimeout(() => { d.classList.remove('done'); mt?.classList.remove('done'); updateTimerDisplay(); }, 3000);
   }
 }
 
@@ -116,6 +118,7 @@ function startTimer() {
   timerRunning = true;
   const btn = document.getElementById('timerStartBtn');
   btn.textContent = '⏹'; btn.classList.add('running');
+  syncMiniButton();
   updateTimerDisplay();
   timerInterval = setInterval(tick, 250);
   requestNotifPermission();
@@ -127,6 +130,7 @@ function stopTimer() {
   timerRunning = false;
   const btn = document.getElementById('timerStartBtn');
   btn.textContent = '▶'; btn.classList.remove('running');
+  syncMiniButton();
   document.getElementById('timerDisplay').classList.remove('warning', 'done');
   updateTimerDisplay();
   clearTimerNotification();
@@ -194,14 +198,28 @@ export function resetStopwatch() {
   updateTimerDisplay();
 }
 
-// --- Mini-timer flotante ---
+// --- Mini-timer en la cabecera ---
+// Aparece cuando la barra del timer sale de la vista, corra o no: parado
+// muestra ▶ para arrancar el siguiente descanso sin volver arriba.
 
 let timerBarVisible = true;
 
+function syncMiniButton() {
+  const b = document.getElementById('miniTimerBtn');
+  if (!b) return;
+  const label = timerRunning ? 'Parar temporizador' : 'Iniciar temporizador';
+  b.textContent = timerRunning ? '⏹' : '▶';
+  b.classList.toggle('running', timerRunning);
+  b.setAttribute('aria-label', label); b.title = label;
+}
+
 function updateMiniTimerVisibility() {
   const mini = document.getElementById('miniTimer');
-  if (!mini) return;
-  mini.classList.toggle('visible', timerRunning && !timerBarVisible);
+  const bar = document.getElementById('timerBar');
+  if (!mini || !bar) return;
+  // Barra no pintada = otra pestaña o sesión sin abrir: ahí no hay mini-timer.
+  const rendered = bar.getClientRects().length > 0;
+  mini.classList.toggle('visible', rendered && !timerBarVisible);
 }
 
 function setupMiniTimer() {
@@ -209,23 +227,27 @@ function setupMiniTimer() {
   const mini = document.getElementById('miniTimer');
   if (!timerBar || !mini) return;
 
-  // IntersectionObserver to detect when timer-bar scrolls out of view
+  // La cabecera es pegajosa: la barra cuenta como fuera en cuanto se esconde tras ella.
+  const headerH = document.querySelector('header')?.offsetHeight || 0;
   const observer = new IntersectionObserver(([entry]) => {
     timerBarVisible = entry.isIntersecting;
     updateMiniTimerVisibility();
-  }, { threshold: 0.1 });
+  }, { threshold: 0.1, rootMargin: `-${headerH}px 0px 0px 0px` });
   observer.observe(timerBar);
+  // Cambiar de pestaña esconde la barra sin moverla en el scroll, y eso el
+  // IntersectionObserver no siempre lo avisa; el tamaño a 0 sí.
+  new ResizeObserver(() => updateMiniTimerVisibility()).observe(timerBar);
 
-  // Click on mini-timer time → scroll to timer-bar
-  mini.querySelector('.mini-timer-time')?.addEventListener('click', () => {
+  document.getElementById('miniTimerTime')?.addEventListener('click', () => {
     timerBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
-  // Stop button on mini-timer
-  document.getElementById('miniTimerStop')?.addEventListener('click', (e) => {
+  document.getElementById('miniTimerBtn')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    stopTimer();
+    toggleTimer();
   });
+  syncMiniButton();
+  updateTimerDisplay();
 }
 
 /** Initialize timer: presets, mode toggles, and event bindings */
