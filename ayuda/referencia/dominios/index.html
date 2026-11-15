@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -100,12 +111,13 @@
       <h1 class="doc-h1">Los 7 dominios y sus umbrales</h1><p class="doc-lead">Las trece métricas, sus cinco niveles y qué se deriva del historial. Generado de js/domains.js: si cambia un umbral, esta página cambia sola.</p>
       <p>Los números que deciden tu nivel. Cada tabla es un dominio: las columnas son los cinco niveles y cada fila una métrica con su unidad. <strong>Un valor por debajo del nivel I sigue siendo nivel I</strong>: haber medido bajo no es lo mismo que no haber medido.</p>
 <div class="doc-domains">
-<p class="doc-note">13 métricas en 7 dominios. El umbral de cada nivel es absoluto: en fuerza va en ratio a tu
-peso corporal, en tiempos en segundos y en movilidad en grados. Un valor por debajo del nivel I
-sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</p>
+<p class="doc-note">13 métricas en 7 dominios. El umbral de cada nivel
+es absoluto: en fuerza va en ratio a tu peso corporal, en tiempos en segundos y en movilidad en centímetros.
+Un valor por debajo del nivel I sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</p>
 <section class="doc-domain">
 <h2 id="fuerza-maxima">Fuerza máxima</h2>
 <p>Producción de fuerza máxima con barra, en ratio a tu peso corporal.</p>
+
 <p class="doc-note"><b>Protocolo:</b> Lo marca el plan de cada test.
  · <b>Repetir:</b> lo que tardes en medir sus 4 métricas</p>
 <div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Sentadilla</b> <small>×BW</small></td><td>0,75</td><td>1</td><td>1,25</td><td>1,5</td><td>1,75</td><td>Sí</td></tr><tr><td><b>Peso muerto</b> <small>×BW</small></td><td>1</td><td>1,25</td><td>1,5</td><td>1,8</td><td>2</td><td>Sí</td></tr><tr><td><b>Press de banca</b> <small>×BW</small></td><td>0,6</td><td>0,8</td><td>1</td><td>1,2</td><td>1,4</td><td>Sí</td></tr><tr><td><b>Press militar</b> <small>×BW</small></td><td>0,4</td><td>0,55</td><td>0,7</td><td>0,85</td><td>1</td><td>Sí</td></tr></tbody></table></div>
@@ -113,6 +125,7 @@ sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</
 <section class="doc-domain">
 <h2 id="fuerza-de-traccion">Fuerza de tracción</h2>
 <p>Tracción vertical con peso corporal — lo que la barra no cubre.</p>
+
 <p class="doc-note"><b>Protocolo:</b> Máximas dominadas estrictas: desde colgada muerta, sin kip ni balanceo, barbilla por encima de la barra.
  · <b>Repetir:</b> 42 días</p>
 <div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Dominadas estrictas</b> <small>reps</small></td><td>1</td><td>5</td><td>10</td><td>18</td><td>25</td><td>Sí</td></tr></tbody></table></div>
@@ -120,13 +133,15 @@ sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</
 <section class="doc-domain">
 <h2 id="capacidad-glicolitica">Capacidad glicolítica</h2>
 <p>La vía intermedia: 40-90 s de potencia sostenida. El hueco entre el 1RM y el 5K.</p>
+
 <p class="doc-note"><b>Protocolo:</b> 400 m en pista, a tope, con calentamiento previo. Un solo intento.
  · <b>Repetir:</b> 70 días</p>
-<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>400 m</b> <small>s</small></td><td>75</td><td>70</td><td>65</td><td>60</td><td>55</td><td>No: hay que medirla</td></tr></tbody></table></div>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>400 m</b> <small>s</small></td><td>80</td><td>75</td><td>70</td><td>65</td><td>60</td><td>No: hay que medirla</td></tr></tbody></table></div>
 </section>
 <section class="doc-domain">
 <h2 id="resistencia-aerobica">Resistencia aeróbica</h2>
 <p>Capacidad oxidativa. El predictor de mortalidad mejor documentado que existe.</p>
+
 <p class="doc-note"><b>Protocolo:</b> 5K a tope, en llano. Vale una carrera popular o cualquier 5K que ya tengas registrado.
  · <b>Repetir:</b> 70 días</p>
 <div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>5K</b> <small>min</small></td><td>30</td><td>28</td><td>25</td><td>22</td><td>19</td><td>Sí</td></tr></tbody></table></div>
@@ -134,6 +149,7 @@ sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</
 <section class="doc-domain">
 <h2 id="resistencia-de-fuerza">Resistencia de fuerza</h2>
 <p>Aplicar fuerza bajo fatiga acumulada. El puente entre la barra y el cardio.</p>
+
 <p class="doc-note"><b>Protocolo:</b> Simple &amp; Sinister: 100 swings en 5 min + 10 Turkish Get-ups en 10 min. Registra el peso de la pesa con el que lo completas.
  · <b>Repetir:</b> 70 días</p>
 <div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>S&amp;S completado con</b> <small>kg</small></td><td>16</td><td>24</td><td>32</td><td>40</td><td>48</td><td>No: hay que medirla</td></tr></tbody></table></div>
@@ -141,16 +157,21 @@ sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</
 <section class="doc-domain">
 <h2 id="resistencia-de-core">Resistencia de core</h2>
 <p>Estabilidad de la columna bajo fatiga sostenida, no fuerza explosiva.</p>
-<p class="doc-note"><b>Protocolo:</b> Protocolo McGill, los tres cronometrados hasta que la forma se rompe: flexor (supino, hombros levantados), extensor (prono, cuerpo en línea) y plancha lateral por cada lado.
+
+<p class="doc-note"><b>Protocolo:</b> Protocolo McGill, los tres cronometrados hasta que la forma se rompe: flexor (supino, hombros levantados), extensor (prono, cuerpo en línea) y plancha lateral de cada lado: apunta el peor.
  · <b>Repetir:</b> 42 días</p>
-<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Flexor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Extensor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Plancha lateral</b> <small>s</small></td><td>30</td><td>45</td><td>60</td><td>75</td><td>90</td><td>No: hay que medirla</td></tr></tbody></table></div>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Flexor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Extensor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Plancha lateral (peor lado)</b> <small>s</small></td><td>30</td><td>45</td><td>60</td><td>75</td><td>90</td><td>No: hay que medirla</td></tr></tbody></table></div>
 </section>
 <section class="doc-domain">
 <h2 id="movilidad-funcional">Movilidad funcional</h2>
-<p>Rango de movimiento real, sin el sesgo antropométrico del Sit &amp; Reach.</p>
-<p class="doc-note"><b>Protocolo:</b> AKE: supino, cadera a 90°, extiende activamente la rodilla y mide el ángulo respecto a la perpendicular. Dorsiflexión: de rodillas frente a una pared, distancia máxima dedo-pared con la rodilla tocando y el talón pegado al suelo.
+<p>Rango suficiente para moverte sin compensar. Pasado ese punto, más rango no es más rendimiento.</p>
+<p class="doc-note"><b>Dominio umbral.</b> La movilidad no es una capacidad que mejore sin techo: con rango suficiente cuenta como nivel V y no frena el global; por debajo, lo limita. Tener más rango del suficiente no te sube el nivel.</p>
+<p class="doc-note"><b>Protocolo:</b> Dorsiflexión: de rodillas frente a una pared, distancia máxima dedo-pared con la rodilla tocando y el talón pegado al suelo. Mide dos veces cada pierna y apunta la media de la peor. AKE (indicador, no da nivel): supino, cadera a 90°, extiende activamente la rodilla y mide el ángulo respecto a la perpendicular.
  · <b>Repetir:</b> 42 días</p>
-<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>AKE</b> <small>°</small></td><td>-5</td><td>0</td><td>5</td><td>15</td><td>20</td><td>No: hay que medirla</td></tr><tr><td><b>Dorsiflexión</b> <small>cm</small></td><td>5</td><td>7</td><td>9</td><td>11</td><td>13</td><td>No: hay que medirla</td></tr></tbody></table></div>
+<div class="doc-rules"><p class="doc-rule"><b>Dorsiflexión (cm)</b> — umbral: con
+          <b>10 cm o más</b> cuenta como V y no baja el global.
+          Por debajo: menos de 7 cm limita el global a II; menos de 10 cm limita el global a III.</p><p class="doc-rule"><b>AKE (°)</b> — indicador: se registra y se ve
+        en la ficha, pero <b>no da nivel</b>. Medirlo uno mismo tiene más error que un escalón.</p></div>
 </section>
 </div>
 <h2 id="como-leer-se-deriva-del-historial">Cómo leer «Se deriva del historial»</h2>
@@ -170,7 +191,7 @@ sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

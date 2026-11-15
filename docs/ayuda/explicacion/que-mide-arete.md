@@ -14,15 +14,16 @@ con qué referencias, y la lista de lo que deja fuera.
 
 ## Lo que mide
 
-Siete dominios de rendimiento, con trece métricas y cinco niveles cada una: fuerza máxima (cuatro
+Siete dominios de rendimiento, con trece métricas —doce con niveles y una de ellas, el AKE, como
+indicador— y cinco niveles: fuerza máxima (cuatro
 básicos en ratio a tu peso), fuerza de tracción (dominadas estrictas), capacidad glicolítica (400 m),
 resistencia aeróbica (5K), resistencia de fuerza (Simple & Sinister), resistencia de core (protocolo
-McGill) y movilidad funcional (AKE y dorsiflexión). Los umbrales exactos están en
+McGill) y movilidad funcional (dorsiflexión; el AKE se registra como indicador y no da nivel). Los umbrales exactos están en
 [los 7 dominios](/ayuda/referencia/dominios/).
 
 ## La calibración, sin letra pequeña
 
-Los umbrales salen de normativos publicados —StrengthLevel, McGill 2015, Tsatsouline 2013— **sobre
+Los umbrales salen de normativos publicados —StrengthLevel, McGill et al. 1999, Tsatsouline 2013— **sobre
 hombres de unos 75 kg**. La app lo dice en el perfil, no lo esconde:
 
 > Umbrales calibrados sobre normativos de hombre de ~75 kg. Si eres mujer, la referencia de fuerza
@@ -38,7 +39,7 @@ arregla, pero permite leerlo.
   bioimpedancia ni estimación a partir de fotos.
 - **Sueño, HRV y pulso en reposo.** Areté no se conecta a wearables. No hay adaptación del plan a tu
   recuperación nocturna.
-- **Nutrición.** Los blueprints de nutrición son contenido, no un registro de macros.
+- **Nutrición.** Los protocolos de nutrición son contenido, no un registro de macros.
 - **Técnica.** Ningún número dice si tu sentadilla es bonita. El nivel mide capacidad, no forma.
 - **Salud.** No hay cribado de lesiones, ni contraindicaciones personalizadas más allá de las que
   trae la ficha de cada ejercicio.

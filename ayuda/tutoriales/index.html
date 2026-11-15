@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -127,7 +138,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

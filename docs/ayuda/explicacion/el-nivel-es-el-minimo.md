@@ -13,12 +13,17 @@ Una media premia la especialización. Con un press de banca enorme y un 5K de ve
 media te llamaría «avanzado» y el perfil dejaría de señalar lo único que te falta. Areté hace lo
 contrario: **el nivel es el mínimo**.
 
-## La regla, en dos escalones
+## La regla, en dos escalones (y un umbral)
 
 1. El nivel de un dominio es el **mínimo de sus métricas**. Un OHP rezagado no se disuelve entre tres
    básicos buenos.
 2. El nivel global es el **mínimo de los dominios medidos**. Un dominio flojo manda sobre seis
    buenos.
+
+Hay un tercer caso, y es del método: **un dominio puede ser un umbral, no una escalera**. Movilidad
+funciona así. Con 10 cm de dorsiflexión o más cuenta como nivel V y no frena el global; por debajo,
+limita el global a III o a II. Más rango del suficiente no te hace mejor atleta, así que no hay cinco
+peldaños que subir — solo un umbral que pasar.
 
 Y una excepción que no es una excepción: **los dominios sin medir no cuentan como cero**. Contarlos
 así convertiría cualquier perfil a medio hacer en nivel I. En su lugar, el perfil se marca

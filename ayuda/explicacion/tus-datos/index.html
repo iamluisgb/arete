@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -98,7 +109,7 @@
     <article class="doc" id="contenido">
       <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Más · copia de seguridad</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
       <h1 class="doc-h1">Tus datos y quién los ve</h1><p class="doc-lead">Areté no tiene servidor ni cuentas. Tus datos viven en el navegador y, si quieres, en tu propio Drive. Lo único que sale del dispositivo es lo que le mandas a Quirón.</p>
-      <p>Areté es una app estática: no hay backend de Areté, no hay base de datos de usuarios y no hay analítica de producto. Esto no es marketing, es la arquitectura — y explica también sus límites.</p>
+      <p>Areté es una app estática: no hay backend de Areté, no hay base de datos de usuarios y tus entrenos no viajan a ningún sitio. Esto no es marketing, es la arquitectura — y explica también sus límites.</p>
 <h2 id="donde-viven-tus-datos">Dónde viven tus datos</h2>
 <p>En el <strong>almacenamiento del navegador</strong> de tu dispositivo: entrenos, medidas, carreras, planes y ajustes. Los recorridos GPS y las series de frecuencia cardiaca, que son lo pesado, viven en IndexedDB.</p>
 <p>Consecuencias directas:</p>
@@ -110,8 +121,10 @@
 <p>Dos controles que puedes ver en la app:</p>
 <ul><li><strong>Presupuesto de contexto</strong>: solo viajan los últimos mensajes y el snapshot; los volcados de herramientas viejos no se reenvían.</li><li><strong>Aviso de contexto enorme</strong>: por encima de 60.000 tokens estimados, la app pregunta antes de enviar. Puedes cancelar.</li></ul>
 <p>Y una memoria: lo que Quirón decide recordar se guarda <strong>en tu dispositivo</strong>, y lo puedes ver y borrar en <strong>Memoria</strong>.</p>
+<h2 id="lo-que-si-se-mide">Lo que sí se mide</h2>
+<p>La landing, el blog, la app y esta ayuda cargan <strong>Umami</strong>, un medidor de visitas <strong>sin cookies</strong>. Cuenta que una página se abrió y algunos eventos con nombre («Empezar», «Quirón», «Abrir la app»); no guarda identificadores personales, no te sigue por otras webs y no puede leer tu historial. No mide lo que entrenas, lo que pesas ni lo que hablas con Quirón, porque eso no sale del dispositivo.</p>
 <h2 id="lo-que-arete-no-hace-con-tus-datos">Lo que Areté no hace con tus datos</h2>
-<ul><li>No los vende ni los comparte con terceros.</li><li>No hay analítica de uso, ni píxeles, ni identificadores publicitarios.</li><li>No hay correo de registro, ni newsletter automática.</li><li>No hay forma de que el autor vea tu historial: no está en ningún sitio al que tenga acceso.</li></ul>
+<ul><li>No los vende ni los comparte con terceros.</li><li>No hay píxeles publicitarios, ni identificadores de terceros, ni perfilado.</li><li>No hay correo de registro, ni newsletter automática.</li><li>No hay forma de que el autor vea tu historial: no está en ningún sitio al que tenga acceso.</li></ul>
 <h2 id="como-lo-borras">Cómo lo borras</h2>
 <p><strong>Más → Borrar todos los datos</strong> deja el dispositivo como el primer día. Si tenías Drive activado, la copia sigue en tu Drive hasta que la borres allí.</p>
 <h2 id="relacionado">Relacionado</h2>
@@ -128,7 +141,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

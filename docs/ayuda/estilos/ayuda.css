@@ -26,7 +26,7 @@ body.doc-body {
   color: var(--color-text-primary);
   padding: var(--sp-2) var(--sp-4);
   border-radius: var(--radius-md);
-  z-index: var(--z-tooltip);
+  z-index: var(--z-overlay);
 }
 .doc-skip:focus { left: var(--sp-4); }
 
@@ -100,7 +100,7 @@ body.doc-body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-3);
   overflow: hidden;
-  z-index: var(--z-tooltip);
+  z-index: var(--z-overlay);
 }
 .doc-res a {
   display: block;
@@ -374,6 +374,19 @@ body.doc-body {
 .doc tbody tr:first-child td,
 .doc tbody tr:first-child th { border-top: none; }
 .doc td small { color: var(--color-text-tertiary); }
+
+/* Reglas de un dominio umbral o de un indicador: texto, no columnas. */
+.doc-rules { display: grid; gap: var(--sp-2); margin: 0 0 var(--sp-5); }
+.doc-rule {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  font: var(--type-caption);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+.doc-rule b { color: var(--color-text-primary); }
 
 /* Dominios: cada bloque con su tabla */
 .doc-domain { margin-bottom: var(--sp-8); }

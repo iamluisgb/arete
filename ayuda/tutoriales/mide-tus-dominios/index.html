@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -98,11 +109,11 @@
     <article class="doc" id="contenido">
       <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Perfil · radar de dominios</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
       <h1 class="doc-h1">Mide tus 7 dominios</h1><p class="doc-lead">Trece métricas en siete dominios, y no hace falta medirlas todas el mismo día. Qué se deriva del historial, qué exige un test y en qué orden conviene hacerlos.</p>
-      <p>El perfil se dibuja con <strong>7 dominios</strong> y <strong>13 métricas</strong>. Unas salen solas de lo que ya registras; otras exigen un test con protocolo y fecha. La buena noticia: <strong>no necesitas las trece para tener un nivel</strong>. Necesitas una por dominio, y de ahí el mínimo.</p>
+      <p>El perfil se dibuja con <strong>7 dominios</strong> y <strong>13 métricas</strong> — una de ellas, el AKE, es solo un indicador y no da nivel. Unas salen solas de lo que ya registras; otras exigen un test con protocolo y fecha. La buena noticia: <strong>no necesitas las trece para tener un nivel</strong>. Necesitas una por dominio, y de ahí el mínimo.</p>
 <h2 id="que-se-mide-solo">Qué se mide solo</h2>
 <ul><li><strong>Fuerza máxima</strong> — con series de sentadilla, peso muerto, banca y press militar. No hay test que hacer si ya entrenas esos movimientos.</li><li><strong>Tracción</strong> — con tus dominadas estrictas del historial.</li><li><strong>Cardio</strong> — con tu mejor 5K, sea de una carrera importada o de una prueba.</li></ul>
 <h2 id="que-exige-un-test">Qué exige un test</h2>
-<div class="doc-table"><table><thead><tr><th>Dominio</th><th>Test</th><th>Coste</th></tr></thead><tbody><tr><td>Glicolítico</td><td>400 m a tope en pista</td><td>Caro: 70 días de validez</td></tr><tr><td>Resistencia de fuerza</td><td>Simple &amp; Sinister completo (100 swings + 10 get-ups)</td><td>Caro: 70 días</td></tr><tr><td>Core</td><td>Protocolo McGill: flexor, extensor y plancha lateral</td><td>Barato: 42 días</td></tr><tr><td>Movilidad</td><td>AKE y dorsiflexión con pared</td><td>Barato: 42 días</td></tr></tbody></table></div>
+<div class="doc-table"><table><thead><tr><th>Dominio</th><th>Test</th><th>Coste</th></tr></thead><tbody><tr><td>Glicolítico</td><td>400 m a tope en pista</td><td>Caro: 70 días de validez</td></tr><tr><td>Resistencia de fuerza</td><td>Simple &amp; Sinister completo (100 swings + 10 get-ups)</td><td>Caro: 70 días</td></tr><tr><td>Core</td><td>Protocolo McGill: flexor, extensor y plancha lateral</td><td>Barato: 42 días</td></tr><tr><td>Movilidad</td><td>Dorsiflexión con pared (el AKE se apunta, pero no da nivel)</td><td>Barato: 42 días</td></tr></tbody></table></div>
 <h2 id="pasos">Pasos</h2>
 <ol><li>Abre <strong>Perfil</strong> y mira <strong>Siguiente test</strong>: propone primero lo que nunca se ha medido y, entre lo pendiente, lo barato.</li><li>Haz los baratos primero. Un test de core y otro de movilidad te dan dos dominios sin material ni pista.</li><li>Deja los caros para cuando tengas una mañana: el 400 m y el S&amp;S piden calentamiento y no se repiten a la ligera.</li><li>Anota cada uno con su fecha real. Si lo hiciste el martes y lo apuntas el jueves, la caducidad cuenta desde el martes… pero desde el incorrecto.</li><li>Vuelve al perfil: el radar se cierra y el dominio limitante cambia de nombre.</li></ol>
 <h2 id="terminado-cuando">Terminado cuando</h2>
@@ -123,7 +134,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

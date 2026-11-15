@@ -126,12 +126,26 @@ describe('ayuda: referencia generada', () => {
       const escapado = (t) => t.replace(/&/g, '&amp;');
       for (const m of d.metrics) expect(html).toContain(escapado(m.label));
     }
-    // Cada umbral, en formato español (coma decimal).
+    // Cada umbral, en formato español (coma decimal). Un dominio umbral no
+    // tiene escalera y un indicador no da nivel: la tabla tiene que decir la
+    // regla que aplica la app, no cinco columnas que no usa.
     for (const d of DOMAINS) {
       for (const m of d.metrics) {
+        if (m.gate) {
+          expect(html.toLowerCase()).toContain('umbral');
+          expect(html).toContain(String(m.gate.sufficient).replace('.', ','));
+          continue;
+        }
+        if (m.indicator) {
+          expect(html.toLowerCase()).toContain('indicador');
+          expect(html).toContain('no da nivel');
+          continue;
+        }
         for (const v of m.levels) expect(html).toContain(String(v).replace('.', ','));
       }
     }
+    // La plancha lateral se mide por lado: el nombre lo dice.
+    expect(html).toContain('peor lado');
     expect(html).toContain(`${RETEST_DAYS.cheap} días`);
     expect(html).toContain(`${RETEST_DAYS.expensive} días`);
   });
@@ -142,6 +156,16 @@ describe('ayuda: referencia generada', () => {
     // +1 de la cabecera
     expect(filas).toBe(EXERCISE_ONTOLOGY.length + 1);
     expect(html).toContain(`${EXERCISE_ONTOLOGY.length} ejercicios`);
+  });
+
+  it('el sitemap de la ayuda lista todas sus páginas y robots lo declara', () => {
+    const sitemap = readFileSync(join(AYUDA, 'sitemap.xml'), 'utf8');
+    for (const f of paginasHtml()) {
+      const rel = relative(AYUDA, f).replace(/index\.html$/, '');
+      expect(sitemap).toContain(`https://arete.raiatech.com/ayuda/${rel}`);
+    }
+    const robots = readFileSync(join(ROOT, 'robots.txt'), 'utf8');
+    expect(robots).toContain('https://arete.raiatech.com/ayuda/sitemap.xml');
   });
 
   it('los atajos publicados son los del código', () => {

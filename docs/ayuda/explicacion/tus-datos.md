@@ -9,8 +9,8 @@ selector: "#setBackup"
 resumen: Areté no tiene servidor ni cuentas. Tus datos viven en el navegador y, si quieres, en tu propio Drive. Lo único que sale del dispositivo es lo que le mandas a Quirón.
 ---
 
-Areté es una app estática: no hay backend de Areté, no hay base de datos de usuarios y no hay analítica
-de producto. Esto no es marketing, es la arquitectura — y explica también sus límites.
+Areté es una app estática: no hay backend de Areté, no hay base de datos de usuarios y tus entrenos no
+viajan a ningún sitio. Esto no es marketing, es la arquitectura — y explica también sus límites.
 
 ## Dónde viven tus datos
 
@@ -46,10 +46,17 @@ Dos controles que puedes ver en la app:
 Y una memoria: lo que Quirón decide recordar se guarda **en tu dispositivo**, y lo puedes ver y borrar
 en **Memoria**.
 
+## Lo que sí se mide
+
+La landing, el blog, la app y esta ayuda cargan **Umami**, un medidor de visitas **sin cookies**.
+Cuenta que una página se abrió y algunos eventos con nombre («Empezar», «Quirón», «Abrir la app»);
+no guarda identificadores personales, no te sigue por otras webs y no puede leer tu historial. No mide
+lo que entrenas, lo que pesas ni lo que hablas con Quirón, porque eso no sale del dispositivo.
+
 ## Lo que Areté no hace con tus datos
 
 - No los vende ni los comparte con terceros.
-- No hay analítica de uso, ni píxeles, ni identificadores publicitarios.
+- No hay píxeles publicitarios, ni identificadores de terceros, ni perfilado.
 - No hay correo de registro, ni newsletter automática.
 - No hay forma de que el autor vea tu historial: no está en ningún sitio al que tenga acceso.
 

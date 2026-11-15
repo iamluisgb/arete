@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -103,7 +114,7 @@
 <h2 id="producto">Producto</h2>
 <ul><li><strong>15-nov-2026</strong> — Existe la ayuda. Guías por tarea, tutoriales con primer éxito, explicación de los números y referencia generada del código. Se lee sin instalar y sin cuenta.</li><li><strong>27-oct-2026</strong> — Las tarjetas de sesión de fuerza y HIIT, con la cifra protagonista, el récord y su enlace. Compartir el perfil como tarjeta del heptágono, con celebración al subir de nivel.</li><li><strong>27-oct-2026</strong> — Quirón en un solo clic: la demo se pide sola en el primer envío, sin clave y sin configurar nada. Un rechazo se recuerda hasta el día siguiente.</li><li><strong>27-oct-2026</strong> — Escritorio: Hoy, Perfil, Cuerpo, Entrenar y Quirón pasan a una sola columna centrada, y el entreno se puede imprimir en papel.</li></ul>
 <h2 id="metodo">Método</h2>
-<ul><li><strong>24-ago-2026</strong> — <strong>Epley deja de estimar por encima de 12 repeticiones.</strong> Una serie de volumen ya no infla el 1RM estimado. Si tenías una serie de más de 12 reps como mejor marca de un básico, ese dominio pudo <strong>bajar</strong> de nivel ese día: el número anterior venía de una estimación que la fórmula no sostiene (<a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">por qué</a>).</li><li><strong>4-ago-2026</strong> — <strong>El modelo de los 7 dominios, en código.</strong> El nivel pasa a ser el mínimo de los dominios medidos y no una media; los dominios sin medir no cuentan como cero y el perfil se marca provisional (<a href="/ayuda/explicacion/el-nivel-es-el-minimo/">la regla</a>).</li></ul>
+<ul><li><strong>7-nov-2026</strong> — <strong>La movilidad pasa a dominio umbral y el AKE a indicador.</strong> La dorsiflexión decide: con 10 cm o más cuenta como nivel V y no frena el global; por debajo, lo limita a III o a II. El AKE se sigue midiendo y viendo en la ficha, pero no da nivel. El mismo día, <strong>el 400 m se recalibra</strong> (80, 75, 70, 65 y 60 s): con el corte anterior, bajar de 55 s pedía más que el resto de nivel V y hundía el global por la regla del mínimo.</li><li><strong>7-nov-2026</strong> — <strong>La plancha lateral se cronometra por lado y cuenta el peor.</strong> Un dato de un solo lado ya no puede representar la resistencia de core. Si tenías una marca de un lado, el dominio puede haber bajado ese día.</li><li><strong>24-ago-2026</strong> — <strong>Epley deja de estimar por encima de 12 repeticiones.</strong> Una serie de volumen ya no infla el 1RM estimado. Si tenías una serie de más de 12 reps como mejor marca de un básico, ese dominio pudo <strong>bajar</strong> de nivel ese día: el número anterior venía de una estimación que la fórmula no sostiene (<a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">por qué</a>).</li><li><strong>4-ago-2026</strong> — <strong>El modelo de los 7 dominios, en código.</strong> El nivel pasa a ser el mínimo de los dominios medidos y no una media; los dominios sin medir no cuentan como cero y el perfil se marca provisional (<a href="/ayuda/explicacion/el-nivel-es-el-minimo/">la regla</a>).</li></ul>
 <h2 id="como-se-mantiene-esta-pagina">Cómo se mantiene esta página</h2>
 <p>Cada entrada de <strong>método</strong> lleva la fecha del cambio y qué significa para los números que ya tenías. Si un umbral o una regla cambia y esta página no lo dice, es un fallo: escríbenos a <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a>.</p>
       <div class="doc-feedback">
@@ -118,7 +129,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

@@ -330,7 +330,8 @@ al bundle de la app).
 
 ## 10. Fases y criterios de aceptación
 
-Areté no tiene analítica **a propósito**, así que un criterio de aceptación no puede ser «X visitas».
+Areté no mide el uso de la app; sí cuenta aperturas de página con **Umami** (sin cookies, solo en
+producción), así que un criterio de aceptación no puede ser «X visitas»: no dice si la guía sirvió.
 Se acepta con estructura y con tests:
 
 | Fase | Contenido | Se acepta cuando |
@@ -390,6 +391,6 @@ contra el viewport, como manda `AGENTS.md`.
    la vigila, pero el modelo no la usa si no se le pide: hay que **repetir la batería de evals** con
    el SOUL nuevo para ver si el ruteo aparece.
 5. **Pendiente fuera de este cambio**: el enlace profundo `#ajustes` solo distingue las subpáginas del
-   mapa (`zonas`, `planes`, `programacion`, `quiron`, `copia`); el sitio no tiene `sitemap.xml` ni
-   `robots.txt` (el argumento SEO de §3 queda a medias sin ellos); y la búsqueda de la ayuda no
-   indexa los encabezados, solo el título, el resumen y el cuerpo.
+   mapa (`zonas`, `planes`, `programacion`, `quiron`, `copia`); y la búsqueda de la ayuda no indexa los
+   encabezados, solo el título, el resumen y el cuerpo. El sitemap propio (`ayuda/sitemap.xml`,
+   declarado en `robots.txt`) y los eventos de Umami por sección quedan hechos.

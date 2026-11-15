@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -100,13 +111,13 @@
       <h1 class="doc-h1">Qué mide Areté y qué no</h1><p class="doc-lead">Siete dominios y trece métricas, calibradas sobre normativos de hombre de unos 75 kg. Fuera de eso, Areté no mide. Esta página es la lista de lo que no hace, escrita a propósito.</p>
       <p>Un número solo vale si sabes de dónde sale y hasta dónde llega. Esto es lo que Areté mide de verdad, con qué referencias, y la lista de lo que deja fuera.</p>
 <h2 id="lo-que-mide">Lo que mide</h2>
-<p>Siete dominios de rendimiento, con trece métricas y cinco niveles cada una: fuerza máxima (cuatro básicos en ratio a tu peso), fuerza de tracción (dominadas estrictas), capacidad glicolítica (400 m), resistencia aeróbica (5K), resistencia de fuerza (Simple &amp; Sinister), resistencia de core (protocolo McGill) y movilidad funcional (AKE y dorsiflexión). Los umbrales exactos están en <a href="/ayuda/referencia/dominios/">los 7 dominios</a>.</p>
+<p>Siete dominios de rendimiento, con trece métricas —doce con niveles y una de ellas, el AKE, como indicador— y cinco niveles: fuerza máxima (cuatro básicos en ratio a tu peso), fuerza de tracción (dominadas estrictas), capacidad glicolítica (400 m), resistencia aeróbica (5K), resistencia de fuerza (Simple &amp; Sinister), resistencia de core (protocolo McGill) y movilidad funcional (dorsiflexión; el AKE se registra como indicador y no da nivel). Los umbrales exactos están en <a href="/ayuda/referencia/dominios/">los 7 dominios</a>.</p>
 <h2 id="la-calibracion-sin-letra-pequena">La calibración, sin letra pequeña</h2>
-<p>Los umbrales salen de normativos publicados —StrengthLevel, McGill 2015, Tsatsouline 2013— <strong>sobre hombres de unos 75 kg</strong>. La app lo dice en el perfil, no lo esconde:</p>
+<p>Los umbrales salen de normativos publicados —StrengthLevel, McGill et al. 1999, Tsatsouline 2013— <strong>sobre hombres de unos 75 kg</strong>. La app lo dice en el perfil, no lo esconde:</p>
 <blockquote>Umbrales calibrados sobre normativos de hombre de ~75 kg. Si eres mujer, la referencia de fuerza ronda el 0,7× de estos ratios y el S&amp;S usa 24/32 kg.</blockquote>
 <p>Es una limitación real: <strong>falta la columna femenina</strong> con sus propios normativos, y mientras no exista, una mujer que use la app ve sus niveles de fuerza sistemáticamente bajos. Saberlo no lo arregla, pero permite leerlo.</p>
 <h2 id="lo-que-no-mide">Lo que no mide</h2>
-<ul><li><strong>Composición corporal.</strong> La grasa y los perímetros se apuntan, no se miden. No hay báscula de bioimpedancia ni estimación a partir de fotos.</li><li><strong>Sueño, HRV y pulso en reposo.</strong> Areté no se conecta a wearables. No hay adaptación del plan a tu recuperación nocturna.</li><li><strong>Nutrición.</strong> Los blueprints de nutrición son contenido, no un registro de macros.</li><li><strong>Técnica.</strong> Ningún número dice si tu sentadilla es bonita. El nivel mide capacidad, no forma.</li><li><strong>Salud.</strong> No hay cribado de lesiones, ni contraindicaciones personalizadas más allá de las que trae la ficha de cada ejercicio.</li><li><strong>VO2max como métrica.</strong> Hay estimaciones para calcular ritmos de carrera, pero no es uno de los trece números del perfil.</li><li><strong>Constancia social.</strong> No hay ranking, ni comparación con otros atletas, ni feed. El perfil se compara contigo.</li></ul>
+<ul><li><strong>Composición corporal.</strong> La grasa y los perímetros se apuntan, no se miden. No hay báscula de bioimpedancia ni estimación a partir de fotos.</li><li><strong>Sueño, HRV y pulso en reposo.</strong> Areté no se conecta a wearables. No hay adaptación del plan a tu recuperación nocturna.</li><li><strong>Nutrición.</strong> Los protocolos de nutrición son contenido, no un registro de macros.</li><li><strong>Técnica.</strong> Ningún número dice si tu sentadilla es bonita. El nivel mide capacidad, no forma.</li><li><strong>Salud.</strong> No hay cribado de lesiones, ni contraindicaciones personalizadas más allá de las que trae la ficha de cada ejercicio.</li><li><strong>VO2max como métrica.</strong> Hay estimaciones para calcular ritmos de carrera, pero no es uno de los trece números del perfil.</li><li><strong>Constancia social.</strong> No hay ranking, ni comparación con otros atletas, ni feed. El perfil se compara contigo.</li></ul>
 <h2 id="lo-que-si-puedes-exigirle">Lo que sí puedes exigirle</h2>
 <p>Que cada número tenga fecha y origen (<code>Derivada</code> o <code>Hace N d</code>), que un dato que no se puede estimar devuelva <code>null</code> en vez de un número inventado, y que el mínimo global no se disuelva en una media. Si algo de eso falla, es un fallo nuestro: escríbenos.</p>
 <h2 id="relacionado">Relacionado</h2>
@@ -123,7 +134,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

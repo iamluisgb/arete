@@ -4,3 +4,4 @@ Disallow: /auth/
 Disallow: /u/
 
 Sitemap: https://arete.raiatech.com/sitemap.xml
+Sitemap: https://arete.raiatech.com/ayuda/sitemap.xml

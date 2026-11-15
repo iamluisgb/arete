@@ -55,22 +55,45 @@ const NUM = (v) => String(v).replace('.', ',');
 
 function bloqueDominios() {
   const filas = DOMAINS.map(d => {
+    const escalera = d.metrics.filter(m => !m.gate && !m.indicator);
+    const reglas = d.metrics.filter(m => m.gate || m.indicator);
     const th = `<tr><th>Métrica</th>${ROMAN.slice(1).map((r, i) => `<th>${r}<br><small>${LEVEL_NAMES[i + 1]}</small></th>`).join('')}<th>Se deriva del historial</th></tr>`;
-    const cuerpo = d.metrics.map(m => `<tr><td><b>${esc(m.label)}</b> <small>${esc(m.unit)}</small></td>`
+    const cuerpo = escalera.map(m => `<tr><td><b>${esc(m.label)}</b> <small>${esc(m.unit)}</small></td>`
       + m.levels.map(v => `<td>${NUM(v)}</td>`).join('')
       + `<td>${m.derived ? 'Sí' : 'No: hay que medirla'}</td></tr>`).join('');
+    const tabla = escalera.length
+      ? `<div class="doc-table"><table><thead>${th}</thead><tbody>${cuerpo}</tbody></table></div>`
+      : '';
+    // Un dominio umbral no se sube por escalones y un indicador no da nivel. Se
+    // cuentan como regla escrita, no como cinco columnas que la app no aplica.
+    const reglasHtml = reglas.map(m => {
+      if (m.gate) {
+        const limites = m.gate.limits
+          .map(([bajoDe, tope]) => `menos de ${NUM(bajoDe)} ${m.unit} limita el global a ${ROMAN[tope]}`)
+          .join('; ');
+        return `<p class="doc-rule"><b>${esc(m.label)} (${esc(m.unit)})</b> — umbral: con
+          <b>${NUM(m.gate.sufficient)} ${esc(m.unit)} o más</b> cuenta como ${ROMAN[5]} y no baja el global.
+          Por debajo: ${limites}.</p>`;
+      }
+      return `<p class="doc-rule"><b>${esc(m.label)} (${esc(m.unit)})</b> — indicador: se registra y se ve
+        en la ficha, pero <b>no da nivel</b>. Medirlo uno mismo tiene más error que un escalón.</p>`;
+    }).join('');
+    const notaUmbral = d.gate
+      ? '<p class="doc-note"><b>Dominio umbral.</b> La movilidad no es una capacidad que mejore sin techo: con rango suficiente cuenta como nivel V y no frena el global; por debajo, lo limita. Tener más rango del suficiente no te sube el nivel.</p>'
+      : '';
     return `<section class="doc-domain">
 <h2 id="${slug(d.name)}">${esc(d.name)}</h2>
 <p>${esc(d.why)}</p>
+${notaUmbral}
 <p class="doc-note"><b>Protocolo:</b> ${esc(d.protocol || 'Lo marca el plan de cada test.')}
  · <b>Repetir:</b> ${d.retest ? `${d.retest} días` : `lo que tardes en medir sus ${d.metrics.length} métricas`}</p>
-<div class="doc-table"><table><thead>${th}</thead><tbody>${cuerpo}</tbody></table></div>
+${tabla}${reglasHtml ? `<div class="doc-rules">${reglasHtml}</div>` : ''}
 </section>`;
   }).join('\n');
   return `<div class="doc-domains">
-<p class="doc-note">13 métricas en 7 dominios. El umbral de cada nivel es absoluto: en fuerza va en ratio a tu
-peso corporal, en tiempos en segundos y en movilidad en grados. Un valor por debajo del nivel I
-sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</p>
+<p class="doc-note">${DOMAINS.reduce((a, d) => a + d.metrics.length, 0)} métricas en ${DOMAINS.length} dominios. El umbral de cada nivel
+es absoluto: en fuerza va en ratio a tu peso corporal, en tiempos en segundos y en movilidad en centímetros.
+Un valor por debajo del nivel I sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</p>
 ${filas}
 </div>`;
 }
@@ -238,6 +261,19 @@ const indice = paginas.filter(p => !p.esIndice).map(p => ({
 }));
 indice.sort((a, b) => a.url.localeCompare(b.url));
 salida.set(join(OUT, 'indice.json'), JSON.stringify(indice, null, 1) + '\n');
+
+// Sitemap propio de la ayuda: el de la raíz es a mano y no puede crecer solo.
+// robots.txt declara los dos.
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${paginas
+  .slice()
+  .sort((a, b) => a.url.localeCompare(b.url))
+  .map(p => `  <url><loc>https://arete.raiatech.com${p.url}</loc><lastmod>${p.meta.reviewed_on || ''}</lastmod></url>`)
+  .join('\n')}
+</urlset>
+`;
+salida.set(join(OUT, 'sitemap.xml'), sitemap);
 
 // ── Hojas y script propios ───────────────────────────────
 for (const f of ['ayuda.css', 'ayuda.js']) {

@@ -71,6 +71,12 @@ detectar una subida de volumen sospechosa. No es un diagnóstico médico.
 **Derivada.** Una métrica que sale sola del historial (fuerza, dominadas, 5K). Lo contrario de una
 medida con test.
 
+**Dominio umbral.** Un dominio que no se sube por escalones: o cumple el mínimo (cuenta como V y no
+frena el global) o lo limita. Hoy solo la movilidad funciona así.
+
+**Indicador.** Una medida que se registra y se ve en la ficha pero **no da nivel**, porque el error de
+medirla uno mismo supera el escalón. Hoy es el caso del AKE.
+
 ## Relacionado
 
 - [Los 7 dominios y sus umbrales](/ayuda/referencia/dominios/)

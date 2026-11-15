@@ -16,6 +16,17 @@
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
+     Mide aperturas de página, no lo que haces dentro de la app. -->
+<script>
+if (location.hostname === 'arete.raiatech.com') {
+  var u = document.createElement('script');
+  u.defer = true; u.src = '/u/s.js';
+  u.setAttribute('data-website-id', '08c1619b-4bb8-471b-9dc9-9b6cda88e8ae');
+  u.setAttribute('data-host-url', 'https://cloud.umami.is');
+  document.head.appendChild(u);
+}
+</script>
 </head>
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
@@ -27,7 +38,7 @@
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -99,8 +110,9 @@
       <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Perfil · nivel</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
       <h1 class="doc-h1">Por qué tu nivel es el mínimo</h1><p class="doc-lead">El nivel global es el mínimo de los dominios medidos, y el de cada dominio es el mínimo de sus métricas. No es una media, y no es un castigo: es la única regla que no deja esconder una debilidad.</p>
       <p>Una media premia la especialización. Con un press de banca enorme y un 5K de veintiocho minutos, la media te llamaría «avanzado» y el perfil dejaría de señalar lo único que te falta. Areté hace lo contrario: <strong>el nivel es el mínimo</strong>.</p>
-<h2 id="la-regla-en-dos-escalones">La regla, en dos escalones</h2>
+<h2 id="la-regla-en-dos-escalones-y-un-umbral">La regla, en dos escalones (y un umbral)</h2>
 <ol><li>El nivel de un dominio es el <strong>mínimo de sus métricas</strong>. Un OHP rezagado no se disuelve entre tres básicos buenos.</li><li>El nivel global es el <strong>mínimo de los dominios medidos</strong>. Un dominio flojo manda sobre seis buenos.</li></ol>
+<p>Hay un tercer caso, y es del método: <strong>un dominio puede ser un umbral, no una escalera</strong>. Movilidad funciona así. Con 10 cm de dorsiflexión o más cuenta como nivel V y no frena el global; por debajo, limita el global a III o a II. Más rango del suficiente no te hace mejor atleta, así que no hay cinco peldaños que subir — solo un umbral que pasar.</p>
 <p>Y una excepción que no es una excepción: <strong>los dominios sin medir no cuentan como cero</strong>. Contarlos así convertiría cualquier perfil a medio hacer en nivel I. En su lugar, el perfil se marca <strong>provisional</strong> y dice cuántos dominios faltan.</p>
 <h2 id="un-ejemplo-con-numeros">Un ejemplo con números</h2>
 <p>Supón 82 kg de peso corporal:</p>
@@ -124,7 +136,7 @@
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

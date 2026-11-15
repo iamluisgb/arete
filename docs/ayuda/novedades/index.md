@@ -25,6 +25,14 @@ Lo nuevo arriba. La fecha es cuando llegó el cambio.
 
 ## Método
 
+- **7-nov-2026** — **La movilidad pasa a dominio umbral y el AKE a indicador.** La dorsiflexión decide:
+  con 10 cm o más cuenta como nivel V y no frena el global; por debajo, lo limita a III o a II. El AKE
+  se sigue midiendo y viendo en la ficha, pero no da nivel. El mismo día, **el 400 m se recalibra**
+  (80, 75, 70, 65 y 60 s): con el corte anterior, bajar de 55 s pedía más que el resto de nivel V y
+  hundía el global por la regla del mínimo.
+- **7-nov-2026** — **La plancha lateral se cronometra por lado y cuenta el peor.** Un dato de un solo
+  lado ya no puede representar la resistencia de core. Si tenías una marca de un lado, el dominio
+  puede haber bajado ese día.
 - **24-ago-2026** — **Epley deja de estimar por encima de 12 repeticiones.** Una serie de volumen ya
   no infla el 1RM estimado. Si tenías una serie de más de 12 reps como mejor marca de un básico, ese
   dominio pudo **bajar** de nivel ese día: el número anterior venía de una estimación que la fórmula

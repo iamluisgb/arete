@@ -9,9 +9,10 @@ selector: "#profRadar"
 resumen: Trece métricas en siete dominios, y no hace falta medirlas todas el mismo día. Qué se deriva del historial, qué exige un test y en qué orden conviene hacerlos.
 ---
 
-El perfil se dibuja con **7 dominios** y **13 métricas**. Unas salen solas de lo que ya registras;
-otras exigen un test con protocolo y fecha. La buena noticia: **no necesitas las trece para tener un
-nivel**. Necesitas una por dominio, y de ahí el mínimo.
+El perfil se dibuja con **7 dominios** y **13 métricas** — una de ellas, el AKE, es solo un indicador
+y no da nivel. Unas salen solas de lo que ya registras; otras exigen un test con protocolo y fecha. La
+buena noticia: **no necesitas las trece para tener un nivel**. Necesitas una por dominio, y de ahí el
+mínimo.
 
 ## Qué se mide solo
 
@@ -27,7 +28,7 @@ nivel**. Necesitas una por dominio, y de ahí el mínimo.
 | Glicolítico | 400 m a tope en pista | Caro: 70 días de validez |
 | Resistencia de fuerza | Simple & Sinister completo (100 swings + 10 get-ups) | Caro: 70 días |
 | Core | Protocolo McGill: flexor, extensor y plancha lateral | Barato: 42 días |
-| Movilidad | AKE y dorsiflexión con pared | Barato: 42 días |
+| Movilidad | Dorsiflexión con pared (el AKE se apunta, pero no da nivel) | Barato: 42 días |
 
 ## Pasos
 
