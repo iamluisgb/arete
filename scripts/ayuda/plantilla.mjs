@@ -71,15 +71,19 @@ export function layout({ url, title, resumen = '', lead, cuadrante, meta = {}, b
     <a href="mailto:hola@arete.raiatech.com?subject=${encodeURIComponent(`Ayuda: ${title}`)}&body=${encodeURIComponent('Página: ' + url + '\n\nLo que no encuentro:\n')}">No lo encuentro</a>
   </div>` : '';
 
+  const seoTitulo = esPortada
+    ? 'Ayuda de Areté — guías y el porqué de tus números'
+    : `${title} — Ayuda de Areté`;
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)} — Ayuda de Areté</title>
+<title>${esc(seoTitulo)}</title>
 <meta name="description" content="${esc(resumen)}">
 <link rel="canonical" href="https://arete.raiatech.com${url}">
-<meta property="og:title" content="${esc(title)} — Ayuda de Areté">
+<meta property="og:title" content="${esc(seoTitulo)}">
 <meta property="og:description" content="${esc(resumen)}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://arete.raiatech.com${url}">
