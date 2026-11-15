@@ -1,6 +1,6 @@
 // Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
 // changes — the SW is cache-first, so a stale name keeps serving old bytes.
-const CACHE_NAME = 'arete-v223';
+const CACHE_NAME = 'arete-v224';
 const ASSETS = [
   './',
   './app.html',
@@ -293,6 +293,17 @@ const ASSETS = [
   './js/ui/timer.js',
   './js/ui/toast.js',
   './js/ui/shortcuts.js',
+  './js/shortcuts-data.js',
+  // Ayuda: la portada, la hoja y el índice para la búsqueda, más las cuatro
+  // páginas que sirven sin red. El resto se lee online (y se cachea al leerlo).
+  './ayuda/',
+  './ayuda/ayuda.css',
+  './ayuda/ayuda.js',
+  './ayuda/indice.json',
+  './ayuda/tutoriales/tu-primer-dia/',
+  './ayuda/guias/primera-sesion/',
+  './ayuda/guias/sin-conexion/',
+  './ayuda/referencia/atajos/',
   './js/ui/drive-ui.js',
   './js/drive.js',
   './js/drive-auth.js',

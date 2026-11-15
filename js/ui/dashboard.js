@@ -147,6 +147,7 @@ function renderStarter(db) {
   $el.innerHTML = `<div class="dash-card dash-starter" role="region" aria-label="Primeros pasos">
     <div class="dash-starter-head">
       <span class="dash-starter-title">Empieza por aquí</span>
+      <a class="dash-starter-guide" href="/ayuda/tutoriales/tu-primer-dia/">Guía</a>
       <button type="button" class="dash-starter-dismiss" data-starter-dismiss>Ocultar</button>
     </div>
     <ol class="dash-starter-steps">${starterSteps(db).map(paso).join('')}</ol>

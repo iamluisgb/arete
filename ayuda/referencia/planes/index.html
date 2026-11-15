@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planes y formato del plan — Ayuda de Areté</title>
+<meta name="description" content="El JSON de un plan, campo a campo, y los planes que vienen con la app. Generado del catálogo real y de un plan de ejemplo.">
+<link rel="canonical" href="https://arete.raiatech.com/ayuda/referencia/planes/">
+<meta property="og:title" content="Planes y formato del plan — Ayuda de Areté">
+<meta property="og:description" content="El JSON de un plan, campo a campo, y los planes que vienen con la app. Generado del catálogo real y de un plan de ejemplo.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/ayuda/referencia/planes/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="doc-body">
+<a class="doc-skip" href="#contenido">Saltar al contenido</a>
+
+<div class="doc-top">
+  <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
+  <div class="doc-search" role="search">
+    <input id="docQ" type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…"
+           aria-label="Buscar en la ayuda" autocomplete="off">
+    <div id="docRes" class="doc-res" hidden></div>
+  </div>
+  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+</div>
+
+<div class="doc-wrap">
+  <div class="doc-side-slot">
+    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">Secciones</button>
+    <div class="doc-side" id="docSide">
+  <div class="doc-side-home"><a href="/ayuda/">Inicio de la ayuda</a></div>
+  <div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/guias/">Guías prácticas</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+    <li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
+    <li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
+    <li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
+    <li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
+    <li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
+    <li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
+    <li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
+    <li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
+    <li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
+    <li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
+    <li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/tutoriales/">Tutoriales</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+    <li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
+    <li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
+    <li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/explicacion/">Explicación</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
+    <li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li>
+    <li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
+    <li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
+    <li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li>
+    <li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
+    <li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/referencia/">Referencia</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/referencia/dominios/">Los 7 dominios y sus umbrales</a></li>
+    <li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
+    <li><a href="/ayuda/referencia/planes/" aria-current="page">Planes y formato del plan</a></li>
+    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+    <li><a href="/ayuda/referencia/glosario/">Glosario</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/novedades/">Novedades</a>
+  <ul class="doc-side-list">
+
+  </ul>
+</div>
+</div>
+  </div>
+  <div class="doc-main">
+    <div class="doc-crumbs">
+    <a href="/ayuda/">Ayuda</a> · <a href="/ayuda/referencia/">Referencia</a> · <span>Planes y formato del plan</span>
+  </div>
+    <article class="doc" id="contenido">
+      <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Más · fichero de plan</b></span><span>Cifras de <b>programs.json, programs/arete.json</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
+      <h1 class="doc-h1">Planes y formato del plan</h1><p class="doc-lead">El JSON de un plan, campo a campo, y los planes que vienen con la app. Generado del catálogo real y de un plan de ejemplo.</p>
+      <p>Un plan es un JSON con cuatro fases. La app valida el fichero entero antes de importarlo: si algo falta, no entra medio plan.</p>
+<p class="doc-note">Plan de ejemplo: <b>Areté</b> · Fuerza · Hipertrofia · Definición ·
+4 fases · la fase 1 trae 6 sesiones.</p>
+<p>El esqueleto de un plan, campo a campo:</p>
+<div class="doc-table"><table><thead><tr><th>Clave</th><th>Qué es</th></tr></thead><tbody><tr><td><code><code>1</code> … <code>4</code></code></td><td>Una fase. <code>name</code> y <code>desc</code> para nombrarla, <code>sessions</code> con sus sesiones.</td></tr><tr><td><code><code>sessions</code></code></td><td>Objeto: la clave es el nombre de la sesión («Sesión A») y el valor, la lista de ejercicios.</td></tr><tr><td><code><code>name</code>, <code>sets</code>, <code>reps</code></code></td><td>Obligatorios en cada ejercicio: nombre, series y reps.</td></tr><tr><td><code><code>type</code></code></td><td>Opcional: <code>main</code> para los principales, <code>assist</code> para accesorios. Solo cambia el orden visual.</td></tr><tr><td><code><code>reps</code></code></td><td>Un número (<code>5</code>), un rango (<code>8-10</code>), al fallo (<code>F</code>) o un aguante (<code>2min</code>).</td></tr><tr><td><code><code>_meta</code></code></td><td>Opcional: nombre y descripción que se enseñan al elegir el plan. No entra en el entrenamiento.</td></tr></tbody></table></div>
+<p>Así se ve una fase de verdad, recortada a tres ejercicios:</p>
+<pre><code class="language-json">{
+ &quot;1&quot;: {
+  &quot;name&quot;: &quot;Fuerza&quot;,
+  &quot;desc&quot;: &quot;Full-body · 3×5 · Progresión lineal&quot;,
+  &quot;sessions&quot;: {
+   &quot;Sesión A&quot;: [
+    {
+     &quot;name&quot;: &quot;Sentadilla&quot;,
+     &quot;sets&quot;: 3,
+     &quot;reps&quot;: &quot;5&quot;,
+     &quot;type&quot;: &quot;main&quot;
+    },
+    {
+     &quot;name&quot;: &quot;Press de Banca&quot;,
+     &quot;sets&quot;: 3,
+     &quot;reps&quot;: &quot;5&quot;,
+     &quot;type&quot;: &quot;main&quot;
+    },
+    {
+     &quot;name&quot;: &quot;Peso Muerto&quot;,
+     &quot;sets&quot;: 2,
+     &quot;reps&quot;: &quot;5&quot;,
+     &quot;type&quot;: &quot;main&quot;
+    }
+   ]
+  }
+ }
+}</code></pre>
+<p>Planes que vienen con la app — el catálogo de <code>programs.json</code>:</p>
+<div class="doc-table"><table><thead><tr><th>Id</th><th>Fichero</th><th>Deporte</th></tr></thead><tbody><tr><td><b>arete</b></td><td><code>programs/arete.json</code></td><td>fuerza</td></tr><tr><td><b>kettlebell</b></td><td><code>programs/kettlebell.json</code></td><td>fuerza</td></tr><tr><td><b>freeletics</b></td><td><code>programs/freeletics.json</code></td><td>fuerza</td></tr><tr><td><b>mediaMaraton1h40</b></td><td><code>programs/running/media-maraton-1h40.json</code></td><td>running</td></tr></tbody></table></div>
+<h2 id="las-reglas-que-valida-la-app">Las reglas que valida la app</h2>
+<ul><li><strong>Cuatro fases</strong> con claves <code>1</code>, <code>2</code>, <code>3</code> y <code>4</code>. No se pueden saltar ni renumerar.</li><li>Cada fase necesita <code>name</code>, <code>desc</code> y <code>sessions</code>.</li><li><strong>Cada sesión</strong> es una lista de ejercicios con <code>name</code>, <code>sets</code> y <code>reps</code>. <code>type</code> es opcional (<code>main</code> o <code>assist</code>) y solo cambia el orden visual.</li><li><strong><code>reps</code></strong> acepta un número (<code>5</code>), un rango (<code>8-10</code>), al fallo (<code>F</code>) o un aguante (<code>2min</code>, <code>1min/lado</code>). Un aguante no lleva progresión de carga: no es una serie de reps.</li><li>Los <strong>nombres de ejercicio</strong> se cruzan con la <a href="/ayuda/referencia/ejercicios/">ontología</a>: los cinco básicos alimentan el perfil, el resto se entrena sin mover el nivel.</li></ul>
+<h2 id="relacionado">Relacionado</h2>
+<ul><li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li><li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li><li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li></ul>
+      <div class="doc-feedback">
+    <span>¿Te ha servido esta página?</span>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Planes%20y%20formato%20del%20plan&body=P%C3%A1gina%3A%20%2Fayuda%2Freferencia%2Fplanes%2F%0A%0AQu%C3%A9%20buscaba%3A%0A">Sí, pero falta algo</a>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Planes%20y%20formato%20del%20plan&body=P%C3%A1gina%3A%20%2Fayuda%2Freferencia%2Fplanes%2F%0A%0ALo%20que%20no%20encuentro%3A%0A">No lo encuentro</a>
+  </div>
+    </article>
+  </div>
+</div>
+
+<div class="doc-foot">
+  <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
+  <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+</div>
+
+<script src="/ayuda/ayuda.js"></script>
+</body>
+</html>

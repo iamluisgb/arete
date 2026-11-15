@@ -536,8 +536,10 @@ function renderSetsCard(ex, i, prevEx, shouldPrefill, db, deload = false) {
     pi = `<div class="prev-data">Anterior: ${prevStr}${badge}</div>`;
   }
   // Un peso que aparece solo y no se explica se borra. El porqué va siempre.
+  // El porqué se puede auditar: el enlace abre la regla que lo justifica. Un
+  // número que aparece solo y no se explica se borra (AGENTS.md).
   const why = (shouldPrefill || deload) && presc.why
-    ? `<div class="prog-why prog-${presc.kind}">${esc(presc.why)}</div>` : '';
+    ? `<div class="prog-why prog-${presc.kind}">${esc(presc.why)} · <a href="/ayuda/explicacion/el-peso-de-hoy/">por qué</a></div>` : '';
   const target = deload && presc.kind === 'deload'
     ? `${opts.sets}×${ex.reps} · descarga (plan ${ex.sets}×${ex.reps})`
     : `${ex.sets}×${ex.reps}`;

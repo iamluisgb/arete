@@ -310,6 +310,7 @@ const TOOL_LABELS = {
   get_program_detail: 'mirando tu plan',
   find_exercises: 'consultando el catálogo',
   explain_exercise: 'mirando la ficha del ejercicio',
+  buscar_ayuda: 'consultando la guía',
   get_next_prescription: 'calculando qué peso te toca',
   propose_program: 'preparando tu plan',
   propose_session: 'preparando la sesión',

@@ -9,6 +9,7 @@ import { isDeloadWeek, deloadSets } from '../plan.js';
 import { computeProfile, nextTest, formatMetric, ROMAN, LEVEL_NAMES, CALIBRATION_NOTE, levelText } from '../domains.js';
 import { findExercises, explainExercise } from './exercise-catalog.js';
 import { listMemorias, upsertMemoria, deleteMemoria, loadMemorias, saveMemorias, MAX_MEMORIAS } from '../quiron-memory.js';
+import { buscarAyuda, cargarIndice, formatearAyuda } from './ayuda.js';
 
 export const QUIRON_TOOLS = [
   {
@@ -108,6 +109,20 @@ export const QUIRON_TOOLS = [
           domain: { type: 'array', items: { type: 'string' }, description: 'Dominios Areté implicados (strength, pull, kb, core, glyco, mobility, cardio)' },
           evita: { type: 'array', items: { type: 'string' }, description: 'A excluir: molestias ("hombro", "rodilla", "lumbar"), material o ejercicios concretos' },
         },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'buscar_ayuda',
+      description: 'Busca en la guía pública de Areté (la ayuda): cómo se hace algo en la app y por qué un número es lo que es. Úsala SIEMPRE que la pregunta sea de procedimiento ("cómo registro", "cómo importo", "cómo copio", "cómo mido") o de método ("por qué mi nivel", "por qué caduca", "cómo se calcula el peso"). Devuelve extractos con su URL: cita la página, no inventes pasos de la interfaz.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Lo que se busca, en palabras del atleta: "importar carrera", "copia de seguridad", "por qué caduca un test"' },
+        },
+        required: ['query'],
       },
     },
   },
@@ -339,6 +354,13 @@ export function makeToolExecutor(db, deps = {}) {
         ? ` (los primeros ${exercises.length} de ${total} — refina la búsqueda con pattern, equipment o evita para acotar)`
         : '';
       return `CATÁLOGO — ${total} ejercicio(s) coinciden${cut}. SOLO estos existen para prescribir:\n  ${lines.join('\n  ')}`;
+    }
+    if (name === 'buscar_ayuda') {
+      const q = String(args.query || '').trim();
+      if (!q) return 'ERROR: falta qué buscar.';
+      // El índice se inyecta en los tests; en la app se pide una vez y se cachea.
+      const indice = deps.ayudaIndice || await cargarIndice(deps.fetchAyuda);
+      return formatearAyuda(buscarAyuda(indice, q, 3));
     }
     if (name === 'explain_exercise') {
       const q = String(args.name || '').trim();

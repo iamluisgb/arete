@@ -143,11 +143,26 @@ const ES = /\b(el|la|los|las|de|del|que|una?|es|por|para|con|se|su|tu|y)\b/gi;
 const EN = /\b(the|of|and|to|is|in|that|for|with|as|its?|are|your)\b/gi;
 
 /** Verdad del fixture contra la que se contrasta: e1RM, PRs y vocabulario. */
-export function buildTruth({ rms = {}, prs = [], known = new Set() } = {}) {
+/**
+ * Páginas de la ayuda citadas en una respuesta. Acepta la ruta y la URL completa,
+ * y normaliza la barra final: `/ayuda/guias/x` y `.../x/` son la misma página.
+ */
+const GUIA_RE = /(?:https?:\/\/arete\.raiatech\.com)?(\/ayuda\/[a-z0-9\-/]+)/gi;
+export function citasAyuda(texto) {
+  const out = new Set();
+  for (const m of String(texto).matchAll(GUIA_RE)) {
+    out.add(m[1].toLowerCase().replace(/[.,;:)]+$/, '').replace(/\/?$/, '/'));
+  }
+  return [...out];
+}
+
+export function buildTruth({ rms = {}, prs = [], known = new Set(), guias = [] } = {}) {
   return {
     rms,
     prs,
     knownNorm: new Set([...known].map(norm)),
+    /** URLs de la ayuda publicada: una cita que no esté aquí es un enlace muerto. */
+    guias: new Set(guias.map(u => String(u).replace(/\/?$/, '/'))),
     /** e1RM del ejercicio cuyo nombre más se parece al prescrito (por inclusión). */
     e1rmFor(name) {
       const q = norm(name);
@@ -220,6 +235,18 @@ export function checkScenario(sc, r, truth) {
   // ── idioma ───────────────────────────────────────────────────────────────
   const es = (answer.match(ES) || []).length, en = (answer.match(EN) || []).length;
   add(hard, 'idioma', es >= en, `parece inglés (es:${es} en:${en})`);
+
+  // ── citas de la guía ─────────────────────────────────────────────────────
+  // No se exige citar —hay preguntas que no son de procedimiento—, pero una
+  // cita rota es un enlace muerto en la cara del atleta. La herramienta
+  // `buscar_ayuda` devuelve URLs reales; el modelo no debe componerlas.
+  if (truth?.guias?.size) {
+    const citas = citasAyuda(answer);
+    if (citas.length) {
+      const rotas = citas.filter(u => !truth.guias.has(u));
+      add(hard, 'cita-guía', rotas.length === 0, `cita ${rotas.join(', ')} y esa página no existe`);
+    }
+  }
 
   // ── formato del bloque ───────────────────────────────────────────────────
   if (sc.expectBlock) {

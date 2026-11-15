@@ -429,7 +429,47 @@ function bindEvents() {
       });
     },
   });
+  // ── Enlaces profundos ────────────────────────────────────
+  //
+  // Una guía de la ayuda puede llevar a la pantalla exacta en vez de dejar al
+  // atleta buscándola: /app.html#perfil, #entrenar/fuerza, #ajustes/planes. Es lo
+  // que sustituye a las capturas de pantalla de un help center al uso — una
+  // imagen de una PWA sin build envejece en un mes, un ancla no.
+  //
+  // Se aplica al arrancar y solo si el hash pide algo: sin hash manda la última
+  // pestaña guardada (restoreLastTab), como siempre.
+  const SECCIONES_HASH = {
+    hoy: 'secDashboard', entrenar: 'secTrain', perfil: 'secProfile',
+    cuerpo: 'secBody', ajustes: 'secSettings', mas: 'secSettings',
+  };
+
+  function irASeccionDesdeElHash(db) {
+    const hash = location.hash.replace(/^#/, '');
+    if (!hash) return false;
+    const [seccion, sub] = hash.split('/');
+    const destino = SECCIONES_HASH[seccion];
+    if (!destino) return false;
+    const btn = document.querySelector(`nav button[data-sec="${destino}"]`);
+    if (!btn) return false;
+    if (destino === 'secTrain' && (sub === 'fuerza' || sub === 'carrera')) {
+      switchTrainMode(sub === 'carrera' ? 'run' : 'str', db);
+    }
+    switchTab(btn, db);
+    if (destino === 'secSettings' && sub) {
+      const pagina = {
+        zonas: 'setZones', planes: 'setPlans', programacion: 'setSchedule',
+        quiron: 'setQuiron', copia: 'setBackup',
+      }[sub];
+      if (pagina) document.querySelector(`[data-setpage="${pagina}"]`)?.click();
+    }
+    return true;
+  }
+
   restoreLastTab(db);
+  irASeccionDesdeElHash(db);
+  // Dentro de la app, cambiar solo el fragmento no recarga la página: sin este
+  // oyente, un enlace a #perfil con la app ya abierta no llevaría a ningún sitio.
+  window.addEventListener('hashchange', () => irASeccionDesdeElHash(db));
 
   // Hoja de plan y fase: tras cambiar (o deshacer), lo que depende de ellos.
   initPlanSheet(db, {

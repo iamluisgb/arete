@@ -11,18 +11,14 @@
 // Y una regla de producto: un atajo que no se descubre no existe. Por eso `?`
 // abre la hoja que los lista, y la hoja se menciona en Ajustes.
 
-const TECLAS_SECCION = { 1: 'secDashboard', 2: 'secTrain', 3: 'secProfile', 4: 'secBody', 5: 'secSettings' };
+import { ATAJOS } from '../shortcuts-data.js';
 
-export const ATAJOS = [
-  { tecla: '1 – 5', que: 'Ir a Hoy, Entrenar, Perfil, Cuerpo o Más' },
-  { tecla: '6', que: 'Abrir Quirón' },
-  { tecla: '/', que: 'Abrir Quirón con el cursor en el campo' },
-  { tecla: 'N', que: 'Plegar y desplegar la navegación lateral' },
-  { tecla: 'Espacio', que: 'Serie hecha, con la sesión en curso' },
-  { tecla: '← →', que: 'Mes anterior y siguiente en el calendario' },
-  { tecla: 'Esc', que: 'Cerrar lo que esté abierto' },
-  { tecla: '?', que: 'Esta lista' },
-];
+// Una sola lista de atajos, en `js/shortcuts-data.js`: la ayuda publica la misma
+// en una tabla generada, y el generador corre sin DOM. Se reexporta para que la
+// hoja de la app y el resto de importadores no cambien.
+export { ATAJOS };
+
+const TECLAS_SECCION = { 1: 'secDashboard', 2: 'secTrain', 3: 'secProfile', 4: 'secBody', 5: 'secSettings' };
 
 /** ¿El usuario está escribiendo? Entonces no hay atajos que valgan. */
 function escribiendo(el) {
@@ -51,6 +47,7 @@ function hoja() {
       <dl class="shortcut-list">
         ${ATAJOS.map(a => `<div class="shortcut-row"><dt><kbd>${a.tecla}</kbd></dt><dd>${a.que}</dd></div>`).join('')}
       </dl>
+      <p class="shortcut-more"><a href="/ayuda/referencia/atajos/">Esta lista, en la ayuda</a></p>
       <button class="btn btn-outline" data-close>Cerrar</button>
     </div>`;
   el.addEventListener('click', e => {

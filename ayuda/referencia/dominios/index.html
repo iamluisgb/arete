@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Los 7 dominios y sus umbrales — Ayuda de Areté</title>
+<meta name="description" content="Las trece métricas, sus cinco niveles y qué se deriva del historial. Generado de js/domains.js: si cambia un umbral, esta página cambia sola.">
+<link rel="canonical" href="https://arete.raiatech.com/ayuda/referencia/dominios/">
+<meta property="og:title" content="Los 7 dominios y sus umbrales — Ayuda de Areté">
+<meta property="og:description" content="Las trece métricas, sus cinco niveles y qué se deriva del historial. Generado de js/domains.js: si cambia un umbral, esta página cambia sola.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/ayuda/referencia/dominios/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="doc-body">
+<a class="doc-skip" href="#contenido">Saltar al contenido</a>
+
+<div class="doc-top">
+  <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
+  <div class="doc-search" role="search">
+    <input id="docQ" type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…"
+           aria-label="Buscar en la ayuda" autocomplete="off">
+    <div id="docRes" class="doc-res" hidden></div>
+  </div>
+  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+</div>
+
+<div class="doc-wrap">
+  <div class="doc-side-slot">
+    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">Secciones</button>
+    <div class="doc-side" id="docSide">
+  <div class="doc-side-home"><a href="/ayuda/">Inicio de la ayuda</a></div>
+  <div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/guias/">Guías prácticas</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+    <li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
+    <li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
+    <li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
+    <li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
+    <li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
+    <li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
+    <li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
+    <li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
+    <li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
+    <li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
+    <li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/tutoriales/">Tutoriales</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+    <li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
+    <li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
+    <li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/explicacion/">Explicación</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
+    <li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li>
+    <li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
+    <li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
+    <li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li>
+    <li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
+    <li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/referencia/">Referencia</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/referencia/dominios/" aria-current="page">Los 7 dominios y sus umbrales</a></li>
+    <li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
+    <li><a href="/ayuda/referencia/planes/">Planes y formato del plan</a></li>
+    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+    <li><a href="/ayuda/referencia/glosario/">Glosario</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/novedades/">Novedades</a>
+  <ul class="doc-side-list">
+
+  </ul>
+</div>
+</div>
+  </div>
+  <div class="doc-main">
+    <div class="doc-crumbs">
+    <a href="/ayuda/">Ayuda</a> · <a href="/ayuda/referencia/">Referencia</a> · <span>Los 7 dominios y sus umbrales</span>
+  </div>
+    <article class="doc" id="contenido">
+      <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Perfil · radar de dominios</b></span><span>Cifras de <b>js/domains.js</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
+      <h1 class="doc-h1">Los 7 dominios y sus umbrales</h1><p class="doc-lead">Las trece métricas, sus cinco niveles y qué se deriva del historial. Generado de js/domains.js: si cambia un umbral, esta página cambia sola.</p>
+      <p>Los números que deciden tu nivel. Cada tabla es un dominio: las columnas son los cinco niveles y cada fila una métrica con su unidad. <strong>Un valor por debajo del nivel I sigue siendo nivel I</strong>: haber medido bajo no es lo mismo que no haber medido.</p>
+<div class="doc-domains">
+<p class="doc-note">13 métricas en 7 dominios. El umbral de cada nivel es absoluto: en fuerza va en ratio a tu
+peso corporal, en tiempos en segundos y en movilidad en grados. Un valor por debajo del nivel I
+sigue siendo nivel I — haber medido bajo no es lo mismo que no haber medido.</p>
+<section class="doc-domain">
+<h2 id="fuerza-maxima">Fuerza máxima</h2>
+<p>Producción de fuerza máxima con barra, en ratio a tu peso corporal.</p>
+<p class="doc-note"><b>Protocolo:</b> Lo marca el plan de cada test.
+ · <b>Repetir:</b> lo que tardes en medir sus 4 métricas</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Sentadilla</b> <small>×BW</small></td><td>0,75</td><td>1</td><td>1,25</td><td>1,5</td><td>1,75</td><td>Sí</td></tr><tr><td><b>Peso muerto</b> <small>×BW</small></td><td>1</td><td>1,25</td><td>1,5</td><td>1,8</td><td>2</td><td>Sí</td></tr><tr><td><b>Press de banca</b> <small>×BW</small></td><td>0,6</td><td>0,8</td><td>1</td><td>1,2</td><td>1,4</td><td>Sí</td></tr><tr><td><b>Press militar</b> <small>×BW</small></td><td>0,4</td><td>0,55</td><td>0,7</td><td>0,85</td><td>1</td><td>Sí</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="fuerza-de-traccion">Fuerza de tracción</h2>
+<p>Tracción vertical con peso corporal — lo que la barra no cubre.</p>
+<p class="doc-note"><b>Protocolo:</b> Máximas dominadas estrictas: desde colgada muerta, sin kip ni balanceo, barbilla por encima de la barra.
+ · <b>Repetir:</b> 42 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Dominadas estrictas</b> <small>reps</small></td><td>1</td><td>5</td><td>10</td><td>18</td><td>25</td><td>Sí</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="capacidad-glicolitica">Capacidad glicolítica</h2>
+<p>La vía intermedia: 40-90 s de potencia sostenida. El hueco entre el 1RM y el 5K.</p>
+<p class="doc-note"><b>Protocolo:</b> 400 m en pista, a tope, con calentamiento previo. Un solo intento.
+ · <b>Repetir:</b> 70 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>400 m</b> <small>s</small></td><td>75</td><td>70</td><td>65</td><td>60</td><td>55</td><td>No: hay que medirla</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="resistencia-aerobica">Resistencia aeróbica</h2>
+<p>Capacidad oxidativa. El predictor de mortalidad mejor documentado que existe.</p>
+<p class="doc-note"><b>Protocolo:</b> 5K a tope, en llano. Vale una carrera popular o cualquier 5K que ya tengas registrado.
+ · <b>Repetir:</b> 70 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>5K</b> <small>min</small></td><td>30</td><td>28</td><td>25</td><td>22</td><td>19</td><td>Sí</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="resistencia-de-fuerza">Resistencia de fuerza</h2>
+<p>Aplicar fuerza bajo fatiga acumulada. El puente entre la barra y el cardio.</p>
+<p class="doc-note"><b>Protocolo:</b> Simple &amp; Sinister: 100 swings en 5 min + 10 Turkish Get-ups en 10 min. Registra el peso de la pesa con el que lo completas.
+ · <b>Repetir:</b> 70 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>S&amp;S completado con</b> <small>kg</small></td><td>16</td><td>24</td><td>32</td><td>40</td><td>48</td><td>No: hay que medirla</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="resistencia-de-core">Resistencia de core</h2>
+<p>Estabilidad de la columna bajo fatiga sostenida, no fuerza explosiva.</p>
+<p class="doc-note"><b>Protocolo:</b> Protocolo McGill, los tres cronometrados hasta que la forma se rompe: flexor (supino, hombros levantados), extensor (prono, cuerpo en línea) y plancha lateral por cada lado.
+ · <b>Repetir:</b> 42 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>Flexor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Extensor</b> <small>s</small></td><td>60</td><td>90</td><td>120</td><td>150</td><td>180</td><td>No: hay que medirla</td></tr><tr><td><b>Plancha lateral</b> <small>s</small></td><td>30</td><td>45</td><td>60</td><td>75</td><td>90</td><td>No: hay que medirla</td></tr></tbody></table></div>
+</section>
+<section class="doc-domain">
+<h2 id="movilidad-funcional">Movilidad funcional</h2>
+<p>Rango de movimiento real, sin el sesgo antropométrico del Sit &amp; Reach.</p>
+<p class="doc-note"><b>Protocolo:</b> AKE: supino, cadera a 90°, extiende activamente la rodilla y mide el ángulo respecto a la perpendicular. Dorsiflexión: de rodillas frente a una pared, distancia máxima dedo-pared con la rodilla tocando y el talón pegado al suelo.
+ · <b>Repetir:</b> 42 días</p>
+<div class="doc-table"><table><thead><tr><th>Métrica</th><th>I<br><small>Aprendiz</small></th><th>II<br><small>Novato</small></th><th>III<br><small>Intermedio</small></th><th>IV<br><small>Avanzado</small></th><th>V<br><small>Atleta Híbrido</small></th><th>Se deriva del historial</th></tr></thead><tbody><tr><td><b>AKE</b> <small>°</small></td><td>-5</td><td>0</td><td>5</td><td>15</td><td>20</td><td>No: hay que medirla</td></tr><tr><td><b>Dorsiflexión</b> <small>cm</small></td><td>5</td><td>7</td><td>9</td><td>11</td><td>13</td><td>No: hay que medirla</td></tr></tbody></table></div>
+</section>
+</div>
+<h2 id="como-leer-se-deriva-del-historial">Cómo leer «Se deriva del historial»</h2>
+<ul><li><strong>Sí</strong>: la métrica sale de lo que ya registras. En fuerza, del mejor e1RM de tus series; en dominadas, de tu mejor serie estricta sin lastre; en 5K, de tu mejor carrera.</li><li><strong>No</strong>: exige un test con protocolo y fecha. Sin test, el dominio se queda sin medir.</li></ul>
+<p>El nivel de un dominio es el mínimo de sus métricas; el global, el mínimo de los dominios medidos. Está explicado en <a href="/ayuda/explicacion/el-nivel-es-el-minimo/">por qué tu nivel es el mínimo</a>.</p>
+<h2 id="relacionado">Relacionado</h2>
+<ul><li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li><li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li><li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li></ul>
+      <div class="doc-feedback">
+    <span>¿Te ha servido esta página?</span>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Los%207%20dominios%20y%20sus%20umbrales&body=P%C3%A1gina%3A%20%2Fayuda%2Freferencia%2Fdominios%2F%0A%0AQu%C3%A9%20buscaba%3A%0A">Sí, pero falta algo</a>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Los%207%20dominios%20y%20sus%20umbrales&body=P%C3%A1gina%3A%20%2Fayuda%2Freferencia%2Fdominios%2F%0A%0ALo%20que%20no%20encuentro%3A%0A">No lo encuentro</a>
+  </div>
+    </article>
+  </div>
+</div>
+
+<div class="doc-foot">
+  <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
+  <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+</div>
+
+<script src="/ayuda/ayuda.js"></script>
+</body>
+</html>

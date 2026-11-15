@@ -106,7 +106,8 @@ function renderHead(profile) {
   const provisional = profile.provisional
     ? `<span class="prof-provisional">Provisional · ${profile.measured} de ${profile.total} dominios medidos</span>`
     : '';
-  $limited.innerHTML = `Limitado por <b>${esc(lim.name.toLowerCase())}</b>${provisional}`;
+  $limited.innerHTML = `Limitado por <b>${esc(lim.name.toLowerCase())}</b>${provisional}`
+    + ' · <a href="/ayuda/explicacion/el-nivel-es-el-minimo/">cómo se calcula</a>';
 }
 
 // ── Siguiente test ───────────────────────────────────────
@@ -262,10 +263,11 @@ export function renderProfile(db) {
   const banner = (texto) => `<div class="banner banner--neutral"><span class="material-symbols-outlined" aria-hidden="true">info</span><span class="banner-text">${texto}</span></div>`;
   const lista = sinEstimar.map(l => `<b>${esc(l.toLowerCase())}</b>`).join(', ')
     .replace(/, ([^,]*)$/, ' y $1');
+  const enlace = (href, texto) => `<a href="${href}">${texto}</a>`;
   $note.innerHTML = `
-    ${sinPeso ? banner('Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos.') : ''}
-    ${sinEstimar.length ? banner(`Solo tienes series largas de ${lista}. Un 1RM estimado por encima de ${REP_CAP} repeticiones mide resistencia, no fuerza máxima, así que no se calcula. Registra una serie de ${REP_CAP} o menos y el dominio aparece solo.`) : ''}
-    <div class="prof-calib">${esc(CALIBRATION_NOTE)}</div>`;
+    ${sinPeso ? banner(`Los ratios de fuerza necesitan tu peso corporal. Registra una medida en <b>Cuerpo</b> y aparecen solos. ${enlace('/ayuda/guias/peso-corporal/', 'Cómo se registra')}.`) : ''}
+    ${sinEstimar.length ? banner(`Solo tienes series largas de ${lista}. Un 1RM estimado por encima de ${REP_CAP} repeticiones mide resistencia, no fuerza máxima, así que no se calcula. Registra una serie de ${REP_CAP} o menos y el dominio aparece solo. ${enlace('/ayuda/explicacion/como-se-calcula-tu-1rm/', 'Por qué')}.`) : ''}
+    <div class="prof-calib">${esc(CALIBRATION_NOTE)} ${enlace('/ayuda/explicacion/que-mide-arete/', 'Qué mide Areté y qué no')}</div>`;
 
   maybeCelebrateLevelUp(db);
 }

@@ -233,3 +233,16 @@ suelto de Garmin.
 7. **Tabla de umbrales femenina.** Los umbrales de los 7 dominios están calibrados para hombre de
    ~75 kg y así se declara en pantalla (`CALIBRATION_NOTE`). Falta la columna femenina; necesita
    datos normativos, no código.
+
+## Documentación (2026-11-15, al escribir `docs/PROPUESTA-AYUDA.md`)
+
+26. **Las cifras del repo ya no cuadran con el código, y nada lo comprueba.** `AGENTS.md` dice
+    «ontología de 89 ejercicios» y `EXERCISE_ONTOLOGY` tiene **82**; `docs/INFORME-COMPETENCIA.md`
+    describe «10 tools: 6 lectura, 2 propuesta, 1 escritura, 1 prescripción» y `js/ai/tools.js` tiene
+    **14** (8 de lectura, 4 de escritura, 2 de memoria). Ninguna de las dos es una errata grave, pero
+    las dos son la misma clase de error: un número escrito a mano en un documento que describe código
+    que se mueve. La referencia de la ayuda (§5 de la propuesta) se genera de `js/domains.js`,
+    `js/exercise-ontology.js`, `ATAJOS` y el catálogo de planes, y `tests/ayuda.test.js` falla si el
+    documento y el código discrepan — el mismo recurso que ya usan los grafos de FnF y que aquí
+    resolvería también estas dos fichas. Mientras no exista, cualquier cifra nueva en un `.md` se
+    escribe con su fichero de origen al lado. *Esfuerzo: el del generador de la ayuda, no uno aparte.*

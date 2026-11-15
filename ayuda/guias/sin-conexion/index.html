@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trabaja sin conexión — Ayuda de Areté</title>
+<meta name="description" content="Areté es una PWA instalable: entrenar, registrar y consultar funciona sin red. Lo que necesita conexión es Quirón. Y si no ves un cambio, casi siempre es la versión cacheada.">
+<link rel="canonical" href="https://arete.raiatech.com/ayuda/guias/sin-conexion/">
+<meta property="og:title" content="Trabaja sin conexión — Ayuda de Areté">
+<meta property="og:description" content="Areté es una PWA instalable: entrenar, registrar y consultar funciona sin red. Lo que necesita conexión es Quirón. Y si no ves un cambio, casi siempre es la versión cacheada.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/ayuda/guias/sin-conexion/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="doc-body">
+<a class="doc-skip" href="#contenido">Saltar al contenido</a>
+
+<div class="doc-top">
+  <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
+  <div class="doc-search" role="search">
+    <input id="docQ" type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…"
+           aria-label="Buscar en la ayuda" autocomplete="off">
+    <div id="docRes" class="doc-res" hidden></div>
+  </div>
+  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+</div>
+
+<div class="doc-wrap">
+  <div class="doc-side-slot">
+    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">Secciones</button>
+    <div class="doc-side" id="docSide">
+  <div class="doc-side-home"><a href="/ayuda/">Inicio de la ayuda</a></div>
+  <div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/guias/">Guías prácticas</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+    <li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
+    <li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
+    <li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
+    <li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
+    <li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
+    <li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
+    <li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
+    <li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
+    <li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
+    <li><a href="/ayuda/guias/sin-conexion/" aria-current="page">Trabaja sin conexión</a></li>
+    <li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/tutoriales/">Tutoriales</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+    <li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
+    <li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
+    <li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/explicacion/">Explicación</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
+    <li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li>
+    <li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
+    <li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
+    <li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li>
+    <li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
+    <li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/referencia/">Referencia</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/referencia/dominios/">Los 7 dominios y sus umbrales</a></li>
+    <li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
+    <li><a href="/ayuda/referencia/planes/">Planes y formato del plan</a></li>
+    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+    <li><a href="/ayuda/referencia/glosario/">Glosario</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/novedades/">Novedades</a>
+  <ul class="doc-side-list">
+
+  </ul>
+</div>
+</div>
+  </div>
+  <div class="doc-main">
+    <div class="doc-crumbs">
+    <a href="/ayuda/">Ayuda</a> · <a href="/ayuda/guias/">Guías prácticas</a> · <span>Trabaja sin conexión</span>
+  </div>
+    <article class="doc" id="contenido">
+      <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Más · versión de la app</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
+      <h1 class="doc-h1">Trabaja sin conexión</h1><p class="doc-lead">Areté es una PWA instalable: entrenar, registrar y consultar funciona sin red. Lo que necesita conexión es Quirón. Y si no ves un cambio, casi siempre es la versión cacheada.</p>
+      <p>La app se instala desde el navegador (<strong>Añadir a pantalla de inicio</strong>) y a partir de ahí arranca desde su propia caché. En el gimnasio, en el monte o en un sótano, se entrena igual.</p>
+<h2 id="que-funciona-sin-red">Qué funciona sin red</h2>
+<ul><li>Registrar series, sesiones, medidas y carreras manuales.</li><li>Ver perfil, historial, progreso, calendario y récords.</li><li>Importar un GPX/TCX desde un fichero (no necesita red).</li><li>Leer las guías de la ayuda que ya hayas abierto.</li></ul>
+<p>Lo que <strong>no</strong> funciona sin red: Quirón (habla con un proveedor de modelos) y la sincronización con Drive, que reintenta sola cuando vuelve la conexión.</p>
+<h2 id="pasos">Pasos</h2>
+<ol><li>Instala la app desde el navegador y ábrela una vez con red, para que la caché se llene.</li><li>Entrena sin conexión con normalidad. Nada se bloquea.</li><li>Al volver la red, la cola de sincronización sube lo pendiente sin que hagas nada.</li></ol>
+<h2 id="si-no-ves-un-cambio-de-la-app">Si no ves un cambio de la app</h2>
+<p>Es la fiebre de toda PWA: el <strong>service worker</strong> sirve la versión cacheada. Lo que hay que saber:</p>
+<ol><li>Si aparece el aviso <strong>«Nueva versión disponible · Actualizar»</strong>, púlsalo. La app se recarga con la versión nueva.</li><li>Si no aparece, cierra la app del todo y vuelve a abrirla. Al arrancar comprueba si hay versión nueva.</li><li>Para saber qué hay desplegado de verdad, abre <code>/build.json</code>: lleva el commit exacto que se está sirviendo.</li><li><strong>No borres los datos del sitio</strong> para «arreglarlo»: eso borra tus entrenos. La caché se refresca sin tocar el almacenamiento.</li></ol>
+<h2 id="si-algo-va-mal">Si algo va mal</h2>
+<ul><li><strong>Una pantalla en blanco después de actualizar</strong>: cierra y abre. Si sigue, escribe a <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a> con lo que dice <code>/build.json</code>.</li><li><strong>Dos pestañas abiertas</strong>: la vieja puede quedarse con el código anterior. Cierra una.</li><li><strong>Quirón no responde sin cobertura</strong>: es lo esperado. El resto de la app no depende de él.</li></ul>
+<blockquote><a href="/app.html#ajustes">Abrir Ajustes</a></blockquote>
+<h2 id="relacionado">Relacionado</h2>
+<ul><li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li><li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li><li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li></ul>
+      <div class="doc-feedback">
+    <span>¿Te ha servido esta página?</span>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Trabaja%20sin%20conexi%C3%B3n&body=P%C3%A1gina%3A%20%2Fayuda%2Fguias%2Fsin-conexion%2F%0A%0AQu%C3%A9%20buscaba%3A%0A">Sí, pero falta algo</a>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Trabaja%20sin%20conexi%C3%B3n&body=P%C3%A1gina%3A%20%2Fayuda%2Fguias%2Fsin-conexion%2F%0A%0ALo%20que%20no%20encuentro%3A%0A">No lo encuentro</a>
+  </div>
+    </article>
+  </div>
+</div>
+
+<div class="doc-foot">
+  <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
+  <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+</div>
+
+<script src="/ayuda/ayuda.js"></script>
+</body>
+</html>

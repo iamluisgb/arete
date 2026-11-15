@@ -26,7 +26,7 @@
 //
 // Uso: node evals/check.mjs [run]     (sin argumento: el run más reciente)
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { e1rmByExercise, recentPRs } from '../js/ai/metrics.js';
 import { loadFixture, knownExercises, resolveRunDir, loadRun } from './lib.mjs';
@@ -37,6 +37,15 @@ import { SCENARIOS } from './scenarios.mjs';
 // PRs contra los que se juzga un "PR detectado" son los de ESE atleta. Juzgar al novato
 // con los récords del híbrido daría por buena una sentadilla de 110 kg a quien lleva
 // tres entrenos.
+// La guía publicada, para juzgar las citas: se lee del índice que genera
+// `scripts/build-ayuda.mjs`. Si falta, el check de citas simplemente no corre.
+function guiasPublicadas() {
+  const f = join(process.cwd(), 'ayuda/indice.json');
+  if (!existsSync(f)) return [];
+  return JSON.parse(readFileSync(f, 'utf8')).map(x => x.url);
+}
+
+const guias = guiasPublicadas();
 const truths = new Map();
 function truthFor(archetype) {
   if (!truths.has(archetype)) {
@@ -45,6 +54,7 @@ function truthFor(archetype) {
       rms: e1rmByExercise(db.workouts, ref),
       prs: recentPRs(db.workouts, 30, ref),
       known: knownExercises(db),
+      guias,
     }));
   }
   return truths.get(archetype);

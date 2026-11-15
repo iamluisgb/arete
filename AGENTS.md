@@ -317,6 +317,35 @@ Tres reglas:
 Quien tuviera **Drive** activado no necesita nada de esto: `arete.raiatech.com` ya está en
 `ALLOWED_ORIGINS` del Worker de auth, así que le basta con reconectar.
 
+## La ayuda (`docs/ayuda` → `ayuda/`)
+
+La ayuda del producto es un sitio estático que **se commitea**: `docs/ayuda/*.md` es la fuente y
+`ayuda/` lo que se sirve (el deploy es copia directa a Pages, no hay build en producción).
+
+- **Generador**: `node scripts/build-ayuda.mjs` (`npm run build:ayuda`). `--check` no escribe y sale
+  con 1 si el HTML commiteado no es el que produciría el Markdown de hoy. **Hay que regenerar y
+  commitear `ayuda/` en el mismo cambio** que toca los `.md`.
+- **El test lo hace cumplir**: `tests/ayuda.test.js` corre en `npm test` y comprueba la deriva, los
+  enlaces internos (de la ayuda y los de la app hacia ella), los `cubre`/`selector` contra
+  `app.html`/`js/`, las tablas generadas contra `js/domains.js` / `js/exercise-ontology.js` /
+  `js/shortcuts-data.js` / `programs.json`, y que no quede Markdown sin renderizar.
+- **Referencia generada, no escrita**: `{{dominios}}`, `{{ejercicios}}`, `{{atajos}}` y `{{planes}}`
+  los sustituye el generador con datos del código. Si cambia un umbral, la página cambia sola.
+- **Frontmatter**: `title`, `author`, `reviewed_on`, `cuadrante`, `resumen`, `cubre` (texto humano),
+  `selector` (el control real, que el test exige que exista) y `generado_de` (ficheros de los que
+  salen las cifras). La barra de procedencia se pinta con eso.
+- **`ayuda/` está en `PUBLIC`** de `scripts/build-pages.mjs`. Una carpeta nueva de primer nivel que
+  deba publicarse se añade ahí o no se sube.
+- **Offline**: el service worker precachea la portada, la hoja, el índice y cuatro páginas
+  (`sin-conexion`, `primera-sesion`, `tu-primer-dia`, `atajos`). Al tocar cualquiera de ellas, subir
+  `CACHE_NAME` y, si son nuevas, añadirlas a `ASSETS`.
+- **Quirón la lee**: `buscar_ayuda` (`js/ai/ayuda.js`) busca en `ayuda/indice.json` y devuelve
+  extractos con URL. Las URLs son el contrato: el check `cita-guía` de los evals falla si una
+  respuesta cita una página que no existe. El SOUL obliga a citar en preguntas de cómo/por qué.
+- **Enlaces profundos**: `app.html#perfil`, `#cuerpo`, `#entrenar/fuerza|carrera`,
+  `#ajustes/planes|programacion|quiron|copia`. Es lo que sustituye a las capturas de pantalla: una
+  guía enlaza a la pantalla exacta y la app la abre al arrancar (y al cambiar el hash).
+
 ## Quirón (el agente)
 
 Chat con el atleta sobre sus propios datos. Dos capas de contexto, como el agente de

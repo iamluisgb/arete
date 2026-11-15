@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Areté · Ayuda — mockup de la propuesta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Los tokens y componentes son los de la app, no una paleta inventada. -->
+<link rel="stylesheet" href="../app.css">
+<style>
+  /* Solo maquetación del mockup. Todo color, radio y tipo sale de app.css. */
+  body{background:var(--color-surface-0);padding-bottom:var(--sp-10)}
+  .mock{max-width:1040px;margin:0 auto;padding:0 var(--sp-4) var(--sp-10)}
+  .mock-note{font:var(--type-caption);color:var(--color-text-secondary);text-align:center;
+    padding:var(--sp-2) var(--sp-4);border-bottom:1px solid var(--color-line);margin-bottom:var(--sp-6)}
+  .mock-label{font:var(--type-label);letter-spacing:var(--track-label);color:var(--color-text-secondary);
+    margin:var(--sp-8) 0 var(--sp-3);display:flex;align-items:center;gap:var(--sp-2)}
+  .mock-label::after{content:"";flex:1;height:1px;background:var(--color-line)}
+
+  .help-top{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;padding:var(--sp-4) 0}
+  .help-logo{font-weight:800;letter-spacing:-.03em;font-size:var(--fs-xl);color:var(--color-text-primary)}
+  .help-logo span{color:var(--color-accent-text)}
+  .help-logo small{font:var(--type-caption);font-weight:600;color:var(--color-text-secondary);margin-left:var(--sp-2)}
+  /* En móvil la búsqueda va sola, a lo ancho, debajo de la marca y la acción. */
+  .help-search{order:3;flex-basis:100%;margin-top:var(--sp-1)}
+  @media(min-width:720px){.help-search{order:0;flex:1;flex-basis:auto;margin-top:0}}
+  .help-search input{width:100%;background:var(--color-surface-2);border:none;
+    color:var(--color-text-primary);font-family:var(--font);font-size:var(--fs-lg);
+    padding:var(--sp-3) var(--sp-4);border-radius:var(--radius-lg)}
+  .help-h1{font:700 var(--fs-3xl)/1.1 var(--font);letter-spacing:-.03em;margin:var(--sp-5) 0 var(--sp-2);max-width:22ch}
+  .help-sub{font:var(--type-body);color:var(--color-text-secondary);margin-bottom:var(--sp-5);max-width:60ch}
+
+  .doors{display:grid;gap:var(--gap-tight);grid-template-columns:1fr}
+  @media(min-width:640px){.doors{grid-template-columns:1fr 1fr}}
+  .door{background:var(--color-surface-1);border:1px solid var(--color-line);border-radius:var(--radius-lg);
+    padding:var(--pad-card);display:block;color:var(--color-text-primary);text-decoration:none}
+  .door--ink{border-color:var(--color-action-ink);background:var(--color-surface-1)}
+  .door .kicker{font:var(--type-label);letter-spacing:var(--track-label);color:var(--color-text-secondary);
+    text-transform:uppercase}
+  .door h2{font:var(--type-title);letter-spacing:var(--track-title);margin:var(--sp-2) 0 var(--sp-1);color:var(--color-text-primary)}
+  .door p{font:var(--type-body);color:var(--color-text-secondary);margin-bottom:var(--sp-4)}
+  .door .cta{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:var(--fs-md);
+    padding:var(--pad-y-sm) var(--pad-x-md);border-radius:var(--radius-lg)}
+  .door--ink .cta{background:var(--color-action-ink);color:var(--color-action-ink-fg)}
+  .door:not(.door--ink) .cta{border:1px solid var(--color-line-strong)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+  .dots{display:inline-flex;flex-wrap:wrap;gap:var(--sp-2)}
+  .dot-chip{display:inline-flex;align-items:center;gap:6px;padding:var(--sp-2) var(--sp-3);
+    background:var(--color-surface-2);border-radius:var(--radius-lg);font:var(--type-caption);font-weight:600}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+  .grid-5{display:grid;gap:var(--gap-tight);grid-template-columns:1fr;align-items:start}
+  @media(min-width:720px){.grid-5{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:960px){.grid-5{grid-template-columns:repeat(3,1fr)}}
+  .panel .listrow--action{border-top:1px solid var(--color-line)}
+  .panel .listrow--action:first-of-type{border-top:none}
+  .panel .listrow-name{font:var(--type-body)}
+  .panel .listrow-desc{display:block}
+  .n{font:var(--type-caption);color:var(--color-text-tertiary)}
+
+  .quad{display:grid;gap:var(--gap-tight);grid-template-columns:1fr}
+  @media(min-width:720px){.quad{grid-template-columns:repeat(2,1fr)}}
+  .quad .panel p{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-1)}
+
+  /* ── Artículo ── */
+  .art{max-width:var(--measure-prose);margin:0 auto}
+  .proc-bar{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);align-items:center;
+    background:var(--color-surface-2);border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);
+    font:var(--type-caption);color:var(--color-text-secondary)}
+  .proc-bar b{color:var(--color-text-primary)}
+  .proc-bar .tag{background:var(--color-surface-1);border-radius:var(--radius-lg);
+    padding:2px var(--sp-2);font-weight:700;color:var(--color-text-primary)}
+  .art h1{font:700 var(--fs-3xl)/1.1 var(--font);letter-spacing:-.03em;margin:var(--sp-5) 0 var(--sp-2)}
+  .art .lead{font:var(--type-body);color:var(--color-text-secondary);margin-bottom:var(--sp-5)}
+  .art h2{font:var(--type-title-lg);letter-spacing:var(--track-title-lg);margin:var(--sp-6) 0 var(--sp-2)}
+  .art ol{padding-left:var(--sp-5);margin:var(--sp-3) 0}
+  .art li{font:var(--type-body);color:var(--color-text-primary);margin-bottom:var(--sp-2)}
+  .art li b{font-weight:700}
+  .art p{font:var(--type-body);color:var(--color-text-secondary);margin-bottom:var(--sp-3)}
+  .art .check{display:flex;gap:var(--sp-3);align-items:flex-start}
+  .art .check svg{flex-shrink:0;margin-top:3px;color:var(--color-state-success)}
+  .art .fail{background:var(--color-warning-wash);border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4)}
+  .art .fail p{margin:0 0 var(--sp-2);color:var(--color-text-primary)}
+  .art .fail p:last-child{margin:0}
+  .art .foot{border-top:1px solid var(--color-line);margin-top:var(--sp-6);padding-top:var(--sp-3);
+    font:var(--type-caption);color:var(--color-text-secondary);display:flex;flex-wrap:wrap;gap:var(--sp-3)}
+  .art .foot a{color:var(--color-accent-text);font-weight:600}
+
+  /* ── Dentro de la app ── */
+  .app-row{display:grid;gap:var(--gap-stack);grid-template-columns:1fr;align-items:start}
+  @media(min-width:860px){.app-row{grid-template-columns:390px 1fr}}
+  .frame{background:var(--color-surface-0);border:1px solid var(--color-line-strong);
+    border-radius:var(--radius-xl);padding:var(--sp-3);box-shadow:var(--shadow-2)}
+  .fric{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:var(--pad-card)}
+  .fric-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-3)}
+  .fric-head h3{font:var(--type-title);letter-spacing:var(--track-title)}
+  .fric .why{font:var(--type-body);color:var(--color-text-secondary);margin:var(--sp-2) 0 var(--sp-3)}
+  .fric .why b{color:var(--color-text-primary)}
+  .fric .more{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:var(--fs-md);
+    color:var(--color-accent-text)}
+  .ex-card{background:var(--color-surface-1);border-radius:var(--radius-md);
+    padding:var(--sp-3) var(--pad-card);margin-bottom:var(--sp-2)}
+  .ex-name{font:var(--type-body-strong);display:flex;justify-content:space-between;gap:var(--sp-3)}
+  .ex-target{font:var(--type-caption);color:var(--color-text-secondary)}
+  .prog-why{font:var(--type-caption);color:var(--color-text-secondary);margin-top:var(--sp-2)}
+  .prog-why a{color:var(--color-accent-text);font-weight:600}
+  .q-answer{background:var(--color-surface-1);border-radius:var(--radius-lg);padding:var(--pad-card)}
+  .q-answer p{font:var(--type-body);margin-bottom:var(--sp-3);color:var(--color-text-primary)}
+  .q-cite{display:flex;gap:var(--sp-2);align-items:center;background:var(--color-surface-2);
+    border-radius:var(--radius-md);padding:var(--sp-3);font:var(--type-caption);color:var(--color-text-secondary)}
+  .q-cite b{color:var(--color-text-primary)}
+  .mock-foot{max-width:var(--measure-prose);margin:var(--sp-10) auto 0;text-align:center;
+    font:var(--type-caption);color:var(--color-text-tertiary)}
+</style>
+</head>
+<body>
+<p class="mock-note">Mockup · propuesta de ayuda de Areté · tokens y componentes reales de <code>app.css</code> ·
+se mira a 390 y 320 px · las capturas de pantalla no existen a propósito (enlaces profundos, no imágenes)</p>
+
+<div class="mock">
+
+  <!-- ══════════ 1 · PORTADA ══════════ -->
+  <p class="mock-label">Pantalla 1 — la portada de la ayuda</p>
+
+  <div class="help-top">
+    <div class="help-logo">Aret<span>é</span><small>Ayuda</small></div>
+    <div class="help-search"><input type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…" aria-label="Buscar en la ayuda"></div>
+    <a class="btn btn--sm" href="../app.html">Abrir la app</a>
+  </div>
+
+  <h1 class="help-h1">¿Qué quieres hacer hoy?</h1>
+  <p class="help-sub">La ayuda de Areté explica lo que la app decide por ti — y por qué a veces se niega a decidir.</p>
+
+  <div class="doors">
+    <a class="door door--ink" href="#">
+      <span class="kicker">Empieza aquí</span>
+      <h2>Quiero entrenar</h2>
+      <p>De la app vacía a tu primera sesión registrada y tu nivel leído. Cuatro pasos, sin configurar nada.</p>
+      <span class="cta">Tu primer día →</span>
+    </a>
+    <a class="door" href="#">
+      <span class="kicker">Ya entreno</span>
+      <h2>Lo monto a mi manera</h2>
+      <p>Tu plan en JSON, tu historial de otra app, Quirón sin clave, tu copia en Drive.</p>
+      <span class="cta">Tu plan propio →</span>
+    </a>
+  </div>
+
+  <p class="mock-label">Ejes de entrada</p>
+  <div class="chips" style="margin-bottom:var(--sp-4)">
+    <span class="chip">Empiezo hoy</span>
+    <span class="chip">Vengo de otra app</span>
+    <span class="chip">Quiero medirme</span>
+    <span class="chip">Quiero correr</span>
+    <span class="chip">Se me ha roto algo</span>
+  </div>
+  <div class="dots" style="margin-bottom:var(--sp-4)">
+    <span class="dot-chip"><span class="dot" style="background:var(--color-domain-strength)"></span>Fuerza máxima</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-state-info)"></span>Tracción</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-state-danger)"></span>Glicolítico</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-domain-running)"></span>Cardio</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-accent-soft)"></span>Resistencia de fuerza</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-accent-text)"></span>Core</span>
+    <span class="dot-chip"><span class="dot" style="background:var(--color-state-success)"></span>Movilidad</span>
+  </div>
+  <div class="chips">
+    <span class="chip">Gimnasio completo</span>
+    <span class="chip">Una pesa rusa</span>
+    <span class="chip">En casa</span>
+    <span class="chip">Sin material</span>
+    <span class="chip">Solo correr</span>
+  </div>
+
+  <p class="mock-label">Las guías, por pantalla de la app</p>
+  <div class="grid-5">
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Hoy</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Registra tu primera sesión</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Qué te dice «Empieza por aquí»</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Entrenar</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Registra una serie (kg × reps)</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Elige tu plan y tu semana</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Importa una carrera (GPX/TCX)</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Graba una carrera con el GPS</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Perfil</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Haz tu primer test de dominio</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Lee tu nivel sin engañarte</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Mide tus 7 dominios</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Cuerpo</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Registra tu peso corporal</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Por qué sin peso no hay ratios</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Más</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Escribe tu propio plan (JSON)</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Habla con Quirón sin configurar nada</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Copia de seguridad en tu Drive</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Trabaja sin conexión</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+    <section class="panel panel--rows">
+      <h3 class="panel-title">Referencia</h3>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Los 7 dominios y sus umbrales</span><span class="listrow-desc">generada de js/domains.js</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Atajos de teclado</span></span><span class="listrow-chevron">›</span></a>
+      <a class="listrow listrow--action" href="#"><span class="listrow-main"><span class="listrow-name">Glosario: RIR, e1RM, ×BW, AMRAP</span></span><span class="listrow-chevron">›</span></a>
+    </section>
+  </div>
+
+  <!-- ══════════ 2 · ARTÍCULO ══════════ -->
+  <p class="mock-label">Pantalla 2 — una guía práctica, con la barra de procedencia</p>
+
+  <article class="art">
+    <div class="proc-bar">
+      <span>Revisado <b>15-nov-2026</b></span>
+      <span>· Describe la app <b>de esta versión</b></span>
+      <span>· Cubre <b>Entrenar → serie</b></span>
+      <span class="tag">Si esto caduca, se ve caducado</span>
+    </div>
+
+    <h1>Registra una serie</h1>
+    <p class="lead">Una serie es una fila con algo escrito. Los huecos vacíos no cuentan como hechos — por eso la adherencia no se puede inflar.</p>
+
+    <h2>Pasos</h2>
+    <ol>
+      <li>En <b>Entrenar</b>, elige la sesión del día e inicia. El primer ejercicio llega con el peso propuesto y su porqué debajo.</li>
+      <li>Escribe <b>kg</b> y <b>reps</b> de cada serie. El hueco de la siguiente serie repite el peso: si no lo cambias, es la misma carga.</li>
+      <li>Marca la serie hecha con <b>Espacio</b> (escritorio) o el botón de la fila. El temporizador de descanso arranca con la sesión.</li>
+      <li>Al terminar, cierra la sesión. Aparece en <b>Historial</b>, el día se marca en el calendario y el motor de progresión ya tiene de dónde decidir la próxima.</li>
+    </ol>
+
+    <h2>Cómo sabes que funcionó</h2>
+    <p class="check">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>La serie sale en la tabla de <b>Progreso</b> con su carga dibujada — y la siguiente sesión trae un peso que no es el de antes. Si no se mueve, la tabla te dice por qué.</span>
+    </p>
+
+    <h2>Si algo va mal</h2>
+    <div class="fail">
+      <p><b>«Anterior: —».</b> No hay historial de ese ejercicio con ese objetivo de reps. No es un error: la primera vez no hay de dónde copiar.</p>
+      <p><b>El peso no sube nunca.</b> Un estancamiento es fallar <b>al mismo peso</b> tres sesiones. Si cambiaste de plan, el historial se relee contra el objetivo nuevo.</p>
+      <p><b>Un aguante cronometrado («2min»).</b> No es una serie de reps: no entra en la gráfica y se enseña crudo en la tabla.</p>
+    </div>
+
+    <p class="foot">
+      <span>¿Te ha servido? <a href="#">Sí</a> · <a href="#">No</a></span>
+      <span>Relacionado: <a href="#">cómo decide el peso de hoy</a> · <a href="#">por qué a más de 12 reps no hay número</a></span>
+    </p>
+  </article>
+
+  <!-- ══════════ 3 · DENTRO DE LA APP ══════════ -->
+  <p class="mock-label">Pantalla 3 — la misma respuesta en el punto de fricción, y en Quirón</p>
+
+  <div class="app-row">
+    <div class="frame">
+      <div class="ex-card">
+        <div class="ex-name"><span>Sentadilla</span><span>5×5</span></div>
+        <div class="ex-target">S1 · 47,5 kg · 5 reps</div>
+        <p class="prog-why">Sube 5 kg: la última fue 5×5 a 45 y el tren inferior va de 5 en 5. <a href="#">¿por qué?</a></p>
+      </div>
+      <div class="fric">
+        <div class="fric-head">
+          <h3>¿Por qué 47,5 kg?</h3>
+          <span class="n">cerrar</span>
+        </div>
+        <p class="why">Porque cumpliste el objetivo de reps <b>al mismo peso</b> en la última sesión. La subida no se cuadra a la rejilla del salto: 42,5 + 5 son 47,5, no 50.</p>
+        <p class="why">Si hubieras fallado tres sesiones seguidas al mismo peso, tocaría descarga — y te lo diría aquí, no después.</p>
+        <a class="more" href="#">Saber más en la guía →</a>
+      </div>
+    </div>
+
+    <div class="q-answer">
+      <p><b>Tú:</b> ¿por qué mi nivel es III y no IV? Voy bien en casi todo.</p>
+      <p><b>Quirón:</b> Porque tu nivel es el mínimo de tus dominios medidos, no la media. Ahora mismo Fuerza máxima te deja en III (sentadilla 1,32×BW), y Cardio en II por tu mejor 5K de 26:40. El mínimo manda: subir el press no te sube el nivel, bajar el 5K sí.</p>
+      <div class="q-cite">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span><b>Guía:</b> <em>Por qué tu nivel es el mínimo</em> · cifras de <code>js/domains.js</code>, revisado 15-nov-2026</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="mock-foot">Mockup de <code>docs/PROPUESTA-AYUDA.md</code> · portada con dos puertas y ejes (Xero + Notion) · cuadrantes Diátaxis ·
+  referencia generada del código · procedencia con la versión de la app · la ayuda como corpus de Quirón, con cita verificable.</p>
+</div>
+</body>
+</html>

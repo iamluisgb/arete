@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo se calcula tu 1RM — Ayuda de Areté</title>
+<meta name="description" content="Una fórmula de Epley sobre el mejor intento histórico de cada básico, y un tope duro a doce repeticiones. Por encima de ahí la app no estima: devuelve null.">
+<link rel="canonical" href="https://arete.raiatech.com/ayuda/explicacion/como-se-calcula-tu-1rm/">
+<meta property="og:title" content="Cómo se calcula tu 1RM — Ayuda de Areté">
+<meta property="og:description" content="Una fórmula de Epley sobre el mejor intento histórico de cada básico, y un tope duro a doce repeticiones. Por encima de ahí la app no estima: devuelve null.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://arete.raiatech.com/ayuda/explicacion/como-se-calcula-tu-1rm/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+<meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="doc-body">
+<a class="doc-skip" href="#contenido">Saltar al contenido</a>
+
+<div class="doc-top">
+  <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
+  <div class="doc-search" role="search">
+    <input id="docQ" type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…"
+           aria-label="Buscar en la ayuda" autocomplete="off">
+    <div id="docRes" class="doc-res" hidden></div>
+  </div>
+  <a class="btn btn--sm doc-open-app" href="/app.html">Abrir la app</a>
+</div>
+
+<div class="doc-wrap">
+  <div class="doc-side-slot">
+    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">Secciones</button>
+    <div class="doc-side" id="docSide">
+  <div class="doc-side-home"><a href="/ayuda/">Inicio de la ayuda</a></div>
+  <div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/guias/">Guías prácticas</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+    <li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
+    <li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
+    <li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
+    <li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
+    <li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
+    <li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
+    <li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
+    <li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
+    <li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
+    <li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
+    <li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/tutoriales/">Tutoriales</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+    <li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
+    <li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
+    <li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/explicacion/">Explicación</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
+    <li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/" aria-current="page">Cómo se calcula tu 1RM</a></li>
+    <li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
+    <li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
+    <li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li>
+    <li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
+    <li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/referencia/">Referencia</a>
+  <ul class="doc-side-list">
+    <li><a href="/ayuda/referencia/dominios/">Los 7 dominios y sus umbrales</a></li>
+    <li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
+    <li><a href="/ayuda/referencia/planes/">Planes y formato del plan</a></li>
+    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+    <li><a href="/ayuda/referencia/glosario/">Glosario</a></li>
+  </ul>
+</div>
+<div class="doc-side-group">
+  <a class="doc-side-group-title" href="/ayuda/novedades/">Novedades</a>
+  <ul class="doc-side-list">
+
+  </ul>
+</div>
+</div>
+  </div>
+  <div class="doc-main">
+    <div class="doc-crumbs">
+    <a href="/ayuda/">Ayuda</a> · <a href="/ayuda/explicacion/">Explicación</a> · <span>Cómo se calcula tu 1RM</span>
+  </div>
+    <article class="doc" id="contenido">
+      <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Perfil · 1RM estimado</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
+      <h1 class="doc-h1">Cómo se calcula tu 1RM</h1><p class="doc-lead">Una fórmula de Epley sobre el mejor intento histórico de cada básico, y un tope duro a doce repeticiones. Por encima de ahí la app no estima: devuelve null.</p>
+      <p>Tu 1RM no se mide casi nunca — sería caro y arriesgado. Se <strong>estima</strong> a partir de las series que sí haces, con la fórmula de Epley:</p>
+<blockquote><code>1RM ≈ kg × (1 + reps / 30)</code></blockquote>
+<p>Una serie de 100 kg a 5 repeticiones estima 116,7 kg (100 × 1,1667). Una de 80 kg a 3 estima 88 kg.</p>
+<h2 id="el-tope-mas-de-doce-repeticiones-no-cuentan">El tope: más de doce repeticiones no cuentan</h2>
+<p>Epley es razonable hasta unas diez o doce repeticiones. Por encima, la estimación se dispara y el número deja de hablar de fuerza máxima para hablar de resistencia a la fatiga. Por eso la app corta en <strong>12 repeticiones</strong>: por encima, <strong>la serie no estima nada</strong> y no entra en el cálculo.</p>
+<p>No es un tecnicismo. Una serie de 45 kg × 20 estimaría 75 kg. A 75 kg de peso corporal eso es 1,00 ×BW, nivel V en press militar — y como la métrica se queda con el máximo histórico, <strong>una sola serie de volumen fijaría el dominio para siempre</strong>, el mínimo global se iría a otro dominio y el perfil dejaría de señalar tu debilidad real. Que es lo único que hace.</p>
+<h2 id="que-se-queda-con-que">Qué se queda con qué</h2>
+<ul><li>Cada básico (sentadilla, peso muerto, banca, press militar) usa su <strong>mejor e1RM histórico</strong>, de cualquier sesión.</li><li>El resultado se divide por tu <strong>peso corporal más reciente</strong> para dar el ratio ×BW.</li><li>Si un básico no tiene ninguna serie estimable, el perfil lo dice en vez de dejarlo vacío (<code>unratedLifts</code>). Un dominio vacío sin explicación se lee como un fallo de la app.</li></ul>
+<h2 id="donde-verlo">Dónde verlo</h2>
+<p>En <strong>Progreso</strong>, la línea de carga es el mismo Epley, con el mismo tope. La pantalla que dice «cómo voy» y la que dice «de qué estoy limitado» comparten función a propósito: si cada una calculara su propio 1RM, podrían contradecirse con el mismo entreno.</p>
+<h2 id="lo-que-esto-no-es">Lo que esto no es</h2>
+<p>No es un test de fuerza máxima. Un 1RM real se mide con una barra cargada y alguien mirando; esto es una estimación para orientar el entrenamiento y el nivel. Si quieres el número de verdad, se mide — y no se mide todas las semanas.</p>
+<h2 id="relacionado">Relacionado</h2>
+<ul><li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li><li><a href="/ayuda/explicacion/que-mide-arete/">Qué mide Areté y qué no</a></li><li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li></ul>
+      <div class="doc-feedback">
+    <span>¿Te ha servido esta página?</span>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20C%C3%B3mo%20se%20calcula%20tu%201RM&body=P%C3%A1gina%3A%20%2Fayuda%2Fexplicacion%2Fcomo-se-calcula-tu-1rm%2F%0A%0AQu%C3%A9%20buscaba%3A%0A">Sí, pero falta algo</a>
+    <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20C%C3%B3mo%20se%20calcula%20tu%201RM&body=P%C3%A1gina%3A%20%2Fayuda%2Fexplicacion%2Fcomo-se-calcula-tu-1rm%2F%0A%0ALo%20que%20no%20encuentro%3A%0A">No lo encuentro</a>
+  </div>
+    </article>
+  </div>
+</div>
+
+<div class="doc-foot">
+  <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
+  <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/blueprints/">Blueprints</a> · <a href="/app.html">La app</a></span>
+</div>
+
+<script src="/ayuda/ayuda.js"></script>
+</body>
+</html>

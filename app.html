@@ -617,6 +617,16 @@
   <section class="settings-group" aria-labelledby="setGrpAbout">
     <h3 class="group-title" id="setGrpAbout">Acerca de</h3>
     <div class="panel panel--rows">
+      <!-- La ayuda se abre en la misma pestaña: la cabecera de la ayuda trae
+           «Abrir la app» y el atleta vuelve donde estaba (el estado vive en el
+           dispositivo, no en una sesión). -->
+      <a class="listrow listrow--action" href="/ayuda/">
+        <span class="listrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        <span class="listrow-main">Ayuda de Areté</span>
+        <span class="listrow-chevron" aria-hidden="true">›</span>
+      </a>
       <!-- Solo con teclado físico: en táctil no hay atajos que listar. -->
       <button class="listrow listrow--action kbd-only" type="button" id="shortcutsBtn">
         <span class="listrow-icon">

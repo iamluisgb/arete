@@ -1,0 +1,226 @@
+[
+ {
+  "url": "/ayuda/explicacion/como-se-calcula-tu-1rm/",
+  "title": "Cómo se calcula tu 1RM",
+  "cuadrante": "explicacion",
+  "resumen": "Una fórmula de Epley sobre el mejor intento histórico de cada básico, y un tope duro a doce repeticiones. Por encima de ahí la app no estima: devuelve null.",
+  "cubre": "Perfil · 1RM estimado",
+  "texto": "Tu 1RM no se mide casi nunca — sería caro y arriesgado. Se estima a partir de las series que sí haces, con la fórmula de Epley: 1RM ≈ kg × (1 + reps / 30) Una serie de 100 kg a 5 repeticiones estima 116,7 kg (100 × 1,1667). Una de 80 kg a 3 estima 88 kg. El tope: más de doce repeticiones no cuentan Epley es razonable hasta unas diez o doce repeticiones. Por encima, la estimación se dispara y el número deja de hablar de fuerza máxima para hablar de resistencia a la fatiga. Por eso la app corta en 12 repeticiones : por encima, la serie no estima nada y no entra en el cálculo. No es un tecnicismo. Una serie de 45 kg × 20 estimaría 75 kg. A 75 kg de peso corporal eso es 1,00 ×BW, nivel V en press militar — y como la métrica se queda con el máximo histórico, una sola serie de volumen fijaría el dominio para siempre , el mínimo global se iría a otro dominio y el perfil dejaría de señalar tu de"
+ },
+ {
+  "url": "/ayuda/explicacion/el-nivel-es-el-minimo/",
+  "title": "Por qué tu nivel es el mínimo",
+  "cuadrante": "explicacion",
+  "resumen": "El nivel global es el mínimo de los dominios medidos, y el de cada dominio es el mínimo de sus métricas. No es una media, y no es un castigo: es la única regla que no deja esconder una debilidad.",
+  "cubre": "Perfil · nivel",
+  "texto": "Una media premia la especialización. Con un press de banca enorme y un 5K de veintiocho minutos, la media te llamaría «avanzado» y el perfil dejaría de señalar lo único que te falta. Areté hace lo contrario: el nivel es el mínimo . La regla, en dos escalones 1. El nivel de un dominio es el mínimo de sus métricas . Un OHP rezagado no se disuelve entre tres básicos buenos. 2. El nivel global es el mínimo de los dominios medidos . Un dominio flojo manda sobre seis buenos. Y una excepción que no es una excepción: los dominios sin medir no cuentan como cero . Contarlos así convertiría cualquier perfil a medio hacer en nivel I. En su lugar, el perfil se marca provisional y dice cuántos dominios faltan. Un ejemplo con números Supón 82 kg de peso corporal: - Fuerza máxima : sentadilla de 108 kg estimado → 1,32 ×BW → nivel III . - Cardio : mejor 5K en 26:40 → nivel II . - Los otros cinco, medidos"
+ },
+ {
+  "url": "/ayuda/explicacion/el-peso-de-hoy/",
+  "title": "Cómo se decide el peso de hoy",
+  "cuadrante": "explicacion",
+  "resumen": "El peso propuesto no está guardado en ningún sitio: se deriva del historial cada vez que abres la sesión. Sube un salto, se mantiene o descarga, y siempre dice por qué.",
+  "cubre": "Entrenar · peso propuesto",
+  "texto": "El peso que ves al abrir una sesión no es una prescripción guardada: es una función de tu historial , calculada en ese momento. Por eso corregir una serie mal tecleada arregla el objetivo siguiente al instante, y cambiar de plan no obliga a migrar nada: no hay contadores que se puedan desincronizar. Las tres decisiones - Sube si cumpliste el objetivo de reps en la última sesión con ese mismo ejercicio y ese mismo objetivo. El salto depende del material: 2,5 kg en un ejercicio estándar, 5 kg en tren inferior y cadena posterior con barra, y la siguiente pesa de la escala (8, 12, 16, 20, 24…) si es una pesa rusa. - Se mantiene si te quedaste corto de reps: mismo peso, y el texto te dice a cuántas apuntar. - Descarga tras tres sesiones falladas al mismo peso : baja un 10 %, redondeado a algo que se pueda cargar de verdad. Si el redondeo no baja nada, baja un salto entero. Nunca por debajo de"
+ },
+ {
+  "url": "/ayuda/explicacion/por-que-caducan-los-tests/",
+  "title": "Por qué caducan los tests",
+  "cuadrante": "explicacion",
+  "resumen": "42 días los tests baratos, 70 los caros. No se borran al caducar: se marcan, porque un número de hace tres meses ya no describe el cuerpo de hoy.",
+  "cubre": "Perfil · siguiente test",
+  "texto": "Un test es una foto, y tu capacidad cambia. Areté no borra el dato cuando envejece: lo marca como caducado y te propone repetirlo. Un dato viejo es información; un dato viejo presentado como actual, una mentira. Los dos relojes Tipo Qué incluye Validez --- --- --- Barato Core (McGill), movilidad (AKE y dorsiflexión), dominadas 42 días Caro 400 m a tope, Simple & Sinister 70 días La diferencia no es capricho: un test caro pide calentamiento, material y una mañana; repetirlo cada seis semanas no mejora la señal, solo añade fatiga. Los baratos se pueden repetir casi en cualquier sesión. Qué hace la app con la fecha - En Perfil , cada métrica dice Hace N d si viene de un test, o Derivada si sale del historial. - El panel Siguiente test ordena por lo que nunca se midió y, después, por lo que antes caduca. No te manda a repetir el 400 m si te falta medir core. - Un test caducado no cambia tu n"
+ },
+ {
+  "url": "/ayuda/explicacion/que-es-quiron/",
+  "title": "Qué es Quirón y qué no es",
+  "cuadrante": "explicacion",
+  "resumen": "Un coach que lee tus datos y propone, no un generador de planes. Qué herramientas tiene, qué decide él y qué decide el motor, y dónde están sus límites.",
+  "cubre": "Quirón · chat",
+  "texto": "Quirón es el centauro que entrenó a Aquiles. En Areté es lo mismo: no entrena por ti, te ayuda a entrenar con más intención. Escribe en tu idioma, mira tus números y propone — pero no decide por su cuenta. Qué puede hacer - Leer tu historial: sesiones, carreras, medidas, perfil de dominios, plan, catálogo de ejercicios. Ocho herramientas de lectura. - Calcular lo que ya está calculado: el peso que te toca hoy sale del motor de progresión, no de su cabeza. - Proponer una sesión o un plan. Siempre en una tarjeta de confirmación: nada se guarda sin que lo aceptes. - Anotar un entreno que le dictes. - Recordar lo que le cuentes, en una memoria que vive en tu dispositivo y que puedes ver y borrar. La regla que lo hace fiable La progresión tiene una sola fuente de verdad , y es el motor ( js/progression.js ). Antes la regla vivía en el prompt del agente y no solo era no determinista: contradec"
+ },
+ {
+  "url": "/ayuda/explicacion/que-mide-arete/",
+  "title": "Qué mide Areté y qué no",
+  "cuadrante": "explicacion",
+  "resumen": "Siete dominios y trece métricas, calibradas sobre normativos de hombre de unos 75 kg. Fuera de eso, Areté no mide. Esta página es la lista de lo que no hace, escrita a propósito.",
+  "cubre": "Perfil · nota de calibración",
+  "texto": "Un número solo vale si sabes de dónde sale y hasta dónde llega. Esto es lo que Areté mide de verdad, con qué referencias, y la lista de lo que deja fuera. Lo que mide Siete dominios de rendimiento, con trece métricas y cinco niveles cada una: fuerza máxima (cuatro básicos en ratio a tu peso), fuerza de tracción (dominadas estrictas), capacidad glicolítica (400 m), resistencia aeróbica (5K), resistencia de fuerza (Simple & Sinister), resistencia de core (protocolo McGill) y movilidad funcional (AKE y dorsiflexión). Los umbrales exactos están en los 7 dominios. La calibración, sin letra pequeña Los umbrales salen de normativos publicados —StrengthLevel, McGill 2015, Tsatsouline 2013— sobre hombres de unos 75 kg . La app lo dice en el perfil, no lo esconde: Umbrales calibrados sobre normativos de hombre de ~75 kg. Si eres mujer, la referencia de fuerza ronda el 0,7× de estos ratios y el S&S"
+ },
+ {
+  "url": "/ayuda/explicacion/tus-datos/",
+  "title": "Tus datos y quién los ve",
+  "cuadrante": "explicacion",
+  "resumen": "Areté no tiene servidor ni cuentas. Tus datos viven en el navegador y, si quieres, en tu propio Drive. Lo único que sale del dispositivo es lo que le mandas a Quirón.",
+  "cubre": "Más · copia de seguridad",
+  "texto": "Areté es una app estática: no hay backend de Areté, no hay base de datos de usuarios y no hay analítica de producto. Esto no es marketing, es la arquitectura — y explica también sus límites. Dónde viven tus datos En el almacenamiento del navegador de tu dispositivo: entrenos, medidas, carreras, planes y ajustes. Los recorridos GPS y las series de frecuencia cardiaca, que son lo pesado, viven en IndexedDB. Consecuencias directas: - Si borras los datos del sitio, se van. Sin copia, no hay nada que recuperar. - No hay «tu cuenta» que recuperar en otro móvil: la continuidad es la copia de Drive o un fichero. - El navegador no deja que otra web lea tu almacenamiento, aunque sea del mismo autor. La copia, si la activas La copia va a tu propio Google Drive , en la carpeta privada de la app ( appDataFolder ). El permiso se pide una vez y se renueva en silencio. Areté no tiene las llaves de tu Dr"
+ },
+ {
+  "url": "/ayuda/guias/copia-drive/",
+  "title": "Copia de seguridad en tu Drive",
+  "cuadrante": "guias",
+  "resumen": "Tus datos viven en el navegador. Si borras el navegador sin copia, se van con él. Drive es la copia recomendada y la sincronización automática se mantiene sola.",
+  "cubre": "Más · copia de seguridad",
+  "texto": "Areté no tiene servidor. La copia de seguridad es tu propio Google Drive , en una carpeta privada de la app ( appDataFolder ), y el navegador solo guarda el permiso para escribir ahí. Pasos 1. Más → Copia de seguridad . 2. Activa Sincronización automática y autoriza Google. Se abre una ventana de Google: acepta y vuelve; la app recibe el permiso por un canal interno, sin que la clave pase por ninguna web. 3. Espera la primera subida. La fila del índice pasa a Drive · hace un momento . 4. Para llevarte los datos a otro dispositivo, entra ahí con tu cuenta y Restaurar desde Drive . Cómo sabes que funcionó La fila de Copia de seguridad en Más dice cuándo fue la última copia. Desde otro navegador, tras conectar el mismo Google, tu historial, tus medidas y tus planes están ahí. La app hace merge de las dos copias: no se pisan. Si algo va mal - «Falta reconectar» : el permiso caducó. Vuelve a "
+ },
+ {
+  "url": "/ayuda/guias/elegir-plan/",
+  "title": "Elige tu plan y tu semana",
+  "cuadrante": "guias",
+  "resumen": "El plan activo decide qué sesiones ves y qué pesos te propone. La programación semanal reparte las sesiones pendientes entre los días que de verdad entrenas.",
+  "cubre": "Entrenar · plan y fase",
+  "texto": "Un plan es la lista de sesiones de la fase en la que estás. La app trae cuatro (Areté, Efecto Kettlebell, Freeletics y un plan de media maratón) y acepta los tuyos. El plan activo decide qué te enseña Entrenar y contra qué se lee tu historial. Pasos 1. Toca el chip del plan en la cabecera (donde dice el plan y la fase). Se abre Plan y fase . 2. Elige el plan y la fase. La app recarga las sesiones y los pesos propuestos. 3. Entra en Más → Programación semanal y marca los días en los que sueles entrenar: Fuerza por un lado y Running por otro. 4. Vuelve a Hoy : la sesión que toca aparece en el panel de programación, con lo atrasado y las pendientes acumuladas. Cómo sabes que funcionó En Entrenar cambian las sesiones disponibles y en Hoy el panel de hoy te nombra la sesión pendiente que cae en el día. Si te saltas un día, la sesión pasa al día ancla siguiente: no se pierde ni se duplica. Si "
+ },
+ {
+  "url": "/ayuda/guias/grabar-carrera/",
+  "title": "Graba una carrera con el GPS",
+  "cuadrante": "guias",
+  "resumen": "El GPS en vivo solo funciona en la app instalada, donde el sistema deja medir de verdad. En el navegador se importa. Qué permisos pide y qué pasa si la pantalla se apaga.",
+  "cubre": "Entrenar · Carrera · GPS",
+  "texto": "El tracker aparece solo donde puede cumplir : dentro de la app instalada. En el navegador no se enseña, porque watchPosition se estrangula en segundo plano y la app no promete lo que no puede dar. Ahí la vía es importar el fichero. Pasos 1. Entra en Entrenar → Carrera , en la app instalada. 2. Pulsa Iniciar carrera y concede el permiso de ubicación mientras la app está en uso . Mientras corre, el sistema mantiene la medición con un servicio en primer plano y una notificación fija: no la cierres a mano. 3. Corre. La pantalla enseña distancia, tiempo y ritmo en vivo. 4. Al terminar, detén y guarda. La carrera entra en el historial con su recorrido. Cómo sabes que funcionó La carrera aparece con su ruta dibujada en el mapa, importe de kilómetros, ritmo y —si el sensor lo da— zonas de frecuencia cardiaca. El objetivo semanal de la tarjeta de carrera avanza. Si algo va mal - No aparece «Inici"
+ },
+ {
+  "url": "/ayuda/guias/hablar-con-quiron/",
+  "title": "Habla con Quirón sin configurar nada",
+  "cuadrante": "guias",
+  "resumen": "Quirón es el coach de Areté. El primer mensaje pide una demo en tu nombre, sin clave y sin cuenta. Qué ve de tus datos, qué puede escribir y cuándo te pide tu propia clave.",
+  "cubre": "Quirón · chat",
+  "texto": "Quirón no es un chatbot genérico: lee tu historial del dispositivo y responde con tus números. Lo que sale de aquí es tu pregunta y el contexto que él arma; no hay servidor de Areté en medio . Pasos 1. Abre Quirón con 6 , con / o con el botón del coach en Hoy . Desde fuera de la app, app.html#quiron entra directo al chat. 2. Escribe la primera pregunta: «¿por qué mi nivel es III?» , «¿qué peso me toca hoy en sentadilla?» o «móntame una sesión de 30 minutos en casa» . 3. No escribas ninguna clave. El primer envío pide la demo solo y la configura por ti. Verás Demo · sin API key en Más → Quirón (IA) . 4. Si quieres tu propio proveedor (o la demo del día está gastada), abre Más → Quirón (IA) y sigue los tres pasos: proveedor, clave, Probar . Cómo sabes que funcionó La respuesta cita tus datos —fechas, kilos, el dominio que te limita— en vez de hablar en abstracto. Si pide una herramienta, v"
+ },
+ {
+  "url": "/ayuda/guias/importar-carrera/",
+  "title": "Importa una carrera de otra app",
+  "cuadrante": "guias",
+  "resumen": "GPX y TCX se leen aquí mismo, sin cuenta y sin conectar nada. El .FIT todavía no. Lo importado entra en tu historial y alimenta el 5K de tu perfil.",
+  "cubre": "Entrenar · Carrera · importar",
+  "texto": "Areté no compite en tracking con Strava ni Garmin: importa . Un fichero que tú entregas es tuyo, y con eso basta para que el mejor 5K, el calendario y el dominio de cardio funcionen. Pasos 1. Exporta la actividad de tu reloj o de tu app como GPX o TCX (Garmin Connect y Strava lo hacen en dos clics). 2. En Entrenar → Carrera , pulsa Importar del reloj y elige el fichero. 3. Si ya tenías una carrera de ese día con la misma distancia (±0,05 km), la app te avisa antes de duplicarla. 4. Guarda. La carrera entra en Historial con su recorrido, y el mejor 5K se actualiza si mejora. Cómo sabes que funcionó La carrera aparece en el calendario de carrera y en Historial con distancia, tiempo y ritmo. En Perfil , Cardio se mide con tu mejor 5K: si no tenías ninguno, el dominio deja de estar sin medir. Si algo va mal - «Los .FIT todavía no» : el .FIT de Garmin es binario y pide un lector aparte. Expor"
+ },
+ {
+  "url": "/ayuda/guias/leer-tu-nivel/",
+  "title": "Lee tu nivel sin engañarte",
+  "cuadrante": "guias",
+  "resumen": "El nivel del perfil es el mínimo de tus dominios medidos, en romanos del I al V. Qué significa «provisional», qué es «Limitado por» y por qué la media no vale.",
+  "cubre": "Perfil · nivel",
+  "texto": "En Perfil , arriba, hay un número romano y un nombre — de Aprendiz a Atleta Híbrido . No es una nota media: es el mínimo de tus dominios medidos . Si un dominio va por detrás, ese manda, y el perfil te dice cuál es. Pasos 1. Abre Perfil . La cabecera dice Tu nivel es el del dominio más bajo, no la media . 2. Mira Limitado por : te nombra el dominio que te está frenando y, si falta medir alguno, Provisional · N de 7 dominios medidos . 3. Baja al Radar de los 7 dominios . Cada tarjeta trae sus métricas, el valor, el nivel y de dónde sale el dato: Hace 12 d si es un test, Derivada si sale de tu historial. 4. Si quieres el detalle exacto de cada umbral, está en los 7 dominios y sus umbrales. Cómo sabes que funcionó Cuando cambia un nivel, el número de la cabecera cambia y el dominio que sube deja de ser el limitante. Si el perfil sigue provisional , el panel Siguiente test te propone qué med"
+ },
+ {
+  "url": "/ayuda/guias/origen-viejo/",
+  "title": "Recupera tus datos del origen viejo",
+  "cuadrante": "guias",
+  "resumen": "Si instalaste Areté desde luisgonzalezbernal.com/arete, tus datos siguen en ese origen. El traspaso se hace solo al abrir el sitio viejo, y no pasa por ningún servidor.",
+  "cubre": "Hoy",
+  "texto": "Los datos de un navegador viven por origen : luisgonzalezbernal.com y arete.raiatech.com son dos cajones distintos y una web no puede leer el del otro. Por eso el traspaso no puede ser transparente: la única ventana es abrir el sitio viejo como página principal , que es justo lo que pasa al pulsar tu marcador. Pasos 1. Abre https://luisgonzalezbernal.com/arete/ en el mismo navegador donde entrenabas. 2. La página lee tu historial y tus recorridos GPS, los comprime y te lleva a la app nueva con los datos en el fragmento de la dirección — que no viaja al servidor . 3. Si ya tienes datos en el destino, la app pregunta antes de mezclar. Con la app vacía, importa sin molestar. 4. Comprueba que están: Historial , Cuerpo y las carreras con su recorrido. Cómo sabes que funcionó Tus sesiones antiguas aparecen con sus fechas y sus series, y las carreras conservan el recorrido del mapa (los recorri"
+ },
+ {
+  "url": "/ayuda/guias/peso-corporal/",
+  "title": "Registra tu peso corporal",
+  "cuadrante": "guias",
+  "resumen": "Sin peso corporal no hay ratios de fuerza y el dominio de Fuerza máxima se queda sin medir. Dónde se apunta y cómo afecta a todo lo demás.",
+  "cubre": "Cuerpo · registrar medidas",
+  "texto": "El peso corporal es el denominador de medio perfil. Areté lo usa para pasar tus levantamientos a ratio a tu peso (×BW) y para estimar tu 1RM con la fórmula de Epley. Sin él, Fuerza máxima se queda sin medir aunque entrenes todos los días. Pasos 1. Ve a Cuerpo . 2. Pulsa Registrar medidas (o el botón de la tarjeta de peso). 3. Escribe el peso en kilos, con un decimal si lo tienes. Los demás campos —altura, edad, grasa, perímetros— son opcionales y no entran en el cálculo de dominios. 4. Guarda. El registro se fecha hoy y entra en la gráfica de peso. Cómo sabes que funcionó La tarjeta de peso de Hoy y la de Cuerpo muestran el último dato, y en Perfil el dominio de Fuerza máxima deja de decir «Sin medir» en cuanto tienes una serie de algún básico. El cálculo de las cuatro métricas de fuerza usa el peso más reciente : si corriges un peso mal apuntado, los ratios se recalculan solos. Si algo "
+ },
+ {
+  "url": "/ayuda/guias/plan-propio/",
+  "title": "Escribe tu propio plan (JSON)",
+  "cuadrante": "guias",
+  "resumen": "Un plan es un JSON con cuatro fases, un nombre por sesión y una lista de ejercicios. Se escribe a mano o lo genera una IA con la plantilla, y se importa en dos clics.",
+  "cubre": "Más · Tus planes · importar",
+  "texto": "Los planes de Areté son datos, no código. Si sabes escribir una lista, sabes escribir un plan — y si no, la guía de creación de planes trae la plantilla para pedírsela a una IA. Pasos 1. Copia la estructura de un plan incluido ( programs/arete.json está en el repositorio y en el formato de la referencia). 2. Escribe tu plan: claves 1 – 4 para las fases, cada una con name , desc y sessions ; cada sesión con su lista de ejercicios. 3. Cada ejercicio necesita name , sets y reps . type es main para los principales y assist para los accesorios. En reps cabe 5 , 8-10 , F (al fallo) o un aguante ( 2min , 1min/lado ). 4. Guarda el fichero con extensión .json y ve a Más → Tus planes → Importar plan (.json) . 5. Elige el plan en el chip de la cabecera de Entrenar . Aparecerá marcado como Custom . Cómo sabes que funcionó El plan aparece en Tus planes con su nombre y descripción, se puede selecciona"
+ },
+ {
+  "url": "/ayuda/guias/primer-test/",
+  "title": "Haz tu primer test de dominio",
+  "cuadrante": "guias",
+  "resumen": "Un test es un protocolo cerrado, una medida y una fecha. Así se abre, qué hay que anotar y cuándo el perfil deja de ser provisional.",
+  "cubre": "Perfil · radar de dominios",
+  "texto": "Un test de dominio mide una capacidad con un protocolo fijo, para que el número signifique lo mismo cada vez. Mientras no midas nada, el perfil es provisional — y eso no es un castigo: es la app diciéndote que todavía no sabe. Pasos 1. Ve a Perfil . Arriba está el panel Siguiente test : propone el dominio que nunca se ha medido o el que lleva más tiempo caducado. 2. Pulsa Medir . Se abre la hoja del test con tres cosas, siempre en este orden: el protocolo (léelo, es lo que hace comparable la medida), los campos con su unidad y la fecha. 3. Haz la prueba y anota el resultado. Si ya había una medida anterior, la verás debajo como Antes: 1,25×BW · 12-oct-2026 : es contra lo que te vas a comparar. 4. Guardar medida . El resultado aparece con el nivel que acaba de salir y cuándo toca repetirlo. Cómo sabes que funcionó El radar de los 7 dominios se dibuja con un vértice más, el contador de Pro"
+ },
+ {
+  "url": "/ayuda/guias/primera-sesion/",
+  "title": "Registra tu primera sesión",
+  "cuadrante": "guias",
+  "resumen": "Del «Empezar entreno» al «Guardar sesión»: qué escribe cada campo, qué llega al historial y por qué el peso que aparece ya viene decidido.",
+  "cubre": "Entrenar · Fuerza",
+  "texto": "Una sesión se registra en Entrenar → Fuerza . La app carga el plan, propone un peso por serie y lo apunta todo cuando pulsas Guardar sesión . Nada de esto viaja a ningún servidor: escribe en tu dispositivo. Pasos 1. Abre Entrenar y quédate en el modo Fuerza (arriba, junto a Carrera ). 2. Elige la sesión del plan. Si no tienes plan cargado, empieza con Empezar de cero : te deja apuntar los ejercicios que hagas sin prescripción. 3. Cada ejercicio trae sus series con el hueco de kg y de reps . Debajo del peso verás por qué te lo propone ( Sube 5 kg: la última fue 5×5 a 45… ) y el enlace a la regla. 4. Rellena la serie hecha. Espacio la marca en escritorio; en el móvil, el botón de la fila. Los huecos vacíos no cuentan: una serie solo existe si tiene algo escrito. 5. Si quieres que te lleve serie a serie, usa Modo guiado : pantalla completa, descanso cronometrado y la siguiente serie ya enfo"
+ },
+ {
+  "url": "/ayuda/guias/sin-conexion/",
+  "title": "Trabaja sin conexión",
+  "cuadrante": "guias",
+  "resumen": "Areté es una PWA instalable: entrenar, registrar y consultar funciona sin red. Lo que necesita conexión es Quirón. Y si no ves un cambio, casi siempre es la versión cacheada.",
+  "cubre": "Más · versión de la app",
+  "texto": "La app se instala desde el navegador ( Añadir a pantalla de inicio ) y a partir de ahí arranca desde su propia caché. En el gimnasio, en el monte o en un sótano, se entrena igual. Qué funciona sin red - Registrar series, sesiones, medidas y carreras manuales. - Ver perfil, historial, progreso, calendario y récords. - Importar un GPX/TCX desde un fichero (no necesita red). - Leer las guías de la ayuda que ya hayas abierto. Lo que no funciona sin red: Quirón (habla con un proveedor de modelos) y la sincronización con Drive, que reintenta sola cuando vuelve la conexión. Pasos 1. Instala la app desde el navegador y ábrela una vez con red, para que la caché se llene. 2. Entrena sin conexión con normalidad. Nada se bloquea. 3. Al volver la red, la cola de sincronización sube lo pendiente sin que hagas nada. Si no ves un cambio de la app Es la fiebre de toda PWA: el service worker sirve la vers"
+ },
+ {
+  "url": "/ayuda/referencia/atajos/",
+  "title": "Atajos de teclado",
+  "cuadrante": "referencia",
+  "resumen": "La misma lista que abre «?» dentro de la app. Solo con teclado físico: en táctil no hay atajos que disparar.",
+  "cubre": "Más · atajos de teclado",
+  "texto": "Se pulsan sin modificadores, y hay dos guardas que no son opcionales: si el foco está en un campo no hay atajo (escribir «5» en el peso no puede llevarte a otra pestaña) y si hay un diálogo abierto, tampoco — salvo Escape, que cierra. Relacionado - Registra tu primera sesión - Habla con Quirón sin configurar nada"
+ },
+ {
+  "url": "/ayuda/referencia/dominios/",
+  "title": "Los 7 dominios y sus umbrales",
+  "cuadrante": "referencia",
+  "resumen": "Las trece métricas, sus cinco niveles y qué se deriva del historial. Generado de js/domains.js: si cambia un umbral, esta página cambia sola.",
+  "cubre": "Perfil · radar de dominios",
+  "texto": "Los números que deciden tu nivel. Cada tabla es un dominio: las columnas son los cinco niveles y cada fila una métrica con su unidad. Un valor por debajo del nivel I sigue siendo nivel I : haber medido bajo no es lo mismo que no haber medido. Cómo leer «Se deriva del historial» - Sí : la métrica sale de lo que ya registras. En fuerza, del mejor e1RM de tus series; en dominadas, de tu mejor serie estricta sin lastre; en 5K, de tu mejor carrera. - No : exige un test con protocolo y fecha. Sin test, el dominio se queda sin medir. El nivel de un dominio es el mínimo de sus métricas; el global, el mínimo de los dominios medidos. Está explicado en por qué tu nivel es el mínimo. Relacionado - Mide tus 7 dominios - Por qué caducan los tests - Qué mide Areté y qué no"
+ },
+ {
+  "url": "/ayuda/referencia/ejercicios/",
+  "title": "Ejercicios",
+  "cuadrante": "referencia",
+  "resumen": "Los ejercicios que la app reconoce, con su patrón, material, dominios y regresión. Generado de la ontología: lo que no está aquí no tiene ficha, aunque se pueda entrenar.",
+  "cubre": "Entrenar · Fuerza",
+  "texto": "La ontología es la lista cerrada de ejercicios que Areté reconoce. Un ejercicio que no está aquí se puede entrenar y registrar igual, pero no tiene ficha, ni progresión de referencia, ni cuenta para la derivación del perfil . Es la diferencia entre escribir texto libre y nombrar un objeto. Qué significan las columnas - Patrón : el movimiento ( hinge , squat , push h , pull v …). Dos ejercicios del mismo patrón se sustituyen entre sí cuando falta material. - Material : lo mínimo para hacerlo. Es lo que usa la app para proponer alternativas en casa. - Dominios : qué capacidad alimenta. La fuerza máxima solo la mueven los cinco nodos canónicos. - Regresión : la versión más fácil del mismo patrón, para cuando el material o el hombro no dan. Relacionado - Los 7 dominios y sus umbrales - Escribe tu propio plan (JSON) - Qué mide Areté y qué no"
+ },
+ {
+  "url": "/ayuda/referencia/glosario/",
+  "title": "Glosario",
+  "cuadrante": "referencia",
+  "resumen": "Los términos que usa la app, en el único sitio donde se definen. Si una guía introduce una palabra nueva, su definición vive aquí.",
+  "cubre": "Entrenar",
+  "texto": "1RM / e1RM. La carga máxima que podrías levantar una vez. El e es de estimado : Areté casi nunca mide un 1RM real, lo estima con Epley a partir de una serie (cómo). ×BW. Ratio a tu peso corporal. Una sentadilla de 82 kg con 82 kg de peso es 1,00 ×BW. Es la unidad de las métricas de fuerza, y por eso el peso corporal es obligatorio para medirlas. Serie. Una fila con kg y reps. Una serie vacía no cuenta como hecha: por eso la adherencia no se puede inflar. Volumen. Kilos totales movidos: suma de kg × reps de las series. Aparece en Hoy , no en el perfil. Reps al fallo (F). La serie se hace hasta no poder más. El plan lo escribe como F en el campo de reps. No lleva progresión de carga: la referencia es el número de reps que salieron. Aguante. Un objetivo medido en tiempo ( 2min , 1min/lado ), no en repeticiones. No entra en la gráfica de carga ni recibe subidas de peso. Ronda / round. En los"
+ },
+ {
+  "url": "/ayuda/referencia/planes/",
+  "title": "Planes y formato del plan",
+  "cuadrante": "referencia",
+  "resumen": "El JSON de un plan, campo a campo, y los planes que vienen con la app. Generado del catálogo real y de un plan de ejemplo.",
+  "cubre": "Más · fichero de plan",
+  "texto": "Un plan es un JSON con cuatro fases. La app valida el fichero entero antes de importarlo: si algo falta, no entra medio plan. Las reglas que valida la app - Cuatro fases con claves 1 , 2 , 3 y 4 . No se pueden saltar ni renumerar. - Cada fase necesita name , desc y sessions . - Cada sesión es una lista de ejercicios con name , sets y reps . type es opcional ( main o assist ) y solo cambia el orden visual. - reps acepta un número ( 5 ), un rango ( 8-10 ), al fallo ( F ) o un aguante ( 2min , 1min/lado ). Un aguante no lleva progresión de carga: no es una serie de reps. - Los nombres de ejercicio se cruzan con la ontología: los cinco básicos alimentan el perfil, el resto se entrena sin mover el nivel. Relacionado - Escribe tu propio plan (JSON) - Tu primer plan propio - Elige tu plan y tu semana"
+ },
+ {
+  "url": "/ayuda/tutoriales/mide-tus-dominios/",
+  "title": "Mide tus 7 dominios",
+  "cuadrante": "tutoriales",
+  "resumen": "Trece métricas en siete dominios, y no hace falta medirlas todas el mismo día. Qué se deriva del historial, qué exige un test y en qué orden conviene hacerlos.",
+  "cubre": "Perfil · radar de dominios",
+  "texto": "El perfil se dibuja con 7 dominios y 13 métricas . Unas salen solas de lo que ya registras; otras exigen un test con protocolo y fecha. La buena noticia: no necesitas las trece para tener un nivel . Necesitas una por dominio, y de ahí el mínimo. Qué se mide solo - Fuerza máxima — con series de sentadilla, peso muerto, banca y press militar. No hay test que hacer si ya entrenas esos movimientos. - Tracción — con tus dominadas estrictas del historial. - Cardio — con tu mejor 5K, sea de una carrera importada o de una prueba. Qué exige un test Dominio Test Coste --- --- --- Glicolítico 400 m a tope en pista Caro: 70 días de validez Resistencia de fuerza Simple & Sinister completo (100 swings + 10 get-ups) Caro: 70 días Core Protocolo McGill: flexor, extensor y plancha lateral Barato: 42 días Movilidad AKE y dorsiflexión con pared Barato: 42 días Pasos 1. Abre Perfil y mira Siguiente test : p"
+ },
+ {
+  "url": "/ayuda/tutoriales/primer-plan/",
+  "title": "Tu primer plan propio",
+  "cuadrante": "tutoriales",
+  "resumen": "De la plantilla vacía a entrenar tu propio plan. Cuatro fases, sesiones con nombre y ejercicios con series y reps: no hay más.",
+  "cubre": "Más · Tus planes · importar",
+  "texto": "Un plan de Areté es un JSON con cuatro fases. Este tutorial coge la plantilla, la rellena con dos sesiones y la deja entrenándose. Si prefieres que te lo escriba una IA, la guía crear un plan tiene el prompt listo. Pasos 1. Descarga o copia la estructura de programs/arete.json (está en el formato de la referencia). 2. Renombra las fases: 1 , 2 , 3 , 4 son las claves y no se cambian. Dentro, name y desc son tuyos. 3. En sessions , escribe tus sesiones. Un ejemplo mínimo: 4. Rellena también las fases 2 , 3 y 4 (pueden repetir la estructura; la app pide las cuatro). 5. Más → Tus planes → Importar plan (.json) y elige el fichero. 6. Toca el chip del plan en la cabecera de Entrenar y selecciónalo. Terminado cuando - El plan aparece en Tus planes con su nombre y la etiqueta Custom . - Al seleccionarlo, Entrenar enseña Sesión A y Sesión B . - Al empezar una sesión, los ejercicios salen con sus "
+ },
+ {
+  "url": "/ayuda/tutoriales/primera-carrera/",
+  "title": "Tu primera carrera importada",
+  "cuadrante": "tutoriales",
+  "resumen": "De un GPX exportado de tu reloj a tu mejor 5K dentro del perfil. El recorrido, el ritmo y las zonas de FC, sin conectar ninguna cuenta.",
+  "cubre": "Entrenar · Carrera · importar",
+  "texto": "Importar es la vía principal de Areté para correr: no hay que conectar Strava ni Garmin, solo entregar el fichero. En diez minutos tienes tu primera carrera dentro y el dominio de cardio medido. Antes de empezar - Una actividad exportada en GPX o TCX . Desde Garmin Connect: Exportar → GPX . Desde Strava: Exportar GPX en la actividad. - Si no tienes fichero, también vale Registro manual con distancia y tiempo. Pasos 1. Entrenar → Carrera → Importar del reloj . 2. Elige el fichero. Si el .FIT es lo único que tienes, la app te dirá que todavía no lo lee: exporta GPX. 3. Comprueba la fecha y la distancia en la vista previa, y guarda. 4. Abre Historial para ver el recorrido en el mapa y el ritmo. 5. Ve a Perfil . Si esa carrera tiene un 5K, el dominio de Cardio deja de estar sin medir. Terminado cuando - La carrera sale en el calendario y en Historial con su ruta. - Perfil muestra Cardio con "
+ },
+ {
+  "url": "/ayuda/tutoriales/tu-primer-dia/",
+  "title": "Tu primer día",
+  "cuadrante": "tutoriales",
+  "resumen": "De la app vacía a tu primera sesión registrada y tu nivel leído. Cuatro pasos, ninguno obligatorio, y una checklist que se marca sola en Hoy.",
+  "cubre": "Hoy · primeros pasos",
+  "texto": "No hay cuenta que crear. Abres la app, entrenas y los datos se quedan en tu dispositivo. Lo único que hace falta para que el perfil diga algo es darle dos números : tu peso y una medida. La app ya te está enseñando este camino: en Hoy , el panel «Empieza por aquí» lista tres pasos que se marcan solos cuando los cumples. Este tutorial es ese panel, explicado — y con un cuarto paso que la checklist no pide pero que es el que cierra el círculo. Antes de empezar - Nada. No hay registro, no hay correo, no hay tarjeta. - Si vienes de luisgonzalezbernal.com/arete , lee antes recupera tus datos del origen viejo. Pasos 1. Registra tu peso corporal → guía. Es el denominador de todos los ratios de fuerza. Sin él, Fuerza máxima no se puede medir. 2. Haz tu primer test → guía. Con uno basta para salir de provisional . El panel Siguiente test de Perfil propone el más útil. 3. Registra tu primera sesió"
+ }
+]
