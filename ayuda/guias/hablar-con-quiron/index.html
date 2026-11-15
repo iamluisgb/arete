@@ -38,7 +38,7 @@ if (location.hostname === 'arete.raiatech.com') {
            aria-label="Buscar en la ayuda" autocomplete="off">
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app.html" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
+  <a class="btn btn--sm doc-open-app" href="/app" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
 </div>
 
 <div class="doc-wrap">
@@ -111,12 +111,12 @@ if (location.hostname === 'arete.raiatech.com') {
       <h1 class="doc-h1">Habla con Quirón sin configurar nada</h1><p class="doc-lead">Quirón es el coach de Areté. El primer mensaje pide una demo en tu nombre, sin clave y sin cuenta. Qué ve de tus datos, qué puede escribir y cuándo te pide tu propia clave.</p>
       <p>Quirón no es un chatbot genérico: lee tu historial del dispositivo y responde con tus números. Lo que sale de aquí es tu pregunta y el contexto que él arma; <strong>no hay servidor de Areté en medio</strong>.</p>
 <h2 id="pasos">Pasos</h2>
-<ol><li>Abre Quirón con <strong>6</strong>, con <strong>/</strong> o con el botón del coach en <strong>Hoy</strong>. Desde fuera de la app, <code>app.html#quiron</code> entra directo al chat.</li><li>Escribe la primera pregunta: <em>«¿por qué mi nivel es III?»</em>, <em>«¿qué peso me toca hoy en sentadilla?»</em> o <em>«móntame una sesión de 30 minutos en casa»</em>.</li><li><strong>No escribas ninguna clave.</strong> El primer envío pide la demo solo y la configura por ti. Verás <em>Demo · sin API key</em> en <strong>Más → Quirón (IA)</strong>.</li><li>Si quieres tu propio proveedor (o la demo del día está gastada), abre <strong>Más → Quirón (IA)</strong> y sigue los tres pasos: proveedor, clave, <strong>Probar</strong>.</li></ol>
+<ol><li>Abre Quirón con <strong>6</strong>, con <strong>/</strong> o con el botón del coach en <strong>Hoy</strong>. Desde fuera de la app, <code>app#quiron</code> entra directo al chat.</li><li>Escribe la primera pregunta: <em>«¿por qué mi nivel es III?»</em>, <em>«¿qué peso me toca hoy en sentadilla?»</em> o <em>«móntame una sesión de 30 minutos en casa»</em>.</li><li><strong>No escribas ninguna clave.</strong> El primer envío pide la demo solo y la configura por ti. Verás <em>Demo · sin API key</em> en <strong>Más → Quirón (IA)</strong>.</li><li>Si quieres tu propio proveedor (o la demo del día está gastada), abre <strong>Más → Quirón (IA)</strong> y sigue los tres pasos: proveedor, clave, <strong>Probar</strong>.</li></ol>
 <h2 id="como-sabes-que-funciono">Cómo sabes que funcionó</h2>
 <p>La respuesta cita tus datos —fechas, kilos, el dominio que te limita— en vez de hablar en abstracto. Si pide una herramienta, verás qué está mirando (<code>repasando tus sesiones…</code>) antes de que empiece a escribir. Y en <strong>Memoria</strong> puedes ver y borrar lo que ha decidido recordar.</p>
 <h2 id="si-algo-va-mal">Si algo va mal</h2>
 <ul><li><strong>«No se pudo activar la demo»</strong>: el cupo es <strong>por red y por día</strong>. Un rechazo se recuerda hasta mañana; si necesitas seguir hoy, pon tu clave.</li><li><strong>Te pide una clave nada más abrir</strong>: no debería. La demo se pide <strong>al usar</strong> el chat, nunca al cargar la app. Si ocurre, escribe el primer mensaje: ese es el gesto que la pide.</li><li><strong>«Es mucho contexto, ¿envío igualmente?»</strong>: el turno se ha hecho enorme (historial largo o una imagen). Puedes aceptar o cancelar; cancelar no borra nada.</li><li><strong>Contradice al plan</strong>: Quirón <strong>lee</strong> el motor de progresión, no lo calcula. Si dice un peso distinto del que enseña la sesión, manda la sesión; cuéntanoslo.</li><li><strong>No quieres que vea un dominio</strong>: el contexto es lo que hay en tu dispositivo. Si algo no quieres que lo lea, bórralo de la app — no hay interruptor por campo.</li></ul>
-<blockquote><a href="/app.html#quiron">Abrir Quirón</a></blockquote>
+<blockquote><a href="/app#quiron">Abrir Quirón</a></blockquote>
 <h2 id="relacionado">Relacionado</h2>
 <ul><li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li><li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li><li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li></ul>
       <div class="doc-feedback">
@@ -131,7 +131,7 @@ if (location.hostname === 'arete.raiatech.com') {
 <div class="doc-foot">
   <span>Areté es gratis y sin cuenta. Los datos viven en tu dispositivo.</span>
   <span>¿No lo encuentras? <a href="mailto:hola@arete.raiatech.com">hola@arete.raiatech.com</a></span>
-  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app.html">La app</a></span>
+  <span><a href="/blog/">Blog</a> · <a href="/protocolos/">Protocolos</a> · <a href="/app">La app</a></span>
 </div>
 
 <script src="/ayuda/ayuda.js"></script>

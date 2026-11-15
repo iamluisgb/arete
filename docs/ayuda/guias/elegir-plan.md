@@ -39,7 +39,7 @@ ni se duplica.
   sesión; las sesiones siguen en **Entrenar**.
 - **Quiero el plan de alguien**: [importa su JSON](/ayuda/guias/plan-propio/) y aparecerá como *Custom*.
 
-> [Abrir Entrenar](/app.html#entrenar/fuerza)
+> [Abrir Entrenar](/app#entrenar/fuerza)
 
 ## Relacionado
 

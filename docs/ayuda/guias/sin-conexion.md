@@ -48,7 +48,7 @@ Es la fiebre de toda PWA: el **service worker** sirve la versión cacheada. Lo q
 - **Dos pestañas abiertas**: la vieja puede quedarse con el código anterior. Cierra una.
 - **Quirón no responde sin cobertura**: es lo esperado. El resto de la app no depende de él.
 
-> [Abrir Ajustes](/app.html#ajustes)
+> [Abrir Ajustes](/app#ajustes)
 
 ## Relacionado
 

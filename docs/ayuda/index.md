@@ -48,11 +48,11 @@ resumen: La ayuda de Areté explica lo que la app decide por ti — el nivel, el
 
 <p class="doc-axis-title">Por material</p>
 <div class="doc-chips">
-  <a class="doc-chip" href="/blog/programa-arete.html">Gimnasio completo</a>
-  <a class="doc-chip" href="/blog/efecto-kettlebell.html">Una pesa rusa</a>
-  <a class="doc-chip" href="/blog/crear-plan.html">En casa</a>
-  <a class="doc-chip" href="/blog/crear-plan.html">Sin material</a>
-  <a class="doc-chip" href="/blog/crear-plan.html">Solo correr</a>
+  <a class="doc-chip" href="/blog/programa-arete">Gimnasio completo</a>
+  <a class="doc-chip" href="/blog/efecto-kettlebell">Una pesa rusa</a>
+  <a class="doc-chip" href="/blog/crear-plan">En casa</a>
+  <a class="doc-chip" href="/blog/crear-plan">Sin material</a>
+  <a class="doc-chip" href="/blog/crear-plan">Solo correr</a>
 </div>
 
 ## Las guías, por pantalla de la app

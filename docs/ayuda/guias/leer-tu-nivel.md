@@ -42,7 +42,7 @@ salir de ahí.
 - **El nivel te parece injusto por tu peso**: los umbrales son ratios, no kilos absolutos. La
   calibración está explicada en [qué mide Areté y qué no](/ayuda/explicacion/que-mide-arete/).
 
-> [Abrir Perfil](/app.html#perfil)
+> [Abrir Perfil](/app#perfil)
 
 ## Relacionado
 

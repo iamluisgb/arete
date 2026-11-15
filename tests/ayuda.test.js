@@ -53,13 +53,18 @@ const campo = (texto, clave) => {
   return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
 };
 
-/** Resuelve una URL pública a un fichero del repo; null si no es comprobable. */
-function ficheroDe(url) {
+/**
+ * Candidatos a fichero de una URL pública. Pages sirve URLs limpias (`/app`,
+ * `/blog/crear-plan`) y redirige `.html` con 308, así que el test acepta las dos
+ * formas: lo que se exige es que el destino exista, no cómo se escriba.
+ * Devuelve null si la URL no es comprobable desde el repo.
+ */
+function candidatos(url) {
   if (!url || url.startsWith('#') || /^(https?:|mailto:|tel:)/.test(url)) return null;
   const path = url.split('#')[0].split('?')[0];
   if (path === '/build.json') return null; // lo genera el deploy, no el repo
-  if (path.endsWith('/')) return join(ROOT, path, 'index.html');
-  return join(ROOT, path);
+  if (path.endsWith('/')) return [join(ROOT, path, 'index.html')];
+  return [join(ROOT, path), join(ROOT, path) + '.html', join(ROOT, path, 'index.html')];
 }
 
 describe('ayuda: generación', () => {
@@ -88,8 +93,8 @@ describe('ayuda: enlaces', () => {
     for (const f of paginasHtml()) {
       const html = readFileSync(f, 'utf8');
       for (const m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
-        const destino = ficheroDe(m[1]);
-        if (destino && !existsSync(destino)) {
+        const opciones = candidatos(m[1]);
+        if (opciones && !opciones.some(existsSync)) {
           rotos.push(`${relative(ROOT, f)} → ${m[1]}`);
         }
       }
@@ -108,8 +113,8 @@ describe('ayuda: enlaces', () => {
       if (!existsSync(f) || !statSync(f).isFile()) continue;
       const texto = readFileSync(f, 'utf8');
       for (const m of texto.matchAll(/["'`](\/ayuda\/[^"'`\s]*)/g)) {
-        const destino = ficheroDe(m[1]);
-        if (destino && !existsSync(destino)) rotos.push(`${relative(ROOT, f)} → ${m[1]}`);
+        const opciones = candidatos(m[1]);
+        if (opciones && !opciones.some(existsSync)) rotos.push(`${relative(ROOT, f)} → ${m[1]}`);
       }
     }
     expect(rotos).toEqual([]);

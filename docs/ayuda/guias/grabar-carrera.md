@@ -38,7 +38,7 @@ da— zonas de frecuencia cardiaca. El objetivo semanal de la tarjeta de carrera
 - **Dos carreras del mismo día**: si importas la del reloj, borra la del móvil o la app te avisará de
   que ya tienes una de esa fecha y distancia.
 
-> [Abrir Carrera](/app.html#entrenar/carrera)
+> [Abrir Carrera](/app#entrenar/carrera)
 
 ## Relacionado
 

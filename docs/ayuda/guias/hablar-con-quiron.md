@@ -15,7 +15,7 @@ sale de aquí es tu pregunta y el contexto que él arma; **no hay servidor de Ar
 ## Pasos
 
 1. Abre Quirón con **6**, con **/** o con el botón del coach en **Hoy**. Desde fuera de la app,
-   `app.html#quiron` entra directo al chat.
+   `app#quiron` entra directo al chat.
 2. Escribe la primera pregunta: *«¿por qué mi nivel es III?»*, *«¿qué peso me toca hoy en sentadilla?»*
    o *«móntame una sesión de 30 minutos en casa»*.
 3. **No escribas ninguna clave.** El primer envío pide la demo solo y la configura por ti. Verás
@@ -42,7 +42,7 @@ escribir. Y en **Memoria** puedes ver y borrar lo que ha decidido recordar.
 - **No quieres que vea un dominio**: el contexto es lo que hay en tu dispositivo. Si algo no quieres
   que lo lea, bórralo de la app — no hay interruptor por campo.
 
-> [Abrir Quirón](/app.html#quiron)
+> [Abrir Quirón](/app#quiron)
 
 ## Relacionado
 

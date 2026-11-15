@@ -40,7 +40,7 @@ de las dos copias: no se pisan.
 - **Diagnóstico**: si la sincronización falla, el bloque **Diagnóstico de sincronización** dice el
   motivo y desde cuándo, en vez de dejar el aviso en un icono.
 
-> [Abrir Más → Copia de seguridad](/app.html#ajustes/copia)
+> [Abrir Más → Copia de seguridad](/app#ajustes/copia)
 
 ## Relacionado
 

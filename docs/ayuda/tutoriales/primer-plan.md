@@ -11,7 +11,7 @@ resumen: De la plantilla vacía a entrenar tu propio plan. Cuatro fases, sesione
 
 Un plan de Areté es un JSON con cuatro fases. Este tutorial coge la plantilla, la rellena con dos
 sesiones y la deja entrenándose. Si prefieres que te lo escriba una IA, la guía
-[crear un plan](/blog/crear-plan.html) tiene el prompt listo.
+[crear un plan](/blog/crear-plan) tiene el prompt listo.
 
 ## Pasos
 

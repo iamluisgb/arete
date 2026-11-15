@@ -41,7 +41,7 @@ hacer. Si el test era de fuerza, la métrica aparece en el dominio con su fecha.
   repetido cada semana mide el cansancio, no la capacidad: mira
   [por qué caducan los tests](/ayuda/explicacion/por-que-caducan-los-tests/).
 
-> [Abrir Perfil](/app.html#perfil)
+> [Abrir Perfil](/app#perfil)
 
 ## Relacionado
 

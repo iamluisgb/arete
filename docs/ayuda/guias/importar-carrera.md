@@ -37,7 +37,7 @@ La carrera aparece en el calendario de carrera y en **Historial** con distancia,
 - **Quieres apuntarla a mano**: **Registro manual** está al lado. Sirve para cinta, carreras sin reloj
   o cualquier actividad que solo recuerdas.
 
-> [Abrir Carrera](/app.html#entrenar/carrera)
+> [Abrir Carrera](/app#entrenar/carrera)
 
 ## Relacionado
 

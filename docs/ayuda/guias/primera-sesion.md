@@ -43,7 +43,7 @@ de hacer.
 - **Cierras la app a medias**: lo escrito se guarda al vuelo en el dispositivo; la sesión sigue donde
   la dejaste.
 
-> [Abrir Entrenar → Fuerza](/app.html#entrenar/fuerza)
+> [Abrir Entrenar → Fuerza](/app#entrenar/fuerza)
 
 ## Relacionado
 

@@ -38,7 +38,7 @@ ratios se recalculan solos.
   bajas 3 kg sin perder fuerza, subes de nivel. La explicación está en
   [qué mide Areté y qué no](/ayuda/explicacion/que-mide-arete/).
 
-> [Abrir Cuerpo](/app.html#cuerpo)
+> [Abrir Cuerpo](/app#cuerpo)
 
 ## Relacionado
 

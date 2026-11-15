@@ -10,7 +10,7 @@ resumen: Un plan es un JSON con cuatro fases, un nombre por sesión y una lista 
 ---
 
 Los planes de Areté son datos, no código. Si sabes escribir una lista, sabes escribir un plan — y si
-no, [la guía de creación de planes](/blog/crear-plan.html) trae la plantilla para pedírsela a una IA.
+no, [la guía de creación de planes](/blog/crear-plan) trae la plantilla para pedírsela a una IA.
 
 ## Pasos
 
@@ -43,7 +43,7 @@ de reps; si no hay historial, empiezas de cero.
 - **Cambio de plan a mitad de fase**: el historial se juzga contra el objetivo nuevo. Está explicado
   en [cómo se decide el peso de hoy](/ayuda/explicacion/el-peso-de-hoy/).
 
-> [Abrir Más → Tus planes](/app.html#ajustes/planes)
+> [Abrir Más → Tus planes](/app#ajustes/planes)
 
 ## Relacionado
 
