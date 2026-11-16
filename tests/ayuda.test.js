@@ -121,6 +121,64 @@ describe('ayuda: enlaces', () => {
   });
 });
 
+// La orientación dentro de un artículo no es adorno: un índice lateral con un
+// ancla muerta o un pager que se salta una página es peor que no tenerlos.
+describe('ayuda: navegación de la página', () => {
+  const urlDe = (f) => `/ayuda/${relative(AYUDA, f).replace(/index\.html$/, '')}`;
+
+  it('cada artículo con dos o más secciones lleva su índice, y ninguna ancla está muerta', () => {
+    const fallos = [];
+    for (const f of paginasHtml()) {
+      const html = readFileSync(f, 'utf8');
+      const rel = relative(AYUDA, f);
+      const ids = [...html.matchAll(/<h([23]) id="([^"]+)"/g)].map(m => m[2]);
+      // Los índices y la portada usan el ancho entero y no tienen columna de índice.
+      if (/<article class="doc[^"]*doc--(?:portada|indice)/.test(html)) continue;
+      const enlaces = [...html.matchAll(/class="doc-toc-item[^"]*"><a href="#([^"]+)"/g)].map(m => m[1]);
+      if (ids.length >= 2 && !enlaces.length) fallos.push(`${rel}: sin «En esta página»`);
+      if (enlaces.length) {
+        for (const id of ids) if (!enlaces.includes(id)) fallos.push(`${rel}: #${id} fuera del índice`);
+        for (const id of enlaces) if (!ids.includes(id)) fallos.push(`${rel}: #${id} no existe en la página`);
+      }
+    }
+    expect(fallos).toEqual([]);
+  });
+
+  it('el pager encadena todas las páginas una sola vez, de la portada al final', () => {
+    const todas = paginasHtml().map(urlDe);
+    const siguiente = new Map();
+    const anterior = new Map();
+    for (const f of paginasHtml()) {
+      const html = readFileSync(f, 'utf8');
+      const url = urlDe(f);
+      const sig = /doc-pager-siguiente" href="([^"]+)"/.exec(html);
+      const ant = /doc-pager-anterior" href="([^"]+)"/.exec(html);
+      siguiente.set(url, sig ? sig[1] : null);
+      anterior.set(url, ant ? ant[1] : null);
+    }
+
+    // Una sola cadena desde el índice de guías que pasa por todas las páginas
+    // (la portada no lleva pager: es un índice, no un capítulo) y no repite.
+    const inicio = '/ayuda/guias/';
+    const vistas = new Set([inicio]);
+    let actual = inicio;
+    while (siguiente.get(actual)) {
+      actual = siguiente.get(actual);
+      expect(vistas.has(actual), `${actual} aparece dos veces en el pager`).toBe(false);
+      vistas.add(actual);
+    }
+    expect(vistas.size).toBe(todas.length - 1);
+
+    // Cada «siguiente» tiene su «anterior» en la página de destino: nunca se
+    // avanza a un sitio del que no se puede volver.
+    for (const [url, sig] of siguiente) {
+      if (sig) expect(anterior.get(sig), `${url} → ${sig} sin vuelta`).toBe(url);
+    }
+    expect(anterior.get(inicio)).toBe('/ayuda/');
+    expect([...siguiente.values()].filter(Boolean).length).toBe(todas.length - 2);
+  });
+});
+
 describe('ayuda: referencia generada', () => {
   const leer = (ruta) => readFileSync(join(AYUDA, ruta, 'index.html'), 'utf8');
 

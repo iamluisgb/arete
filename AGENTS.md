@@ -334,6 +334,17 @@ La ayuda del producto es un sitio estático que **se commitea**: `docs/ayuda/*.m
 - **Frontmatter**: `title`, `author`, `reviewed_on`, `cuadrante`, `resumen`, `cubre` (texto humano),
   `selector` (el control real, que el test exige que exista) y `generado_de` (ficheros de los que
   salen las cifras). La barra de procedencia se pinta con eso.
+- **La maqueta es una documentación, no un blog**: navegación a la izquierda, prosa en el centro y
+  «En esta página» a la derecha. El índice lateral **lo saca el generador de los `h2`/`h3` ya
+  renderizados** (con el mismo slug que las anclas), así que una sección nueva entra sola; con menos
+  de dos encabezados no se pinta, y en índices y portada tampoco. En pantallas sin tercera columna
+  el mismo índice va plegado antes del artículo, y el pager "Anterior / Siguiente" sigue la secuencia
+  de `GRUPOS` y `orden` (portada → índice de grupo → artículos). `tests/ayuda.test.js` comprueba que
+  ninguna ancla del índice está muerta y que el pager no salta ni repite páginas.
+- **Tema y fuentes**: la ayuda comparte `areteTheme` con la app y lo aplica en el `<head>` antes de
+  pintar (si no, quien usa la app en oscuro ve un destello claro en cada página). El botón de la
+  cabecera cicla automático → claro → oscuro. Las fuentes son las de la app (Inter y JetBrains Mono,
+  por el mismo `link` de Google Fonts que `app.html`); sin ellas la ayuda se lee con la del sistema.
 - **`ayuda/` está en `PUBLIC`** de `scripts/build-pages.mjs`. Una carpeta nueva de primer nivel que
   deba publicarse se añade ahí o no se sube.
 - **Offline**: el service worker precachea la portada, la hoja, el índice y cuatro páginas

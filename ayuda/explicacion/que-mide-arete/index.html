@@ -14,8 +14,26 @@
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
 <meta name="theme-color" content="#f4f2f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)">
+<!-- Inter y JetBrains Mono son las de la app: sin ellas la ayuda se lee con la
+     fuente del sistema y deja de ser el mismo producto. Mismo criterio que
+     app.html (la hoja de Material Symbols ya viaja por aquí). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
 <link rel="stylesheet" href="/ayuda/ayuda.css">
+<!-- El tema se aplica antes de pintar: sin esto, quien elige oscuro en la app ve
+     un destello claro en cada página de la ayuda. Es la misma clave («areteTheme»). -->
+<script>
+(function () {
+  var modo = 'auto';
+  try { modo = localStorage.getItem('areteTheme') || 'auto'; } catch (e) {}
+  if (modo !== 'light' && modo !== 'dark') modo = 'auto';
+  var oscuro = modo === 'dark' || (modo === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  if (oscuro) document.documentElement.classList.add('dark');
+  document.documentElement.setAttribute('data-tema', modo);
+})();
+</script>
 <!-- Umami, el mismo de la landing y la app: solo en producción y sin cookies.
      Mide aperturas de página, no lo que haces dentro de la app. -->
 <script>
@@ -31,97 +49,120 @@ if (location.hostname === 'arete.raiatech.com') {
 <body class="doc-body">
 <a class="doc-skip" href="#contenido">Saltar al contenido</a>
 
-<div class="doc-top">
+<header class="doc-top">
+  <div class="doc-top-inner">
+  <button class="doc-nav-toggle" type="button" aria-expanded="false" aria-controls="docSide" aria-label="Abrir las secciones"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
   <div class="doc-search" role="search">
-    <input id="docQ" type="search" placeholder="Busca: nivel, test, plan, Quirón, copia…"
+    <svg class="doc-search-i" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="docQ" type="search" placeholder="Buscar en la ayuda"
            aria-label="Buscar en la ayuda" autocomplete="off">
+    <kbd class="doc-kbd" aria-hidden="true">/</kbd>
     <div id="docRes" class="doc-res" hidden></div>
   </div>
-  <a class="btn btn--sm doc-open-app" href="/app" data-umami-event="Ayuda: abrir la app">Abrir la app</a>
-</div>
+  <button class="doc-theme" type="button" aria-label="Tema automático. Cambiar a claro" title="Tema automático">
+    <span class="doc-theme-i doc-theme-i--auto" title="Tema automático"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg></span>
+    <span class="doc-theme-i doc-theme-i--light" title="Tema claro"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M5 5l1.8 1.8M17.2 17.2L19 19M19 5l-1.8 1.8M6.8 17.2L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <span class="doc-theme-i doc-theme-i--dark" title="Tema oscuro"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+  </button>
+  <a class="btn btn--sm doc-open-app" href="/app" data-umami-event="Ayuda: abrir la app"><span class="doc-open-app-full">Abrir la app</span><span class="doc-open-app-mini">App</span></a>
+  </div>
+</header>
 
-<div class="doc-wrap">
+<div class="doc-wrap doc-wrap--con-indice">
   <div class="doc-side-slot">
-    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">Secciones</button>
-    <div class="doc-side" id="docSide">
-  <div class="doc-side-home"><a href="/ayuda/">Inicio de la ayuda</a></div>
-  <div class="doc-side-group">
-  <a class="doc-side-group-title" href="/ayuda/guias/">Guías prácticas</a>
-  <ul class="doc-side-list">
-    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
-    <li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
-    <li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
-    <li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
-    <li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
-    <li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
-    <li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
-    <li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
-    <li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
-    <li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
-    <li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
-    <li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li>
-  </ul>
-</div>
-<div class="doc-side-group">
-  <a class="doc-side-group-title" href="/ayuda/tutoriales/">Tutoriales</a>
-  <ul class="doc-side-list">
-    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
-    <li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
-    <li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
-    <li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li>
-  </ul>
-</div>
-<div class="doc-side-group">
-  <a class="doc-side-group-title" href="/ayuda/explicacion/">Explicación</a>
-  <ul class="doc-side-list">
-    <li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
-    <li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li>
-    <li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
-    <li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
-    <li><a href="/ayuda/explicacion/que-mide-arete/" aria-current="page">Qué mide Areté y qué no</a></li>
-    <li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
-    <li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li>
-  </ul>
-</div>
-<div class="doc-side-group">
-  <a class="doc-side-group-title" href="/ayuda/referencia/">Referencia</a>
-  <ul class="doc-side-list">
-    <li><a href="/ayuda/referencia/dominios/">Los 7 dominios y sus umbrales</a></li>
-    <li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
-    <li><a href="/ayuda/referencia/planes/">Planes y formato del plan</a></li>
-    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
-    <li><a href="/ayuda/referencia/glosario/">Glosario</a></li>
-  </ul>
-</div>
-<div class="doc-side-group">
-  <a class="doc-side-group-title" href="/ayuda/novedades/">Novedades</a>
-  <ul class="doc-side-list">
-
-  </ul>
-</div>
-</div>
+    <button class="doc-side-toggle" type="button" aria-expanded="false" aria-controls="docSide">
+      <span>Secciones</span><span class="doc-side-toggle-mark" aria-hidden="true"><svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </button>
+    <div class="doc-side" id="docSide" role="navigation" aria-label="Secciones de la ayuda">
+      <a class="doc-side-home" href="/ayuda/">Inicio</a>
+<details class="doc-side-group">
+  <summary>Guías prácticas<svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <ul class="doc-side-list"><li><a href="/ayuda/guias/">Guías prácticas</a></li>
+<li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+<li><a href="/ayuda/guias/peso-corporal/">Registra tu peso corporal</a></li>
+<li><a href="/ayuda/guias/primer-test/">Haz tu primer test de dominio</a></li>
+<li><a href="/ayuda/guias/leer-tu-nivel/">Lee tu nivel sin engañarte</a></li>
+<li><a href="/ayuda/guias/importar-carrera/">Importa una carrera de otra app</a></li>
+<li><a href="/ayuda/guias/grabar-carrera/">Graba una carrera con el GPS</a></li>
+<li><a href="/ayuda/guias/elegir-plan/">Elige tu plan y tu semana</a></li>
+<li><a href="/ayuda/guias/plan-propio/">Escribe tu propio plan (JSON)</a></li>
+<li><a href="/ayuda/guias/hablar-con-quiron/">Habla con Quirón sin configurar nada</a></li>
+<li><a href="/ayuda/guias/copia-drive/">Copia de seguridad en tu Drive</a></li>
+<li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
+<li><a href="/ayuda/guias/origen-viejo/">Recupera tus datos del origen viejo</a></li></ul>
+</details>
+<details class="doc-side-group">
+  <summary>Tutoriales<svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <ul class="doc-side-list"><li><a href="/ayuda/tutoriales/">Tutoriales</a></li>
+<li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+<li><a href="/ayuda/tutoriales/mide-tus-dominios/">Mide tus 7 dominios</a></li>
+<li><a href="/ayuda/tutoriales/primera-carrera/">Tu primera carrera importada</a></li>
+<li><a href="/ayuda/tutoriales/primer-plan/">Tu primer plan propio</a></li></ul>
+</details>
+<details class="doc-side-group is-current" open>
+  <summary>Explicación<svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <ul class="doc-side-list"><li><a href="/ayuda/explicacion/">Explicación</a></li>
+<li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li>
+<li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li>
+<li><a href="/ayuda/explicacion/el-peso-de-hoy/">Cómo se decide el peso de hoy</a></li>
+<li><a href="/ayuda/explicacion/por-que-caducan-los-tests/">Por qué caducan los tests</a></li>
+<li><a href="/ayuda/explicacion/que-mide-arete/" aria-current="page">Qué mide Areté y qué no</a></li>
+<li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li>
+<li><a href="/ayuda/explicacion/que-es-quiron/">Qué es Quirón y qué no es</a></li></ul>
+</details>
+<details class="doc-side-group">
+  <summary>Referencia<svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <ul class="doc-side-list"><li><a href="/ayuda/referencia/">Referencia</a></li>
+<li><a href="/ayuda/referencia/dominios/">Los 7 dominios y sus umbrales</a></li>
+<li><a href="/ayuda/referencia/ejercicios/">Ejercicios</a></li>
+<li><a href="/ayuda/referencia/planes/">Planes y formato del plan</a></li>
+<li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+<li><a href="/ayuda/referencia/glosario/">Glosario</a></li></ul>
+</details>
+<a class="doc-side-link" href="/ayuda/novedades/">Novedades</a>
+    </div>
   </div>
   <div class="doc-main">
-    <div class="doc-crumbs">
+    <div class="doc-crumbs" role="navigation" aria-label="Ruta">
     <a href="/ayuda/">Ayuda</a> · <a href="/ayuda/explicacion/">Explicación</a> · <span>Qué mide Areté y qué no</span>
   </div>
     <article class="doc" id="contenido">
-      <div class="doc-meta"><span>Revisado <b>15-nov-2026</b></span><span>Cubre <b>Perfil · nota de calibración</b></span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
+      <div class="doc-meta"><span>Revisado el <b>15 nov 2026</b></span><span>Cubre <b>Perfil · nota de calibración</b></span><span>2 min de lectura</span><a class="doc-meta-link" href="/build.json" title="Qué versión está desplegada ahora mismo">versión desplegada</a></div>
       <h1 class="doc-h1">Qué mide Areté y qué no</h1><p class="doc-lead">Siete dominios y trece métricas, calibradas sobre normativos de hombre de unos 75 kg. Fuera de eso, Areté no mide. Esta página es la lista de lo que no hace, escrita a propósito.</p>
+      <details class="doc-toc-inline">
+  <summary>En esta página<svg class="doc-chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <ul class="doc-toc-list">
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-mide">Lo que mide</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#la-calibracion-sin-letra-pequena">La calibración, sin letra pequeña</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-no-mide">Lo que no mide</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-si-puedes-exigirle">Lo que sí puedes exigirle</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#relacionado">Relacionado</a></li>
+  </ul>
+</details>
       <p>Un número solo vale si sabes de dónde sale y hasta dónde llega. Esto es lo que Areté mide de verdad, con qué referencias, y la lista de lo que deja fuera.</p>
-<h2 id="lo-que-mide">Lo que mide</h2>
+<h2 id="lo-que-mide">Lo que mide<a class="doc-ancla" href="#lo-que-mide" tabindex="-1" aria-hidden="true">#</a></h2>
 <p>Siete dominios de rendimiento, con trece métricas —doce con niveles y una de ellas, el AKE, como indicador— y cinco niveles: fuerza máxima (cuatro básicos en ratio a tu peso), fuerza de tracción (dominadas estrictas), capacidad glicolítica (400 m), resistencia aeróbica (5K), resistencia de fuerza (Simple &amp; Sinister), resistencia de core (protocolo McGill) y movilidad funcional (dorsiflexión; el AKE se registra como indicador y no da nivel). Los umbrales exactos están en <a href="/ayuda/referencia/dominios/">los 7 dominios</a>.</p>
-<h2 id="la-calibracion-sin-letra-pequena">La calibración, sin letra pequeña</h2>
+<h2 id="la-calibracion-sin-letra-pequena">La calibración, sin letra pequeña<a class="doc-ancla" href="#la-calibracion-sin-letra-pequena" tabindex="-1" aria-hidden="true">#</a></h2>
 <p>Los umbrales salen de normativos publicados —StrengthLevel, McGill et al. 1999, Tsatsouline 2013— <strong>sobre hombres de unos 75 kg</strong>. La app lo dice en el perfil, no lo esconde:</p>
 <blockquote>Umbrales calibrados sobre normativos de hombre de ~75 kg. Si eres mujer, la referencia de fuerza ronda el 0,7× de estos ratios y el S&amp;S usa 24/32 kg.</blockquote>
 <p>Es una limitación real: <strong>falta la columna femenina</strong> con sus propios normativos, y mientras no exista, una mujer que use la app ve sus niveles de fuerza sistemáticamente bajos. Saberlo no lo arregla, pero permite leerlo.</p>
-<h2 id="lo-que-no-mide">Lo que no mide</h2>
+<h2 id="lo-que-no-mide">Lo que no mide<a class="doc-ancla" href="#lo-que-no-mide" tabindex="-1" aria-hidden="true">#</a></h2>
 <ul><li><strong>Composición corporal.</strong> La grasa y los perímetros se apuntan, no se miden. No hay báscula de bioimpedancia ni estimación a partir de fotos.</li><li><strong>Sueño, HRV y pulso en reposo.</strong> Areté no se conecta a wearables. No hay adaptación del plan a tu recuperación nocturna.</li><li><strong>Nutrición.</strong> Los protocolos de nutrición son contenido, no un registro de macros.</li><li><strong>Técnica.</strong> Ningún número dice si tu sentadilla es bonita. El nivel mide capacidad, no forma.</li><li><strong>Salud.</strong> No hay cribado de lesiones, ni contraindicaciones personalizadas más allá de las que trae la ficha de cada ejercicio.</li><li><strong>VO2max como métrica.</strong> Hay estimaciones para calcular ritmos de carrera, pero no es uno de los trece números del perfil.</li><li><strong>Constancia social.</strong> No hay ranking, ni comparación con otros atletas, ni feed. El perfil se compara contigo.</li></ul>
-<h2 id="lo-que-si-puedes-exigirle">Lo que sí puedes exigirle</h2>
+<h2 id="lo-que-si-puedes-exigirle">Lo que sí puedes exigirle<a class="doc-ancla" href="#lo-que-si-puedes-exigirle" tabindex="-1" aria-hidden="true">#</a></h2>
 <p>Que cada número tenga fecha y origen (<code>Derivada</code> o <code>Hace N d</code>), que un dato que no se puede estimar devuelva <code>null</code> en vez de un número inventado, y que el mínimo global no se disuelva en una media. Si algo de eso falla, es un fallo nuestro: escríbenos.</p>
-<h2 id="relacionado">Relacionado</h2>
+<h2 id="relacionado">Relacionado<a class="doc-ancla" href="#relacionado" tabindex="-1" aria-hidden="true">#</a></h2>
 <ul><li><a href="/ayuda/explicacion/el-nivel-es-el-minimo/">Por qué tu nivel es el mínimo</a></li><li><a href="/ayuda/explicacion/como-se-calcula-tu-1rm/">Cómo se calcula tu 1RM</a></li><li><a href="/ayuda/explicacion/tus-datos/">Tus datos y quién los ve</a></li></ul>
+      <div class="doc-pager" role="navigation" aria-label="Páginas de la ayuda">
+  <a class="doc-pager-link doc-pager-anterior" href="/ayuda/explicacion/por-que-caducan-los-tests/" rel="prev">
+    <span class="doc-pager-dir">← Anterior</span>
+    <span class="doc-pager-title">Por qué caducan los tests</span>
+  </a>
+  <a class="doc-pager-link doc-pager-siguiente" href="/ayuda/explicacion/tus-datos/" rel="next">
+    <span class="doc-pager-dir">Siguiente →</span>
+    <span class="doc-pager-title">Tus datos y quién los ve</span>
+  </a>
+</div>
       <div class="doc-feedback">
     <span>¿Te ha servido esta página?</span>
     <a href="mailto:hola@arete.raiatech.com?subject=Ayuda%3A%20Qu%C3%A9%20mide%20Aret%C3%A9%20y%20qu%C3%A9%20no&body=P%C3%A1gina%3A%20%2Fayuda%2Fexplicacion%2Fque-mide-arete%2F%0A%0AQu%C3%A9%20buscaba%3A%0A">Sí, pero falta algo</a>
@@ -129,6 +170,16 @@ if (location.hostname === 'arete.raiatech.com') {
   </div>
     </article>
   </div>
+  <aside class="doc-toc-slot"><div class="doc-toc" role="navigation" aria-label="En esta página">
+  <p class="doc-toc-title">En esta página</p>
+  <ul class="doc-toc-list">
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-mide">Lo que mide</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#la-calibracion-sin-letra-pequena">La calibración, sin letra pequeña</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-no-mide">Lo que no mide</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#lo-que-si-puedes-exigirle">Lo que sí puedes exigirle</a></li>
+<li class="doc-toc-item doc-toc-item--h2"><a href="#relacionado">Relacionado</a></li>
+  </ul>
+</div></aside>
 </div>
 
 <div class="doc-foot">

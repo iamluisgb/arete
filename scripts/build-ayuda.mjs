@@ -209,6 +209,18 @@ const navGrupos = Object.keys(GRUPOS).map(g => ({
   items: porGrupo(g).map(p => ({ url: p.url, title: p.title })),
 }));
 
+// Una sola secuencia para «Anterior / Siguiente»: portada, y por cada grupo su
+// índice y sus artículos en el mismo orden que la navegación. Es la ruta por la
+// que se lee la ayuda entera, que es lo que un pager promete.
+const secuencia = [];
+const portada = paginas.find(p => p.grupo === 'portada');
+if (portada) secuencia.push(portada);
+for (const g of Object.keys(GRUPOS)) {
+  const indiceGrupo = paginas.find(p => p.grupo === g && p.esIndice);
+  if (indiceGrupo) secuencia.push(indiceGrupo);
+  secuencia.push(...porGrupo(g));
+}
+
 // ── Render una página ────────────────────────────────────
 const salida = new Map();
 
@@ -228,6 +240,10 @@ for (const p of paginas) {
   html = html.replace(/<p>\{\{indice:(\w+)\}\}<\/p>/g, (todo, g) => tarjetas(g));
   html = html.replace(/\{\{indice:(\w+)\}\}/g, (todo, g) => tarjetas(g));
 
+  const pos = secuencia.indexOf(p);
+  const anterior = pos > 0 ? secuencia[pos - 1] : null;
+  const siguiente = pos >= 0 && pos < secuencia.length - 1 ? secuencia[pos + 1] : null;
+
   const body = layout({
     url: p.url,
     title: p.title,
@@ -238,6 +254,8 @@ for (const p of paginas) {
     body: html,
     grupos: navGrupos,
     indice: p.esIndice,
+    prev: anterior && { url: anterior.url, title: anterior.title },
+    next: siguiente && { url: siguiente.url, title: siguiente.title },
   });
   salida.set(join(OUT, p.url.replace(/^\/ayuda\/?/, ''), 'index.html'), body);
 }
