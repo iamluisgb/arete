@@ -101,6 +101,17 @@ body.doc-body {
   text-decoration: none;
   margin-right: auto;
 }
+/* El mismo icono que la cabecera de la app: el logo del producto, no una
+ * segunda marca inventada para la ayuda. Decorativo porque el nombre va al
+ * lado y ya lo dice el texto del enlace. */
+.doc-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: var(--sp-2);
+}
 .doc-brand span { color: var(--color-accent-text); }
 .doc-brand small {
   margin-left: var(--sp-2);

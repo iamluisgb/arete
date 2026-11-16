@@ -223,7 +223,7 @@ if (location.hostname === 'arete.raiatech.com') {
 <header class="doc-top">
   <div class="doc-top-inner">
   <button class="doc-nav-toggle" type="button" aria-expanded="false" aria-controls="docSide" aria-label="Abrir las secciones">${ICONO_MENU}</button>
-  <a class="doc-brand" href="/ayuda/">Aret<span>é</span><small>Ayuda</small></a>
+  <a class="doc-brand" href="/ayuda/"><img class="doc-brand-mark" src="/assets/icons/icon-192.png" alt="" width="28" height="28">Aret<span>é</span><small>Ayuda</small></a>
   <div class="doc-search" role="search">
     ${ICONO_BUSCAR}
     <input id="docQ" type="search" placeholder="Buscar en la ayuda"
