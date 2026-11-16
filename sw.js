@@ -1,6 +1,6 @@
 // Coherence: bump CACHE_NAME whenever ASSETS or the content of ANY file in it
 // changes — the SW is cache-first, so a stale name keeps serving old bytes.
-const CACHE_NAME = 'arete-v224';
+const CACHE_NAME = 'arete-v225';
 const ASSETS = [
   './',
   './app.html',
@@ -354,6 +354,69 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch: network-first with cache fallback (ensures users always get latest version)
+
+// ── Sin conexión: SIEMPRE una respuesta ──────────────────
+//
+// `respondWith` con una promesa que resuelve a `undefined` aborta la navegación
+// con ERR_FAILED: el atleta ve «No se puede acceder a este sitio web» en vez de
+// «estás sin conexión». Pasó el 15-nov-2026 con la ayuda recién publicada y la
+// caché recién estrenada: la petición falló, `caches.match('./app.html')` no
+// tenía nada y el fallback devolvía nada. Un fallback que puede no devolver una
+// respuesta no es un fallback.
+const SIN_CONEXION_AYUDA = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin conexión — Ayuda de Areté</title>
+<style>
+  body{margin:0;font:16px/1.6 -apple-system,system-ui,sans-serif;background:#f4f2f0;color:#1c1b1b;
+       display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+  main{max-width:34rem}
+  h1{font-size:1.5rem;letter-spacing:-.02em;margin:0 0 .5rem}
+  p{color:rgba(93,63,59,.8);margin:0 0 1rem}
+  ul{padding-left:1.1rem;margin:0 0 1.25rem}
+  li{margin:.25rem 0}
+  a{color:#d4372c}
+  button{font:inherit;font-weight:600;background:#1c1b1b;color:#f4f2f0;border:0;
+         border-radius:12px;padding:.7rem 1.1rem;cursor:pointer}
+</style></head>
+<body><main>
+  <h1>Sin conexión</h1>
+  <p>Esta página de la ayuda no está guardada en tu dispositivo y ahora mismo no hay red.
+     Estas cuatro sí funcionan sin conexión:</p>
+  <ul>
+    <li><a href="/ayuda/guias/sin-conexion/">Trabaja sin conexión</a></li>
+    <li><a href="/ayuda/guias/primera-sesion/">Registra tu primera sesión</a></li>
+    <li><a href="/ayuda/tutoriales/tu-primer-dia/">Tu primer día</a></li>
+    <li><a href="/ayuda/referencia/atajos/">Atajos de teclado</a></li>
+  </ul>
+  <button onclick="location.reload()">Reintentar</button>
+</main></body></html>`;
+
+async function respuestaOffline(request) {
+  const guardada = await caches.match(request);
+  if (guardada) return guardada;
+
+  if (request.destination === 'document') {
+    if (new URL(request.url).pathname.startsWith('/ayuda/')) {
+      return new Response(SIN_CONEXION_AYUDA, {
+        status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+    }
+    // Navegación de la app: la cáscara guardada es mejor que nada.
+    for (const shell of ['./app', './app.html', './index.html']) {
+      const app = await caches.match(shell);
+      if (app) return app;
+    }
+    return new Response('Sin conexión', {
+      status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  }
+
+  return new Response('Sin conexión', {
+    status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  });
+}
+
 self.addEventListener('fetch', event => {
   const url = event.request.url;
   if (!url.startsWith('http')) return;
@@ -382,23 +445,18 @@ self.addEventListener('fetch', event => {
     ? new Request(event.request, { cache: 'no-cache' })
     : event.request;
 
-  event.respondWith(
-    fetch(peticion)
-      .then(response => {
-        if (response.ok && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() =>
-        caches.match(event.request).then(cached =>
-          cached || (event.request.destination === 'document'
-            ? caches.match('./app.html')
-            : new Response('Offline', { status: 503 }))
-        )
-      )
-  );
+  event.respondWith((async () => {
+    try {
+      const response = await fetch(peticion);
+      if (response.ok && event.request.method === 'GET') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone)).catch(() => {});
+      }
+      return response;
+    } catch {
+      return respuestaOffline(event.request);
+    }
+  })());
 });
 
 // === Live timer notification ===
